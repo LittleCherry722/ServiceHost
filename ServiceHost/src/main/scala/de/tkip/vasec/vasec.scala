@@ -13,7 +13,9 @@ trait VROI {
   def metricFactor: Double // TODO: enum / discrete interval [1,2,3,4,5]
 
   def intersectLength(a: VPoint, b: VPoint): Double
-  def getBoundary: Seq[VPoint] = Nil // TODO: just an idea, not yet used
+  def getBoundary: Seq[VSinglePoint]
+
+  //def getMetricFactor: Double = TODO
 }
 
 case class VSinglePoint(x: Double, y: Double) extends VPoint
@@ -29,6 +31,7 @@ case class VROIGroup(num: Int, points: Seq[VROI])
 
 case class VCircle(x: Double, y: Double, r: Double, metricFactor: Double = 1.0) extends VROI {
   def intersectLength(a: VPoint, b: VPoint): Double = 0.0 // TODO
+  def getBoundary: Seq[VSinglePoint] = VSinglePoint(x, y) :: Nil // TODO
 }
 
 

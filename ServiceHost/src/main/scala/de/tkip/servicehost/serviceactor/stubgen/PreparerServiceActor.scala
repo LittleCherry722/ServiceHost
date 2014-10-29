@@ -286,10 +286,16 @@ class PreparerServiceActor extends ServiceActor {
 
 
     def process()(implicit actor: ServiceActor) {
-      // TODO: add ROI.boundary if metric >= 3
-      val lists: List[(Int,List[VSinglePoint])] = pois.map(group => (group.num, group.points.toList)).toList
+      var lists: List[(Int,List[VSinglePoint])] = pois.map(group => (group.num, group.points.toList)).toList
+      log.info("prepareDestinationPointcombinations: lists = " + lists.mkString(","))
+      // TODO: was passiert, wenn num > 0 und metric < 3 ?
+      // TODO: filter anpassen wenn diskret
+      lists = lists ++ rois.filterNot(group => group.num == 0).map(group => (group.num, group.points.filter(roi => roi.metricFactor <= 1.0).map(roi => roi.getBoundary).foldLeft(List[VSinglePoint]())((a,b)=>a++b))).toList
+      log.info("prepareDestinationPointcombinations: lists = " + lists.mkString(","))
 
       remainingDestinations = cartesianProductWithTimes(lists)
+
+      log.info("prepareDestinationPointcombinations: remainingDestinations = " + remainingDestinations.mkString(","))
 
       actor.changeState()
     }
