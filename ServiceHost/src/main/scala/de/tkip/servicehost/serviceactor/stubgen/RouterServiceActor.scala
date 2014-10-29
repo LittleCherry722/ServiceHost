@@ -237,78 +237,10 @@ class RouterServiceActor extends ServiceActor {
 
     val stateName = "" //TODO state name
 
-    def compare(a: VPoint, b: VPoint): Int = {
-      import scala.math.Ordered.orderingToOrdered
-      (a.x, a.y) compare (b.x, b.y)
-    }
-
-    def distance(a: VPoint, b: VPoint): Double = {
-      val aa = math.abs(a.x - b.x)
-      val bb = math.abs(a.y - b.y)
-      math.sqrt(aa*aa + bb*bb)
-    }
-
-    def distance(points: List[VPoint]): Double = {
-      points.sliding(2).foldLeft(0.0) {
-        (sum, pair) => sum + distance(pair(0), pair(1))
-      }
-    }
-
-    def getMin[T <: VPoint](from: VPoint, a: T, b: T): T = {
-      val da = distance(from, a)
-      val db = distance(from, b)
-
-      if (da < db) {
-        a
-      }
-      else {
-        b
-      }
-    }
-
-    def tsp(start: VSinglePoint, end: VSinglePoint, points: List[VSinglePoint]): List[VSinglePoint] = {
-      val remaining = points.toBuffer
-      val forwards = scala.collection.mutable.ArrayBuffer[VSinglePoint]()
-      val backwards = scala.collection.mutable.ArrayBuffer[VSinglePoint]()
-
-      forwards += start
-      backwards += end
-
-      while (remaining.length > 0) {
-        val curF = forwards.last
-        val curB = backwards.last
-
-        def opF[T <: VPoint](a: T, b: T): T = {
-          getMin(curF, a, b)
-        }
-
-        def opB[T <: VPoint](a: T, b: T): T = {
-          getMin(curB, a, b)
-        }
-
-        val nextF = remaining.reduce(opF[VSinglePoint])
-        val nextB = remaining.reduce(opB[VSinglePoint])
-
-        val dF = distance(curF, nextF)
-        val dB = distance(curB, nextB)
-
-        if (dF < dB) {
-          remaining.remove(remaining.indexOf(nextF))
-          forwards += nextF
-        }
-        else {
-          remaining.remove(remaining.indexOf(nextB))
-          backwards += nextB
-        }
-      }
-
-      (forwards ++ backwards.reverse).toList
-    }
-
     def process()(implicit actor: ServiceActor) {
-      val sorted: List[VSinglePoint] = tsp(start_end.start, start_end.end, destinations)
+      val sorted: Seq[VSinglePoint] = geometric.tsp(start_end.start, start_end.end, destinations)
 
-      val metric = distance(sorted)
+      val metric = geometric.distance(sorted)
 
       val route: VRoute = VRoute(sorted, metric)
 

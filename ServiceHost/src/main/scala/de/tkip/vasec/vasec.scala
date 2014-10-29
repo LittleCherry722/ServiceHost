@@ -30,7 +30,7 @@ case class VROIGroup(num: Int, points: Seq[VROI])
 
 
 case class VCircle(x: Double, y: Double, r: Double, metricFactor: Double = 1.0) extends VROI {
-  def intersectLength(a: VPoint, b: VPoint): Double = 0.0 // TODO
+  def intersectLength(A: VPoint, B: VPoint): Double = geometric.intersectLength(A, B, this)
   def getBoundary: Seq[VSinglePoint] = VSinglePoint(x, y) :: Nil // TODO
 }
 
@@ -60,3 +60,4 @@ object VasecJsonProtocol extends DefaultJsonProtocol {
   implicit val vPOIGroupFormat = jsonFormat2(VPOIGroup)
   implicit val vROIGroupFormat = jsonFormat2(VROIGroup)
 }
+
