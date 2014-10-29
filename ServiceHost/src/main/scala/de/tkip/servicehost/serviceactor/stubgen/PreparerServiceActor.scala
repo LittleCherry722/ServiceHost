@@ -161,7 +161,7 @@ class PreparerServiceActor extends ServiceActor {
   }
 
   def changeState() {
-    log.debug("changeState: old state: " + state)
+    log.debug("changeState: current state: " + state)
     state match {
       case s: ExitState => {
         log.warning("already in ExitState, can not change state")
@@ -175,11 +175,15 @@ class PreparerServiceActor extends ServiceActor {
 
         } else state = getState(state.targetIds.head._2)
 
+        debug()
+
+        log.debug("changeState: process state: " + state)
+
         // TODO: state könnte null sein, oder auch der alte..
         state.process()
       }
     }
-    log.debug("changeState: new state: " + state)
+    log.debug("changeState: completed state: " + state)
   }
 
   def getState(id: Int): State = {
