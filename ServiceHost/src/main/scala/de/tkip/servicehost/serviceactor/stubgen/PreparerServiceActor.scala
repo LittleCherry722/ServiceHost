@@ -43,8 +43,8 @@ class PreparerServiceActor extends ServiceActor {
       ExitState(10,null,Map(),Map(),null),
       ReceiveState(11,"exitcondition",Map("m3" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m3" -> 14),"Preparer: receive POIs"),
       storeRoutes(13,"exitcondition",Map(),Map("13" -> 18),"store Routes"),
-      storeGreenPointGroups(14,"exitcondition",Map(),Map("14" -> 1),"store POIs"),
-      storeOrangePoints(15,"exitcondition",Map(),Map("15" -> 6),"store ROIs"),
+      storePOIGroups(14,"exitcondition",Map(),Map("14" -> 1),"store POIs"),
+      storeROIs(15,"exitcondition",Map(),Map("15" -> 6),"store ROIs"),
       ReceiveState(16,"exitcondition",Map("m5" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m5" -> 3),"Preparer: receive StartEnd"),
       SendState(17,"exitcondition",Map("m6" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m6" -> 10),"VAR:m6"),
       RemoveRoutesintersectingRedPointsAndIncreaseMetricForOrangePoints(18,"exitcondition",Map(),Map("18" -> 4),"Remove Routes intersecting Red Points"),
@@ -77,7 +77,7 @@ class PreparerServiceActor extends ServiceActor {
 
   private var start_end: VStartEnd = null
   private var pois: Seq[VPOIGroup] = Nil
-  private var rois: Seq[VROIGroup] = Nil
+  private var rois: Seq[VROI] = Nil
   private var destinations: Seq[VSinglePoint] = Nil
   private var route: Seq[VRoute] = Nil
   private var routetmp: Seq[VRoute] = Nil
@@ -241,7 +241,7 @@ class PreparerServiceActor extends ServiceActor {
   }
 
 
-  case class storeGreenPointGroups(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("action", id, exitType, targets, targetIds, text) {
+  case class storePOIGroups(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("action", id, exitType, targets, targetIds, text) {
 
     val stateName = "" //TODO state name
 
@@ -290,11 +290,8 @@ class PreparerServiceActor extends ServiceActor {
 
 
     def process()(implicit actor: ServiceActor) {
-      var lists: List[(Int,List[VSinglePoint])] = pois.map(group => (group.num, group.points.toList)).toList
-      log.info("prepareDestinationPointcombinations: lists = " + lists.mkString(","))
-      // TODO: was passiert, wenn num > 0 und metric < 3 ?
-      // TODO: filter anpassen wenn diskret
-      lists = lists ++ rois.filterNot(group => group.num == 0).map(group => (group.num, group.points.filter(roi => roi.metricFactor <= 1.0).map(roi => roi.getBoundary).foldLeft(List[VSinglePoint]())((a,b)=>a++b))).toList
+      val lists: List[(Int,List[VSinglePoint])] = pois.map(group => (group.num, group.points.toList)).toList
+
       log.info("prepareDestinationPointcombinations: lists = " + lists.mkString(","))
 
       remainingDestinations = cartesianProductWithTimes(lists)
@@ -359,41 +356,34 @@ class PreparerServiceActor extends ServiceActor {
 
     val stateName = "" //TODO state name
 
-    def additionalMetric(pair: Seq[VSinglePoint], gs: Seq[VROIGroup]): Double = {
-      val a: VPoint = pair(0)
-      val b: VPoint = pair(1)
-
-      gs.foldLeft(0.0)( (diff, g) => diff + g.points.foldLeft(0.0)( (diff2, roi) => (roi.metricFactor - 1.0) * roi.intersectLength(a, b)))
-      // TODO: filter metric
+    def additionalMetric(a: VSinglePoint, b: VSinglePoint, gs: Seq[VROI]): Double = {
+      gs.foldLeft(0.0) {
+        (diff, roi) => {
+          val l = roi.intersectLength(a, b)
+          val f = (roi.getMetricFactor - 1.0)
+          diff + f * l
+        }
+      }
     }
 
-    def addAdditionalMetric(rs: Seq[VRoute], gs: Seq[VROIGroup]): Seq[VRoute] = rs.map( r =>
+    def addAdditionalMetric(rs: Seq[VRoute], gs: Seq[VROI]): Seq[VRoute] = rs.map( r =>
       r.copy(
-        metric = r.metric + r.points.sliding(2).foldLeft(0.0)( (sum, pair) => {
-            sum + additionalMetric(pair, gs)
+        metric = r.metric + r.points.sliding(2).foldLeft(0.0){
+          (sum, pair) => {
+            sum + additionalMetric(pair(0), pair(1), gs)
           }
-        )
+        }
       )
     )
 
-    /*
-    def intersects(pair: Seq[VSinglePoint], reds: Array[VRedPoint]): Boolean = {
-      val a: VPoint = pair(0)
-      val b: VPoint = pair(1)
-
-      reds.exists( r => (intersectLength(a, b, r) > 0.0))
-    }
-
-    def filterRed(rs: Array[VRoute], reds: Array[VRedPoint]): Array[VRoute] = rs.filterNot( r => {
+    def filterMetric1(rs: Seq[VRoute]): Seq[VRoute] = rs.filterNot( r => {
       r.points.sliding(2).exists( pair => {
-        intersects(pair, reds)
+        geometric.intersects(pair(0), pair(1), rois)
       })
     })
-    */
 
     def process()(implicit actor: ServiceActor) {
-      //val filtered = filterRed(routetmp, red)
-      val filtered = routetmp
+      val filtered = filterMetric1(routetmp)
 
       val addedMetric = addAdditionalMetric(filtered, rois)
 
@@ -442,7 +432,7 @@ class PreparerServiceActor extends ServiceActor {
     }
   }
 
-  case class storeOrangePoints(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("action", id, exitType, targets, targetIds, text) {
+  case class storeROIs(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("action", id, exitType, targets, targetIds, text) {
 
     val stateName = "" //TODO state name
 
@@ -452,7 +442,7 @@ class PreparerServiceActor extends ServiceActor {
         rois = Nil
       }
       else
-        rois = messageContent.parseJson.convertTo[Seq[VROIGroup]]
+        rois = messageContent.parseJson.convertTo[Seq[VROI]]
 
       actor.changeState()
     }

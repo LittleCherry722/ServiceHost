@@ -14,6 +14,7 @@ import de.tkip.servicehost.serviceactor.stubgen.State
 
 abstract class ServiceActor extends InstrumentedActor {
   protected implicit val service = this
+  protected implicit val loggingAdapter = log
 
   protected def INPUT_POOL_SIZE: Int = 100
   protected def serviceID: ServiceID

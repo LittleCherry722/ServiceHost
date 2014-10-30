@@ -18,6 +18,10 @@ object geometric {
     VSinglePoint((B.x - A.x)*l+A.x, (B.y - A.y)*l+A.y)
   }
 
+  def intersects(a: VSinglePoint, b: VSinglePoint, rois: Seq[VROI]): Boolean = {
+    rois.exists( r => (r.metricFactor == 1 && r.intersectLength(a, b) > 0.0))
+  }
+
 
   // based on http://keith-hair.net/blog/2008/08/05/line-to-circle-intersection-data/
   def intersectLength(A: VPoint, B: VPoint, C: VCircle): Double = {

@@ -76,7 +76,7 @@ class DummyServiceActor extends ServiceActor {
   private var messageContent: String = "" // will be used in getResult
 
   var pois: Seq[VPOIGroup] = Nil
-  var rois: Seq[VROIGroup] = Nil
+  var rois: Seq[VROI] = Nil
 
   override def reset = {
     pois = Nil
@@ -244,32 +244,37 @@ class DummyServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      val argj = messageContent.parseJson.asInstanceOf[JsObject].fields("dummy").asInstanceOf[JsObject].fields("args")
-      val arr = argj.convertTo[String].split(";")
+      val configKey = "dummy"
+      val config = messageContent.parseJson.asInstanceOf[JsObject]
 
-      for (el <- arr) {
-      val args = el.split("\\|")
+      if (config.fields.contains(configKey)) {
+        val argj = config.fields(configKey).asInstanceOf[JsObject].fields("args")
+        val arr = argj.convertTo[String].split(";")
 
-      if (args(0) == "POI") {
-        val data: List[VSinglePoint] = parseFile("poi_" + args(1).toInt)
-        val g = VPOIGroup(args(2).toInt, data)
-        val gg = g :: Nil
+        for (el <- arr) {
+          val args = el.split("\\|")
 
-        pois = gg ++ pois
-      }
-      else if (args(0) == "ROI") {
-        val data: List[VSinglePoint] = parseFile("roi_" + args(1).toInt)
-        val o: List[VROI] = data.map(p => VCircle(p.x, p.y, args(3).toDouble, args(4).toDouble))
+          if (args(0) == "POI") {
+            val data: List[VSinglePoint] = parseFile("poi_" + args(1).toInt)
+            val g = VPOIGroup(args(2).toInt, data)
+            val gg = g :: Nil
 
-        val g = VROIGroup(args(2).toInt, o)
-        val gg = g :: Nil
+            pois = gg ++ pois
+          }
+          else if (args(0) == "ROI") {
+            val data: List[VSinglePoint] = parseFile("roi_" + args(1).toInt)
+            val l: List[VROI] = data.map(p => VCircle(p.x, p.y, args(2).toDouble, args(3).toInt))
 
-        rois = gg ++ rois
+            rois = l ++ rois
+          }
+          else {
+            log.error("unknown args! messageContent = " + messageContent + "")
+            log.error("args: " + args.mkString(","))
+          }
+        }
       }
       else {
-        log.error("unknown: '" + messageContent + "'")
-        log.error("args: '" + args.mkString(",") + "'")
-      }
+        log.warning("config does not contain key \"" + configKey + "\"! messageContent = " + messageContent)
       }
 
       actor.changeState()
