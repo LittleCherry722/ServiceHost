@@ -117,11 +117,7 @@ object Entities {
 
     (Process(None, None, false, """VASEC""", false) -> loadJson("vasec")),
     (Process(None, None, false, """VASEC Bundle""", false) -> loadJson("vasec_bundle")),
-    (Process(None, None, false, """VASEC Bundle Image Loader""", false) -> loadJson("vasec_bundle_imageloader")),
-
-    (Process(None, None, false, """New VASEC""", false) -> loadJson("vasec_new")),
-    (Process(None, None, false, """New VASEC Bundle""", false) -> loadJson("vasec_new_bundle")),
-    (Process(None, None, false, """New VASEC Bundle DummyService""", false) -> loadJson("vasec_new_bundle_dummyservice"))
+    (Process(None, None, false, """VASEC Bundle DummyService""", false) -> loadJson("vasec_bundle_dummyservice"))
 
 //  variables processes
 //    (Process(None, None, false, """Variables to subjects local""", false) -> loadJson("variables_to_subjects_local")),
