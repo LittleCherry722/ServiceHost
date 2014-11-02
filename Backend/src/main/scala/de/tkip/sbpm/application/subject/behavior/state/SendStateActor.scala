@@ -124,7 +124,6 @@ case class SendStateActor(data: StateData)
         // can be blocked until a potentially new subject is created to ensure all available actions will
         // be returned when asking
         messageContent = action.actionData.messageContent
-
         for (transition <- exitTransitions if transition.target.isDefined) {
           blockingHandlerActor ! BlockUser(userID) // TODO handle several targetusers
 
@@ -196,6 +195,7 @@ case class SendStateActor(data: StateData)
     case Stored(messageID) if (messageContent.isDefined &&
       unsentMessageIDs.contains(messageID) // TODO might remove the message ID from unsentMessageIDs?
       ) => {
+
       val transition = unsentMessageIDs(messageID)
       // Create the history message
       val message =
@@ -228,6 +228,9 @@ case class SendStateActor(data: StateData)
       messageContent = None
       remainingStored = 0
       actionChanged(Updated)
+    }
+    case msg: SubjectToSubjectMessage => {
+      context.parent.forward(msg)
     }
   }
 

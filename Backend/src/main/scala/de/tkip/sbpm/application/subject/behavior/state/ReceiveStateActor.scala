@@ -99,6 +99,7 @@ case class ReceiveStateActor(data: StateData)
 
     case InputPoolMessagesChanged(fromSubject, messageType, messages) if (exitTransitionsMap.contains((fromSubject, messageType))) => {
 
+
       log.debug("Receive@" + userID + "/" + subjectID + ": " +
         messages.size + ". Messages \"" +
         messageType + "\" from \"" + fromSubject +

@@ -76,6 +76,7 @@ abstract class ServiceActor extends InstrumentedActor {
       this.processInstanceID = update.processInstanceID
       this.remoteProcessID = update.remoteProcessID
       this.manager = update.manager
+      this.processID = update.processID
     }
 
     case message: ExecuteServiceMessage => {

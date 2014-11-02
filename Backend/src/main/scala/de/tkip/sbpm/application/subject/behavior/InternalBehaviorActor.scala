@@ -231,6 +231,10 @@ class InternalBehaviorActor(
       sender ! -1
     }
 
+    case msg: SubjectToSubjectMessage => {
+      context.parent.forward(msg)
+    }
+
     case n => {
       log.error("InternalBehavior - Not yet supported: " + n + " " + subjectID)
     }

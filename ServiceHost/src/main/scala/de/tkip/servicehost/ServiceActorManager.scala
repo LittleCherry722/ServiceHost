@@ -25,7 +25,6 @@ class ServiceActorManager extends InstrumentedActor {
   private val processkeyMap = collection.mutable.ListBuffer[String]()
   //(processInstanceidentical, processInstanceID)
   private val processInstanceKey = collection.mutable.Map[String, Int]()
-  private val serviceKeyMap = collection.mutable.Map[Int, String]()
   // private val identicalServiceMap = collection.mutable.Map[String, ServiceActorRef]()
   //((processInstanceidentical, SubjectID), aerviceActorref)
   private val identicalServiceMap = collection.mutable.Map[ServiceInstanceKey, ServiceActorRef]()
@@ -46,8 +45,8 @@ class ServiceActorManager extends InstrumentedActor {
       //TODO implement
     }
     case message: SubjectToSubjectMessage => {
-      //??????????????????????????????????????
-      //identicalServiceMap(message.processInstanceidentical.get) forward message
+      val targetServiceID = message.target.subjectID
+      identicalServiceMap(message.processInstanceidentical.get,targetServiceID)forward(message)
     }
     case request: CreateServiceInstance => {
       log.debug("got CreateServiceInstance: " + request)
@@ -62,7 +61,7 @@ class ServiceActorManager extends InstrumentedActor {
           val processInstanceID: ProcessInstanceID = processInstanceKey(request.processInstanceidentical)
           createProcessInstance(processInstanceID, request, serviceInstanceKey)
         } else {
-          //log.debug("ProcessInstance already created: " + request)
+          log.debug("ProcessInstance already created: " + request)
           val processInstanceID: ProcessInstanceID = processInstanceKey(request.processInstanceidentical)
           val persistenceGraph = null
           val processName = request.name + "_" + processInstanceID
@@ -76,9 +75,6 @@ class ServiceActorManager extends InstrumentedActor {
       }
     }
 
-    case msg: AskForProcessInstanceidentical => {
-      sender !! serviceKeyMap(msg.processInstanceID)
-    }
 
     case x => log.warning("not implemented: " + x)
 
@@ -100,9 +96,6 @@ class ServiceActorManager extends InstrumentedActor {
     // TODO: map via processID
     processkeyMap.append(request.processInstanceidentical)
     processInstanceKey += request.processInstanceidentical -> processInstanceID
-    for ((processInstanceIdentical, processInstanceId) <- processInstanceKey) {
-      serviceKeyMap += processInstanceId -> processInstanceIdentical
-    }
     identicalServiceMap += serviceInstanceKey -> actorInstance
     val persistenceGraph = null
     val processName = request.name + "_" + processInstanceID
@@ -111,7 +104,7 @@ class ServiceActorManager extends InstrumentedActor {
     val processInstanceData = ProcessInstanceData(processInstanceID, request.name, request.processID, processName, persistenceGraph, false, startedAt, request.userID, actions)
     val createProcessInstance = CreateProcessInstance(request.userID, request.processID, request.name, request.manager, request.agentsMap)
     sender !! ProcessInstanceCreated(createProcessInstance, actorInstance, processInstanceData)
-    actorInstance !! UpdateProcessData(processInstanceID, remoteProcessID, request.manager.get)
+    actorInstance !! UpdateProcessData(processInstanceID, remoteProcessID,processID,request.manager.get)
     actorInstance !! UpdateServiceInstanceDate(request.agentsMap, request.processInstanceidentical,request.managerUrl)
   }
 }

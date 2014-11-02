@@ -148,6 +148,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
       sender !! Stored(message.messageID)
       // store the message
       enqueueMessage(message)
+      println("msg key: " + message.from + message.messageType)
       log.debug("Inputpool has: " +
         getMessageArray(message.from, message.messageType).mkString("{", ", ", "}"))
       // inform the states about this change
@@ -296,7 +297,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
         Queue[SubjectToSubjectMessage]())
 
     // if the queue is not to big, enqueue the message
-    if (messageQueue.size < messageLimit) {
+    if (messageQueue.size < messageLimit || messageLimit < 0) {
       messageQueue.enqueue(message)
     } else {
       // TODO log error?

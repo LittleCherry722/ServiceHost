@@ -19,7 +19,7 @@ object Messages {
   case class GetClassReferenceMessage(subjectId: SubjectID)
   case class ClassReferenceMessage(subjectId: SubjectID, classReference: Class[_<: ServiceActor])
   case class ServiceResultMessage(result: Any)
-  case class UpdateProcessData(processInstanceID: ProcessInstanceID, remoteProcessID: ProcessInstanceID, manager: ActorRef)
+  case class UpdateProcessData(processInstanceID: ProcessInstanceID, remoteProcessID: ProcessInstanceID,processID: ProcessID, manager: ActorRef)
   case class UpdateServiceInstanceDate(agentsMap: AgentsMap, processInstanceIdentical: String, managerUrl: String)
   case class KillProcess(serviceID: ServiceID, processInstanceID: ProcessInstanceID)
   // Service Messages
