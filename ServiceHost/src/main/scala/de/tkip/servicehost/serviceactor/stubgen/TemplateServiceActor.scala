@@ -32,7 +32,7 @@ import javax.imageio
 import javax.imageio.ImageIO
 
 
-class DummyServiceActor extends ServiceActor {
+class TemplateServiceActor extends ServiceActor {
   override protected val INPUT_POOL_SIZE: Int = 20
   
   override protected val serviceID: ServiceID = "Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557"
@@ -73,7 +73,7 @@ class DummyServiceActor extends ServiceActor {
 
   // Subject default values
   private var target = -1
-  private var messageContent: String = "" // will be used in getResult
+  protected var messageContent: String = "" // will be used in getResult
 
   var pois: Seq[VPOIGroup] = Nil
   var rois: Seq[VROI] = Nil
@@ -210,75 +210,11 @@ class DummyServiceActor extends ServiceActor {
     msg
   }
 
-  def parseFile(typ: String): List[VSinglePoint] = {
-    val path = "./src/main/resources/images/" + typ + ".bmp"
-    log.info("loading file: " + path)
-    var data: List[VSinglePoint] = Nil
-
-    val imagefile = new File(path)
-
-    if (imagefile.exists) {
-      val image: BufferedImage = ImageIO.read(imagefile)
-
-      val width = image.getWidth
-      val height = image.getHeight
-
-      for (x <- 0 until width; y <- 0 until height) {
-        val rgb = image.getRGB(x, y)
-        if (rgb == -16777216) {
-          data = VSinglePoint(x, y) :: data
-        }
-      }
-    }
-    else {
-      log.warning("file does not exist! absolute path: " + imagefile.getAbsolutePath)
-    }
-
-    data
-  }
-
-
-
   case class internalaction(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("action", id, exitType, targets, targetIds, text) {
 
     val stateName = "" //TODO state name
 
-    def process()(implicit actor: ServiceActor) {
-      val configKey = "dummy"
-      val config = messageContent.parseJson.asInstanceOf[JsObject]
-
-      if (config.fields.contains(configKey)) {
-        val argj = config.fields(configKey).asInstanceOf[JsObject].fields("args")
-        val arr = argj.convertTo[String].split(";")
-
-        for (el <- arr) {
-          val args = el.split("\\|")
-
-          if (args(0) == "POI") {
-            val data: List[VSinglePoint] = parseFile("poi_" + args(1).toInt)
-            val g = VPOIGroup(args(2).toInt, data)
-            val gg = g :: Nil
-
-            pois = gg ++ pois
-          }
-          else if (args(0) == "ROI") {
-            val data: List[VSinglePoint] = parseFile("roi_" + args(1).toInt)
-            val l: List[VROI] = data.map(p => VCircle(p.x, p.y, args(2).toDouble, args(3).toInt))
-
-            rois = l ++ rois
-          }
-          else {
-            log.error("unknown args! messageContent = " + messageContent + "")
-            log.error("args: " + args.mkString(","))
-          }
-        }
-      }
-      else {
-        log.warning("config does not contain key \"" + configKey + "\"! messageContent = " + messageContent)
-      }
-
-      actor.changeState()
-    }
+    def process()(implicit actor: ServiceActor) = ???
   }
 
   case class fetchPOIs(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("action", id, exitType, targets, targetIds, text) {

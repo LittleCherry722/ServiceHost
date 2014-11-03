@@ -201,11 +201,17 @@ class BundleServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      val msg: Map[String,Map[String,String]] = if (messageContent == "load test01") {
-          Map("dummy" -> Map("args" -> "POI|1|1;POI|2|1;ROI|1|1.0|2;ROI|2|2.5|1"))
+      val msg: Map[String,Map[String,JsValue]] =
+        if (messageContent == "load test01") {
+          Map(
+              "gasstation" -> Map("fuel" -> "gasoline".toJson),
+              "kiosk" -> Map("articles" -> Set("books", "tobaccos").toJson)
+            )
         }
         else if (messageContent == "load test02") {
-          Map("dummy" -> Map("args" -> "POI|3|1;ROI|3|1.0|2"))
+          Map(
+              "gasstation" -> Map("fuel" -> "gasoline".toJson)
+            )
         }
         else {
           log.warning("unknown messageContent: " + messageContent)

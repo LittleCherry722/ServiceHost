@@ -18,7 +18,7 @@
 			"externalType" : "blackbox",
 			"role" : "default",
 			"url" : null,
-			"implementations" : [],
+			"implementations" : null,
 			"comment" : "",
 			"variables" : {
 				"v1" : "BAR",
@@ -30,15 +30,15 @@
 			"macros" : [{
 					"id" : "##main##",
 					"name" : "internal behavior",
-					"nodeCounter" : 6,
+					"nodeCounter" : 14,
 					"nodes" : [{
 							"id" : 0,
 							"text" : "end",
 							"start" : false,
 							"end" : true,
 							"type" : "end",
-							"manualPositionOffsetX" : 149,
-							"manualPositionOffsetY" : 214,
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
 							"autoExecute" : false,
 							"deactivated" : false,
 							"majorStartNode" : false,
@@ -88,13 +88,13 @@
 								"storevar" : ""
 							}
 						}, {
-							"id" : 1,
-							"text" : "",
+							"id" : 10,
+							"text" : "internal action",
 							"start" : false,
 							"end" : false,
 							"type" : "$blackbox",
-							"manualPositionOffsetX" : -110,
-							"manualPositionOffsetY" : 214,
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
 							"autoExecute" : false,
 							"deactivated" : false,
 							"majorStartNode" : false,
@@ -108,7 +108,35 @@
 								"state" : null
 							},
 							"macro" : "",
-							"blackboxname" : "vasec_bundle_dummy",
+							"blackboxname" : "vasec_bundle_kiosk",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 13,
+							"text" : "",
+							"start" : false,
+							"end" : false,
+							"type" : "$blackbox",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "vasec_bundle_winterservices",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
@@ -121,8 +149,8 @@
 							"start" : true,
 							"end" : false,
 							"type" : "action",
-							"manualPositionOffsetX" : -110,
-							"manualPositionOffsetY" : -1,
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
 							"autoExecute" : false,
 							"deactivated" : false,
 							"majorStartNode" : true,
@@ -137,6 +165,62 @@
 							},
 							"macro" : "",
 							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 12,
+							"text" : "",
+							"start" : false,
+							"end" : false,
+							"type" : "$blackbox",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "vasec_bundle_traffic",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 7,
+							"text" : "internal action",
+							"start" : false,
+							"end" : false,
+							"type" : "$blackbox",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "vasec_bundle_gasstation",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
@@ -171,81 +255,9 @@
 								"operation" : "and",
 								"storevar" : ""
 							}
-						}, {
-							"id" : 4,
-							"text" : "VASEC Bundle: select Service",
-							"start" : false,
-							"end" : false,
-							"type" : "action",
-							"manualPositionOffsetX" : 73,
-							"manualPositionOffsetY" : 233,
-							"autoExecute" : false,
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"macro" : "",
-							"blackboxname" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							}
 						}
 					],
 					"edges" : [{
-							"start" : 4,
-							"end" : 1,
-							"text" : "Dummy Service",
-							"type" : "exitcondition",
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0,
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : "",
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"]
-						}, {
-							"start" : 1,
-							"end" : 4,
-							"text" : "",
-							"type" : "exitcondition",
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0,
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"]
-						}, {
-							"start" : 4,
-							"end" : 0,
-							"text" : "continue",
-							"type" : "exitcondition",
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0,
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : "",
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"]
-						}, {
 							"start" : 2,
 							"end" : 3,
 							"text" : "load preconfigured config",
@@ -262,7 +274,7 @@
 							"transportMethod" : ["internal"]
 						}, {
 							"start" : 2,
-							"end" : 4,
+							"end" : 7,
 							"text" : "configure each service manual",
 							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
@@ -299,11 +311,11 @@
 							"transportMethod" : ["internal"]
 						}, {
 							"start" : 5,
-							"end" : 4,
+							"end" : 7,
 							"text" : "m10",
 							"type" : "exitcondition",
-							"manualPositionOffsetLabelX" : -125,
-							"manualPositionOffsetLabelY" : 2,
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
 								"id" : "Subj2:6a9c2736-533f-4cd7-8cfe-804fe3a24a0d",
 								"min" : -1,
@@ -316,6 +328,62 @@
 							"priority" : 1,
 							"manualTimeout" : false,
 							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 7,
+							"end" : 10,
+							"text" : "",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 12,
+							"end" : 13,
+							"text" : "",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 13,
+							"end" : 0,
+							"text" : "",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 10,
+							"end" : 12,
+							"text" : "",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
 							"correlationId" : "",
 							"comment" : "",
 							"transportMethod" : ["internal"]
@@ -343,7 +411,7 @@
 			"externalType" : "interface",
 			"role" : "Großunternehmen",
 			"url" : null,
-			"implementations" : [],
+			"implementations" : null,
 			"comment" : "",
 			"variables" : {},
 			"variableCounter" : 1,

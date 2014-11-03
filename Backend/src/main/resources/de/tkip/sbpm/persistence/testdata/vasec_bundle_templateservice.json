@@ -11,7 +11,7 @@
 			"deactivated" : false,
 			"startSubject" : false,
 			"inputPool" : 100,
-			"blackboxname" : "vasec_bundle_dummy",
+			"blackboxname" : "vasec_bundle_template",
 			"relatedSubject" : "Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",
 			"relatedInterface" : null,
 			"isImplementation" : false,
@@ -319,11 +319,11 @@
 			"macroCounter" : 1
 		}, {
 			"id" : "Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557",
-			"name" : "DummyService",
+			"name" : "TemplateService",
 			"type" : "external",
 			"mergedSubjects" : [{
 					"id" : "Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557",
-					"name" : "DummyService"
+					"name" : "TemplateService"
 				}
 			],
 			"deactivated" : false,
@@ -430,7 +430,7 @@
 							}
 						}, {
 							"id" : 6,
-							"text" : "fetch POIs",
+							"text" : "prepare POI message",
 							"start" : false,
 							"end" : false,
 							"type" : "action",
@@ -486,7 +486,7 @@
 							}
 						}, {
 							"id" : 3,
-							"text" : "fetch ROIs",
+							"text" : "prepare ROI message",
 							"start" : false,
 							"end" : false,
 							"type" : "action",

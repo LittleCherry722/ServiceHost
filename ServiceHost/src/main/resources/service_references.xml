@@ -2,6 +2,9 @@
         <reference processid="1" subjectid="Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433" path="de.tkip.servicehost.serviceactor.stubgen.PreparerServiceActor" json="./src/main/resources/service_JSONs/PreparerServiceActor.json"/>
 <reference processid="2" subjectid="Subj5435:5c7aaa4d-343e-4a5c-bdc2-e43162bd10a1" path="de.tkip.servicehost.serviceactor.stubgen.RouterServiceActor" json="./src/main/resources/service_JSONs/RouterServiceActor.json"/>
 <reference processid="4" subjectid="Subj2:6a9c2736-533f-4cd7-8cfe-804fe3a24a0d" path="de.tkip.servicehost.serviceactor.stubgen.BundleServiceActor" json="./src/main/resources/service_JSONs/BundleServiceActor.json"/>
-<reference processid="5" subjectid="Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557" path="de.tkip.servicehost.serviceactor.stubgen.DummyServiceActor" json="./src/main/resources/service_JSONs/DummyServiceActor.json"/>
+<reference processid="5" subjectid="Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557-gasstation" path="de.tkip.servicehost.serviceactor.stubgen.GasStationServiceActor" json="./src/main/resources/service_JSONs/GasStationServiceActor.json"/>
+<reference processid="6" subjectid="Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557-kiosk" path="de.tkip.servicehost.serviceactor.stubgen.KioskServiceActor" json="./src/main/resources/service_JSONs/KioskServiceActor.json"/>
+<reference processid="7" subjectid="Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557-traffic" path="de.tkip.servicehost.serviceactor.stubgen.TrafficServiceActor" json="./src/main/resources/service_JSONs/TrafficServiceActor.json"/>
+<reference processid="8" subjectid="Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557-winterservices" path="de.tkip.servicehost.serviceactor.stubgen.WinterServicesServiceActor" json="./src/main/resources/service_JSONs/WinterServicesServiceActor.json"/>
 
       </references>

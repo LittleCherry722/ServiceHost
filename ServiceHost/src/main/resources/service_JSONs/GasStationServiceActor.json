@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "name": "Dummy",
+  "name": "GasStation",
   "author": "André Wolski",
-  "subjectId": "Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557",
+  "subjectId": "Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557-gasstation",
   "process": {
-    "name": "New VASEC Bundle DummyService",
+    "name": "VASEC Bundle GasStationService",
     "publishInterface": false,
     "graph": {
       "id": 6,
@@ -22,7 +22,7 @@
           "deactivated": false,
           "startSubject": false,
           "inputPool": 100,
-          "blackboxname": "vasec_bundle_dummy",
+          "blackboxname": "vasec_bundle_gasstation",
           "relatedSubject": "Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",
           "relatedInterface": null,
           "isImplementation": false,
@@ -219,7 +219,7 @@
               "manualPositionOffsetLabelX": 0,
               "manualPositionOffsetLabelY": 0,
               "target": {
-                "id": "Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557",
+                "id": "Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557-gasstation",
                 "min": -1,
                 "max": -1,
                 "createNew": false,
@@ -241,7 +241,7 @@
               "manualPositionOffsetLabelX": 0,
               "manualPositionOffsetLabelY": 0,
               "target": {
-                "id": "Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557",
+                "id": "Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557-gasstation",
                 "min": -1,
                 "max": -1,
                 "createNew": false,
@@ -278,7 +278,7 @@
               "manualPositionOffsetLabelX": 0,
               "manualPositionOffsetLabelY": 0,
               "target": {
-                "id": "Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557",
+                "id": "Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557-gasstation",
                 "min": -1,
                 "max": -1,
                 "createNew": false,
@@ -326,12 +326,12 @@
           }],
           "macroCounter": 1
         }, {
-          "id": "Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557",
-          "name": "DummyService",
+          "id": "Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557-gasstation",
+          "name": "GasStationService",
           "type": "single",
           "mergedSubjects": [{
-            "id": "Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557",
-            "name": "DummyService"
+            "id": "Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557-gasstation",
+            "name": "GasStationService"
           }],
           "deactivated": false,
           "startSubject": false,
