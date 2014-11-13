@@ -92,14 +92,14 @@ object Entities {
 //    (Process(None, None, false, """Staples Dreieck""", false) -> loadJson("staples_dreieck")),
 //    (Process(None, None, false, """Transportdienstleister Dreieck""", false) -> loadJson("lieferant_dreieck")),
 //
-//    (Process(None, None, false, """Travel Request""", false) -> loadJson("travel_request")), //only process to use roles Supervisor and HR_Data_Access
+    (Process(None, None, false, """Travel Request""", false) -> loadJson("travel_request")), //only process to use roles Supervisor and HR_Data_Access
 //    (Process(None, None, false, """Order""", false) -> loadJson("order")), //only process to use roles Cost_Center_Manager, Purchase_Requisitions and Warehouse
 //    (Process(None, None, false, """IP Test""", false) -> loadJson("ip_test")),
 //    (Process(None, None, false, """IP Test Open Close Wildcard""", false) -> loadJson("ip_test_open_close_wildcard")),
 //    (Process(None, None, false, """IP Test Open Close Wildcard With Timeout""", false) -> loadJson("ip_test_open_close_wildcard_with_timeout")),
 //    (Process(None, None, false, """Modal Split Example""", false) -> loadJson("modalsplit_example")),
 //    (Process(None, None, false, """Modal Split Guard Example""", false) -> loadJson("modalsplitguard_example")),
-//    (Process(None, None, false, """Macro Example""", false) -> loadJson("macro_example")),
+    (Process(None, None, false, """Macro Example""", false) -> loadJson("macro_example")),
 //    (Process(None, None, false, """Nested Modal Split Example""", false) -> loadJson("nested_modal_split_example")),
 //    (Process(None, None, false, """Nested Modal Split Guard Example""", false) -> loadJson("nested_modal_split_guard_example")),
 //    (Process(None, None, false, """Projektleiter""", false) -> loadJson("projektleiter")),

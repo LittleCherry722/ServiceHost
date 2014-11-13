@@ -38,8 +38,8 @@ case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) 
     applyDecision(res)
   }
   catch {
-    case ex : Throwable => {
-      log.error("DecisionStateActor exception during evaluation")
+    case ex: Throwable => {
+      log.error(ex, "DecisionStateActor exception during evaluation")
     }
   }
 
@@ -56,13 +56,23 @@ case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) 
 
 
   protected def evaluateDecision(condition: String, variable: Option[Variable], args: Array[String]): Boolean = {
-    val value: String = variable.get.messages(variable.get.messages.length-1).messageContent
 
     if (condition == "EMPTY") {
-      (value == "")
+      if (variable.isDefined) {
+        val value: String = variable.get.messages(variable.get.messages.length-1).messageContent
+        Array("", "[]", "[empty message]").contains(value)
+      }
+      else {
+        true
+      }
     }
-    else if (condition == "EQUALS") {
-      (value == args(2))
+    else if (condition == "CONTAINS") {
+      if (variable.isDefined) {
+        variable.get.messages.exists(m => m.messageContent.contains(args(2)))
+      }
+      else {
+        false
+      }
     }
     else {
       false
