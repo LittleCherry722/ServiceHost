@@ -408,7 +408,12 @@ class PreparerServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      actor.setMessage(route.toJson.compactPrint)
+      log.info("loadroutes: routes = " + route.mkString(", "))
+      val n = 1
+      val r: Seq[VRoute] = route.sortBy(r => r.metric).take(n)
+      log.info("loadroutes: first " + n + " routes = " + r.mkString(", "))
+
+      actor.setMessage(r.toJson.compactPrint)
       actor.changeState()
     }
   }
