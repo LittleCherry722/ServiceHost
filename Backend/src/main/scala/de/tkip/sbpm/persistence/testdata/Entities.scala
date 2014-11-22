@@ -110,8 +110,8 @@ object Entities {
     (Process(None, None, false, """Service Host Test""", false) -> loadJson("service_host_test")),
     (Process(None, None, false, """Service Host Two""", false) -> loadJson("service_host_two")),
     (Process(None, None, false, """ServiceToService Test""", false) -> loadJson("ServiceToService")),
-    (Process(None, None, false, """Service Host Three""", false) -> loadJson("service_host_three")),
-    (Process(None, None, false, """Service Host Four""", false) -> loadJson("service_host_four"))
+    (Process(None, None, false, """Service Host Three""", false) -> loadJson("service_host_three"))
+    //(Process(None, None, false, """Service Host Four""", false) -> loadJson("service_host_four"))
    )
 
 
