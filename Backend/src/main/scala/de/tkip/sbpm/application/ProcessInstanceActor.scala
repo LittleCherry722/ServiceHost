@@ -29,11 +29,12 @@ import de.tkip.sbpm.model.ProcessInstance
 import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject._
 import scala.collection.immutable
+import scala.collection.mutable.{ Map => MutableMap }
 import akka.actor.Status.Failure
 import scalaj.http.{Http, HttpOptions}
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.application.subject.misc._
-import de.tkip.sbpm.model.{SubjectLike, ExternalSubject, Subject, Agent, AgentAddress}
+import de.tkip.sbpm.model.{SubjectLike, ExternalSubject, Subject}
 import de.tkip.sbpm.instrumentation.InstrumentedActor
 import spray.json._
 import DefaultJsonProtocol._
@@ -42,22 +43,71 @@ import de.tkip.sbpm.rest.JsonProtocol._
 import de.tkip.sbpm.repository.RepositoryPersistenceActor.{AgentsMappingResponse, GetAgentsMapMessage}
 
 object ProcessInstanceActor {
-  type MappingInfo = immutable.Set[Agent]
-  type AgentsMap = immutable.Map[SubjectID, MappingInfo]
+  /*
+   * Variable, mesasge, message content definitions etc. are mainly as an example
+   * of how variables could and should be structured to allow
+   * sending to variables, sending variables, etc.
+   *
+   * The Main obstacles in using regular SubjectToSubjectMessages as a means of channel
+   * transmissions are:
+   *   - Current variables implementation is not compatible
+   *   - Sending to Variables / Channels is not currently supported (sending to the sender of a message),
+   *     in order to send to someone, this exact subject has to be in the graph, a subjectContainer has
+   *     to be created etc. Ideally, sending to a graph subject that has not been instanciated, sending
+   *     to an already existing graph subject, sending to a channel extracted from a message / variable
+   *     and sending to an new or existing external subject should just consist of sending the same
+   *     SubjectToSubjectMessage to an actorRef.
+   *   - Variable manipulation states have to be implemented for recursively defined variables
+   *   - Frontend needs support for sending variables to a subject, not only sending a message to a
+   *     variable. This also needs support from the Backend though, as the Send state could and should
+   *     just be auomatically executed withoud user interaction.
+   */
+  type Variable = Set[Message]
+
+  case class Message(channel: Channel, content: MessageContent)
+
+  sealed trait MessageContent {
+    def channels : Set[Channel] = Set.empty
+  }
+  case class MessageSet(messages: Set[Message]) extends MessageContent {
+    override def channels : Set[Channel] = messages.map(_.channel)
+  }
+  case class TextContent(content: String) extends MessageContent
+  case class FileContent(content: Array[Byte]) extends MessageContent
+  case object EmptyContent extends MessageContent
+
+  case class Channel(subjectId: SubjectID, agent: Agent)
+
+  // AgentMapping trait and AgentCandidates are not currently used, but might
+  // be necessary for the blackbox / service host implementation
+  sealed trait AgentMapping
+  case class AgentCandidates(candidates: Set[Agent]) extends AgentMapping
+  case class Agent(processId: Int,
+                   address: AgentAddress,
+                   subjectId: String) extends AgentMapping
+
+  case class AgentAddress(ip: String, port: Int) {
+    def toUrl = "@" + ip + ":" + port
+  }
+
+  type AgentsMap = immutable.Map[SubjectID, Agent]
+
+  // This case class adds dynamically Subjects and Agents to this ProcessInstance
+  case class RegisterSubjects(subjects: Map[SubjectID, SubjectLike], agentsMapping: AgentsMap)
 }
 
 /**
  * instantiates SubjectActor's and manages their interactions
  */
 class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedActor {
-  import ProcessInstanceActor.{ MappingInfo, AgentsMap }
+  import ProcessInstanceActor.{ AgentsMap, Agent, AgentAddress, RegisterSubjects }
 
+  // This case class is to add Subjects to this ProcessInstance
+  private case class AddSubject(userID: UserID, subjectID: SubjectID)
 
   import context.dispatcher
   implicit val timeout = Timeout(4 seconds)
   implicit val config = context.system.settings.config
-
-  private lazy val repositoryPersistenceActor = ActorLocator.repositoryPersistenceActor
 
   // this fields are set in the preStart, dont change them afterwards!!!
   private var id: ProcessInstanceID = _
@@ -67,16 +117,17 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   private var processName: String = _
   private var persistenceGraph: Graph = _
   private var graph: ProcessGraph = _
+  private val additionalSubjects = MutableMap[SubjectID, SubjectLike]() // TODO: read all subjects from graph to avoid two subject maps
 
   // whether the process instance is terminated or not
   private var runningSubjectCounter = 0
   private def isTerminated = runningSubjectCounter == 0
   // this map stores all Subject(Container) with their IDs
-  private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
+  private val subjectMap = MutableMap[SubjectID, SubjectContainer]()
   // dirty hack to discard every subject that is internal for this PE.
   // TODO Should much rather compare the Graph and subject URLs,
   // as one PE could, in theory, implement its own interface.
-  private var agentsMap = request.agentsMap
+  private var agentsMap = request.agentsMap // TODO: Mutable ?
 
   val url = SystemProperties.akkaRemoteUrl
   private val processInstanceManger: ActorRef =
@@ -166,11 +217,13 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
       log.debug("process instance [" + id + "]: subject terminated " + st.subjectID)
     }
 
-    case sm: SubjectToSubjectMessage if graph.subjects.contains(sm.to) => {
+    case sm: SubjectToSubjectMessage if (graph.subjects.contains(sm.to) || additionalSubjects.contains(sm.to)) => {
       val to = sm.to
       // Send the message to the container, it will deal with it
       log.info("Subject to Subject Message received. Updating subject map and forwarding message. Subject mapping now: {}", subjectMap)
-      subjectMap.getOrElseUpdate(to, createSubjectContainer(graph.subjects(to)))
+      val subj: SubjectLike = if (graph.subjects.contains(sm.to)) { graph.subjects(to) } else { additionalSubjects(to) }
+      lazy val newSubjectContainer = createSubjectContainer(subj)
+      subjectMap.getOrElseUpdate(to, newSubjectContainer)
       log.info("Subject Mapping after update: {}", subjectMap)
       subjectMap(to).send(sm)
     }
@@ -178,6 +231,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
     case he: history.NewHistoryEntry => {
       he.process = history.NewHistoryProcessData(processName, id, name)
       context.parent.forward(he)
+    }
+
+    case SetAgentForSubject(subjectId, agent) => {
+      this.agentsMap = this.agentsMap ++ Map(subjectId -> agent)
     }
 
     case message: SubjectMessage if subjectMap.contains(message.subjectID) => {
@@ -203,14 +260,28 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
     }
 
     case message: GetAgentsList => {
+      log.info("GetAgentsList: " + message)
       val mappingResponse = GetAgentsListResponse(createSubjectMapping(message.processId, message.url).toMap)
       sender !! mappingResponse
     }
+
+    case rs: RegisterSubjects => {
+      registerAdditionalSubjects(rs.subjects)
+
+      addAgentsMapping(rs.agentsMapping)
+    }
+
+    case x => log.warning("ProcessInstanceActor did not handle: " + x)
+  }
+
+  private def registerAdditionalSubjects(subjects: Map[SubjectID, SubjectLike]): Unit = {
+    additionalSubjects ++= subjects
   }
 
   private var sendProcessInstanceCreated = true
   private def createProcessInstanceData(actions: Array[AvailableAction]) =
     ProcessInstanceData(id, name, processID, processName, persistenceGraph, false, startTime, request.userID, actions)
+
   private def trySendProcessInstanceCreated() {
 
     if (sendProcessInstanceCreated) {
@@ -251,7 +322,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
 
   private def createSubjectContainer(subject: SubjectLike): SubjectContainer = {
     val maybeAgent = if (subject.external) {
-      val externalSubject = externalSubjectAgent(subject.asInstanceOf[ExternalSubject]).head
+      val externalSubject = externalSubjectAgent(subject.asInstanceOf[ExternalSubject])
       log.info("Creating new external subject container for subject: {} - {}", subject.id, externalSubject)
       Some(externalSubject)
     } else {
@@ -272,48 +343,35 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
     subjectContainer
   }
 
-  private def externalSubjectAgent(subject: ExternalSubject): Set[Agent] = {
+  private def externalSubjectAgent(subject: ExternalSubject): Agent = {
+    log.info("externalSubjectAgent: " + subject)
     // If an agents list for this subject exists, use it.
     // Otherwise update the list and return agents for this external subject.
     // May still be an empty set if no agents exist.
     agentsMap.get(subject.id) match {
-      case Some(newAgentsMap) => newAgentsMap
+      case Some(agent) => agent
       case None => {
-        updateAgentsMapping()
-        agentsMap.get(subject.id) match {
-          case Some(newAgentsMap) => newAgentsMap
-          case None => {
-            log.error("Agent {} not available! Current Mapping: {}", subject.id, agentsMap)
-            throw new Exception(s"Agent ${subject.id} not availabie. Mapping available: $agentsMap")
-          }
-        }
+        log.error("Agent {} not available! Current Mapping: {}", subject.id, agentsMap)
+        throw new Exception(s"Agent ${subject.id} not availabie. Mapping available: $agentsMap")
       }
     }
   }
 
-  private def updateAgentsMapping(): AgentsMap = {
-    // Get the IDs of all external Subjects, then only take those for which we do not have
-    // a agentMap, aka external subjects with unknown agents
-    val externalSubjectIds = graph.externalSubjects.map(_.id).filterNot { sid =>
-      agentsMap.contains(sid)
+  private def addAgentsMapping(mapping: AgentsMap): Unit = {
+    val mutableAgentsMap: MutableMap[SubjectID, Agent] = MutableMap() ++ this.agentsMap
+
+    for ((subject, agent) <- mapping) {
+      mutableAgentsMap(subject) = agentsMap.getOrElse(subject, agent)
     }
 
-    val getAgentsMapMessage = GetAgentsMapMessage(externalSubjectIds)
-    val newAgentsMapFuture = (repositoryPersistenceActor ?? getAgentsMapMessage).mapTo[AgentsMappingResponse]
-    val newAgentsMap = Await.result(newAgentsMapFuture, timeout.duration)
-    // Append new agents list from the repository to currently existing List of Agents
-    log.info("Updating agents Mapping. Current Mapping: {}", agentsMap)
-    log.info("current graph: " + persistenceGraph.toJson)
-    log.info("Added Mapping: {}", newAgentsMap.agentsMap)
-    this.agentsMap = agentsMap ++ newAgentsMap.agentsMap
-    log.info("New Mapping: {}", agentsMap)
-    this.agentsMap
+    this.agentsMap = mutableAgentsMap.toMap
   }
 
-  private def createSubjectMapping(processId: ProcessID, url: String): Map[SubjectID, MappingInfo] = {
+
+
+  private def createSubjectMapping(processId: ProcessID, url: String): Map[SubjectID, Agent] = {
     log.debug("create subject mapping for {}@{}", processId, url)
 
-    import scala.collection.mutable.{ Map => MutableMap }
     // Own address is just the akka port map
     val ownAddress = AgentAddress(ip = SystemProperties.akkaRemoteHostname
       , port = SystemProperties.akkaRemotePort)
@@ -327,11 +385,12 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
       val agent = Agent(processId = processId
         , address = ownAddress
         , subjectId = subject.id)
-      mapping + (subject.id -> Set(agent))
+      mapping + (subject.id -> agent)
     }
   }
 
   private def getInterfacePartnerSubjects: Seq[SubjectLike] = {
+    // TODO: additionalSubjects ?
     graph.subjects.map(_._2).filter(!_.external).toSeq
   }
 }

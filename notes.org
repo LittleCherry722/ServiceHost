@@ -1,74 +1,50 @@
-* Beim instanziieren eines neuen Prozesses über distr. exec. message.
-** ProcessInstanceActor pre start, line 129 aprox
-*** Printing the graph
-- Process graph subject mapping redundant?
-- Why empty maps?
-- Sollte ein interface subject sichtbar sein, oder das externe subject das sich hinter dem interface verbirgt?
-ProcessGraph(
-  Map(
-    Subj1:uuid1 -> ExternalSubject(Subj1:uuid1,100,false,Some(Subj1:uuid1),None,None,Some(false),Map())
-  , Subj2:uuid2 -> Subject(Subj2:uuid2,100,Map(##main## -> ProcessMacro(internal behavior,[Lde.tkip.sbpm.model.State;@2449664a)),false,Map())))
+* BIR allgemein
+- Interfaces persistieren
+- Agenten / Process engines explizit verwalten mit update methoden für addressen
+- Mehrere versionen an interfaces verwalten. Überprüfung mit hashes?
+- Nicht alles über JsValues / objekts erledigen, echte case classes erstellen
+  von vornherein
+
+* PE / BIR interface
+** Interface vor dem übertragen anonymisieren
+- Nur Kommunikationswege mit interface subjekten müssen erhalten bleiben
+- aktionen aller anderen subjekte anonymisieren und zusammenfassen
+
+** Speichern und löschen von interfaces
+- Anzeige zeigt / vergleicht aktuellste versionen
+- Beim speichern versionen aktualisieren, nicht neue interfaces hochladen
+- Beim unpublishen alle versionen entfernen
+- Bei der suche nach implementierungen, versionen berücksichtigen
+
+* BIR Anzeige
+- Interface muss separat benennbar sein
+- Interfaces in tree struktur unter kategorien einsortieren
+- Interfaces durchsuchbar / filterbar machen. Nach namen, NFA, etc...
+-
+
+* Allgemeines
+- Automatisches ausführen von choose agent state bei einzelner implementierung?
+- Beim nicht vorhandensein von choose agent states, auswahl des agenten beim
+  senden?
+- Rekursiver Datentyp für übergebene channels (für einzelne PEs bestimmt)
+
+* UI / sonstiges
+- Adressen nicht im frontend anzeigen (subjekt details für interfaces)
+
+* Bisherige implementierungen / entscheidungen
+- BIR speichert anonymisierte interfaces der PE. Interfaces sind dabei teile der
+  Prozessbeschreibung ohne gewisse details die das BIR nicht braucht.
+- Beim implementieren werden kommunikationspartner des zu implementierenden
+  Subjektes als interfaces geladen und ein mapping
 
 
-* Instanziieren eines neuen prozesses bei verteilter ausführung
-=======================================================2552================================================================
-_ProcessInstanceProxyManagerActor::2552_ #receive(GetProcessInstanceProxy(agent))
-  /agentManager = getRemoteSubjectProviderManagerActor(agent.address)/
-  (processInstanceMap, proxyRef:2552) = /create or get process instance map for agent and address, in this case create/
-    _ProcessInstanceProxyManagerActor::2552_ #creteProcessInstanceEntry(apid, address, agentManager)
-      ...
-      msg => SubjectProviderManagerActor::2553
-      ...
-  proxyRef => *???*
-
-
-=http://i.imgur.com/oSEFAiW.jp======================================================2553================================================================
-_SubjectProviderManagerActor_ #receive(CreateProcessInstance) : CreateProcessInstance => ProcessManagerActor
-  _ProcessManagerActor_ #receive(CreateProcessInstance)
-    /Create ProcessInstanceActor(CreateProcessInstanceMessage)/
-      _ProcessInstanceActor)_ #preStart
-        /Read Graph from DB/
-        /Save Process Instance to DB/
-        ParseGraph *TODO: Details*
-        /for (startSubj <- startSubjects)/
-          subj = createSubjectContainer(graph.subjects(startSubj))
-          subj.createSubject(userId[-2]) *TODO: Details?*
-            +create subject etc, should probably be done. No start subject the problem? But Subjects are created later on, so maybe okay?+
-        SendProcessInstanceCreated => BlockingHandlerActor
-          _BlockingHandlerActor_ #receive(SendProcessInstanceCreated) : UserBlocker(UserId[-2]).handleMessage(SendProcessInstanceCreated(UserId[-2])
-            _UserBlocker_ #handleMessage
-              blockedMessage += SendProcessInstanceCreated(UserId[-2])
-              TrySendBlockedMessages()
-              #TrySendBlockedMessages : SendProcessInstanceCreated(UserId[-2]) => ProcessInstanceActor
----------------------------------------------------------------------------------------------------------------------------
-_ProcessInstanceActor_ #receive(SendProcessInstanceCreated(UserId[-2]))
-  trySendProcessInstanceCreated()
-    _ProcessInstanceActor_ #trySendProcessInstanceCreated
-      processInstanceData = ProcessInstanceData(id, name, graph, false, startTime, userId, actions)
-      msg = AskSubjectsForAvailabeActions(userId, id, AllSubjects, ...)
-      /msg <: SubjectProviderMessage/
-      msg => ProcessManagerActor
-        _ProcesssManageActor_ #receive(AskSubjectsForAvailabeActions) : msg => SubjectProviderManageActor
-          _SubjectProviderManagerActor_ #receive(AskSubjectsForAvailabeActions) : msg => subjectProviderActor
-            _SubjectProviderActor_ #receive(AskSubjectsForAvailabeActions) : askSubjectsForAvailableActions(pid, sid, generateAnswerFunction)
-              _SubjectProviderActor_ #askSubjectsForAvailableActions
-                collectedSubjects = subjects.filter{...}
-                actions = /For subj <- collctedSubject/
-                  getAvailableActions => subj
-                createdMessage = CollectAvailableActions(ProcessInstanceCreated(...))
-                /ProcessInstanceCreated <: AnsewerableControlMessage <: (AnswerMesasage, ControlMessage)/
-                subjectActionsCollectorActor = create new SubjectActionsCollectorActor
-                createdMessage => subjectActionsCollectorActor
-                  _SubjectActionsCollectorActor_ : createdMessage => ProcessInstanceActor
----------------------------------------------------------------------------------------------------------------------------
-_ProcessInstanceActor_ #receive(ProcessInstanceCreated(CreateProcessInstance(..)))
-  msg => ProcessManagerActor
-    _ProcessManagerActor_ #receive(ProcessInstanceCreated(...)
-      msg => ProcessInstanceProxyManagerActor::2552
-      processInstanceMap += (id -> ProcessInstanceData)
-      /create history entry/
-      ProcessInstanceChange(instanceId, pid, pname, name, "insert", timestamp) => changeActor
-        _ChangeActor_ #receive(data@ProcessInstanceChangeData) : addProcessInstanceChangeData(data)
-          _ChangeActor_ #addProcessInstanceChangeData(data) : processInstanceChangeEntries += p
----------------------------------------------------------------------------------------------------------------------------
-_ProcessInstanceProxyActor_ #receive(SubjectToSubjectMessage)
+* Wichtig
+- Testen, wie interface komposition funktioniert.
+- Subjekt ID änderbar machen im Frontend
+- Rekursiven Datentyp einbauen
+- Variablen anschauen, eventuall variablen und channel zusammenlegen mit
+  extra state zum "entpacken" der channel
+- Interfaces / implementierungsehr gut en anpassbar mit weiteren Kommunikationen zu
+  anderen interfaces? Mapping zum interface / Implementierung ggf. Message
+  spezifisch machen?
+- Dokument weiter ausarbeiten

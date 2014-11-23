@@ -480,7 +480,7 @@
             "deactivated":false,
             "inputPool":100,
             "relatedProcess":5,
-            "relatedGraph": 5, 
+            "relatedGraph": 5,
             "startSubject": false,
             "relatedProcessName":"Supplier (E)",
             "relatedSubject":"Subj1",

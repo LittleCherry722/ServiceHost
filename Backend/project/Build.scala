@@ -37,7 +37,6 @@ object ProjectBuild extends Build {
         "io.spray" %% "spray-testkit" % "1.3.1" % "test",
         "io.spray" %% "spray-can" % "1.3.1",
         "io.spray" %% "spray-routing" % "1.3.1",
-        "io.spray" %% "spray-testkit" % "1.3.1" % "test",
         "io.spray" %% "spray-client" % "1.3.1",
         "net.virtual-void" %%  "json-lenses" % "0.5.4",
         "com.github.t3hnar" % "scala-bcrypt_2.11" % "2.4",

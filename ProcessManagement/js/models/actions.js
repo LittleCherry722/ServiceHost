@@ -13,24 +13,24 @@
 define(["knockout", "app", "model", "underscore", "models/process", "models/user", "models/processInstance", "notify", "models/message"], function(ko, App, Model, _, Process, User, ProcessInstances, Notify, Messages) {
 
     Actions = Model("Actions", {
-        remotePath : 'processinstance/action'
+        remotePath: 'processinstance/action'
     });
 
     Actions.attrs({
-        userID : "integer",
-        macroID : "string",
-        processInstanceID : "integer",
-        stateID : "integer",
-        stateText : "string",
-        stateType : "string",
-        actionData : {
+        userID: "integer",
+        macroID: "string",
+        processInstanceID: "integer",
+        stateID: "integer",
+        stateText: "string",
+        stateType: "string",
+        actionData: {
             type: "jsonArray",
             lazy: false
         },
-        relatedSubject : "string",
-        subjectID : "string",
-        messageContent : "string",
-        currentSelectedFile : "string"
+        relatedSubject: "string",
+        subjectID: "string",
+        messageContent: "string",
+        currentSelectedFile: "string"
     });
 
     Actions.belongsTo( "processInstance", { foreignKey: "processInstanceID" } );
@@ -46,7 +46,7 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
         // That is, "this" refers to the model itself.
         // This makes it possible to define defaults for attributes etc.
 
-        initialize : function(data) {
+        initialize: function(data) {
             var self = this;
 
             this.user = ko.computed({
@@ -87,6 +87,10 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
                         a.messageText = ko.observable();
                         a.selectedUsers = ko.observableArray();
                         a.currentSelectedFile = ko.observable();
+                        if (a.possibleAgents === undefined) {
+                            a.possibleAgents = ko.observableArray();
+                        }
+                        a.selectedAgent = ko.observable();
                     });
                 }
                 return ad;
@@ -172,7 +176,7 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
                         titleExecutable += element.text;
                     }
                 });
-                return titleExecutable !== "" ? titleExecutable : title;
+                return titleExecutable !== "" ? titleExecutable: title;
             });
 
             this.process = ko.computed(function() {
@@ -216,7 +220,7 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
 
         },
 
-        action : function( message ) {
+        action: function( message ) {
             var data, id, actionData;
             data = this.toJSON();
             id = data.processInstanceID;
@@ -224,7 +228,9 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
                 executeAble: message.executeAble,
                 messageContent: message.messageText(),
                 relatedSubject: message.relatedSubject,
+                possibleAgents: null,
                 text: message.text,
+                selectedAgent: message.selectedAgent(),
                 transition: message.transition,
                 targetUsersData: message.targetUsersData,
                 transitionType: message.transitionType
@@ -233,13 +239,13 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
 
             data = JSON.stringify(data);
             $.ajax({
-                url : '/processinstance/' + id,
-                type : "PUT",
-                data : data,
-                async : true,
-                dataType : "json",
-                contentType : "application/json; charset=UTF-8",
-                success : function(data, textStatus, jqXHR) {
+                url: '/processinstance/' + id,
+                type: "PUT",
+                data: data,
+                async: true,
+                dataType: "json",
+                contentType: "application/json; charset=UTF-8",
+                success: function(data, textStatus, jqXHR) {
                     Actions.fetch({}, function(){
                         var pi = ProcessInstances.find(id);
                         if (pi) {
@@ -249,13 +255,13 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
                     Notify.info("Done", "Action successfully executed.");
 
                 },
-                error : function(jqXHR, textStatus, error) {
+                error: function(jqXHR, textStatus, error) {
                     Notify.error("Error", "Unable to send action. Please try again.");
                 }
             });
         },
 
-        send : function( message, obj ) {
+        send: function( message, obj ) {
             var data, id, actionData,
                 selectedUsers = _(this.data()[0].selectedUsers()).compact().length;
 
@@ -295,13 +301,13 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
 
             data = JSON.stringify(data);
             $.ajax({
-                url : '/processinstance/' + id,
-                type : "PUT",
-                data : data,
-                async : true, // defaults to false
-                dataType : "json",
-                contentType : "application/json; charset=UTF-8",
-                success : function(data, textStatus, jqXHR) {
+                url: '/processinstance/' + id,
+                type: "PUT",
+                data: data,
+                async: true, // defaults to false
+                dataType: "json",
+                contentType: "application/json; charset=UTF-8",
+                success: function(data, textStatus, jqXHR) {
                     Actions.all([]);
                     Actions.fetch({}, function(){
                         _.each(ProcessInstances.all(), function(pi){
@@ -310,7 +316,7 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
                     });
                     Notify.info("Done.", "Message successfully sent.");
                 },
-                error : function(jqXHR, textStatus, error) {
+                error: function(jqXHR, textStatus, error) {
                     Notify.error("Error", "Unable to send action. Please try again.");
                 }
             });

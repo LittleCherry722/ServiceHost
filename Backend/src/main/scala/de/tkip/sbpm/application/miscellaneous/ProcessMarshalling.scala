@@ -80,7 +80,7 @@ object parseGraph {
       val id = subject.id
       val multi = subjectMap(id).multi
       val external = subjectMap(id).external
-      
+
       var tempMap:Map[String,String]=Map()
       subject.variables.foreach {case(key, GraphVariable(k,v)) => tempMap = tempMap + (key -> v)}
       val varMap=tempMap;
@@ -120,7 +120,9 @@ object parseGraph {
 
         // create and add a state creator for this state
         states(node.id) =
-          new StateCreator(mainMacro, node.id, node.text, fromStringtoStateType(node.nodeType), node.isAutoExecute.getOrElse(false), node.isMajorStartNode, node.isStart, node.macroId, options)
+          new StateCreator(mainMacro, node.id, node.text, fromStringtoStateType(node.nodeType)
+            , node.isAutoExecute.getOrElse(false), node.isMajorStartNode, node.isStart, node.macroId, node.blackboxname
+            , options, node.chooseAgentSubject)
       }
     }
 
@@ -212,7 +214,9 @@ object parseGraph {
     val majorStartState: Boolean,
     val startState: Boolean,
     val graphMacro: Option[String],
-    val options: StateOptions) {
+    val blackboxname: Option[String],
+    val options: StateOptions,
+    val chooseAgentSubject: Option[String]) {
 
     // store all transitions in this Buffer
     private val transitions = new ArrayBuffer[Transition]
@@ -228,6 +232,6 @@ object parseGraph {
      * Creates and returns the state for this state creator
      */
     def createState: State =
-      State(id, text, stateType, autoExecute, majorStartState, !majorStartState && mainMacro && startState && stateType == ReceiveStateType, graphMacro, options, transitions.toArray)
+      State(id, text, stateType, autoExecute, majorStartState, !majorStartState && mainMacro && startState && stateType == ReceiveStateType, graphMacro, blackboxname, options, transitions.toArray, chooseAgentSubject)
   }
 }

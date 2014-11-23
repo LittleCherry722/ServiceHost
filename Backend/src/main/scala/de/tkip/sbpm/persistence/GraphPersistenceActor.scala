@@ -25,6 +25,7 @@ import de.tkip.sbpm.instrumentation.InstrumentedActor
 private[persistence] class GraphPersistenceActor extends InstrumentedActor
   with DatabaseAccess
   with schema.GraphConversationsSchema
+  with schema.GraphMergedSubjectsSchema
   with schema.GraphMessagesSchema
   with schema.GraphEdgesSchema
   with schema.GraphNodesSchema
@@ -45,7 +46,7 @@ private[persistence] class GraphPersistenceActor extends InstrumentedActor
     } { res =>
       // convert graph entities to domain model in post process function
       res._1.map { t =>
-        convert(t._1, t._2, res._2)
+        convertGraph(graph = t._1, subModels = t._2, roles = res._2)
       }
     }
     // get graph with given id as Option (None if not found)
@@ -59,7 +60,7 @@ private[persistence] class GraphPersistenceActor extends InstrumentedActor
       }
     } { m =>
       // convert graph entities to domain model in post process function
-      convert(m._1, m._2, m._3)
+      convertGraph(graph = m._1, subModels = m._2, roles = m._3)
     }
     // save given graphs to db
     case Save.Entity(gs @ _*) => answer { implicit session =>
@@ -67,7 +68,7 @@ private[persistence] class GraphPersistenceActor extends InstrumentedActor
       // save all graphs
       gs.map(save) match {
         // only one graph was given, return it's id
-        case ids if (ids.size == 1) => ids.head
+//        case ids if (ids.size == 1) => ids.head
         // more graphs were given return all ids
         case ids                    => ids
       }
@@ -99,7 +100,7 @@ private[persistence] class GraphPersistenceActor extends InstrumentedActor
   // update entity or throw exception if it does not exist
   protected def save(g: Graph)(implicit session: Session) = {
     // convert domain model graph to db entities
-    val (graph, conversations, messages, routings, subjects, variables, macros, nodes, varMans, edges) =
+    val (graph, mergedSubjects, conversations, messages, routings, subjects, variables, macros, nodes, varMans, edges) =
       convert(g) match {
       // only graph was converted, because it's a new graph (no id exits)
         case Left(model: mapping.Graph) =>
@@ -122,6 +123,7 @@ private[persistence] class GraphPersistenceActor extends InstrumentedActor
     // insert them with new values again
     deleteSubEntities(graph.id.get)
 
+    graphMergedSubjects.insertAll(mergedSubjects: _*)
     graphConversations.insertAll(conversations: _*)
     graphMessages.insertAll(messages: _*)
     graphRoutings.insertAll(routings: _*)
@@ -153,12 +155,14 @@ private[persistence] class GraphPersistenceActor extends InstrumentedActor
     graphRoutings.filter(_.graphId === id).delete
     graphMessages.filter(_.graphId === id).delete
     graphConversations.filter(_.graphId === id).delete
+    graphMergedSubjects.filter(_.graphId === id).delete
   }
 
   /**
    * Load all dependent entities of a graph with given id.
    */
   def retrieveSubEntities(id: Int)(implicit session: Session) = (
+    graphMergedSubjects.filter(_.graphId === id).list,
     graphConversations.filter(_.graphId === id).list,
     graphMessages.filter(_.graphId === id).list,
     graphRoutings.filter(_.graphId === id).list,

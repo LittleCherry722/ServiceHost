@@ -15,6 +15,7 @@ import scala.concurrent.ExecutionContext.Implicits.global;
 import scala.util.{Success, Failure}
 import scalaj.http.{ Http, HttpOptions }
 
+import de.tkip.sbpm.{ ActorLocator => BackendActorLocator }
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.rest.GraphJsonProtocol._
 import de.tkip.sbpm.application.miscellaneous._
@@ -23,8 +24,11 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.eventbus.RemotePublishActor
 import de.tkip.sbpm.instrumentation.ClassTraceLogger
+import de.tkip.sbpm.repository.RepositoryPersistenceActor
+import de.tkip.sbpm.repository.RepositoryPersistenceActor._
+import de.tkip.sbpm.rest.JsonProtocol.{GraphHeader, createInterfaceHeaderFormat}
 import de.tkip.servicehost.ReferenceXMLActor.Reference
-import de.tkip.servicehost.serviceactor.stubgen.StubGeneratorActor
+import de.tkip.servicehost.serviceactor.stubgen.{ ServiceExport, StubGeneratorActor }
 import Messages._
 import de.tkip.servicehost.Messages._
 
@@ -35,6 +39,7 @@ object main extends App with ClassTraceLogger {
   log.info("main starting..")
 
   import DefaultJsonProtocol._
+  import StubGeneratorActor.serviceExportFormat
   
 
   var currentId = 777
@@ -57,6 +62,7 @@ object main extends App with ClassTraceLogger {
   val registeredInterfaces = scala.collection.mutable.Map[Int, Reference]()
 
   val referenceXMLActor = system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
+  val repositoryPersistenceActor = system.actorOf(Props[RepositoryPersistenceActor], BackendActorLocator.repositoryPersistenceActorName)
   var serviceHost: ActorRef = null
 
   if (args.contains("service") && args.length >= 2) {
@@ -64,7 +70,7 @@ object main extends App with ClassTraceLogger {
 
     val generator = system.actorOf(Props[StubGeneratorActor], "stub-generator-actor")
 
-    val future = generator ?? path // ask pattern: response will be stored in future
+    val future = generator ?? GenerateService(path) // ask pattern: response will be stored in future
     future onComplete {
       case Success(res) => {
           val ref = res.asInstanceOf[Reference]
@@ -95,8 +101,14 @@ object main extends App with ClassTraceLogger {
   }
 
   def deregisterInterfaces(): Unit = {
-    log.warning("TODO: deregisterInterfaces")
-    // TODO: delete the interfaces from repo // for ... registeredInterfaces
+    log.info("deregisterInterfaces. registeredInterfaces: {}", registeredInterfaces)
+
+    // delete the interfaces from repo
+    val f_seq = for ((interfaceId, reference) <- registeredInterfaces)
+      yield (repositoryPersistenceActor ?? DeleteInterface(interfaceId))
+
+    val f = Future.sequence(f_seq)
+    Await.result(f, timeout.duration)
   }
 
   /**
@@ -115,13 +127,16 @@ object main extends App with ClassTraceLogger {
     val referencesFuture: Future[Any] = referenceXMLActor ?? GetAllClassReferencesMessage
     val references = Await.result(referencesFuture, timeout.duration).asInstanceOf[List[Reference]]
     for {reference <- references} {
-      println(reference.toString)
       registerInterface(reference)
     }
     log.info("finished registerInterfaces")
   }
 
   def registerInterface(reference: Reference): Unit = {
+    implicit val mapper: RoleMapper = RoleMapper.noneMapper
+
+    val subjectId = reference.subjectId
+
     log.debug("read service: " + reference)
 
     val file = reference.json
@@ -131,81 +146,29 @@ object main extends App with ClassTraceLogger {
 
     // create objects from json
 
-    val obj: JsObject = sourceString.asJson.asInstanceOf[JsObject]
+    val processId: Int = reference.processId
 
-    val interfaceName: String = obj.getFields("name").head.convertTo[String]
-    val processId: Int = obj.getFields("processId").head.convertTo[Int]
-    val graph: GraphSubject = obj.getFields("graph").head.convertTo[GraphSubject]
-    val messages: Map[String, GraphMessage] = obj.getFields("messages").head.convertTo[Map[String, GraphMessage]]
-    val conversations: Map[String, GraphConversation] = obj.getFields("conversations").head.convertTo[Map[String, GraphConversation]]
+    val export_tmp: ServiceExport = sourceString.parseJson.convertTo[ServiceExport]
+    if (subjectId != export_tmp.subjectId) log.error("reference subjectId != json subjectId")
+    val graph_tmp: Graph = export_tmp.process.graph.get
 
-    val name: String = graph.name
-    val relatedSubjectId: String = graph.relatedSubjectId.getOrElse(name)
-    val relatedInterfaceId: Int = graph.relatedInterfaceId.getOrElse(nextId)
+    val subjects_new: Map[String, GraphSubject] = graph_tmp.subjects.map({ case (id, subj) => (id, subj.copy(implementations = Some(List())))})
 
-    val id: Int = processId // TODO: what should be used here?
-    val interfaceId: Int = relatedInterfaceId // TODO: what should be used here?
-    val graphId: Int = nextId // TODO: what should be used here?
-    val date: Int = 123456789 // TODO: what should be used here?
+    val graph_new = graph_tmp.copy(subjects = subjects_new)
+
+    val export = export_tmp.copy(process = export_tmp.process.copy(graph = Some(graph_new), id = Some(processId)))
 
 
-    val impl = InterfaceImplementation(processId, interfaceId, de.tkip.sbpm.model.Address(hostname, port), name)
+    val interfaceIdFuture: Future[Option[Int]] = (repositoryPersistenceActor ?? SaveInterface(export.process, Some(mapper))).mapTo[Option[Int]]
 
-    val newGraph = GraphSubject(
-      graph.id,
-      graph.name,
-      graph.subjectType,
-      graph.isDisabled,
-      graph.isStartSubject,
-      graph.inputPool,
-      Some(relatedSubjectId), // graph.relatedSubjectId
-      Some(relatedInterfaceId), // graph.relatedSubjectId
-      Some(true), // graph.isImplementation
-      graph.externalType,
-      graph.role,
-      None, // graph.url // TODO: repository does not parse url!
-      Some(List(impl)), // graph.implementations
-      graph.comment,
-      graph.variables,
-      graph.macros
-    )
+    val interfaceId: Option[Int] = Await.result(interfaceIdFuture, timeout.duration)
 
-    // TODO: graphJsonFormat is inconsistent, if that is resolved create a Graph instance instead of JsValues
-    val interface = JsObject(
-      "id" -> id.toJson,
-      "interfaceId" -> interfaceId.toJson,
-      "name" -> interfaceName.toJson,
-      "port" -> port.toJson,
-      "graph" -> JsObject(
-        "id" -> graphId.toJson,
-        "processId" -> processId.toJson,
-        "date" -> date.toJson,
-        "routings" -> JsArray(), // TODO: may not leave empty?
-        "definition" -> JsObject(
-          "conversations" -> conversations.toJson,
-          "messages" -> messages.toJson,
-          "process" -> List(newGraph).toJson
-        )
-      )
-    )
-
-    val jsonString = interface.prettyPrint // TODO: compactPrint 
-
-    log.debug("generated interface json for '" + interfaceName + "'; POST it to repo")
-    //println(jsonString)
-
-    val post = Http.postData(repoUrl, jsonString)
-      .header("Content-Type", "application/json")
-      .header("Charset", "UTF-8")
-      .option(HttpOptions.connTimeout(10000)).option(HttpOptions.readTimeout(30000))
-    val result = post.responseCode
-
-    if (result == 200) {
-      var id: Int = post.asString.toInt
-      log.info("Registered interface for '" + interfaceName + "' with id '" + id + "' at repository")
+    if (interfaceId.isDefined) {
+      var id: Int = interfaceId.get
+      log.info("Registered interface for '" + export.name + "'; got interfaceId '" + interfaceId + "' from repository")
       registeredInterfaces(id) = reference
     } else {
-      log.warning("Some error occurred; HTTP Code: " + result)
+      log.warning("Some error occurred")
     }
   }
 

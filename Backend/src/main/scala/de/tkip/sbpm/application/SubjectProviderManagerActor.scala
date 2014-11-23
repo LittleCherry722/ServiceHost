@@ -62,7 +62,9 @@ class SubjectProviderManagerActor extends InstrumentedActor {
     }
 
     case message: CreateProcessInstance => {
-      val filteredAgentsMap = message.agentsMap.filter(!_._2.exists(_.address.toUrl == SystemProperties.akkaRemoteUrl))
+      val filteredAgentsMap = message.agentsMap.filter{ tuple =>
+        !(tuple._2.address.toUrl == SystemProperties.akkaRemoteUrl)
+      }
       val filteredRequest = message.copy(agentsMap = filteredAgentsMap)
       log.info("CREATE PROCESS INSTANCE received. Agents map filtered from {} to {}", message.agentsMap, filteredAgentsMap)
       processManagerActor ! filteredRequest.withSender(sender)

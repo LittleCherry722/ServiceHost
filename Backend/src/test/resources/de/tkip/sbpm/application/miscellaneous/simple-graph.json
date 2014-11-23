@@ -100,7 +100,7 @@
                     "start": 0,
                     "end": 1,
                     "text": "",
-                    "type": "exitcondition",
+                    "type": "cancelcondition",
                     "deactivated": false,
                     "optional": false,
                     "priority": 1,

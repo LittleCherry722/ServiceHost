@@ -27,7 +27,7 @@ var ViewModel = function() {
 
                     // overwrite the existing process
                     parent.SBPM.VM.contentVM().save(process, true, true);
-                    
+
                     // close the layer
                     self.close();
 
@@ -55,4 +55,3 @@ var ViewModel = function() {
 
     console.log("ViewModel for saveAsProcess initialized.");
 }
-

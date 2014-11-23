@@ -1399,6 +1399,12 @@ function GCcommunication ()
 
 					if (gf_isset(gt_subject.startSubject))
 						this.subjects[gt_subject.id].setStartSubject(gt_subject.startSubject);
+            
+					if (gf_isset(gt_subject.mergedSubjects))
+						this.subjects[gt_subject.id].setMergedSubjects(gt_subject.mergedSubjects);
+
+					if (gf_isset(gt_subject.blackboxname))
+						this.subjects[gt_subject.id].setBlackboxname(gt_subject.blackboxname);
 
 					if (gf_isset(gt_subject.relatedInterface))
 						this.subjects[gt_subject.id].setRelatedInterface(gt_subject.relatedInterface);
@@ -1486,8 +1492,17 @@ function GCcommunication ()
 								if (gf_isset(gt_node.createSubjects))
 									gt_createdNode.setCreateSubjects(gt_node.createSubjects);
 
+								if (gf_isset(gt_node.chooseAgentSubject))
+									gt_createdNode.setChooseAgentSubject(gt_node.chooseAgentSubject);
+
+								if (gf_isset(gt_node.chooseAgentSubject))
+									gt_createdNode.setChooseAgentSubject(gt_node.chooseAgentSubject);
+
 								if (gf_isset(gt_node.macro))
 									gt_createdNode.setMacro(gt_node.macro);
+
+								if (gf_isset(gt_node.blackboxname))
+									gt_createdNode.setBlackboxname(gt_node.blackboxname);
 
 								if (gf_isset(gt_node.comment))
 									gt_createdNode.setComment(gt_node.comment);
@@ -1678,8 +1693,10 @@ function GCcommunication ()
 						name: this.subjects[gt_sid].getText(),
 						type: this.subjects[gt_sid].getType(),
 						subjectType: this.subjects[gt_sid].getType(),
+						mergedSubjects: this.subjects[gt_sid].getMergedSubjects(),
 						deactivated: this.subjects[gt_sid].isDeactivated(),
 						inputPool: this.subjects[gt_sid].getInputPool(),
+						blackboxname: this.subjects[gt_sid].getBlackboxname(),
 						relatedInterface: this.subjects[gt_sid].getRelatedInterface(),
 						relatedProcess: this.subjects[gt_sid].getRelatedProcess(),
 						relatedSubject: this.subjects[gt_sid].getRelatedSubject(),
@@ -1699,9 +1716,9 @@ function GCcommunication ()
 
 			for (var gt_mid in gt_macros)
 			{
-				var gt_macro	= gt_macros[gt_mid];
-				var gt_nodes	= gt_macro.getNodes();
-				var gt_edges	= gt_macro.getEdges();
+				var gt_macro    = gt_macros[gt_mid];
+				var gt_nodes    = gt_macro.getNodes();
+				var gt_edges    = gt_macro.getEdges();
 				var gt_newNodes	= [];
 				var gt_newEdges	= [];
 
@@ -1710,24 +1727,26 @@ function GCcommunication ()
 				{
 					var gt_node = gt_nodes[gt_nid];
 					gt_newNodes[gt_newNodes.length] = {
-							id:		gt_node.getId(),
-							text:	gt_node.getText(),
-							start:	gt_node.isStart(),
-							autoExecute:	gt_node.isAutoExecute(),
-							end:	gt_node.isEnd(),
-							type:	gt_node.getType(),
-                            manualPositionOffsetX: gt_node.getManualPositionOffset().dx,
-                            manualPositionOffsetY: gt_node.getManualPositionOffset().dy,
-							nodeType:	gt_node.getType(),
-							options:	gt_node.getOptions(),
-							deactivated:	gt_node.isDeactivated(),
-							majorStartNode:	gt_node.isMajorStartNode(),
-							conversation:		gt_node.getConversation(),
-							variable:		gt_node.getVariable(),
-							varMan:			gt_node.getVarMan("all"),
-							createSubjects: gt_node.getCreateSubjects("all"),
-							macro:			gt_node.getMacro(),
-							comment:		gt_node.getComment()
+							id:                 gt_node.getId(),
+							text:               gt_node.getText(),
+							start:              gt_node.isStart(),
+							autoExecute:        gt_node.isAutoExecute(),
+							end:                gt_node.isEnd(),
+							type:               gt_node.getType(),
+							nodeType:           gt_node.getType(),
+							options:            gt_node.getOptions(),
+							deactivated:        gt_node.isDeactivated(),
+							majorStartNode:     gt_node.isMajorStartNode(),
+							conversation:       gt_node.getConversation(),
+							variable:           gt_node.getVariable(),
+							varMan:             gt_node.getVarMan("all"),
+							createSubjects:     gt_node.getCreateSubjects("all"),
+							chooseAgentSubject: gt_node.getChooseAgentSubject(),
+							macro:              gt_node.getMacro(),
+							blackboxname:       gt_node.getBlackboxname(),
+							comment:            gt_node.getComment(),
+							manualPositionOffsetX: gt_node.getManualPositionOffset().dx,
+							manualPositionOffsetY: gt_node.getManualPositionOffset().dy
 					};
 				}
 
@@ -1747,48 +1766,48 @@ function GCcommunication ()
 						if (gt_edgeStartNode != null && gt_edgeEndNode != null)
 						{
 							gt_newEdges[gt_newEdges.length] = {
-									start:	gt_edgeStartNode.getId(),
-									end:	gt_edgeEndNode.getId(),
-									text:	gt_edge.getText(true),
-									type:	gt_edge.getType(),
-                                    manualPositionOffsetLabelX: gt_edge.getManualPositionOffsetLabel().dx,
-                                    manualPositionOffsetLabelY: gt_edge.getManualPositionOffsetLabel().dy,
-									edgeType:	gt_edge.getType(),
-									target: gt_relatedSubject == null ? "" : gt_relatedSubject,
-									deactivated:	gt_edge.isDeactivated(),
-									optional:		gt_edge.isOptional(),
-									priority:		gt_edge.getPriority(),
-									manualTimeout:	gt_edge.isManualTimeout(),
-									variable:		gt_edge.getVariable(),
-									correlationId:	gt_edge.getCorrelationId(),
-									comment:		gt_edge.getComment(),
-									transportMethod:	gt_edge.getTransportMethod()
+									start:           gt_edgeStartNode.getId(),
+									end:             gt_edgeEndNode.getId(),
+									text:            gt_edge.getText(true),
+									type:            gt_edge.getType(),
+									edgeType:        gt_edge.getType(),
+									target:          gt_relatedSubject == null ? "" : gt_relatedSubject,
+									deactivated:     gt_edge.isDeactivated(),
+									optional:        gt_edge.isOptional(),
+									priority:        gt_edge.getPriority(),
+									manualTimeout:   gt_edge.isManualTimeout(),
+									variable:        gt_edge.getVariable(),
+									correlationId:   gt_edge.getCorrelationId(),
+									comment:         gt_edge.getComment(),
+									transportMethod: gt_edge.getTransportMethod(),
+                  manualPositionOffsetLabelX: gt_edge.getManualPositionOffsetLabel().dx,
+                  manualPositionOffsetLabelY: gt_edge.getManualPositionOffsetLabel().dy
 							};
 						}
 					}
 				}
 
 				gt_newMacros[gt_newMacros.length] = {
-						id:				gt_macro.id,
-						name:			gt_macro.name,
-						nodes:			gt_newNodes,
-						edges:			gt_newEdges,
-						nodeCounter:	gt_macro.nodeCounter
+						id:          gt_macro.id,
+						name:        gt_macro.name,
+						nodes:       gt_newNodes,
+						edges:       gt_newEdges,
+						nodeCounter: gt_macro.nodeCounter
 				};
 			}
 
-			gt_array[gt_arrayIndex].macros			= gt_newMacros;
-			gt_array[gt_arrayIndex].macroCounter	= gt_behav.macroCounter;
-			gt_array[gt_arrayIndex].variables		= gt_behav.variables;
+			gt_array[gt_arrayIndex].macros          = gt_newMacros;
+			gt_array[gt_arrayIndex].macroCounter    = gt_behav.macroCounter;
+			gt_array[gt_arrayIndex].variables       = gt_behav.variables;
 			gt_array[gt_arrayIndex].variableCounter	= gt_behav.variableCounter;
 		}
 
-		gt_processData.process			= gt_array;
-		gt_processData.messages			= this.messageTypes;
-		gt_processData.messageCounter	= this.messageTypeCounter;
-		gt_processData.nodeCounter		= this.nodeCounter;
-		gt_processData.conversations			= this.conversations;
-		gt_processData.conversationCounter	= this.conversationCounter;
+		gt_processData.process             = gt_array;
+		gt_processData.messages            = this.messageTypes;
+		gt_processData.messageCounter      = this.messageTypeCounter;
+		gt_processData.nodeCounter         = this.nodeCounter;
+		gt_processData.conversations       = this.conversations;
+		gt_processData.conversationCounter = this.conversationCounter;
 
 		return gt_processData;
 	};
@@ -1971,6 +1990,22 @@ function GCcommunication ()
 		}
 	};
 
+  this.updateEdgeStartNode = function()
+  {
+		if (this.selectedSubject && gf_isset(this.subjects[this.selectedSubject]))
+		{
+			this.getBehavior(this.selectedSubject).setStartEdge();
+		}
+  };
+
+  this.updateEdgeEndNode = function()
+  {
+		if (this.selectedSubject && gf_isset(this.subjects[this.selectedSubject]))
+		{
+			this.getBehavior(this.selectedSubject).setEndEdge();
+		}
+  };
+
 	/**
 	 * When selectedSubject is set the input fields are read and the information is passed to the GCbehavior.updateNode() method of the current behavior.
 	 * When no subject is selected the input fields are read and the subject with the id stored in selectedNode is updated.
@@ -1994,6 +2029,7 @@ function GCcommunication ()
 				var gt_role             = gf_isset(gt_values.role)             ? gt_values.role:             "";
 				var gt_type             = gf_isset(gt_values.type)             ? gt_values.type:             "";
 				var gt_inputPool        = gf_isset(gt_values.inputPool)        ? gt_values.inputPool:        "";
+				var gt_blackboxname     = gf_isset(gt_values.blackboxname)     ? gt_values.blackboxname:     "";
 				var gt_relatedProcess   = gf_isset(gt_values.relatedProcess)   ? gt_values.relatedProcess:   "";
 				var gt_relatedSubject   = gf_isset(gt_values.relatedSubject)   ? gt_values.relatedSubject:   "";
 				var gt_isImplementation	= gf_isset(gt_values.isImplementation) ? gt_values.isImplementation: false;
@@ -2009,6 +2045,7 @@ function GCcommunication ()
 					gt_subject.setText(gt_text);
 					gt_subject.setType(gt_type);
 					gt_subject.setInputPool(gt_inputPool);
+					gt_subject.setBlackboxname(gt_blackboxname);
 					gt_subject.setRelatedProcess(gt_relatedProcess);
 					gt_subject.setRelatedSubject(gt_relatedSubject);
 					gt_subject.setIsImplementation(gt_isImplementation);

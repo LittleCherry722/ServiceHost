@@ -145,7 +145,7 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
         case p @ Process(id, _, _, _, _, _, _)   => update(id, p)
       } match {
         // only one process was given, return it's id
-        case ids if (ids.size == 1) => ids.head
+//        case ids if (ids.size == 1) => ids.head
         // more processes were given return all ids
         case ids                    => ids
       }
@@ -246,7 +246,7 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
     var resultId = process.id
 
     // if id not defined -> save new process
-    if (!resultId.isDefined) {
+    if (resultId.isEmpty) {
       resultId = Some(insert(process))
       // inject id into process
       process = process.copy(id = resultId)
