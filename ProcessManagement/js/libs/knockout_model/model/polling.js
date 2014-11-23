@@ -67,7 +67,7 @@ define([
     };
 
     var poll = function() {
-        return false;
+        //return false;
         var data = {
             t: getTime() - lastUpdate
         };
