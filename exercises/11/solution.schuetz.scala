@@ -109,7 +109,24 @@ object Tasks extends Tasks {
     def solution() = {
 
       // your solution for task 7 here
+      
+      class BitSequence(var packedBits: Long) {
+        def apply(bit: Int) = {
+          (packedBits >> bit) & 1
+        }
+        
+        def update(bit: Int, value: Int) {
+          if (this(bit) != value)
+        	  packedBits ^= (1 << bit) 
+        }
+      }
 
+      val bitSeq = new BitSequence(25)
+      println(bitSeq(3))
+      println(bitSeq.packedBits)
+      bitSeq(4) = 0
+      println(bitSeq(4))
+      println(bitSeq.packedBits)
     }
   }
 
