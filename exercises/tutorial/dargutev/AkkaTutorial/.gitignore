@@ -1,8 +1,0 @@
-.cache
-.project
-.classpath
-.settings/
-src/*
-project/target/*
-project/project/
-target/*
