@@ -11,7 +11,7 @@ object ProjectBuild extends Build {
       name := "S-BPM Repository",
       organization := "TU Darmstadt Telecooperation Group",
       version := "0.1",
-      scalaVersion := "2.10.2",
+      scalaVersion := "2.11.1",
       resolvers ++= Seq(
         "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
         "spray repo" at "http://repo.spray.io",
@@ -19,14 +19,20 @@ object ProjectBuild extends Build {
         "Sonatype Releases" at "http://oss.sonatype.org/content/repositories/releases",
         "google-api-services" at "http://google-api-client-libraries.appspot.com/mavenrepo"),
       libraryDependencies ++= Seq(
-        "org.scala-lang" % "scala-reflect" % "2.10.2",
-        "org.scalatest" %% "scalatest" % "2.0.M5b" % "test",
-        "com.typesafe.akka" %% "akka-actor" % "2.2.0",
-        "com.typesafe.akka" %% "akka-testkit" % "2.2.0" % "test",
+        "org.scalatest" %% "scalatest" % "2.2.0" % "test",
+        "com.typesafe.akka" %% "akka-actor" % "2.3.4",
+        "com.typesafe.akka" %% "akka-testkit" % "2.3.4" % "test",
+        "com.typesafe.akka" %% "akka-slf4j" % "2.3.4",
+        "ch.qos.logback" % "logback-classic" % "1.1.2",
+        "com.typesafe.slick" %% "slick" % "2.1.0-M2",
 
-        "io.spray" % "spray-can" % "1.2-20130710",
-        "io.spray" % "spray-routing" % "1.2-20130710",
-        "io.spray" % "spray-http" % "1.2-20130710",
-        "io.spray" % "spray-testkit" % "1.2-20130710" % "test",
-        "io.spray" %% "spray-json" % "1.2.5")))
+        "org.xerial" % "sqlite-jdbc" % "3.7.2",
+        "com.mchange" % "c3p0" % "0.9.5-pre8",
+
+        "io.spray" %% "spray-testkit" % "1.3.1" % "test",
+        "io.spray" %% "spray-can" % "1.3.1",
+        "io.spray" %% "spray-routing" % "1.3.1",
+        "io.spray" %% "spray-http" % "1.3.1",
+        "io.spray" %% "spray-json" % "1.2.6"
+      )))
 }

@@ -30,6 +30,7 @@
             <a class="btn" id="exportGraphButton" href="#exportModal" data-bind="click: exportGraph">Export</a>
         </div>
     </fieldset>
+
     <fieldset class="tooltip-enabled">
         <legend>Subject settings</legend>
 
@@ -40,6 +41,9 @@
         <div data-chardin-intro="Edit attributes of the currently selected subject." data-chardin-position="left">
             <label class="graphsectionheader">Subject Name:</label>
             <input type="text" id="ge_cv_text" title="Name of a role instance"/>
+
+            <label class="graphsectionheader">Subject Id:</label>
+            <input type="text" id="ge_cv_subject_id" disabled title="Id of the subject. Only change if you know what you are doing"/>
 
             <label class="graphsectionheader" data-bind="text: assignedRoleText">Assigned-Role:</label>
             <select id="ge_cv_id" title="Assign a specific role to a subject"
@@ -84,14 +88,24 @@
                     <input type="radio" id="ge_cv_external_instantInterface" name="ge_cv_external_type"/>
                     Instant Interface
                 </label>
+
+                <label align="left" class="checkbox">
+                    <input type="radio" id="ge_cv_external_blackbox" name="ge_cv_external_type"/>
+                    Blackbox Content
+                </label>
+            </div>
+
+            <div id="ge_cv_blackboxname_outer" style="display:none;">
+                <label class="graphsectionheader">Blackbox Name:</label>
+                <input type="text" id="ge_cv_blackboxname"/>
             </div>
 
             <label class="graphsectionheader">Related Process:</label>
             <select id="ge_cv_relatedProcess"
                     data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'id', optionsCaption: 'Select a process...'"></select>
 
-            <label class="graphsectionheader">Related Subject:</label>
-            <input type="text" id="ge_cv_relatedSubject"/>
+            <label class="graphsectionheader" style="display: none;">Related Subject:</label>
+            <input type="text" id="ge_cv_relatedSubject" style="display: none;"/>
         </div>
 
         <div id="subjectType" data-chardin-intro="Can be used for remarks regarding the currently selected subject."
@@ -111,6 +125,15 @@
                    onclick="gv_graph.deleteNode();" value="Delete subject"/>
             <input type="button" id="DeactivateSubjectButton" title="Macro : Press &#34;I&#34;"
                    onclick="gf_deactivateNode();" value="De-/Activate subject"/>
+        </div>
+
+        <div id="mergeSubjects" data-bind="visible: selectedSubjectType() == 'single'">
+            <label class="graphsectionheader">Merge Subject with</label>
+            <select id="mergeSubjectsSelect" title="Assign a specific role to a subject"
+                    data-bind="options: mergeSubjects, value: mergeSubject, optionsValue: 'subjectId', optionsText: 'subjectText'">
+            </select>
+            <input type="button" id="mergeSubjectsButton"
+                   data-bind="click: mergeSubjectHandler" value="Merge Subjects"/>
         </div>
         <br/>
 

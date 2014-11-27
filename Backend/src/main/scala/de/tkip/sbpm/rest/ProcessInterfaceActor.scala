@@ -22,6 +22,7 @@ import scala.concurrent.{future, Await}
 import scala.concurrent.duration._
 import spray.httpx.SprayJsonSupport._
 import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.application.miscellaneous.RoleMapper
 import de.tkip.sbpm.rest.JsonProtocol._
 import de.tkip.sbpm.repository.RepositoryPersistenceActor.{DeleteInterface, SaveInterface}
 import spray.json._
@@ -201,7 +202,8 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
     onSuccess(roleFuture) {
       roles =>
         // implicite value for marshalling
-        implicit val roleMap = roles.map(r => (r.name, r)).toMap
+        val roleMap = roles.map(r => (r.name, r)).toMap
+        implicit val roleMapper: RoleMapper = RoleMapper.createRoleMapper(roleMap)
         complete(result)
     }
   }
@@ -241,20 +243,42 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
    * Saves the given process with its graph.
    */
   private def saveWithGraph(id: Option[Int], json: GraphHeader): Route = {
-    val interfaceIdFuture = if (json.publishInterface) {
+    val currentInterfaceId : Option[Int] = json.interfaceId
+    log.info(s"CURRENT INTERFACEID DEFINED: ${currentInterfaceId.isDefined}")
+    val interfaceIdFuture : Future[Option[Int]] = if (json.publishInterface) {
       log.debug("[SAVE INTERFACE] Sending save interface request")
       (repositoryPersistenceActor ?? SaveInterface(json)).mapTo[Option[Int]]
     } else {
-      future { json.interfaceId }
+      for {
+        oldProcess <- (persistanceActor ?? Processes.Read.ById(id.getOrElse(-1))).mapTo[Option[Process]]
+        interfaceId <- if (oldProcess.map{op => log.info(s"OLD PROCESS PUBLISH: ${op.publishInterface}"); op.publishInterface}.isDefined && currentInterfaceId.isDefined) {
+          (repositoryPersistenceActor ?? DeleteInterface(currentInterfaceId.get)).mapTo[Option[Int]]
+        } else {
+          Future { json.interfaceId }
+        }
+      } yield interfaceId
     }
-    val interfaceId = Await.result(interfaceIdFuture, 10 seconds)
-    log.debug("[SAVE INTERFACE] Received interface ID from repoPersAct")
-    val process = Process(id, interfaceId, json.publishInterface, json.name, json.isCase)
-    val graph = json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)
-    val futureResult = (persistanceActor ?? Processes.Save.WithGraph(process, graph)).mapTo[(Option[Int], Option[Int])]
-    val result = futureResult.map(result => JsObject("id" -> result._1.getOrElse(id.getOrElse(-1)).toJson, "graphId" -> result._2.toJson))
-    // Also save interface if publishInterface is true
-    complete(result)
+    val result = for {
+      interfaceId <- interfaceIdFuture
+      process = Process(id, interfaceId, json.publishInterface, json.name, json.isCase)
+      graph = json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)
+      (processId, graphId) <- (persistanceActor ?? Processes.Save.WithGraph(process, graph)).mapTo[(Option[Int], Option[Int])]
+      result = JsObject("id" -> processId.getOrElse(id.getOrElse(-1)).toJson, "graphId" -> graphId.toJson)
+      savedProcess = GraphHeader(
+        name = process.name,
+        interfaceId = process.interfaceId,
+        publishInterface = process.publishInterface,
+        graph = Some(graph.copy(id = graphId, processId = processId)),
+        isCase = process.isCase,
+        id = processId)
+    } yield savedProcess
+    onSuccess((persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]]) {
+      roles =>
+        // implicite value for marshalling
+        val roleMap = roles.map(r => (r.name, r)).toMap
+        implicit val roleMapper: RoleMapper = RoleMapper.createRoleMapper(roleMap)
+        complete(result)
+    }
   }
 
   /**
@@ -265,7 +289,8 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
       onSuccess((persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]]) {
         roles =>
           // implicite value for marshalling
-          implicit val roleMap = roles.map(r => (r.name, r)).toMap
+          val roleMap = roles.map(r => (r.name, r)).toMap
+          implicit val roleMapper: RoleMapper = RoleMapper.createRoleMapper(roleMap)
 
           entity(as[GraphHeader]) {
             json =>

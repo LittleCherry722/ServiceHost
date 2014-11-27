@@ -72,7 +72,7 @@ case class Transition(
   def isErrorCond = myType.isInstanceOf[ErrorCond]
 
   def messageType = if (myType.isInstanceOf[ExitCond]) myType.asInstanceOf[ExitCond].messageType else ""
-  def target = if (myType.isInstanceOf[ExitCond]) myType.asInstanceOf[ExitCond].target else None
+  def target : Option[Target] = if (myType.isInstanceOf[ExitCond]) myType.asInstanceOf[ExitCond].target else None
   def subjectID = if (myType.isInstanceOf[ExitCond]) myType.asInstanceOf[ExitCond].subjectID else ""
 
   def storeToVar: Boolean = storeVar != ""

@@ -5,18 +5,19 @@ import scala.collection.immutable.List
 import akka.actor.PoisonPill
 import akka.event.LoggingAdapter
 
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.behavior.Transition
 import de.tkip.sbpm.application.subject.behavior.state.StateData
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.instrumentation.ClassTraceLogger
+import de.tkip.servicehost.ServiceAttributes._
 import de.tkip.servicehost.serviceactor.ServiceActor
-import de.tkip.servicehost.serviceactor.ServiceAttributes._
 
-class Target(id: String, min: Int, max: Int, createNew: Boolean, variable: Option[String]) {
+class Target(subjectID: SubjectID, min: Int, max: Int, createNew: Boolean, variable: Option[String]) {
   //  def apply(id: Int, min:Int, max:Int, createNew : Boolean, variable: Option[String]){
   val toExternal = false
   val defaultValues = true;
-  val target = new de.tkip.sbpm.application.subject.behavior.Target(id, 0, 1, createNew, variable, toExternal, defaultValues)
+  val target = new de.tkip.sbpm.application.subject.behavior.Target(subjectID, 0, 1, createNew, variable, toExternal, defaultValues)
   //}
 
 }
@@ -68,9 +69,10 @@ case class SendState(override val id: Int, override val exitType: String, overri
 
   def send(msg: String)(implicit actor: ServiceActor) {
 
+    // TODO: processInstanceID
     val messageID = 100 //TODO change if needed
     val messageType = targetIds.head._1 
-    val userID = actor.getUserID()
+    val userID = 1
     val processID = actor.getProcessID()
     val subjectID = actor.getSubjectID()
     val sender = actor.getDestination()
@@ -101,7 +103,7 @@ case class SendState(override val id: Int, override val exitType: String, overri
 case class ExitState(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("exit", id, exitType, targets, targetIds, text) {
 
   def process()(implicit actor: ServiceActor) {		
-    actor.terminate()
+    actor.reset()
   }
 }
 //

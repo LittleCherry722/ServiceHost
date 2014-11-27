@@ -14,6 +14,8 @@
 package de.tkip.sbpm.rest
 
 import de.tkip.sbpm.model._
+import de.tkip.sbpm.application.miscellaneous.RoleMapper
+import de.tkip.sbpm.application.ProcessInstanceActor.{Agent, AgentAddress}
 import spray.json._
 import scala.collection.immutable.Map
 import java.util.UUID
@@ -93,7 +95,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
    * and role id because in graph JSON roles are identified by name
    * not by id.
    */
-  implicit def optionRoleFormat(implicit roles: Map[String, Role] = Map()) = new JsonFormat[Option[Role]] {
+  implicit def optionRoleFormat(implicit roles: RoleMapper = RoleMapper.emptyMapper) = new JsonFormat[Option[Role]] {
     def write(o: Option[Role]) = o match {
       case None    => JsString("noRole")
       // write only role name to JSON
@@ -101,11 +103,11 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     }
     def read(v: JsValue) = v match {
       // convert role name back to role object if role is known 
-      case JsString(name) if (roles.contains(name)) => Some(roles(name))
+      case JsString(name) if (roles.hasRole(name))  => roles.getRole(name)
       case JsString("noRole")                       => None
       case JsString("")                             => None
       case JsNull                                   => None
-      case _                                        => throw new DeserializationException("Existing role name or null expected. Unknown role: " + v + " Known roles: " + roles)
+      case _                                        => throw new DeserializationException("Existing role name or null expected. Unknown role: " + v + ". RoleMapper: " + roles)
     }
   }
 
@@ -156,7 +158,9 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     "conversation",
     "variable",
     "options",
+    "chooseAgentSubject",
     "macro",
+    "blackboxname",
     "varMan")
 
   /**
@@ -178,7 +182,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
    * Format for edge's target object.
    */
   implicit val edgeTargetFormat = jsonFormat(GraphEdgeTarget,
-    "id", "min", "max", "createNew", "variable")
+    "id", "exchangeOriginId", "exchangeTargetId", "min", "max", "createNew", "variable")
 
   /**
    * Format of an edge object.
@@ -287,22 +291,27 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     }
   }
 
-  implicit val addressFormat = jsonFormat2(Address)
-  implicit val interfaceImplementationFormat = jsonFormat4(InterfaceImplementation)
+  implicit val addressFormat = jsonFormat2(AgentAddress)
+  implicit val interfaceImplementationFormat = jsonFormat3(InterfaceImplementation)
+
+  implicit val mergedSubjectsFormat = jsonFormat2(MergedSubject)
+
 
   /**
    * Format for a subject object.
    * Counter values are calculated on the fly when converting to JSON
    * and ignored while converting from JSON to domain model.
    */
-  implicit def subjectFormat(implicit roles: Map[String, Role] = Map()) = new RootJsonFormat[GraphSubject] {
+  implicit def subjectFormat(implicit roles: RoleMapper = RoleMapper.emptyMapper) = new RootJsonFormat[GraphSubject] {
     def write(s: GraphSubject) = JsObject(
       "id" -> s.id.toJson,
       "name" -> s.name.toJson,
       "type" -> s.subjectType.toJson,
+      "mergedSubjects" -> s.mergedSubjects.toJson,
       "deactivated" -> s.isDisabled.toJson,
       "startSubject" -> s.isStartSubject.toJson,
       "inputPool" -> s.inputPool.toJson,
+      "blackboxname" -> s.blackboxname.toJson,
       "relatedSubject" -> s.relatedSubjectId.toJson,
       "relatedInterface" -> s.relatedInterfaceId.toJson,
       "isImplementation" -> s.isImplementation.toJson,
@@ -317,11 +326,15 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       "macros" -> s.macros.values.toJson,
       // extract counter value fro∂m macro ids
       "macroCounter" -> counter(s.macros))
-    def read(v: JsValue) = v.asJsObject.convertTo[GraphSubject](jsonFormat(GraphSubject, "id", "name",
+    def read(v: JsValue) = v.asJsObject.convertTo[GraphSubject](jsonFormat(GraphSubject,
+      "id",
+      "name",
       "type",
+      "mergedSubjects",
       "deactivated",
       "startSubject",
       "inputPool",
+      "blackboxname",
       "relatedSubject",
       "relatedInterface",
       "isImplementation",
@@ -340,7 +353,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
    * and role id because in graph JSON roles are identified by name
    * not by id.
    */
-  implicit def graphJsonFormat(implicit roles: Map[String, Role] = Map()) = new RootJsonFormat[Graph] {
+  implicit def graphJsonFormat(implicit roles: RoleMapper = RoleMapper.emptyMapper) = new RootJsonFormat[Graph] {
     def write(g: Graph) = JsObject(
       "id" -> g.id.toJson,
       "processId" -> g.processId.toJson,
@@ -378,8 +391,41 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
           definition.fields("messages").convertTo[Map[String, GraphMessage]],
           definition.fields("process").convertTo[Seq[GraphSubject]].map(s => (s.id -> s)).toMap,
           routings.convertTo[Seq[GraphRouting]])
-        case x => throw new DeserializationException("Graph expected, but found: " + x)
+        case x => v.asJsObject.getFields("process",
+          "conversations",
+          "messages") match {
+            case Seq(process: JsArray,
+              conversations: JsObject,
+              messages: JsObject) => Graph(None,
+                None,
+                new java.sql.Timestamp(System.currentTimeMillis()),
+                conversations.convertTo[Map[String, GraphConversation]],
+                messages.convertTo[Map[String, GraphMessage]],
+                process.convertTo[Seq[GraphSubject]].map(s => (s.id -> s)).toMap,
+                Seq())
+            case y => throw new DeserializationException("Graph expected, but found: " + y)
+        }
       }
+  }
+
+  implicit def interfaceFormat(implicit roles: RoleMapper = RoleMapper.emptyMapper) = new RootJsonFormat[Interface] {
+    def write(a: Interface) = JsObject(
+      "id" -> a.id.toJson,
+      "processId" -> JsNumber(a.processId),
+      "name" -> JsString(a.name),
+      "graph" -> a.graph.toJson
+    )
+    def read(v: JsValue) = v.asJsObject.getFields("address", "id", "processId", "name", "graph") match {
+      case Seq(address: JsValue, id: JsValue, processId: JsValue, name: JsValue, graph: JsObject) =>
+        Interface(
+          address.convertTo[AgentAddress],
+          id.convertTo[Option[Int]],
+          processId.convertTo[Int],
+          name.convertTo[String],
+          graph.convertTo[Graph]
+        )
+      case x => throw new DeserializationException("Interface expected, but found: " + x)
+    }
   }
 
   /**

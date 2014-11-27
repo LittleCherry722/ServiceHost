@@ -17,11 +17,12 @@ import java.sql.Timestamp
 import java.util.Date
 
 import GraphJsonProtocol.graphJsonFormat
-import akka.actor.ActorRef
+import akka.actor.{ActorContext, ActorRef}
 import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.application.ProcessInstanceActor.{Agent, AgentAddress}
 import de.tkip.sbpm.model._
 import spray.json._
 import spray.routing.authentication.UserPass
@@ -90,7 +91,41 @@ object JsonProtocol extends DefaultJsonProtocol {
                          isCase: Boolean,
                          id: Option[Int] = None) {
     require(name.length() >= 3, "The name hast to contain 3 or more letters!")
+    def toInterfaceHeader() (implicit context : ActorContext) : Option[InterfaceHeader] = {
+      val port = SystemProperties.akkaRemotePort(context.system.settings.config)
+
+      val containsBlackbox = if (graph.isDefined) {
+         graph.get.subjects.values.exists(subj => (subj.subjectType == "external" && subj.externalType == Some("blackbox")))
+      } else false
+      val interfaceType = if (containsBlackbox) "blackboxcontent" else "interface"
+
+      toInterfaceHeader(port, interfaceType)
+    }
+
+    def toInterfaceHeader(port: Int, interfaceType: String) = { // TODO: value
+      if (!id.isDefined) System.err.println("id is None") // TODO: log!
+
+      id.map { pId =>
+        InterfaceHeader(
+          interfaceType = interfaceType,
+          name = name,
+          interfaceId = interfaceId,
+          graph = graph,
+          port = port,
+          processId = pId
+        )
+      }
+    }
   }
+
+  case class InterfaceHeader(interfaceType: String,
+                             name: String,
+                             interfaceId: Option[Int],
+                             graph: Option[Graph],
+                             port: Int,
+                             processId: Int,
+                             ip: Option[Int] = None)
+
 
   // administration
   implicit val userFormat = jsonFormat5(User)
@@ -122,12 +157,15 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val processInstanceInfoFormat = jsonFormat3(ProcessInstanceInfo)
   implicit val targetUserFormat = jsonFormat4(TargetUser)
   implicit val messageDataFormat = jsonFormat6(MessageData)
-  implicit val actionDataFormat = jsonFormat8(ActionData)
+  implicit val agentAddressDataFormat = jsonFormat2(AgentAddress)
+  implicit val agentDataFormat = jsonFormat3(Agent)
+  implicit val actionDataFormat = jsonFormat10(ActionData)
   implicit val availableActionFormat = jsonFormat9(AvailableAction)
   implicit val processInstanceDataFormat = jsonFormat9(ProcessInstanceData)
 
   implicit val createProcessIdFormat = jsonFormat2(ProcessIdHeader)
-  implicit def createGraphHeaderFormat(implicit roles: Map[String, Role]) = jsonFormat6(GraphHeader)
+  implicit def createGraphHeaderFormat(implicit roles: RoleMapper) = jsonFormat6(GraphHeader)
+  implicit def createInterfaceHeaderFormat(implicit roles: RoleMapper) = jsonFormat7(InterfaceHeader)
   implicit val createActionIdHeaderFormat = jsonFormat8(ExecuteAction)
 
   implicit val newStateFormat = jsonFormat2(NewHistoryState)

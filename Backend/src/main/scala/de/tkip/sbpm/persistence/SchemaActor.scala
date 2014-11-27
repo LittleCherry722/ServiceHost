@@ -28,6 +28,7 @@ import de.tkip.sbpm.persistence.schema._
  */
 private[persistence] class SchemaActor extends InstrumentedActor
   with DatabaseAccess
+  with GraphMergedSubjectsSchema
   with GraphEdgesSchema
   with GraphNodesSchema
   with GraphVarMansSchema
@@ -44,6 +45,7 @@ private[persistence] class SchemaActor extends InstrumentedActor
   import driver.simple._
 
   private val tables = List(
+    graphMergedSubjects,
     graphConversations,
     graphEdges,
     graphMacros,

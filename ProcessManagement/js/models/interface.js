@@ -19,6 +19,7 @@ define([
   window.Interface = Interface;
 
   Interface.attrs({
+    interfaceType: "string",
     creator: "string",
     name: "string",
     description: "string",
@@ -126,7 +127,7 @@ define([
           s.startSubject = false;
           s.externalType = "";
           s.name = s.name + " (me)";
-          s.role = "Please choose role";
+          // s.role = "Please choose role";
           s.relatedInterface = self.id();
           s.relatedSubject = sid;
           s.isImplementation = true;
@@ -137,7 +138,7 @@ define([
           s.relatedSubject = s.id;
           s.subjectType = "external";
           s.externalType = "interface";
-          s.role = "Please choose role";
+          // s.role = "Please choose role";
         }
       });
 
@@ -244,6 +245,7 @@ define([
   });
 
   Interface.fromProcess = function(process, creator, description) {
+    // TODO: interfaceType ??
     var options = {
       creator: creator,
       description: description,

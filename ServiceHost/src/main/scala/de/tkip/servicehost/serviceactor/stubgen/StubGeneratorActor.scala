@@ -6,7 +6,7 @@ import java.io.FileReader
 import java.io.FileWriter
 import scala.reflect.ClassTag
 import scala.collection.immutable.Map
-import scala.collection.mutable.{ Map => MutableMap }
+import scala.collection.mutable.{ Map => MutableMap, ArrayBuffer }
 import scala.concurrent._
 import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
@@ -16,15 +16,26 @@ import akka.pattern.ask
 import akka.pattern.pipe
 import akka.util.Timeout
 import spray.json._
+import de.tkip.sbpm.application.miscellaneous.RoleMapper
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.rest.GraphJsonProtocol._
+import de.tkip.sbpm.rest.JsonProtocol.{ GraphHeader, createGraphHeaderFormat }
 import de.tkip.servicehost.ActorLocator
 import de.tkip.servicehost.Messages._
 import de.tkip.servicehost.ReferenceXMLActor
 import de.tkip.sbpm.instrumentation.InstrumentedActor
 
+
+case class ServiceExport(version: Int, name: String, author: String, subjectId: String, process: GraphHeader)
+
+object StubGeneratorActor {
+  implicit def serviceExportFormat(implicit roles: RoleMapper) = jsonFormat5(ServiceExport)
+}
+
 class StubGeneratorActor extends InstrumentedActor {
   implicit val timeout = Timeout(15 seconds)
+
+  import StubGeneratorActor.serviceExportFormat
 
   lazy val refAc = this.context.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
 
@@ -42,33 +53,58 @@ class StubGeneratorActor extends InstrumentedActor {
   case class ExitState(id: Int, var exittype: String = null, targets: MutableMap[String, String] = MutableMap(), targetIds: MutableMap[String, Int] = MutableMap(), var text: String = null) extends State
   case class ActionState(id: Int, var exittype: String = null, targets: MutableMap[String, String] = MutableMap(), targetIds: MutableMap[String, Int] = MutableMap(), var text: String = null) extends State
 
-  case class ServiceExport(version: Int, name: String, author: String, graph: GraphSubject, messages: Map[String, GraphMessage], conversations: Map[String, GraphConversation], processId: Int)
-  implicit val serviceExportFormat = jsonFormat7(ServiceExport)
   val edgeMap = scala.collection.mutable.Map[Int, List[String]]() // each node and its edges
   val actionStateNumber = scala.collection.mutable.Map[String, List[Int]]()
 
   def wrappedReceive = {
-    case path: String => {
-      log.info("StubGeneratorActor received path " + path)
-      val (name, id, states, messages) = extractStates(path)
-      val future = fillInClass("./src/main/scala/de/tkip/servicehost/serviceactor/stubgen/$TemplateServiceActor.scala", name, id, states, messages, path)
+    case msg @ GenerateService(path) => {
+      log.info("StubGeneratorActor received " + msg)
+
+      val export: ServiceExport = loadServiceExport(path)
+      val subjectId = export.subjectId
+      val graph: Graph = export.process.graph.get
+
+      val subject: GraphSubject = graph.subjects(subjectId)
+      val subjectName = subject.name
+      val states = extractStates(subject)
+      val messages: Map[String, String] = graph.messages.map({ case (x, m) => (m.id, m.name) })
+
+      val f: File = fillInClass("./src/main/scala/de/tkip/servicehost/serviceactor/stubgen/$TemplateServiceActor.scala", subjectName, subjectId, states, messages)
+      val className = f.getName().replaceAll(".scala", "")
+      val packagePath_tmp = f.getParent().replace("\\", "/")
+      val packagePath = packagePath_tmp.substring(packagePath_tmp.indexOf("/de/") + 1, packagePath_tmp.length()).replaceAll("/", ".")
+
+      val servicePath = saveServiceExport(export, className)
+
+      val future = refAc ?? CreateXMLReferenceMessage(subjectId, packagePath + "." + className, servicePath)
+
       future pipeTo sender // pipe pattern: wait for completion and send the result
     }
   }
 
-  def extractStates(jsonPath: String): (String, String, Map[Int, State], Map[String, String]) = {
+  def loadServiceExport(jsonPath: String): ServiceExport = {
+    implicit val mapper: RoleMapper = RoleMapper.noneMapper
+
     val json_string = scala.io.Source.fromFile(jsonPath).getLines.mkString
-    val serviceExport: ServiceExport = json_string.parseJson.convertTo[ServiceExport]
+    val export: ServiceExport = json_string.parseJson.convertTo[ServiceExport]
+    val subjectId = export.subjectId
+    val graph_raw: Graph = export.process.graph.get
 
-    val messages: Map[String, String] = serviceExport.messages.map({ case (x, m) => (m.id, m.name) }) // will be returned
+    // reverse subjects
+    val graph_new: Graph = graph_raw.copy(
+        subjects = graph_raw.subjects.map({
+          case (id, subj) if (id == subjectId) => (id, subj.copy(subjectType = "single", externalType = None, isImplementation = Some(true)))
+          case (id, subj) if (subj.subjectType == "single") => (id, subj.copy(subjectType = "external", externalType = Some("interface")))
+          case (id, subj) => (id, subj)
+        })
+      )
 
-    val graph: GraphSubject = serviceExport.graph
+    export.copy(process = export.process.copy(graph = Some(graph_new)))
+  }
 
-    val graphId: String = graph.id // will be returned
-    val graphName: String = graph.name // will be returned
-
-    val nodes: Map[Short, GraphNode] = graph.macros.values.head.nodes // just take the first macro..
-    val edges: Seq[GraphEdge] = graph.macros.values.head.edges // just take the first macro..
+  def extractStates(subject: GraphSubject): Map[Int, State] = {
+    val nodes: Map[Short, GraphNode] = subject.macros.values.head.nodes // just take the first macro..
+    val edges: Seq[GraphEdge] = subject.macros.values.head.edges // just take the first macro..
     val textMap: Map[Int, String] = for ((id, node) <- nodes) yield {
       if (node.text != null) {
         id.toInt -> ("\"" + node.text + "\"")
@@ -81,7 +117,7 @@ class StubGeneratorActor extends InstrumentedActor {
     val statesList: Map[Int, State] = for ((id, node) <- nodes) yield {
       node.nodeType match {
         case StateType.ReceiveStateString => (id.toInt -> ReceiveState(id.toInt))
-        case StateType.SendStateString 	  => (id.toInt -> SendState(id.toInt))
+        case StateType.SendStateString    => (id.toInt -> SendState(id.toInt))
         case StateType.ActStateString     => (id.toInt -> ActionState(id.toInt))
         case StateType.EndStateString     => (id.toInt -> ExitState(id.toInt))
         case _                            => (id.toInt -> null)
@@ -141,24 +177,22 @@ class StubGeneratorActor extends InstrumentedActor {
       }
     }
 
-    (graphName, graphId, statesList, messages)
+    statesList
   }
 
-  def fillInClass(classPath: String, name: String, id: String, states: Map[Int, State], messages: Map[String, String], jsonPath: String): Future[Any] = {
+  def fillInClass(classPath: String, name: String, id: String, states: Map[Int, State], messages: Map[String, String]): File = {
     var classText = scala.io.Source.fromFile(classPath).mkString
     classText = classText.replace("$SERVICEID", id)
-    var text = ""
+    var texts: ArrayBuffer[String] = ArrayBuffer()
     for (state <- states.values) {
       state match {
         case s: ActionState => {
-          //println(s.toString().replaceFirst("\\(", s.id + "(") + ",")		//deeebug
-          //          text = text + (s.toString().replaceFirst("\\(", s.id + "(") + ",")                
-          text = text + (s.toString.replaceFirst("ActionState", s.text.replaceAll("\"", ""))) + ","
+          texts += s.toString.replaceFirst("ActionState", s.text.replaceAll("\"", "").replaceAll(" ", "").replaceAll(":", "_"))
         }
-        case _ => text = text + state + ","
+        case _ => texts += state.toString
       }
     }
-    classText = classText.replace("//$EMPTYSTATE$//", text.subSequence(0, text.length - 1))
+    classText = classText.replace("//$EMPTYSTATE$//", texts.mkString(",\n      "))
     var f = new File(classPath.replace("$Template", name))
     if (f.exists()) {
       var i = 2
@@ -175,70 +209,63 @@ class StubGeneratorActor extends InstrumentedActor {
     for (state <- states.values) {
       state match {
         case s: ActionState => {
-          impementation = impementation + "\n  case class " + state.text.replaceAll("\"", "") + "(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State(\"action\", id, exitType, targets, targetIds, text) {\n"
+          impementation = impementation + "\n\n  case class " + state.text.replaceAll("\"", "").replaceAll(" ", "").replaceAll(":", "_") + "(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State(\"action\", id, exitType, targets, targetIds, text) {\n"
           impementation = impementation + "\n    val stateName = \"\" //TODO state name\n"
           impementation = impementation + "\n    def process()(implicit actor: ServiceActor) {"
 
           if (edgeMap(s.id).length > 1) {
-            impementation = impementation + "\n		messageContent match {"
+            impementation = impementation + "\n      messageContent match {"
             for (i <- 0 until edgeMap(s.id).length) {
-              impementation = impementation + "\n			case _ if (true) => actor.setMessage(" + edgeMap(s.id)(i) + "(messageContent))"
-
+              impementation = impementation + "\n        case _ if (true) => actor.setMessage(" + edgeMap(s.id)(i) + "(messageContent))"
             }
-            impementation = impementation + "\n	}"
-          }else{
-        	impementation = impementation + "\n		actor.setMessage(\"\") //TODO set message"
+            impementation = impementation + "\n      }"
+          } else {
+            impementation = impementation + "\n      actor.setMessage(\"\") //TODO set message"
           }
 
-          
-          impementation = impementation + "\n		actor.changeState()\n"
+          impementation = impementation + "\n      actor.changeState()\n"
           for ((startNode, edge) <- edgeMap) {
             if (edgeMap(startNode).length > 1) {
               for (i <- 0 until edgeMap(startNode).length) { //create function.
-
-                impementation = impementation + "\n	def " + edgeMap(startNode)(i) + "(msg: String): String = {\n"
-                impementation = impementation + "		msg"
-                impementation = impementation + "\n	}"
+                impementation = impementation + "\n      def " + edgeMap(startNode)(i) + "(msg: String): String = {\n"
+                impementation = impementation + "        msg"
+                impementation = impementation + "\n      }"
               }
             }
           }
 
-          impementation = impementation + "\n    	}"
+          impementation = impementation + "\n    }"
           impementation = impementation + "\n  }"
         }
         case _ =>
       }
     }
     classText = classText.replace("//$ACTIONSTATESIMPLEMENTATION$//", impementation)
+
     val pw = new java.io.PrintWriter(f.getAbsolutePath())
     pw.print(classText)
     pw.close()
-    val packagePath = f.getParent().replace("\\", "/")
-    registerService(id, f.getName().replaceAll(".scala", ""), packagePath.substring(packagePath.indexOf("/de/") + 1, packagePath.length()).replaceAll("/", "."), jsonPath)
+
+    f
   }
 
   def fillInMessages(classText: String, messages: Map[String, String]): String = {
-    var text = ""
+    val texts: ArrayBuffer[String] = ArrayBuffer()
     for ((name, msgType) <- messages) {
-      text = text + "\"" + msgType + "\" -> \"" + name + "\","
+      texts += "\"" + msgType + "\" -> \"" + name + "\""
     }
-    classText.replace("//$EMPTYMESSAGE$//", text.subSequence(0, text.length - 1))
+    classText.replace("//$EMPTYMESSAGE$//", texts.mkString(",\n      "))
   }
 
-  def registerService(id: String, className: String, packagePath: String, jsonPath: String): Future[Any] = {
-    val servicePath = copyFile(jsonPath)
+  def saveServiceExport(export: ServiceExport, className: String): String = {
+    implicit val mapper: RoleMapper = RoleMapper.noneMapper
 
-    refAc ?? CreateXMLReferenceMessage(id, packagePath + "." + className, servicePath)
-  }
-
-  def copyFile(path: String): String = {
     val outputDir: File = new File("./src/main/resources/service_JSONs")
     if (!outputDir.exists())
       outputDir.mkdirs()
 
-    val json_string = scala.io.Source.fromFile(path).getLines.mkString
-    val inputFile: File = new File(path);
-    val outputFile = new File(outputDir + File.separator + inputFile.getName());
+    val json_string = export.toJson.prettyPrint
+    val outputFile = new File(outputDir + File.separator + className + ".json");
 
     val out = new FileWriter(outputFile);
 

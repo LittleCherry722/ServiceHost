@@ -13,7 +13,7 @@
 
 /**
  * The renderEdge class represents an edge as a render object
- * 
+ *
  * @private
  * @class represents an edge as a render object
  * @param {String} id The id of the node.
@@ -25,39 +25,39 @@ function GCrenderEdge (id, edge)
 	/*
 	 * shape, startobject, endobject
 	 */
-	
+
 	this.edge			= edge;
-	
+
 	this.id				= id;
-	
+
 	this.idStart		= "";
-	
+
 	this.idEnd			= "";
-	
+
 	this.loopPosition	= "right";
-	
+
 	this.loopSpace		= 0;
-	
+
 	this.posEndH		= "center";		// left, center, right
-	
+
 	this.posEndV		= "bottom";		// top, center, bottom
-	
+
 	this.posStartH		= "center";		// left, center, right
-	
+
 	this.posStartV		= "bottom";		// top, center, bottom
-	
+
 	this.selected		= false;		// is set by GCmacro
-	
+
 	this.shape			= "straight";
-	
+
 	this.style			= null;
-	
+
 	this.text			= gf_isset(edge.textToString) ? edge.textToString() : id;
 
-	
+
 	// initialize the object
 	this.init();
-	
+
 }
 
 GCrenderEdge.prototype.draw = function ()
@@ -66,19 +66,19 @@ GCrenderEdge.prototype.draw = function ()
 	 * ltl version
 	 */
 	var shape	= "straight";				// this.shape
-	
+
 	var loopSpace	= 0;					// this.loopSpace
-	
+
 	if (gf_isset(gv_objects_nodes[this.idStart], gv_objects_nodes[this.idEnd]))
 	{
 		var srcBBox	= gv_objects_nodes[this.idStart].getBoundaries();
 		var tgtBBox	= gv_objects_nodes[this.idEnd].getBoundaries();
-		
+
 		var x1	= srcBBox.x;
 		var x2	= tgtBBox.x;
 		var y1	= srcBBox.y;
 		var y2	= tgtBBox.y;
-		
+
 		if (this.posStartH.toLowerCase() == "left")
 		{
 			x1	= srcBBox.left;
@@ -87,7 +87,7 @@ GCrenderEdge.prototype.draw = function ()
 		{
 			x1	= srcBBox.right;
 		}
-		
+
 		if (this.posStartV.toLowerCase() == "top")
 		{
 			y1	= srcBBox.top;
@@ -96,7 +96,7 @@ GCrenderEdge.prototype.draw = function ()
 		{
 			y1	= srcBBox.bottom;
 		}
-		
+
 		if (this.posEndH.toLowerCase() == "left")
 		{
 			x2	= tgtBBox.left;
@@ -105,7 +105,7 @@ GCrenderEdge.prototype.draw = function ()
 		{
 			x2	= tgtBBox.right;
 		}
-		
+
 		if (this.posEndV.toLowerCase() == "top")
 		{
 			y2	= tgtBBox.top;
@@ -114,7 +114,7 @@ GCrenderEdge.prototype.draw = function ()
 		{
 			y2	= tgtBBox.bottom;
 		}
-		
+
 		if (this.loopSpace != 0)
 		{
 			if (this.loopPosition.toLowerCase() == "bottom")
@@ -134,34 +134,34 @@ GCrenderEdge.prototype.draw = function ()
 				x2	+= this.loopSpace;
 			}
 		}
-		
+
 		gf_timeCalc("drawing edges - drawArrow() - create GCpath");
             var path	= new GCpath(x1, y1, x2, y2, this.shape, this.text, this.id, true);
 		gf_timeCalc("drawing edges - drawArrow() - create GCpath");
-		
-		
+
+
 		gf_timeCalc("drawing edges - drawArrow() - apply settings");
 			// apply the deactivation status to the path
 			if (gf_isset(this.edge.isDeactivated) && this.edge.isDeactivated())
 				path.deactivate(true);
-				
+
 			// apply the optional status to the path
 			path.setOptional(gf_isset(this.edge.isOptional) && this.edge.isOptional(), true);
-			
+
 			// apply the selection status to the path
 			if (this.selected)
 				path.select(true);
-	
+
 			// add the click events to the path
 			path.click();
 		gf_timeCalc("drawing edges - drawArrow() - apply settings");
-			
-			
+
+
 		gf_timeCalc("drawing edges - drawArrow() - apply style");
 			path.setStyle(this.style);
 		gf_timeCalc("drawing edges - drawArrow() - apply style");
-		
-		
+
+
 		gf_timeCalc("drawing edges - drawArrow() - apply calculated path");
 			/*
 			gt_bv_edge.setFirstLine(gt_bv_firstLine);
@@ -176,15 +176,15 @@ GCrenderEdge.prototype.draw = function ()
 GCrenderEdge.prototype.init = function ()
 {
 	this.style		= gv_bv_arrow.style;
-		
+
 	if (gf_isset(this.edge.getType))
 	{
 		if (this.edge.getType() == "timeout")
 		{
 			this.style	= gf_mergeStyles(gv_bv_arrow.style, gv_bv_arrow.styleTimeout);
 		}
-	
-		if (this.edge.getType() == "errorcondition")
+
+		if (this.edge.getType() == "cancelcondition")
 		{
 			this.style	= gf_mergeStyles(gv_bv_arrow.style, gv_bv_arrow.styleException);
 		}
@@ -210,7 +210,7 @@ GCrenderEdge.prototype.setEndPoints = function (start, end)
 };
 
 /**
- * 
+ *
  * @param {Object} loopSpace
  * @param {Object} position "bottom", "right", "left", "top"
  */

@@ -1,0 +1,213 @@
+{
+	"process" : [{
+			"id" : "Subj2:2e869ee1-313f-42a9-b963-3d046f175981",
+			"name" : "BB Consumer (me)",
+			"type" : "single",
+			"mergedSubjects" : [{
+					"id" : "Subj2:2e869ee1-313f-42a9-b963-3d046f175981",
+					"name" : "BB Consumer (me)"
+				}
+			],
+			"deactivated" : false,
+			"startSubject" : true,
+			"inputPool" : 100,
+			"blackboxname" : "",
+			"relatedSubject" : "Subj2:2e869ee1-313f-42a9-b963-3d046f175981",
+			"relatedInterface" : 1,
+			"isImplementation" : false,
+			"externalType" : "external",
+			"role" : "default",
+			"url" : null,
+			"implementations" : null,
+			"comment" : "",
+			"variables" : {},
+			"variableCounter" : 1,
+			"macros" : [{
+					"id" : "##main##",
+					"name" : "internal behavior",
+					"nodeCounter" : 4,
+					"nodes" : [{
+							"id" : 0,
+							"text" : "Start Blackbox",
+							"start" : true,
+							"end" : false,
+							"type" : "action",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : true,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 1,
+							"text" : "blackbox",
+							"start" : false,
+							"end" : false,
+							"type" : "$blackbox",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "blackbox_example",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 2,
+							"text" : "loop",
+							"start" : false,
+							"end" : false,
+							"type" : "action",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 3,
+							"text" : "end",
+							"start" : false,
+							"end" : true,
+							"type" : "end",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}
+					],
+					"edges" : [{
+							"start" : 0,
+							"end" : 1,
+							"text" : "",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 1,
+							"end" : 2,
+							"text" : "",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 2,
+							"end" : 3,
+							"text" : "end",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 2,
+							"end" : 1,
+							"text" : "again",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}
+					]
+				}
+			],
+			"macroCounter" : 1
+		}
+	],
+	"conversations" : {},
+	"conversationCounter" : 1,
+	"messages" : {},
+	"messageCounter" : 1,
+	"nodeCounter" : 175982
+}

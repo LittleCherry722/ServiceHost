@@ -17,7 +17,7 @@
 
 /**
  * When set to true the dimensions of the labels' texts is estimated rather than measured.
- * 
+ *
  * @type boolean
  */
 var gv_estimateTextDimensions	= true;
@@ -25,21 +25,21 @@ var gv_estimateTextDimensions	= true;
 /**
  * Set the layout algorithm.
  * Possible values: default, ltl (linear time layout)
- * 
+ *
  * @type string
  */
 var gv_layoutAlgorithm	= "default";
 
 /**
  * When set to true the times used for certain tasks will be printed to the console.
- * 
+ *
  * @type boolean
  */
 var gv_printTimes	= false;
 
 /**
  * When set to true the tk_graph library will alter attributes of DOM Elements; when set to false the proper GUI has to make all changes
- * 
+ *
  * @type boolean
  */
 var gv_standAlone	= false;
@@ -63,7 +63,7 @@ gf_createMacro("newEndNode", "", false, "end", true);
 /**
  * Contains the dimensions of both canvas elements.
  * Edit these lines in order to fit the canvas elements to your page.
- * 
+ *
  * @type Object
  */
 var gv_paperSizes	= {
@@ -76,42 +76,50 @@ var gv_paperSizes	= {
 /**
  * Contains some information about the node types in the behavioral view.
  * This is the node's shape and its default text.
- * 
+ *
  * @type Object
  */
 var gv_nodeTypes	= {
 	// action node will be displayed as a rounded rectangle containing the text defined in the node
 	action: {shape: "roundedrectangle", text: null, label: "action"},
-	
+
 	// a send node will be displayed as a circle containing an "S" to mark it as a send node
 	send: {shape: "circle", text: "S", label: "send"},
-	
+
 	// a receive node will be displayed as a circle containing an "R" to mark it as a receive node
 	receive: {shape: "circle", text: "R", label: "receive"},
-	
+
 	// an end node will be displayed as a circle without text
 	end: {shape: "circle", text: "", label: "end"},
-	
+
 	// a modal split operator will be displayed as a circle with the letters "MS" on it
 	modalsplit: {shape: "circle", text: "MS", label: "modal split"},
-	
+
 	// a modal join operator will be displayed as a circle with the letters "MJ" on it
 	modaljoin: {shape: "circle", text: "MJ", label: "modal join"},
-	
+
 	// an empty node to merge two paths together
 	merge: {shape: "circle", text: "", label: "merge"},
-	
+
+	// a tau node for arbitrary internal actions etc.
+	$chooseagent: {shape: "circle", text: "CA", label: "chooseAgent"},
+
+	// a tau node for arbitrary internal actions etc.
+	tau: {shape: "circle", text: "T", label: "tau"},
+
 	// macro nodes contain a macro which will be loaded on dbl-click
 	macro: {shape: "roundedrectangle", text: null, label: "macro"}
 };
 
 /**
  * Names of the images that are placed on nodes for send, receive, modalsplit, modaljoin
- * 
+ *
  * @type Object
  */
 var gv_nodeTypeImg	= {
 	emptyNodeImg: "clearNode.png",
+	CA: "choose_agent.png",
+	T: "tau.png",
 	S: "send.png",
 	R: "receive.png",
 	MS: "modalsplit_small.png",
@@ -120,14 +128,14 @@ var gv_nodeTypeImg	= {
 
 /**
  * Path to the image folder used by the tk_graph library.
- * 
+ *
  * @type String
  */
 var gv_imgPath	= "tk_graph/img/";
 
 /**
  * Path to the empty image (placeholder).
- * 
+ *
  * @type String
  */
 var gv_emptyImgPath	= gv_imgPath + gv_nodeTypeImg.emptyNodeImg;
@@ -145,79 +153,90 @@ var gv_emptyImgPath	= gv_imgPath + gv_nodeTypeImg.emptyNodeImg;
  * - state: when set to true a dropDown for the state will be shown and filled
  * - variableman: when set to true fields for variable manipulation will be displayed
  * - booledge: when set to true only two edges may start at a node: yes / no
- * 
+ * - createsubject: when set to true, option to instantiate mutlisubjects will be schown
+ * - chooseagent: when set to true, option to explicitly choose the agent for a mutlisubject will be shown
+ *
  * @type Object
  */
 var gv_predefinedActions	= {
 	// the closeIP action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to close the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
-	closeip: {subject: true, message: true, wildcard: true, label: "closeIP", conversation: true, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
-	
-	// the openIP action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to open the input pool for a certain subject and messageType after it has been closed (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
-	openip: {subject: true, message: true, wildcard: true, label: "openIP", conversation: true, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
+	closeip: {chooseagent: false, subject: true, message: true, wildcard: true, label: "closeIP", conversation: true, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
 
-    // archives a message
-    archive: {subject: false, message: true, wildcard: false, label: "Archive", conversation: false, correlationid: false, options: false, state: false, variableman: false, booledge: false, createsubjects: false},
+	// the openIP action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to open the input pool for a certain subject and messageType after it has been closed (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
+	openip: {chooseagent: false, subject: true, message: true, wildcard: true, label: "openIP", conversation: true, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
+
+	// archives a message
+	archive: {chooseagent: false, subject: false, message: true, wildcard: false, label: "Archive", conversation: false, correlationid: false, options: false, state: false, variableman: false, booledge: false, createsubjects: false},
 
 	// the isIPempty action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to read the state of the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
-	isipempty: {subject: true, message: true, wildcard: true, label: "isIPempty", conversation: true, correlationid: false, options: true, state: false, variableman: false, booledge: true, createsubjects: false},
+	isipempty: {subject: false, message: true, wildcard: true, label: "isIPempty", conversation: true, correlationid: false, options: true, state: false, variableman: false, booledge: true, createsubjects: false},
 
-    // decision state
-    decision: {subject: false, message: true, wildcard: false, label: "Decision", conversation: false, correlationid: false, options: false, state: false, variableman: false, booledge: false, createsubjects: false},
+	// the isIPempty action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to read the state of the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
+	tau: {chooseagent: false, subject: false, message: false, wildcard: false, label: "", conversation: false, correlationid: false, options: false, state: false, variableman: false, booledge: true, createsubjects: false},
+
+	// the isIPempty action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to read the state of the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
+	chooseagent: {chooseagent: true, subject: false, message: false, wildcard: false, label: "Choose Agent", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: true, createsubjects: false},
+
+	// decision state
+	decision: {chooseagent: false, subject: false, message: true, wildcard: false, label: "Decision", conversation: false, correlationid: false, options: false, state: false, variableman: false, booledge: false, createsubjects: false},
+
+    // blackbox state
+    blackbox: {subject: false, message: false, wildcard: false, label: "Blackbox", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
 
 	// the ignore action has one parameter (subject without wildcard)
-    //	ignore: {subject: true, message: false, wildcard: false, label: "Ignore", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
-	
+	//	ignore: {chooseagent: false, subject: true, message: false, wildcard: false, label: "Ignore", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
+
 	// the acknowledge action has one parameter (subject without wildcard)
-    //	acknowledge: {subject: true, message: false, wildcard: false, label: "Acknowledge", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
-	
+	//	acknowledge: {chooseagent: false, subject: true, message: false, wildcard: false, label: "Acknowledge", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
+
 	// the Activate State action has one parameter (state) and is used to activate a certain start state within an internal behavior
-	activatestate: {subject: false, message: false, wildcard: false, label: "Activate State", conversation: false, correlationid: false, options: true, state: true, variableman: false, booledge: false, createsubjects: false},
-	
+	activatestate: {chooseagent: false, subject: false, message: false, wildcard: false, label: "Activate State", conversation: false, correlationid: false, options: true, state: true, variableman: false, booledge: false, createsubjects: false},
+
 	// the Deactivate State action has one parameter (state) and is used to deactivate a certain start state within an internal behavior
-	deactivatestate: {subject: false, message: false, wildcard: false, label: "Deactivate State", conversation: false, correlationid: false, options: true, state: true, variableman: false, booledge: false, createsubjects: false},
-	
+	deactivatestate: {chooseagent: false, subject: false, message: false, wildcard: false, label: "Deactivate State", conversation: false, correlationid: false, options: true, state: true, variableman: false, booledge: false, createsubjects: false},
+
 	// options for manipulating a variable
-	variableman: {subject: false, message: false, wildcard: false, label: "Variable Manipulation", conversation: false, correlationid: false, options: true, state: false, variableman: true, booledge: false, createsubjects: false},
-	
+	variableman: {chooseagent: false, subject: false, message: false, wildcard: false, label: "Variable Manipulation", conversation: false, correlationid: false, options: true, state: false, variableman: true, booledge: false, createsubjects: false},
+
 	// creates a new set of subjects and stores it in a variable
-	createsubjects: {subject: false, message: false, wildcard: false, label: "Create Subjects", conversation: false, correlationid: false, options: false, state: false, variableman: false, booledge: false, createsubjects: true},
-	
+	createsubjects: {chooseagent: false, subject: false, message: false, wildcard: false, label: "Create Subjects", conversation: false, correlationid: false, options: false, state: false, variableman: false, booledge: false, createsubjects: true},
+
 	// split guard to allow changes in modalSplit-paths
-	splitguard: {subject: false, message: false, wildcard: false, label: "Split Guard", conversation: false, correlationid: false, options: false, state: false, variableman: false, booledge: false, createsubjects: false}
+	splitguard: {chooseagent: false, subject: false, message: false, wildcard: false, label: "Split Guard", conversation: false, correlationid: false, options: false, state: false, variableman: false, booledge: false, createsubjects: false}
 };
 
 /**
  * Available operations for variable manipulation.
- * 
+ *
  * @type Object
  */
 var gv_varManOperations	= {
-	
+
 	// assign to new variable
 	new: {label: "assign new", desc: "", hideSecondVar: true},
-	
+
 	// extract content of one variable and store it in another variable
 	extract: {label: "extract", desc: "", hideSecondVar: true},
-	
+
 	// select a subset of a variable
 	select: {label: "select", desc: "", hideSecondVar: true},
-	
+
 	// the boolean and operation
 	and: {label: "&", desc: "AND", hideSecondVar: false},
-	
+
 	// the boolean or operation
 	or: {label: "|", desc: "OR", hideSecondVar: false},
-	
+
 	// the boolean xor operation
 	// xor: {label: "^", desc: "XOR", hideSecondVar: false},
-	
+
 	// the boolean complement (A minus B)
 	complement: {label: "\\", desc: "Complement", hideSecondVar: false}
 };
 
 /**
  * Message Transport Types.
- * 
+ *
  * @type Object
  */
 var gv_messageTransportTypes = {
@@ -228,7 +247,7 @@ var gv_messageTransportTypes = {
 
 /**
  * Base definition for the time units.
- * 
+ *
  * @type {Object}
  */
 var gv_timeDefinition	= {
@@ -246,29 +265,29 @@ var gv_timeDefinition	= {
 /**
  * Settings for zoom.
  * Contains zoom-limits (min and max) and default zoomSpeed.
- * 
+ *
  * @type Object
  */
 var gv_zoomSettings	= {
 	// min zoom level (can't zoom out further)
 	min: 0.25,
-	
+
 	// max zoom level (can't zoom in further)
 	max: 4,
-	
+
 	// default zoomFactor (zoom in)
 	zoomIn: 1.25,
-	
+
 	// default zoomFactor (zoom out)
 	zoomOut: 1.25,
-	
+
 	// default zoomFactor (mousewheel)
 	wheel: 1.25
 }
 
 /*
  * status dependent styles
- * 
+ *
  * arrowColor
  * arrowOpacity
  * arrowStyle
@@ -288,11 +307,11 @@ var gv_zoomSettings	= {
 /**
  * Default style set.
  * Please see a reference at <a href="https://sbpm-groupware.atlassian.net/wiki/display/SBPM/tk_graph+%28v0.9%29+documentation#tkgraphv09documentation-Mainconfiguration">Atlassian</a>.
- * 
+ *
  * @type Object
  */
 var gv_defaultStyle	= {
-	
+
 	/*
 	 * Arrow
 	 */
@@ -334,7 +353,7 @@ var gv_defaultStyle	= {
 	arrowWidthOptSelDeact: 1,			// pixels
 	arrowWidthSel: 1,					// pixels
 	arrowWidthSelDeact: 1,				// pixels
-	
+
 	/*
 	 * Border
 	 */
@@ -373,7 +392,7 @@ var gv_defaultStyle	= {
 
 	/*
 	 * Background
-	 */		
+	 */
 	bgColor: "#C0FFFF",					// any hex-color-value
 	bgColorDeact: "#C0FFFF",			// any hex-color-value
 	bgColorOpt: "#C0FFFF",				// any hex-color-value
@@ -398,7 +417,7 @@ var gv_defaultStyle	= {
 	opacityOptSelDeact: 1.0,			// floating number
 	opacitySel: 1.0,					// floating number
 	opacitySelDeact: 1.0,				// floating number
-	
+
 	/*
 	 * Text
 	 */
@@ -435,7 +454,7 @@ var gv_defaultStyle	= {
 	textAlign: "middle",				// possible values: left, right, middle
 	textAlignLi: "left",				// possible values: left, right, middle
 	textVAlign: "top",					// possible values: top, bottom, middle
-	
+
 	/*
 	 * Misc
 	 */

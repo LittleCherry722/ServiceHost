@@ -58,7 +58,7 @@ class SubjectProviderActor(userID: UserID) extends InstrumentedActor {
   processManagerActor ! RegisterSubjectProvider(userID, self)
 
   def wrappedReceive = {
-    case subject: SubjectCreated => {
+    case subject: Subject => {
       subjects += subject
     }
 
