@@ -2,10 +2,12 @@ import sbt._
 import Process._
 import Keys._
 
-name := "akkatutorial"
+name := "AkkaTutorial"
 
-scalaVersion := "2.10.0"
+scalaVersion := "2.11.4"
+
+mainClass := Some("de.tkip.akkatutorial.Main")
 
 resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases"
 
-libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.1.2"
+libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.3.7"
