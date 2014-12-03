@@ -1,1 +1,1 @@
-java -jar ..\..\..\..\Backend\sbt.jar eclipse
+../../Backend/bin/sbt.bat eclipse
