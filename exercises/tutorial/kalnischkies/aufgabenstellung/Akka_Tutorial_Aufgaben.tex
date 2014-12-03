@@ -1,0 +1,61 @@
+\documentclass[11pt]{tudexercise}
+
+\usepackage[utf8]{inputenc}
+\usepackage{german}
+\usepackage{hyperref}
+\usepackage{color}
+
+\title{Aufgaben zur verteilten Berechnung mit Hilfe von Aktoren}
+
+%commands:
+\newcommand{\myimport}{\textbf{import} }
+\newcommand{\link}[1]{\\ \textcolor{blue}{\textit{\url{#1}}}}
+
+\begin{document}
+  \maketitle
+
+  Hier wird ein Beispielprogramm entwickelt, welches Aktoren nutzt um den Wert $e$ zu berechnen.
+Die Grundidee ist es mit einem Masteraktor die Berechnung zu initialisieren und Workeraktoren zu erstellen. Der Master teilt die Arbeit in Chunks auf und verteilt diese an die Worker. Anschließend wartet er darauf, dass die Worker ihre Teilergebnisse zurück senden und rechnet diese zusammen. Wenn das Ergebnis komplett ist, sendet der Master das Ergebnis an einen Printer, welcher dieses Ausgibt und das ActorSystem beendet.
+
+\section{Package und Messages}
+
+Legen Sie einen Ordner entsprechend Ihrem Namen in excercises/tutorial an. Kopieren Sie den AkkaTutorial Ordner nach dort. Erweitern Sie das package de.tkip.akkatutorial. Erstellen Sie case-Klassen für die benötigten Messages.
+
+Diese sind:
+\begin{itemize}
+\item Calculate - wird an den Master gesendet, um die Berechnung zu starten
+\item Work - wird vom Master an die Worker gesendet und enthält den zu berechnenden Chunk
+\item Result - wird von den Workern an den Master geschickt mit dem Ergebnis der Berechnung
+\item eApproximation - wird vom Master nach erfolgreicher Berechnung an einen Printer geschickt, der das Ergebnis ausgibt
+\end{itemize}
+
+\section{Der WorkerActor}
+
+Legen Sie die Klasse Worker an, die den Aktor Trait erweitert und definieren Sie die receive Methode. Diese soll bei Empfang einer Work-Message einen Teil von $e$ berechnen und das Ergebnis an den Master zurück schicken. Zur Erinnerung: $e = \sum_{n=0}^{\infty}{\frac{1}{n!}}$
+
+\section{Der MasterActor}
+
+Schreiben Sie nun die Klasse Master. In seinem Konstruktor sollen bereits eine Anzahl Worker angelegt und gestartet werden. Außerdem sollen diese zur Vereinfachung der Verteilung der Arbeit in einen load-balancing Router zusammengefasst werden. Der Master soll die Berechnung von e auf die Worker verteilen und am Ende die Approximation von e an einen Printer schicken.
+
+Die folgenden imports könnten hilfreich sein:
+\begin{verbatim}
+import akka.actor.{Actor, ActorRef, Props}
+import akka.routing.RoundRobinRouter
+\end{verbatim}
+
+Der Konstruktor kann die folgenden Parameter enthalten:
+\begin{itemize}
+\item nrOfWorkers – Wie viele Worker sollen verwendet werden
+\item nrOfMessages – Wie viele Chunks sollen an die Worker verteilt werden
+\item nrOfElements – welchen Umfang sollen die Chunks haben
+\end{itemize}
+
+\section{Der PrinterActor}
+
+Schreiben Sie einen PrinterActor, der bei Empfang einer eApproximation das Ergebnis ausgibt und das ActorSystem beendet.
+
+\section{Bootstrap Applikation}
+
+Erweitern Sie das Applikations Object um die Erzeugung der zum Start erforderlichen Elemente und dem Start der Kalkulation.
+
+\end{document}
