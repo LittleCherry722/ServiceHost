@@ -18,7 +18,9 @@
 The concept is to initialize the calculation by a master Actor that creates worker Actors. The master splits the work into chunks which are distributed to the workers. After that it waits for the results of the workers, calculates the result and sends it to a printer which prints it out and stops the ActorSystem.
 
 
-\section{Package and Messages}
+\section{Calculation of $e$}
+
+\subsection{Package and Messages}
 
 Create a folder according your name in excercises/tutorial. Copy the AkkaTutorial folder into it. Extends the packagede.tkip.akkatutorial.
 
@@ -30,11 +32,11 @@ Create case classes for the needed messages:
 \item eApproximation - contains the result; send from master to the printer
 \end{itemize}
 
-\section{The WorkerActor}
+\subsection{The WorkerActor}
 
 Create the class Worker that extends the Actor trait and define the receive method. When a Work message arrives the respective chunk should be calculated and send bach to the Master. As a reminder: $e = \sum_{n=0}^{\infty}{\frac{1}{n!}}$
 
-\section{Der MasterActor}
+\subsection{Der MasterActor}
 
 Write the class Worker. It's constructor should already start some Workers. Additionally, they should be grouped by a load-balancing router. The Master should distribute the calculation to the workers and send the approximation to the printer.
 
@@ -51,12 +53,26 @@ The constructor may have these parameters:
 \item nrOfElements – how big the chunks are
 \end{itemize}
 
-\section{The PrinterActor}
+\subsection{The PrinterActor}
 
 Write a PrinterActor that prints the content of a received  eApproximation and stops the ActorSystem.
 
-\section{Bootstrap Application}
+\subsection{Bootstrap Application}
 
 Extend the App object with the creation of the needed elements and start the execution.
+
+
+\section{Extension with Futures}
+
+Now you should use the Akka ask pattern to receive the Results. First of all have a look at the ''Futures und Routing'' document to refresh your memory.
+
+\subsection{Ask-Pattern}
+Your current solution sends chunks from within a loop. Adapt that loop in a way that it uses the ask pattern and returns Futures with the type Result.
+
+Reduce the sequence of Futures to a single Future[Result].
+
+\subsection{PipeTo-Pattern}
+Use the pipeTo-Pattern to send the reduced result to the PrinterActor. Adapt the PrinterActor to receive Result messages instead of eApproximation.
+
 
 \end{document}

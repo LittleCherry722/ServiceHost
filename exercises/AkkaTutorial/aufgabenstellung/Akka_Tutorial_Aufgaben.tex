@@ -17,7 +17,9 @@
   Hier wird ein Beispielprogramm entwickelt, welches Aktoren nutzt um den Wert $e$ zu berechnen.
 Die Grundidee ist es mit einem Masteraktor die Berechnung zu initialisieren und Workeraktoren zu erstellen. Der Master teilt die Arbeit in Chunks auf und verteilt diese an die Worker. Anschließend wartet er darauf, dass die Worker ihre Teilergebnisse zurück senden und rechnet diese zusammen. Wenn das Ergebnis komplett ist, sendet der Master das Ergebnis an einen Printer, welcher dieses Ausgibt und das ActorSystem beendet.
 
-\section{Package und Messages}
+\section{Berechnung von $e$}
+
+\subsection{Package und Messages}
 
 Legen Sie einen Ordner entsprechend Ihrem Namen in excercises/tutorial an. Kopieren Sie den AkkaTutorial Ordner nach dort. Erweitern Sie das package de.tkip.akkatutorial. Erstellen Sie case-Klassen für die benötigten Messages.
 
@@ -29,11 +31,11 @@ Diese sind:
 \item eApproximation - wird vom Master nach erfolgreicher Berechnung an einen Printer geschickt, der das Ergebnis ausgibt
 \end{itemize}
 
-\section{Der WorkerActor}
+\subsection{Der WorkerActor}
 
 Legen Sie die Klasse Worker an, die den Aktor Trait erweitert und definieren Sie die receive Methode. Diese soll bei Empfang einer Work-Message einen Teil von $e$ berechnen und das Ergebnis an den Master zurück schicken. Zur Erinnerung: $e = \sum_{n=0}^{\infty}{\frac{1}{n!}}$
 
-\section{Der MasterActor}
+\subsection{Der MasterActor}
 
 Schreiben Sie nun die Klasse Master. In seinem Konstruktor sollen bereits eine Anzahl Worker angelegt und gestartet werden. Außerdem sollen diese zur Vereinfachung der Verteilung der Arbeit in einen load-balancing Router zusammengefasst werden. Der Master soll die Berechnung von e auf die Worker verteilen und am Ende die Approximation von e an einen Printer schicken.
 
@@ -50,12 +52,26 @@ Der Konstruktor kann die folgenden Parameter enthalten:
 \item nrOfElements – welchen Umfang sollen die Chunks haben
 \end{itemize}
 
-\section{Der PrinterActor}
+\subsection{Der PrinterActor}
 
 Schreiben Sie einen PrinterActor, der bei Empfang einer eApproximation das Ergebnis ausgibt und das ActorSystem beendet.
 
-\section{Bootstrap Applikation}
+\subsection{Bootstrap Applikation}
 
 Erweitern Sie das Applikations Object um die Erzeugung der zum Start erforderlichen Elemente und dem Start der Kalkulation.
+
+\section{Erweiterung um Futures}
+
+Nun sollen Sie das Akka Ask-Pattern benutzen um die Resultate zu empfangen. Schauen Sie sich zuerst noch mal das Dokument ''Futures und Routing'' an.
+
+\subsection{Ask-Pattern}
+Ihre bisherige Lösung versendet durch eine Schleife die Chunks. Passen Sie die Schleife so an, dass diese mit dem Ask-Pattern Futures mit dem Typ Result zurückgibt.
+
+Reduzieren Sie die erhaltene Sequenz von Futures auf ein einziges Future[Result].
+
+\subsection{PipeTo-Pattern}
+Verwenden Sie nun das pipeTo-Pattern um das reduzierte Result an den PrinterActor zu senden. Passen Sie den PrinterActor so an, dass dieser Result Nachrichten anstelle der eApproximation empfängt.
+
+
 
 \end{document}
