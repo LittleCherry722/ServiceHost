@@ -1,0 +1,62 @@
+\documentclass[11pt]{tudexercise}
+
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{color}
+
+\title{Exercises for distributed calculation with Actors}
+
+%commands:
+\newcommand{\myimport}{\textbf{import} }
+\newcommand{\link}[1]{\\ \textcolor{blue}{\textit{\url{#1}}}}
+
+\begin{document}
+  \maketitle
+  
+  In this exercise a sample program is developed that uses Actors to calculate the value of $e$.
+
+The concept is to initialize the calculation by a master Actor that creates worker Actors. The master splits the work into chunks which are distributed to the workers. After that it waits for the results of the workers, calculates the result and sends it to a printer which prints it out and stops the ActorSystem.
+
+
+\section{Package and Messages}
+
+Create a folder according your name in excercises/tutorial. Copy the AkkaTutorial folder into it. Extends the packagede.tkip.akkatutorial.
+
+Create case classes for the needed messages:
+\begin{itemize}
+\item Calculate - send to the master to initialize the calculation
+\item Work - send from master to the workers and contains the chunk that should be calculated
+\item Result - send from the workers to the master with the result of their calculation
+\item eApproximation - contains the result; send from master to the printer
+\end{itemize}
+
+\section{The WorkerActor}
+
+Create the class Worker that extends the Actor trait and define the receive method. When a Work message arrives the respective chunk should be calculated and send bach to the Master. As a reminder: $e = \sum_{n=0}^{\infty}{\frac{1}{n!}}$
+
+\section{Der MasterActor}
+
+Write the class Worker. It's constructor should already start some Workers. Additionally, they should be grouped by a load-balancing router. The Master should distribute the calculation to the workers and send the approximation to the printer.
+
+These imports could help you:
+\begin{verbatim}
+import akka.actor.{Actor, ActorRef, Props}
+import akka.routing.RoundRobinRouter
+\end{verbatim}
+
+The constructor may have these parameters:
+\begin{itemize}
+\item nrOfWorkers – how much workers to start
+\item nrOfMessages – how much chunks to send
+\item nrOfElements – how big the chunks are
+\end{itemize}
+
+\section{The PrinterActor}
+
+Write a PrinterActor that prints the content of a received  eApproximation and stops the ActorSystem.
+
+\section{Bootstrap Application}
+
+Extend the App object with the creation of the needed elements and start the execution.
+
+\end{document}
