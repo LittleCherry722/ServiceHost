@@ -40,7 +40,7 @@
     einer ExecuteAction-Nachricht nur die erste Transition ausgeführt. Erweitere die ExecuteAction-Nachricht
     und den ActStateActor so, dass es möglich ist, sich zwischen verschiedenen Verzweigungen zu entscheiden.
 
-Hinweis: Im Tutorialprojekt befindet sich der ActStateActor im package \"de.tkip.sbpm.application.state\". Hinweise zur Struktur sind unter dem Link in Aufgabe 1.1 zu finden.
+Hinweis: Im Tutorialprojekt befindet sich der ActStateActor im package ''de.tkip.sbpm.application.state''. Hinweise zur Struktur sind unter dem Link in Aufgabe 1.1 zu finden.
 
   \subsection{REST Schnittstelle erweitern}
     Bisher wurde immer das erste TestPair aus den Testdaten genommen, um die beiden Subjekte zu instantiieren.
@@ -50,7 +50,7 @@ Hinweis: Im Tutorialprojekt befindet sich der ActStateActor im package \"de.tkip
 
     Als Aufruf soll der Befehl:
     \textbf{PUT} http://localhost:8080/subject\\
-    mit dem Argument: \textbf{\{ “instance”: n \}} dienen,\\
+    mit dem Argument: \verb|{"instance": n}| dienen,\\
     wobei n ein Int ist und das Testbeispiel auswählen soll.\\
     Hierfür muss die REST-Schnittstelle angepasst und eine neue Nachricht eingeführt werden.
 
