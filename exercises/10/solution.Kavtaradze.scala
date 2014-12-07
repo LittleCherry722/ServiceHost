@@ -114,8 +114,19 @@ object Tasks extends Tasks {
   new Task("Task 10") {
     def solution() = {
 
-      // your solution for task 10 here
+      import java.io.InputStream
+      import java.io.FileInputStream
 
+      trait IterableInputStream extends InputStream with Iterable[Byte] {
+  
+   	def iterator = new Iterator[Byte] {
+	   def hasNext = if (available > 0) true 
+		   			else false
+   
+	   def next = read().asInstanceOf[Byte]
+  	}
+      }
+	
     }
   }
 

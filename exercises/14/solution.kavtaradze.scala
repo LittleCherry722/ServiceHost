@@ -107,10 +107,14 @@ object Tasks extends Tasks {
     }
   }
 
-  new Task("Task 8") {
+  new Task("Task 9") {
     def solution() = {
 
-      // your solution for task 8 here
+      def sum(list: List[Option[Int]]) = list.map(_.getOrElse(0)).sum
+
+      val a = List(Some(3), None, Some(6), None, Some(9))
+
+      println(sum(a))
 
     }
   }

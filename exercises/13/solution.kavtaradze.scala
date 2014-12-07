@@ -103,7 +103,14 @@ object Tasks extends Tasks {
   new Task("Task 6") {
     def solution() = {
 
-      // your solution for task 6 here
+      	val lst = List(1, 2, 3, 4, 5)
+	println(lst)
+	val a = (lst :\ List[Int]())(_ :: _) // This is foldRight
+	println(a)
+	val b = (List[Int]() /: lst)(_ :+ _) // This is foldLeft
+	println(b)
+	val c = (List[Int]() /: lst)((x,y) => y :: x)
+	println(c)
 
     }
   }
@@ -111,7 +118,11 @@ object Tasks extends Tasks {
   new Task("Task 7") {
     def solution() = {
 
-      // your solution for task 7 here
+      val prices = List(5.0, 20.0, 9.95)
+      val quantities = List(10, 2, 1)
+
+      val sum = (prices, quantities).zipped map { _ * _ }
+      println(sum)
 
     }
   }

@@ -1,4 +1,4 @@
-object Solution extends App {
+﻿object Solution extends App {
 
   // execute all tasks
   Tasks.execute()
@@ -30,13 +30,7 @@ class Tasks {
 
 object Tasks extends Tasks {
 
-  new Task("Task 1") {
-    def solution() = {
-
-      // your solution for task 1 here
-
-    }
-  }
+  
 
   new Task("Task 2") {
     def solution() = {
@@ -71,13 +65,6 @@ object Tasks extends Tasks {
     }
   }
 
-  new Task("Task 3") {
-    def solution() = {
-
-      // your solution for task 3 here
-
-    }
-  }
 
   new Task("Task 4") {
     def solution() = {
@@ -120,36 +107,6 @@ object Tasks extends Tasks {
     }
   }
 
-  new Task("Task 7") {
-    def solution() = {
-
-      // your solution for task 7 here
-
-    }
-  }
-
-  new Task("Task 8") {
-    def solution() = {
-
-      // your solution for task 8 here
-
-    }
-  }
-
-  new Task("Task 9") {
-    def solution() = {
-
-      // your solution for task 9 here
-
-    }
-  }
-
-  new Task("Task 10") {
-    def solution() = {
-
-      // your solution for task 10 here
-
-    }
-  }
+ 
 
 }

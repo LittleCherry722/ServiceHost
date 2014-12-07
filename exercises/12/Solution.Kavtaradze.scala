@@ -100,5 +100,13 @@ object Tasks extends Tasks {
     }
   }
 
+  new Task("Task 10") {
+    def solution() = {
 
+      def unless(condition: => Boolean)(block: => Unit) { if (!condition) { block } }
+
+      unless { (0 > 1) } { println("Unless!") }
+
+    }
+  }
 }
