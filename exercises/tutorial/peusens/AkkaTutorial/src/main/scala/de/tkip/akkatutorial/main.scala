@@ -25,29 +25,26 @@ class Worker extends Actor {
         for (i <- start to end){
           e += (1.0f / faculty(i))
         }
-        println(e)
+        sender ! Result(e)
       }
     }
 }
 
 class Master(nrOfWorkers: Int, nrOfMessages: Int, nrOfElements: Int) extends Actor{
-  val system = ActorSystem("AkkaProjectInScala")
   var eAproximation = 0.0f
   
   //gerate list of workers
-  val workers = for (i <- 0 until nrOfWorkers) yield system.actorOf(Props(new Worker()))
+  val workers = for (i <- 0 until nrOfWorkers) yield context.system.actorOf(Props(new Worker()))
   
-  val router = system.actorOf(Props.empty.withRouter(RoundRobinRouter(routees = workers)))
+  val router = context.system.actorOf(Props.empty.withRouter(RoundRobinRouter(routees = workers)))
   //val router = system.actorOf(Props.empty.withRouter(RoundRobinRouter(nrOfInstances = nrOfWorkers)))
   
-  val printer = system.actorOf(Props(new PrinterActor()))
+  val printer = context.system.actorOf(Props(new PrinterActor()))
   
   
   def receive = {
     case Calculate() => {
       for (i <- 0 to nrOfMessages - 1) {
-        println(i * nrOfElements)
-        println((i + 1) * nrOfElements)
         router ! new Work(i * nrOfElements, (i + 1) * nrOfElements)
       }
     }
@@ -65,7 +62,7 @@ class PrinterActor extends Actor {
   def receive = {
     case eApproximation(eAproximation) => {
       println(eAproximation)
-      system.shutdown()
+      context.system.shutdown()
     }
   }
 }
@@ -74,7 +71,7 @@ object Main extends App {
  
   println("start")
   val system = ActorSystem("AkkaProjectInScala")
-  val master = system.actorOf(Props(new Master(2, 10, 2)))
+  val master = system.actorOf(Props(new Master(10, 50, 10)))
   master ! new Calculate()
   
 }
