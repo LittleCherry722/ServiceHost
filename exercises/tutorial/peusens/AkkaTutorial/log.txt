@@ -1,0 +1,6 @@
+[info] Loading project definition from C:\Users\Christoph\workspace\sbpm\exercises\tutorial\peusens\AkkaTutorial\project
+[info] Set current project to AkkaTutorial (in build file:/C:/Users/Christoph/workspace/sbpm/exercises/tutorial/peusens/AkkaTutorial/)
+[info] Running de.tkip.akkatutorial.Main 
+start
+[INFO] [12/08/2014 18:43:15.192] [AkkaProjectInScala-akka.actor.default-dispatcher-2] [akka://AkkaProjectInScala/user/$a] Message [de.tkip.akkatutorial.Calculate] from Actor[akka://AkkaProjectInScala/deadLetters] to Actor[akka://AkkaProjectInScala/user/$a#-849663463] was not delivered. [1] dead letters encountered. This logging can be turned off or adjusted with configuration settings 'akka.log-dead-letters' and 'akka.log-dead-letters-during-shutdown'.
+Batchvorgang abbrechen (J/N)? 

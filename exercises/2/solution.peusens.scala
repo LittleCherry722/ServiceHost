@@ -35,6 +35,11 @@ object Tasks extends Tasks {
 
       // your solution for task 1 here
       def signum(x: Int) = if (x > 0) 1 else if (x < 0) -1 else 0
+      
+      
+      println(signum(-1))
+      println(signum(1))
+      
     }
   }
 
@@ -48,6 +53,15 @@ object Tasks extends Tasks {
     }
   }
 
+  new Task("Task 4") {
+    def solution() = {
+
+      for(i <- 0 to 10){
+	    println(n-i)
+	  }
+    }
+  }
+
 
   new Task("Task 5") {
     def solution() = {
@@ -58,6 +72,8 @@ object Tasks extends Tasks {
 		  println(n-i)
 		}
 	  }
+      
+      countdown(5)
     }
   }
 
@@ -79,6 +95,8 @@ object Tasks extends Tasks {
           x * pow(x, n-1)
         }
       }
+      
+      println(pow(2,2))
   }
 
 }

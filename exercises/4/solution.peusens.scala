@@ -66,6 +66,14 @@ object Tasks extends Tasks {
     def solution() = {
 
       // your solution for task 7 here
+      import scala.collection.JavaConversions.propertiesAsScalaMap
+      
+      val props: scala.collection.Map[String, String] = System.getProperties()
+      val key_length: Int = (for((k, v) <- props) yield key.length).max
+      
+      for((k, v) <- props){
+        println(key + (" " * (key_length - key.length)) + " | " + value)
+      }
 
     }
   }
@@ -77,6 +85,10 @@ object Tasks extends Tasks {
 	 def minmax(values: Array[Int]): (Int, Int) = {
 	   (values.min, values.max)
 	 }
+	 
+	 val a = Array(1, 1, 2, 2, 3, 3, 4, 4)
+	 println(minmax(a))
+	 
     }
   }
 
@@ -87,6 +99,10 @@ object Tasks extends Tasks {
       def lteqgt(values: Array[Int], v: Int) = {
         (values.count(_ < v), values.count(_ == v), values.count(_ > v))
 	  }
+      
+      val a = Array(1, 1, 2, 2, 3, 3, 4, 4)
+	  println(lteqgt(a, 2))
+      
     }
   }
 

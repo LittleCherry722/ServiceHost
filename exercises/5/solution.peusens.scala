@@ -131,9 +131,9 @@ object Tasks extends Tasks {
       
         def age: Int = privateAge
         def age_(newValue: Int): Unit = {
-        if (newValue > privateAge) privateAge = newValue;
+          if (newValue > privateAge) privateAge = newValue;
+        }
       }
-    }
     
       
     }
