@@ -39,7 +39,7 @@ object main extends App with ClassTraceLogger {
 
   import DefaultJsonProtocol._
   import StubGeneratorActor.serviceExportFormat
-  
+
 
   var currentId = 777
   private def nextId = {
@@ -50,7 +50,7 @@ object main extends App with ClassTraceLogger {
 
   implicit val timeout = Timeout(15 seconds)
 
-  
+
   protected def configString(key: String) =
     system.settings.config.getString(key)
 

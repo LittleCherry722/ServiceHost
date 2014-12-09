@@ -159,7 +159,6 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
       answer { session =>
         processes.filter(_.id === id).delete(session)
       }
-      println("!!!!!!!!!!! process deleted: " + id)
       changeActor ! ProcessDelete(id, new java.util.Date())
     }
   }

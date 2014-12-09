@@ -50,8 +50,7 @@ case class ArchiveStateActor(data: StateData)
       val format=new SimpleDateFormat("yyyy_MM_dd HH_mm_ss")
       val date=format.format(new Date);
       val f = new File(archivePath+"archive"+"_"+date+".log")
-     
-      println(f.getAbsolutePath())
+
       val writer = new PrintWriter(f)
       writer.write(msg)
       writer.close()

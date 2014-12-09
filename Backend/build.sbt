@@ -33,7 +33,6 @@ mergeStrategy in assembly := {
   case _ => MergeStrategy.first
 }
 
-
 // Parameters for Eclipse
 
 retrieveManaged := true

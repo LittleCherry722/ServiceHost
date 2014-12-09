@@ -34,7 +34,6 @@ class ReferenceXMLActor extends InstrumentedActor {
       sender !! getAllReferences
     }
     case getReference: GetClassReferenceMessage => {
-      println("########################" + getReference.subjectId )
       sender !! getReferenceMessage(getReference.subjectId)
     }
   }

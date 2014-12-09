@@ -21,7 +21,7 @@ import de.tkip.sbpm.application.subject.misc.Stored
 import de.tkip.servicehost.{main, ActorLocator}
 import de.tkip.servicehost.ServiceAttributes._
 import scala.collection.immutable.List
-import scala.collection.mutable.{Queue, Map}
+import scala.collection.mutable.{ListBuffer, Queue, Map}
 import de.tkip.sbpm.application.subject.misc.Rejected
 import scala.concurrent.{ExecutionContext, Await}
 import ExecutionContext.Implicits.global
@@ -30,23 +30,27 @@ import scala.concurrent.Await
 
 class $TemplateServiceActor extends ServiceActor {
   override protected val INPUT_POOL_SIZE: Int = 20
-
   override protected val serviceID: ServiceID = "$SERVICEID"
   override protected val subjectID: SubjectID = "$SERVICEID"
   protected val serviceInstanceMap = Map[SubjectID, ServiceActorRef]()
   val tempAgentsMap = collection.mutable.Map[String, ProcessInstanceActor.Agent]()
   var from: SubjectID = null
   var processInstanceIdentical: String = ""
-  var managerURL:String = ""
+  var managerURL: String = ""
+  val startNodeIndex: String = "$STARTNODEINDEX"
+
 
   override protected def states: List[State] = List(
     //$EMPTYSTATE$//
   )
 
+  //  private val branchMap: Map[Int, List[Tuple2[String, Int]]] = Map(
+  //    //$EMPTYBRANCHMAP$//
+  //  )
+
   // start with first state
-  // TODO: that is not always the start state!
   def getStartState(): State = {
-    getState(0)
+    getState("$STARTNODEINDEX".toInt)
   }
 
   private val messages: Map[MessageType, MessageText] = Map(
@@ -55,6 +59,7 @@ class $TemplateServiceActor extends ServiceActor {
 
   private val inputPool: scala.collection.mutable.Map[Tuple2[MessageType, SubjectID], Queue[SubjectToSubjectMessage]] = scala.collection.mutable.Map()
   // Subject default values
+  private val variablesOfSubject = scala.collection.mutable.Map[String, Variable]()
   private var target = -1
   private var messageContent: String = "" // will be used in getResult
 
@@ -76,7 +81,7 @@ class $TemplateServiceActor extends ServiceActor {
           log.debug("processMsg: key = " + key)
 
           if (inputPool.contains(key) && inputPool(key).length > 0) {
-            message = inputPool(key).dequeue;
+            message = inputPool(key).dequeue
           }
         }
 
@@ -117,28 +122,35 @@ class $TemplateServiceActor extends ServiceActor {
       messageID,
       processID,
       1,
-      subjectID, //from
+      subjectID,
       target,
       messageType,
       getMessage(),
-      None, //fileID
+      None,
       fileInfo,
-      Some(processInstanceIdentical) //processInstanceIdentical
+      Some(processInstanceIdentical)
     )
-
+    // detemine receiver
     if (targetSubjectID.contains(from)) {
-      sender !! message
+      if (tempAgentsMap(targetSubjectID).address.toUrl == managerURL)
+        manager !! message
+      else sender !! message
     } else {
       if (!serviceInstanceMap.contains(targetSubjectID)) {
         if (tempAgentsMap.contains(targetSubjectID)) {
-          if (tempAgentsMap(targetSubjectID) == managerURL) {
+          if (tempAgentsMap(targetSubjectID).address.toUrl == managerURL) {
             manager !! message // return to Backend
+            receiver = manager
           } else {
             // if targetSubjectID is in tempAgentsMap, this means the service has been created. The SubjectToSubject can be sent to serviceActorManager
             val agentsAddr = tempAgentsMap(targetSubjectID).address.toUrl
-            val path = "akka.tcp" + "://sbpm" + agentsAddr + "/user/" + BackendActorLocator.subjectProviderManagerActorName //>>>>
+            val path = "akka.tcp" + "://sbpm" + agentsAddr + "/user/" + BackendActorLocator.subjectProviderManagerActorName
             val agentManagerSelection = context.actorSelection(path)
-            agentManagerSelection !! message // serviceActorManager will forward message to correspond service.
+            //agentManagerSelection !! message // serviceActorManager will forward message to correspond service.
+            val future = agentManagerSelection ?? AskForServiceInstance(processInstanceIdentical, targetSubjectID) // get targetServiceInstance
+            val serviceInstance = Await.result(future, (5 seconds)).asInstanceOf[ActorRef]
+            serviceInstance !! message
+            receiver = serviceInstance
           }
         } else {
           // targetSubjectId isn't in tempAgentsMap.The service need to ask repository about targetAgent.
@@ -175,6 +187,7 @@ class $TemplateServiceActor extends ServiceActor {
                 serviceInstanceMap += targetSubjectID -> processInstanceCreatedAnswer.processInstanceActor
                 serviceInstance = processInstanceCreatedAnswer.processInstanceActor
                 serviceInstance !! message
+                receiver = serviceInstance
               } else {
                 // TODO exception or log?
                 throw new Exception("processInstance Created failed for " +
@@ -185,19 +198,41 @@ class $TemplateServiceActor extends ServiceActor {
       } else {
         serviceInstance = serviceInstanceMap(targetSubjectID)
         serviceInstance !! message
+        receiver = serviceInstance
       }
     }
+
+    //    if (state.variableId == null) {
+    //      receiver !! message //  Normal SubjectToSubjectMessage
+    //    } else if (state.variableId != null && variablesOfSubject.contains(state.variableId)) {
+    //      val newMessage = message.copy(messageContent = variablesOfSubject(state.variableId).toString())
+    //      receiver !! newMessage // send Variable
+    //
+    //    } else
+    //      log.error("wrong message!!!!")
+    //
   }
 
   def stateReceive = {
     case message: SubjectToSubjectMessage => {
       // TODO forward /set variables?
       log.debug("receive message: " + message)
+      from = message.from
       storeMsg(message, sender)
 
       state match {
-        case rs: ReceiveState =>
+        case rs: ReceiveState => {
+          if (rs.variableId != null) {
+            if (variablesOfSubject.contains(rs.variableId)) {
+              variablesOfSubject(rs.variableId).addMessage(sender, message)
+            } else {
+              variablesOfSubject += (rs.variableId) -> Variable(rs.variableId)
+              variablesOfSubject(rs.variableId).addMessage(sender, message)
+            }
+          }
+
           processMsg()
+        }
         case _ =>
           log.info("message will be handled when state changes to ReceiveState. Current state is: " + state)
       }
@@ -212,7 +247,11 @@ class $TemplateServiceActor extends ServiceActor {
     }
 
     case x: Stored => {
-      log.debug(" message has been stored.")
+      log.debug(" message has been stored.  " + x)
+    }
+
+    case variable: Variable => {
+
     }
   }
 
@@ -229,14 +268,16 @@ class $TemplateServiceActor extends ServiceActor {
 
           } else log.warning("no branchcodition defined")
 
-        } else state = getState(state.targetIds.head._2)
-
-        // TODO: state könnte null sein, oder auch der alte..
+        } else {
+          state = getState(state.targetIds.head._2)
+          log.debug("changeState: new state: " + state)
+        }
         state.process()
+        // TODO: state könnte null sein, oder auch der alte..
       }
     }
-    log.debug("changeState: new state: " + state)
   }
+
 
   def getState(id: Int): State = {
     states.find(x => x.id == id).getOrElse(null)

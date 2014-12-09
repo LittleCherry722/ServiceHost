@@ -48,6 +48,10 @@ class ServiceActorManager extends InstrumentedActor {
       val targetServiceID = message.target.subjectID
       identicalServiceMap(message.processInstanceidentical.get,targetServiceID)forward(message)
     }
+
+    case msg: AskForServiceInstance => {
+      sender !! identicalServiceMap(msg.processInstanceIdentical, msg.targetSubjectId)
+    }
     case request: CreateServiceInstance => {
       log.debug("got CreateServiceInstance: " + request)
       for (targetIdNumber <- 0 until request.target.size) {

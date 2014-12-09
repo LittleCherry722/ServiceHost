@@ -24,8 +24,8 @@ object Messages {
   case class KillProcess(serviceID: ServiceID, processInstanceID: ProcessInstanceID)
   // Service Messages
   case class AddService(id: String, className: String, packagePath: String)
-  case class AskForProcessInstanceidentical(processInstanceID: ProcessInstanceID)
-
+ // case class AskForProcessInstanceidentical(processInstanceID: ProcessInstanceID)
+case class AskForServiceInstance(processInstanceIdentical: String, targetSubjectId: SubjectID)
   
   case class UpdateRepository(host: String, port: String)
   case class UploadService(serviceId: String, serviceClassName: String, serviceClasses: ServiceClasses, serviceJsonName: String, serviceJson: ServiceJson)

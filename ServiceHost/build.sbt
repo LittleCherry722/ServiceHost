@@ -2,7 +2,7 @@ name := "Sbpm Service Host"
 
 version := "1.0"
 
-scalaVersion := "2.11.1"
+scalaVersion := "2.11.4"
 
 resolvers ++= Seq(
     "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
@@ -19,5 +19,3 @@ libraryDependencies ++= Seq(
     "io.spray" %% "spray-routing" % "1.3.1",
     "io.spray" %% "spray-json" % "1.2.6"
 )
-
-unmanagedSourceDirectories in Compile += baseDirectory.value / ".." / "eventbus"

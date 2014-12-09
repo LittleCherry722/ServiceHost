@@ -78,14 +78,14 @@ class RepositoryPersistenceActor extends InstrumentedActor {
       log.debug("-------------------------------------------------------------")
       log.debug(interface)
       log.debug("-------------------------------------------------------------")
-      val result = Http.postData(repoLocation + "interfaces", interface)
+      val result = Http(repoLocation + " interfaces").postData(interface)
         .charset("UTF-8")
         .header("Content-Type", "application/json; charset=UTF-8")
         .header("Charset", "UTF-8")
         .option(HttpOptions.readTimeout(10000))
         .asString
       log.debug("[SAVE INTERFACE] repository says: " + result)
-      sender !! Some(result.toInt)
+      sender !! Some(result.body.toInt)
     }
 
     case DeleteInterface(interfaceId) => {
@@ -96,7 +96,7 @@ class RepositoryPersistenceActor extends InstrumentedActor {
         .header("Content-Type", "application/json; charset=UTF-8")
         .header("Charset", "UTF-8")
         .option(HttpOptions.readTimeout(10000))
-        .responseCode
+        .asString.code
       log.debug("[SAVE INTERFACE] repository says: " + result)
       sender !! (None)
     }
@@ -110,7 +110,7 @@ class RepositoryPersistenceActor extends InstrumentedActor {
         .asString
       log.info("received new agents mapping for subjectIds: {}", externalSubjectIds)
       log.info("String response: {}", newAgentsString)
-      val newAgentsMap = newAgentsString.asJson.convertTo[Map[String, Set[Agent]]]
+      val newAgentsMap = newAgentsString.body.asJson.convertTo[Map[String, Set[Agent]]]
       log.info("JSON parsed mapping: {}", newAgentsMap)
       sender !! AgentsMappingResponse(newAgentsMap)
     }

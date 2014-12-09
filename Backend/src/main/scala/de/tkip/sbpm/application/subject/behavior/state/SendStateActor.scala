@@ -126,7 +126,6 @@ case class SendStateActor(data: StateData)
         messageContent = action.actionData.messageContent
         for (transition <- exitTransitions if transition.target.isDefined) {
           blockingHandlerActor ! BlockUser(userID) // TODO handle several targetusers
-
           val messageType = transition.messageType
           val toSubject = transition.subjectID
           val messageID = nextMessageID
@@ -232,6 +231,7 @@ case class SendStateActor(data: StateData)
     case msg: SubjectToSubjectMessage => {
       context.parent.forward(msg)
     }
+
   }
 
   // TODO only send targetUserData when its not trivial
