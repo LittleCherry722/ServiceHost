@@ -38,6 +38,7 @@ class Master(nrOfWorkers: Int, nrOfMessages: Int, nrOfElements: Int) extends Act
   val workers = for (i <- 0 until nrOfWorkers) yield system.actorOf(Props(new Worker()))
   
   val router = system.actorOf(Props.empty.withRouter(RoundRobinRouter(routees = workers)))
+  //val router = system.actorOf(Props.empty.withRouter(RoundRobinRouter(nrOfInstances = nrOfWorkers)))
   
   val printer = system.actorOf(Props(new PrinterActor()))
   
