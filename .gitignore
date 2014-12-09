@@ -29,9 +29,13 @@ ServiceHost/nbproject/*
 .idea
 *.iml
 
+# eclipse project files
+.classpath
+.project
+
 /pids
 backend_*.jar
 repository.jar
 /target
-sbpm_*.db
+sbpm_*.db*
 repo.db
