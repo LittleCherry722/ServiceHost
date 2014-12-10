@@ -54,7 +54,7 @@ object Tasks extends Tasks {
 
       // your solution for task 3 here
       def swap(a: Array[Int]): Array[Int] = {
-        val b = ArrayBuffer[Int]()
+        val b = scala.collection.mutable.ArrayBuffer[Int]()
         for (i <- 0 until (a.length, 2)) yield {
           if (i != (a.length - 1)){
             b += a(i + 1)
@@ -79,8 +79,8 @@ object Tasks extends Tasks {
 
       // your solution for task 4 here
       def reorder(a: Array[Int]): Array[Int] = {
-        val b1 = ArrayBuffer[Int]()
-        val b2 = ArrayBuffer[Int]()
+        val b1 = scala.collection.mutable.ArrayBuffer[Int]()
+        val b2 = scala.collection.mutable.ArrayBuffer[Int]()
         
         //sort into arraybuffer b1 and b2
         for (i <- 0 until a.length){
@@ -98,6 +98,9 @@ object Tasks extends Tasks {
         
         b1.toArray
       }
+      
+      val a = Array(1, -1, 2, -3, 5, -8, 13, -21)
+      println(reorder(a).mkString("\n"))
 
     }
   }
@@ -111,6 +114,9 @@ object Tasks extends Tasks {
       def noDublicates(a: Array[Int]): Array[Int] = {
         a.distinct
       }
+      
+      val a = Array(1, 1, 2, 2, 3, 3, 4, 4)
+      println(noDublicates(a).mkString("\n"))
 
     }
   }
