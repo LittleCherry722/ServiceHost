@@ -1,0 +1,13 @@
+*.aux
+*.len
+*~
+*.log
+*.toc
+*.dvi
+*.backup
+*.pdf
+*.nav
+*.out
+*.snm
+*.swp
+*.synctex.gz
