@@ -29,7 +29,7 @@
 
 				<label class="radio">
 					<input type="radio" id="ge_edge_type_exception" name="ge_edge_type" />
-					Error Condition
+					Cancel Condition
 				</label>
 
 				<label class="radio">
@@ -64,8 +64,18 @@
 
 			<div id="ge_edge_target_outer" style="display:none;">
 				<label class="graphsectionheader">Related Subject:</label>
-
 				<select id="ge_edge_target" ></select>
+
+		    <div id="ge_edge_exchange_target_outer" style="display:none;">
+		    	<label class="graphsectionheader">Exchange Foreign ID:</label>
+		    	<select id="ge_edge_exchange_target" ></select>
+        </div>
+
+		    <div id="ge_edge_exchange_origin_outer" style="display:none;">
+		    	<label class="graphsectionheader">Exchange own ID:</label>
+		    	<select id="ge_edge_exchange_origin" ></select>
+        </div>
+
 				<div id="ge_edge_target_new_outer" style="display:none;">
 					<label class="graphsectionheader">Name:</label>
 					<input type="text" id="ge_edge_target_new_name"  />
@@ -78,16 +88,21 @@
 				<select id="ge_edge_transportMethod" class="chosen" multiple="multiple" rows="4"></select>
 
 				<div id="ge_edge_target_multi_outer" style="display:none;">
-					<input type="radio" id="ge_edge_target_multi_type_all" name="ge_edge_target_multi_type">
-					<label  class="graphsectionheader">All known subjects</label>
-					<input type="radio" id="ge_edge_target_multi_type_var" name="ge_edge_target_multi_type">
-					<label  class="graphsectionheader">load from Variable</label>
-					<div id="ge_edge_target_multi_type_var_outer" style="display:none;">
-						<select id="ge_edge_target_multi_variable" ></select>
-						<div id="ge_edge_target_multi_variable_text_outer" style="display:none;">
-							<label  class="graphsectionheader">new Variable:</label>
-							<input type="text" id="ge_edge_target_multi_variable_text"  />
-						</div>
+				  <label class="graphsectionheader">Send to:</label>
+					<label class="radio">
+					  <input type="radio" id="ge_edge_target_multi_type_all" name="ge_edge_target_multi_type">
+            To Subject(s)
+          </label>
+					<label class="radio">
+					  <input type="radio" id="ge_edge_target_multi_type_var" name="ge_edge_target_multi_type">
+            To Variable
+          </label>
+				</div>
+				<div id="ge_edge_target_type_var_outer" style="display:none;">
+					<select id="ge_edge_target_variable" ></select>
+					<div id="ge_edge_target_variable_text_outer" style="display:none;">
+						<label  class="graphsectionheader">new Variable:</label>
+						<input type="text" id="ge_edge_target_variable_text"  />
 					</div>
 				</div>
 
@@ -98,7 +113,7 @@
 			</div>
 
 			<div id="ge_edge_store_outer" style="display:none; margin-top:10px;">
-				<label  class="graphsectionheader">Store Messages in Var:</label>
+				<label  class="graphsectionheader">Use Variable:</label>
 				<select id="ge_edge_store_variable" ></select>
 				<div id="ge_edge_store_variable_new_outer" style="display:none;">
 					<label  class="graphsectionheader">Create new var:</label>
@@ -132,6 +147,8 @@
         </div>
 		<input type="button" id="UpdateEdgeButton" data-bind="tooltip : 'Macro : Press &#34;U&#34;'" onclick="gv_graph.updateEdge();" value="Update transition" />
 		<input type="button" id="DeleteEdgeButton" data-bind="tooltip : 'Macro : Press &#34;D&#34;'" onclick="gv_graph.deleteEdge();" value="Remove transition" />
+		<input type="button" id="SetStartNodeButton" onclick="gv_graph.updateEdgeStartNode();" value="Set Start Node" />
+		<input type="button" id="SetEndNodeButton" onclick="gv_graph.updateEdgeEndNode();" value="Set Destination Node" />
 	</fieldset>
 
 	<fieldset data-bind="if: isNodeSelected">
@@ -226,15 +243,15 @@
 			</div>
 
 		</div>
-		
+
 		<div id="ge_node_create_subjects_outer" style="display:none;">
 			<label class="graphsectionheader">Multi-Subject:</label>
 			<select id="ge_node_create_subjects_subject"></select>
 			<br>
-			
+
 			Min: <input type="text" id="ge_node_create_subjects_min" style="width:30px;">
 			Max: <input type="text" id="ge_node_create_subjects_max" style="width:30px;">
-			
+
 			<label class="graphsectionheader">Store to:</label>
 			<select id="ge_node_create_subjects_variable"></select>
 			<div id="ge_node_create_subjects_cvar_outer" style="display:none;">
@@ -242,21 +259,36 @@
 				<input type="text" id="ge_node_create_subjects_cvar_text" />
 			</div>
 		</div>
-					<div id="ge_edge_target_multi_minmax_outer" style="display:none;">
-						Min: <input type="text" id="ge_edge_target_multi_min" style="width:30px;">
-						Max: <input type="text" id="ge_edge_target_multi_max" style="width:30px;">
-					</div>
+
+		<div id="ge_node_choose_agent_outer" style="display:none;">
+			<label class="graphsectionheader">Choose agent subject:</label>
+			<select id="ge_node_choose_agent_subject"></select>
+		</div>
+
+
+		<div id="ge_node_blackboxname_outer" style="display:none;">
+			<label class="graphsectionheader">Blackbox Name:</label>
+			<select id="ge_node_blackboxname"></select>
+			<div id="ge_node_blackboxname_new_outer" style="display:none;">
+				<label class="graphsectionheader">New Blackbox:</label>
+				<input type="text" id="ge_node_blackboxname_new" />
+			</div>
+		</div>
+
+		<div id="ge_edge_target_multi_minmax_outer" style="display:none;">
+			Min: <input type="text" id="ge_edge_target_multi_min" style="width:30px;">
+			Max: <input type="text" id="ge_edge_target_multi_max" style="width:30px;">
+		</div>
 
 		<label class="graphsectionheader">Comment:</label>
 		<textarea id="ge_node_comment" ></textarea>
 
 
-        <div data-bind="if: selectedNodeHasPositionOffset">
-            <input type="button" data-bind="click: resetManualPositionOffsetNode" value="Reset manual position" />
-        </div>
+    <div data-bind="if: selectedNodeHasPositionOffset">
+      <input type="button" data-bind="click: resetManualPositionOffsetNode" value="Reset manual position" />
+    </div>
 		<input type="button" id="UpdateNodeButton" data-bind="tooltip : 'Macro : Press &#34;A&#34;'" onclick="gv_graph.updateNode();" value="Update state" />
 		<input type="button" id="ConnectNodeButton" data-bind="tooltip : 'Macro : Press &#34;C&#34;'" onclick="gv_graph.connectNodes();" value="Connect state" />
 		<input type="button" id="DeleteNodeButton" onclick="gv_graph.deleteNode();" value="Delete state" />
 	</fieldset>
 </div>
-
