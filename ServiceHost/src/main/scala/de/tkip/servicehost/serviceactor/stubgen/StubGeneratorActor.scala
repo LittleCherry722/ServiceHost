@@ -68,7 +68,6 @@ class StubGeneratorActor extends InstrumentedActor {
 
   //val edgeMap = scala.collection.mutable.Map[Int, List[String]]()
   val edgeMap = scala.collection.mutable.Map[Int, List[Tuple2[String, Int]]]()
-  val branchMap = scala.collection.mutable.Map[Int, List[Tuple2[String, Int]]]()
   var startNodeIndex: String = ""
 
   def main(args: Array[String]) {
@@ -149,20 +148,7 @@ class StubGeneratorActor extends InstrumentedActor {
     }
     for ((id, node) <- nodes) {
       if (node.isStart == true) {
-         startNodeIndex = id.toString
-      }
-    }
-    for ((id, node) <- nodes) {
-
-      if (node.nodeType == "action") {
-        if (!actionStateNumber.contains("action")) {
-          //how many actionstate in this service
-          val actionStateId = List(id.toInt)
-          actionStateNumber += "action" -> actionStateId
-        } else {
-          val actionStateId = actionStateNumber("action")
-          actionStateNumber += "action" -> (id.toInt :: actionStateId)
-        }
+        startNodeIndex = id.toString
       }
     }
 
@@ -200,23 +186,27 @@ class StubGeneratorActor extends InstrumentedActor {
 
         val endId = edge.endNodeId.toInt
 
-
-        // add this edge to its starting node
         state.targets += (text -> target)
         state.targetIds += (text -> endId)
+
       } else {
-        val text = "\"" + edge.startNodeId.toString + "\""
-        state.targetIds += (text -> edge.endNodeId)
+        if (edgeMap(startNodeId.toInt).size == 1) {
+          val text = "\"" + edge.startNodeId.toString + "\""
+          state.targetIds += (text -> edge.endNodeId)
+        } else {
+          // multi edges
+          state.targetIds.clear()
+          for (i <- 0 until edgeMap(startNodeId.toInt).size) {
+            val text = "\"" + edgeMap(startNodeId.toInt)(i)._1 + "\""
+            state.targetIds += (text -> edgeMap(startNodeId.toInt)(i)._2)
+          }
+        }
+
       }
 
       state.variableId = "\"" + edge.variableId.getOrElse("") + "\""
 
 
-    }
-    for ((k, v) <- edgeMap) {
-      if (v.length > 1) {
-        branchMap += k -> v
-      }
     }
     statesList
 
@@ -232,7 +222,6 @@ class StubGeneratorActor extends InstrumentedActor {
     for (state <- states.values) {
       state match {
         case s: ActionState => {
-          //println(s.toString().replaceFirst("\\(", s.id + "(") + ",")		//deeebug
           //          text = text + (s.toString().replaceFirst("\\(", s.id + "(") + ",")                
           text = text + (s.toString.replaceFirst("ActionState", s.text.replaceAll("\"", "").replaceAll(" ", "").replaceAll("\\p{Punct}", ""))) + ","
         }
@@ -256,7 +245,6 @@ class StubGeneratorActor extends InstrumentedActor {
     }
     classText = fillInMessages(classText, messages)
     //classText = fillInVariables(classText, variables)
-    //classText = fillInBranchMap(classText,branchMap)
     var impementation: String = ""
     for (state <- states.values) {
       state match {
@@ -264,31 +252,15 @@ class StubGeneratorActor extends InstrumentedActor {
 
           impementation = impementation + "\n  case class " + state.text.replaceAll("\"", "").replaceAll(" ", "").replaceAll("\\p{Punct}", "") + "(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String, override val variableId: String) extends State(\"action\", id, exitType, targets, targetIds, text, variableId) {\n"
           impementation = impementation + "\n    def process()(implicit actor: ServiceActor) {"
-
-          if (edgeMap(s.id).length > 1) {
-            impementation = impementation + "\n		  messageContent match {"
-            for (i <- 0 until branchMap(s.id).length) {
-              impementation = impementation + "\n			  case _ if (true) => {"
-              impementation = impementation + "\n         actor.setMessage(\"\")"
-              impementation = impementation + "\n         " + branchMap(s.id)(i)._1 + "(" + branchMap(s.id)(i)._2 + ")\n"
-              impementation = impementation + "\n      }"
-
-            }
-            impementation = impementation + "\n	}"
-          } else {
-            impementation = impementation + "\n      actor.setMessage(\"\") //TODO set message"
-          }
-
-          impementation = impementation + "\n      actor.changeState()\n"
-
           if (edgeMap(s.id).length > 1) {
             for (i <- 0 until edgeMap(s.id).length) {
-              impementation = impementation + "\n	  def " + branchMap(s.id)(i)._1 + "(index: Int) = {\n"
-              impementation = impementation + "		     actor.changeState()\n"
-              impementation = impementation + "\n	  }"
+              impementation = impementation + "\n			  if(true) {" + "// custom condition"
+              impementation = impementation + "\n           branchCondition = " + "\"" + edgeMap(s.id)(i)._1 + "\""
+              impementation = impementation + "\n      }"
             }
           }
-
+          impementation = impementation + "\n          actor.setMessage(\"\") //TODO set message"
+          impementation = impementation + "\n          actor.changeState()\n"
           impementation = impementation + "\n    	}"
           impementation = impementation + "\n  }"
         }
@@ -296,19 +268,12 @@ class StubGeneratorActor extends InstrumentedActor {
         case s: DecisionState => {
           impementation = impementation + "\n  case class " + state.text.replaceAll("\"", "").replaceAll(" ", "").replaceAll("\\p{Punct}", "") + "(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String, override val variableId: String) extends State(\"action\", id, exitType, targets, targetIds, text, variableId) {\n"
           impementation = impementation + "\n    def process()(implicit actor: ServiceActor) {"
-          impementation = impementation + "\n		      messageContent match {"
-          for (i <- 0 until branchMap(s.id).length) {
-            impementation = impementation + "\n           case _ if (true) =>  " + branchMap(s.id)(i)._1 + "(" + branchMap(s.id)(i)._2 + ")"
+          for (i <- 0 until edgeMap(s.id).size) {
+            impementation = impementation + "\n		    if(true) {" + "// custom condition"
+            impementation = impementation + "\n           branchCondition = " + "\"" + edgeMap(s.id)(i)._1 + "\""
+            impementation = impementation + "\n       }"
           }
-          impementation = impementation + "\n         }"
-
-          for (i <- 0 until branchMap(s.id).length) {
-            impementation = impementation + "\n     def " + branchMap(s.id)(i)._1 + "(index: Int) = {\n"
-            impementation = impementation + "           actor.changeState()\n"
-            impementation = impementation + "       }"
-
-          }
-
+          impementation = impementation + "\n         actor.changeState()"
           impementation = impementation + "\n    }"
           impementation = impementation + "\n }"
         }
@@ -332,15 +297,6 @@ class StubGeneratorActor extends InstrumentedActor {
     }
     classText.replace("//$EMPTYMESSAGE$//", text.subSequence(0, text.length - 1))
   }
-
-//  def fillInBranchMap(classText: String, branchMap: scala.collection.mutable.Map[Int, List[Tuple2[String, Int]]]): String = {
-//    var text = ""
-//    for ((startNode, branches) <- branchMap) {
-//      text = text + startNode + " -> " + branches
-//       //text = text + startNode + " -> " + branches.foreach( branch => branch.copy(_1 = "\"" + branch._1 + "\"")) + ", "
-//    }
-//    classText.replace("//$EMPTYBRANCHMAP$//", text.subSequence(0, text.length - 2))
-//  }
 
   //  def fillInVariables(classText: String, variables: Map[String, String]): String = {
   //    var text = ""

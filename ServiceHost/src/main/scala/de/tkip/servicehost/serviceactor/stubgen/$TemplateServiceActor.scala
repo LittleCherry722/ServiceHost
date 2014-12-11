@@ -44,10 +44,6 @@ class $TemplateServiceActor extends ServiceActor {
     //$EMPTYSTATE$//
   )
 
-  //  private val branchMap: Map[Int, List[Tuple2[String, Int]]] = Map(
-  //    //$EMPTYBRANCHMAP$//
-  //  )
-
   // start with first state
   def getStartState(): State = {
     getState("$STARTNODEINDEX".toInt)
@@ -273,7 +269,6 @@ class $TemplateServiceActor extends ServiceActor {
           log.debug("changeState: new state: " + state)
         }
         state.process()
-        // TODO: state könnte null sein, oder auch der alte..
       }
     }
   }
