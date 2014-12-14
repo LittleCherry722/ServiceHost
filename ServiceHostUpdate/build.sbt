@@ -2,15 +2,16 @@ name := "Sbpm Service Host Update"
 
 version := "1.0"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.11.1"
+
 
 resolvers ++= Seq(
     "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
 )
 
 libraryDependencies ++= Seq(
-    "com.typesafe.akka" %% "akka-actor" % "2.2.3",
-    "com.typesafe.akka" %% "akka-remote" % "2.2.3",
-    "org.scalaj" %% "scalaj-http" % "0.3.12"
+    "com.typesafe.akka" %% "akka-actor" % "2.3.4",
+    "com.typesafe.akka" %% "akka-remote" % "2.3.4",
+    "org.scalaj" %% "scalaj-http" % "0.3.15"
 )
 
