@@ -10,5 +10,9 @@ class ReceiveStateActor(s: State) extends AbstractBeviorStateActor(s) {
       sender ! Ack
     }
     // TODO implement ExecuteAction
+    case ExecuteAction(_, succ) if (s.transitions contains succ) => {
+      // change state
+      context.parent ! ChangeState(succ)
+    }
   }
 }
