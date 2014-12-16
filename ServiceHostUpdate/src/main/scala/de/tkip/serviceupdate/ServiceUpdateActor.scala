@@ -28,8 +28,9 @@ class ServiceUpdateActor extends Actor {
       
     }
     case msg: UploadServiceToHost => {
-       val serviceHost: ActorRef = context.actorFor("akka.tcp://sbpm@" + msg.host + ":" + msg.port + "/user/subject-provider-manager")
-       sendSourceCode(serviceHost, msg.serviceId, new File(msg.serviceClass), new File(msg.serviceJSON))
+      println(self + " Got UpdateRepository " + sender)
+      val serviceHost: ActorRef = context.actorFor("akka.tcp://sbpm@" + msg.host + ":" + msg.port + "/user/subject-provider-manager")
+      sendSourceCode(serviceHost, msg.serviceId, new File(msg.serviceClass), new File(msg.serviceJSON))
     }
     case anything => println("sth else: " + anything)
   }
