@@ -608,7 +608,7 @@ var gv_topics	= {
 		 * @see tk_graph.js :: gf_paperDblClickNodeC()
 		 * @param {String} ID The id of the double-clicked subject.
 		 */
-		subjectDblClickedInstantInterface:		"tk_graph/subjectDblClickedInternal",
+		subjectDblClickedInstantInterface:		"",
 
 		/**
 		 * notifier topic for when a blackbox (external subject) is double-clicked
