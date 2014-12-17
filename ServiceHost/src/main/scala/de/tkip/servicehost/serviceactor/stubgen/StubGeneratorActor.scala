@@ -66,7 +66,6 @@ class StubGeneratorActor extends InstrumentedActor {
 
   case class DecisionState(id: Int, var exittype: String = null, targets: MutableMap[String, String] = MutableMap(), targetIds: MutableMap[String, Int] = MutableMap(), var text: String = null, var variableId: String = null) extends State
 
-  //val edgeMap = scala.collection.mutable.Map[Int, List[String]]()
   val edgeMap = scala.collection.mutable.Map[Int, List[Tuple2[String, Int]]]()
   var startNodeIndex: String = ""
 
@@ -232,6 +231,7 @@ class StubGeneratorActor extends InstrumentedActor {
       }
     }
     classText = classText.replace("//$EMPTYSTATE$//", text.subSequence(0, text.length - 1))
+
     var f = new File(classPath.replace("$Template", name))
     if (f.exists()) {
       var i = 2

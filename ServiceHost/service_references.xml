@@ -7,4 +7,6 @@
 <reference subjectid="Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557-kiosk" path="de.tkip.servicehost.serviceactor.stubgen.KioskServiceServiceActor" json=".\src\main\resources\service_JSONs\KioskServiceServiceActor.json"/>
 <reference subjectid="Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557-traffic" path="de.tkip.servicehost.serviceactor.stubgen.TrafficServiceServiceActor" json=".\src\main\resources\service_JSONs\TrafficServiceServiceActor.json"/>
 <reference subjectid="Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557-winterservices" path="de.tkip.servicehost.serviceactor.stubgen.WinterServicesServiceServiceActor" json=".\src\main\resources\service_JSONs\WinterServicesServiceServiceActor.json"/>
+<reference subjectid="Subj4:6245f8a2-351e-4b0c-8870-f55e46774600" path="de.tkip.servicehost.serviceactor.stubgen.INFORMATIONKIOSKServiceActor" json=".\src\main\resources\service_JSONs\INFORMATIONKIOSKServiceActor.json"/>
+
       </references>

@@ -91,7 +91,7 @@ object Entities {
 ////    (Process(None, None, false, "Grossunternehmen Dreieck", false) -> loadJson("grossunternehmen_dreieck")),
 ////    (Process(None, None, false, """Staples Dreieck""", false) -> loadJson("staples_dreieck")),
 ////    (Process(None, None, false, """Transportdienstleister Dreieck""", false) -> loadJson("lieferant_dreieck")),
-//    (Process(None, None, false, """Travel Request""", false) -> loadJson("travel_request")), //only process to use roles Supervisor and HR_Data_Access
+(Process(None, None, false, """Travel Request""", false) -> loadJson("travel_request")), //only process to use roles Supervisor and HR_Data_Access
 ////    (Process(None, None, false, """Order""", false) -> loadJson("order")), //only process to use roles Cost_Center_Manager, Purchase_Requisitions and Warehouse
 ////    (Process(None, None, false, """IP Test""", false) -> loadJson("ip_test")),
 ////    (Process(None, None, false, """IP Test Open Close Wildcard""", false) -> loadJson("ip_test_open_close_wildcard")),
@@ -126,7 +126,8 @@ object Entities {
 //    (Process(None, None, false, """VariableInServiceHost""", false) -> loadJson("VariableInServicehost")),
     (Process(None, None, false, """VASEC Bundle""", false) -> loadJson("VASECC Bundle")),
     (Process(None, None, false, """VASEC Bundle TemplateService""", false) -> loadJson("VASECC Bundle TemplateService")),
-    (Process(None, None, false, """VASEC""", false) -> loadJson("VASECC"))
+    (Process(None, None, false, """VASEC""", false) -> loadJson("VASECC")),
+    (Process(None, None, false, """Multi Senders""", false) -> loadJson("MultiSender"))
    )
 
 
