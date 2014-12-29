@@ -831,17 +831,21 @@ function gf_guiDisplaySubject (subject)
 		{
 			gf_guiElementShow(gv_elements.inputSubjectRelOuter);
 
-			console.log("show inputSubjectRelOuter", gv_elements.inputSubjectExtBlackbox, gf_guiElementRead(gv_elements.inputSubjectExtBlackbox, "bool"))
-
 			if (gf_guiElementRead(gv_elements.inputSubjectExtBlackbox, "bool"))
 				gf_guiElementShow(gv_elements.inputSubjectBlackboxnameO);
 			else
 				gf_guiElementHide(gv_elements.inputSubjectBlackboxnameO);
+
+			if (gf_guiElementRead(gv_elements.inputSubjectExtExternal, "bool"))
+				gf_guiElementShow(gv_elements.inputSubjectRelProcessO);
+			else
+				gf_guiElementHide(gv_elements.inputSubjectRelProcessO);
 		}
 		else
 		{
 			gf_guiElementHide(gv_elements.inputSubjectRelOuter);
-			gf_guiElementHide(gv_elements.inputSubjectBlackboxO);
+			gf_guiElementHide(gv_elements.inputSubjectBlackboxnameO);
+			gf_guiElementHide(gv_elements.inputSubjectRelProcessO);
 		}
 	};
 

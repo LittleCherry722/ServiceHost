@@ -89,6 +89,7 @@ var gv_elements = {
 	inputSubjectInputPool:		"ge_cv_inputPool",
 	inputSubjectRelOuter:     "ge_cv_relatedOuter",
 	inputSubjectRelProcess:		"ge_cv_relatedProcess",
+	inputSubjectRelProcessO:	"ge_cv_relatedProcess_outer",
 	inputSubjectRelSubject:		"ge_cv_relatedSubject",
 	inputSubjectRole:         "ge_cv_id",
 	inputSubjectStartSubject:	"ge_cv_startSubject",
