@@ -204,8 +204,18 @@ define([
         this.availableSubjects = availableSubjects;
         this.mergeSubjects = mergeSubjects;
         this.mergeSubject = ko.observable(null);
+
         this.selectedSubjectType = selectedSubjectType;
         this.selectedSubjectId = selectedSubjectId;
+        this.selectedSubjectText = selectedSubjectText;
+        this.selectedSubjectRole = selectedSubjectRole;
+        this.selectedInputPool = selectedInputPool;
+        this.selectedBlackboxName = selectedBlackboxName;
+        this.selectedRelatedProcess = selectedRelatedProcess;
+        this.selectedRelatedSubject = selectedRelatedSubject;
+        this.selectedExternalType = selectedExternalType;
+        this.selectedSubjectComment = selectedSubjectComment;
+
         this.availableConversations = availableConversations;
         this.availableMacros   = availableMacros;
 
@@ -509,8 +519,18 @@ define([
     var availableSubjects = ko.observableArray([]);
     var availableConversations = ko.observableArray([]);
     var availableMacros = ko.observableArray([]);
+
     var selectedSubjectId = ko.observable(null);
-    var selectedSubjectType = ko.observable(null);
+    var selectedSubjectType = ko.observableArray([]);
+    var selectedSubjectText = ko.observable(null);
+    var selectedSubjectRole = ko.observable(null);
+    var selectedInputPool = ko.observable(null);
+    var selectedBlackboxName = ko.observable(null);
+    var selectedRelatedProcess = ko.observable(null);
+    var selectedRelatedSubject = ko.observable(null);
+    var selectedExternalType = ko.observable(null);
+    var selectedSubjectComment = ko.observable(null);
+
     var mergeSubjects = ko.computed(function() {
         var selSubId = selectedSubjectId();
         var res = _(availableSubjects()).filter(function(s) {
@@ -836,7 +856,8 @@ define([
     var subscribeAll = function() {
         subscriptions = [
             $.subscribeOnce( "tk_graph/updateListOfSubjects", updateListOfSubjects ),
-            $.subscribeOnce( "tk_graph/displaySubjectHook", updateSelectedSubject ),
+            $.subscribeOnce( "tk_graph/displaySubjectHook", loadSelectedSubject ),
+            $.subscribeOnce( "tk_graph/readSubjectHook", saveSelectedSubject ),
             $.subscribeOnce( "tk_graph/updateListOfMacros", updateListOfMacros ),
             $.subscribeOnce( "tk_graph/changeViewHook", viewChanged ),
             $.subscribeOnce( "tk_graph/changeViewBV", loadBehaviorView ),
@@ -891,9 +912,43 @@ define([
         availableSubjects( subjects );
     };
 
-    var updateSelectedSubject = function (subj) {
+    var loadSelectedSubject = function (subj) {
         selectedSubjectId(subj.id);
-        selectedSubjectType(subj.type);
+        selectedSubjectType([]);
+        if (subj.isMulti()) selectedSubjectType.push("multi");
+        if (subj.isExternal()) selectedSubjectType.push("external");
+        if (subj.isStartSubject()) selectedSubjectType.push("start");
+        selectedSubjectText(subj.getText());
+        selectedSubjectRole(subj.getRole());
+        selectedInputPool(subj.getInputPool());
+        selectedBlackboxName(subj.getBlackboxname());
+        selectedRelatedProcess(subj.getRelatedProcess());
+        selectedRelatedSubject(subj.getRelatedSubject());
+        selectedSubjectComment(subj.getComment());
+        selectedExternalType(subj.getExternalType());
+    };
+    var saveSelectedSubject = function (subj) {
+        subj.id = selectedSubjectId();
+        if (_.contains(selectedSubjectType(), 'multi')) {
+            if (_.contains(selectedSubjectType(), 'external'))
+                subj.setType('multiexternal');
+            else
+                subj.setType('multi');
+        } else {
+            if (_.contains(selectedSubjectType(), 'external'))
+                subj.setType('external');
+            else
+                subj.setType('single');
+        }
+        subj.setStartSubject(_.contains(selectedSubjectType(), 'start'));
+        subj.setText(selectedSubjectText());
+        subj.setRole(selectedSubjectRole());
+        subj.setInputPool(selectedInputPool());
+        subj.setBlackboxname(selectedBlackboxName());
+        subj.setRelatedProcess(selectedRelatedProcess());
+        subj.setRelatedSubject(selectedRelatedSubject());
+        subj.setComment(selectedSubjectComment());
+        subj.setExternalType(selectedExternalType());
     };
 
     var updateListOfMacros = function() {

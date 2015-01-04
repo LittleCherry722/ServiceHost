@@ -513,7 +513,7 @@ function GCsubject (id, text, type, inputPool)
 	/**
 	 * Returns the ID of the related process (only for external subjects).
 	 *
-	 * @param {String} relatedProcess The ID of the related process.
+	 * @param {Int} relatedProcess The ID of the related process.
 	 * @returns {void}
 	 */
 	this.setRelatedProcess = function (relatedProcess)
