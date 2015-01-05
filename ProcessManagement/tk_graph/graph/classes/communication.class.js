@@ -1388,6 +1388,9 @@ function GCcommunication ()
 				{
 					var gt_role	= gf_isset(gt_subject.role) ? gt_subject.role : gt_subject.id;
 
+					if (gf_isset(gt_subject.relatedProcess))
+						this.subjects[gt_subject.id].setRelatedProcess(gt_subject.relatedProcess);
+
 					if (gf_isset(gt_subject.relatedSubject))
 						this.subjects[gt_subject.id].setRelatedSubject(gt_subject.relatedSubject);
 
