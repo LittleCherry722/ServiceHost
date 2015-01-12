@@ -1388,6 +1388,9 @@ function GCcommunication ()
 				{
 					var gt_role	= gf_isset(gt_subject.role) ? gt_subject.role : gt_subject.id;
 
+					if (gf_isset(gt_subject.relatedProcess))
+						this.subjects[gt_subject.id].setRelatedProcess(gt_subject.relatedProcess);
+
 					if (gf_isset(gt_subject.relatedSubject))
 						this.subjects[gt_subject.id].setRelatedSubject(gt_subject.relatedSubject);
 
@@ -1624,7 +1627,6 @@ function GCcommunication ()
 				if (this.selectedNode != null && gf_isset(this.subjects[this.selectedNode]))
 				{
 					var gt_subject = this.subjects[this.selectedNode];
-
 					gf_callFunc("communication.displaySubject", "gf_guiDisplaySubject", gt_subject);
 				}
 			}
@@ -2022,42 +2024,12 @@ function GCcommunication ()
 			if (this.selectedNode != null && gf_isset(this.subjects[this.selectedNode]))
 			{
 				var gt_subject = this.subjects[this.selectedNode];
+				gf_callFunc("communication.readSubject", "gf_guiReadSubject", gt_subject);
 
-				var gt_values	= gf_callFunc("communication.readSubject", "gf_guiReadSubject");
+				// publish the update of the subject
+				$.publish(gv_topics.general.subjects, [{action: "update", id: gt_subject.id}]);
 
-				var gt_text             = gf_isset(gt_values.text)             ? gt_values.text:             "";
-				var gt_role             = gf_isset(gt_values.role)             ? gt_values.role:             "";
-				var gt_type             = gf_isset(gt_values.type)             ? gt_values.type:             "";
-				var gt_inputPool        = gf_isset(gt_values.inputPool)        ? gt_values.inputPool:        "";
-				var gt_blackboxname     = gf_isset(gt_values.blackboxname)     ? gt_values.blackboxname:     "";
-				var gt_relatedProcess   = gf_isset(gt_values.relatedProcess)   ? gt_values.relatedProcess:   "";
-				var gt_relatedSubject   = gf_isset(gt_values.relatedSubject)   ? gt_values.relatedSubject:   "";
-				var gt_isImplementation	= gf_isset(gt_values.isImplementation) ? gt_values.isImplementation: false;
-				var gt_externalType     = gf_isset(gt_values.externalType)     ? gt_values.externalType:     "external";
-				var gt_comment          = gf_isset(gt_values.comment)          ? gt_values.comment:          "";
-				var gt_startSubject     = gf_isset(gt_values.startSubject)     ? gt_values.startSubject:     false;
-
-        gt_type	= gt_type != "" ? gt_type : gt_subject.getType();
-
-				if (gt_text.replace(" ", "") != "")
-				{
-					gt_subject.setRole(gt_role);
-					gt_subject.setText(gt_text);
-					gt_subject.setType(gt_type);
-					gt_subject.setInputPool(gt_inputPool);
-					gt_subject.setBlackboxname(gt_blackboxname);
-					gt_subject.setRelatedProcess(gt_relatedProcess);
-					gt_subject.setRelatedSubject(gt_relatedSubject);
-					gt_subject.setIsImplementation(gt_isImplementation);
-					gt_subject.setExternalType(gt_externalType);
-					gt_subject.setComment(gt_comment);
-					gt_subject.setStartSubject(gt_startSubject);
-
-					// publish the update of the subject
-					$.publish(gv_topics.general.subjects, [{action: "update", id: gt_subject.id}]);
-
-					this.draw();
-				}
+				this.draw();
 			}
 		}
 
