@@ -26,7 +26,6 @@ import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.rest.GraphJsonProtocol._
 import spray.json.JsonParser
 import de.tkip.sbpm.model._
-import java.io.ByteArrayOutputStream
 
 /**
  * Provides test data for the database.
@@ -186,20 +185,9 @@ object Entities {
    */
   def loadJson(name: String) = {
     val inStream = getClass.getResourceAsStream(name + ".json")
-    val outStream = new ByteArrayOutputStream
-    try {
-      var reading = true
-      while (reading) {
-        inStream.read() match {
-          case -1 => reading = false
-          case c  => outStream.write(c)
-        }
-      }
-      outStream.flush()
-    } finally {
-      inStream.close()
-    }
-    new String(outStream.toByteArray())
+	val str = scala.io.Source.fromInputStream(inStream, "UTF-8").mkString
+	inStream.close()
+	str
   }
 
   /**
