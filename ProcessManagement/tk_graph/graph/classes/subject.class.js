@@ -360,7 +360,7 @@ function GCsubject (id, text, type, inputPool)
 	/**
 	 * Returns true when the subject has an internal behavior.
 	 * All non-external subjects have an internal behavior.
-	 * So do interfaces.
+	 * So do (non-instant) interfaces and blackboxes.
 	 *
 	 * @returns {boolean} True when the subject has an internal behavior.
 	 */
@@ -513,7 +513,7 @@ function GCsubject (id, text, type, inputPool)
 	/**
 	 * Returns the ID of the related process (only for external subjects).
 	 *
-	 * @param {String} relatedProcess The ID of the related process.
+	 * @param {Int} relatedProcess The ID of the related process.
 	 * @returns {void}
 	 */
 	this.setRelatedProcess = function (relatedProcess)

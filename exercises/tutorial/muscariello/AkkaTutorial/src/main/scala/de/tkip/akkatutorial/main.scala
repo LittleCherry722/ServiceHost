@@ -1,12 +1,18 @@
 package de.tkip.akkatutorial
 
 import akka.actor._
+import akka.util.Timeout
+import akka.pattern.{ask,pipe}
 import akka.routing.RoundRobinRouter
 import annotation.tailrec
+import scala.concurrent._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object Main extends App {
 
-  calculate(nrOfWorkers = 4, nrOfElements = 2500, nrOfMessages = 50)
+  implicit val timeout = Timeout(5, java.util.concurrent.TimeUnit.MINUTES)
+
+  calculate(nrOfWorkers = 4, nrOfElements = 2500, nrOfMessages = 80)
 
   sealed trait eMessage
   case object Calculate extends eMessage
@@ -50,21 +56,23 @@ object Main extends App {
 
     def receive = {
       case Calculate =>
-        for (i <- 0 until nrOfMessages) workerRouter ! Work(i * nrOfElements, nrOfElements)
-          case Result(value) =>
-            euler += value
-            nrOfResults += 1
-            if (nrOfResults == nrOfMessages) {
-              printer ! eApproximation(euler)
-              context.stop(self)
-            }
+        val futures: Seq[Future[Result]] = {
+          for (i <- 0 until nrOfMessages)
+            yield ask(workerRouter, Work(i * nrOfElements, nrOfElements)).mapTo[Result]
+        }
+        val futureResult: Future[Result] = Future.reduce(futures) {
+          (x, y) => (x, y) match {
+            case (Result(a), Result(b)) => Result(a + b)
+          }
+        }
+        futureResult pipeTo printer
     }
   }
 
   class Printer extends Actor {
     def receive = {
-      case eApproximation(euler) =>
-        println("approximation: %s\n".format(euler))
+      case Result(value) =>
+        println("approximation: %s\n".format(value))
         context.system.shutdown()
     }
   }

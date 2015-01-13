@@ -86,30 +86,8 @@ var gv_elements = {
 	inputNodeVariable:             "ge_node_variable",
 	inputNodeVariableO:            "ge_node_variable_outer",
 
-	inputSubjectInputPool:		"ge_cv_inputPool",
-	inputSubjectRelOuter:     "ge_cv_relatedOuter",
-	inputSubjectRelProcess:		"ge_cv_relatedProcess",
-	inputSubjectRelSubject:		"ge_cv_relatedSubject",
-	inputSubjectRole:         "ge_cv_id",
-	inputSubjectStartSubject:	"ge_cv_startSubject",
-	inputSubjectText:         "ge_cv_text",
-	inputSubjectId:           "ge_cv_subject_id",
-
 	// select elements
 	inputNodeStart:           "ge_type_start",
-
-	// subject types
-	inputSubjectTypeMulti:		"ge_cv_type_multi",
-	inputSubjectTypeExternal:	"ge_cv_type_external",
-
-	// subject external types
-	inputSubjectExtExternal:         "ge_cv_external_external",
-	inputSubjectExtInterface:        "ge_cv_external_interface",
-	inputSubjectExtInstantInterface: "ge_cv_external_instantInterface",
-	inputSubjectExtBlackbox:         "ge_cv_external_blackbox",
-
-	inputSubjectBlackboxname:	 "ge_cv_blackboxname",
-	inputSubjectBlackboxnameO: "ge_cv_blackboxname_outer",
 
 	// edge multi target
 	inputEdgeTargetMTypeA:		"ge_edge_target_multi_type_all",
@@ -168,7 +146,6 @@ var gv_elements = {
 	// comment fields
 	inputNodeComment:		 "ge_node_comment",
 	inputEdgeComment:		 "ge_edge_comment",
-	inputSubjectComment: "ge_subject_comment"
 };
 
 /**
@@ -271,7 +248,6 @@ var gv_functions	= {
 		 * read input fields (subject) and returns an object with the values
 		 *
 		 * @see GCcommunication::updateNode(), gf_guiReadSubject()
-		 * @returns {Object} Indizes: text, role, type, inputPool, relatedProcess, relatedSubject, externalType, comment, startSubject
 		 */
 		readSubject:		"",
 
@@ -518,7 +494,7 @@ var gv_topics	= {
 		 *
 		 * @see GCcommunication::updateNode(), gf_guiReadSubject()
 		 */
-		readSubject:		"",
+		readSubject:		"tk_graph/readSubjectHook",
 
 		/**
 		 * toggle between form containing input fields for node manipulation and form containing input fields for edge manipulation
@@ -608,7 +584,15 @@ var gv_topics	= {
 		 * @see tk_graph.js :: gf_paperDblClickNodeC()
 		 * @param {String} ID The id of the double-clicked subject.
 		 */
-		subjectDblClickedInstantInterface:		"tk_graph/subjectDblClickedInternal",
+		subjectDblClickedInstantInterface:		"",
+
+		/**
+		 * notifier topic for when a blackbox (external subject) is double-clicked
+		 *
+		 * @see tk_graph.js :: gf_paperDblClickNodeC()
+		 * @param {String} ID The id of the double-clicked subject.
+		 */
+		subjectDblClickedBlackbox:		"tk_graph/subjectDblClickedInternal",
 
 		/**
 		 * notifier topic for when an interface (external subject) is double-clicked

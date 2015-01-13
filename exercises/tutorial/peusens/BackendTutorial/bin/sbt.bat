@@ -1,1 +1,0 @@
-java -Xms256M -Xmx768M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=384M -jar "%~dp0\sbt-launch.jar" "%1"

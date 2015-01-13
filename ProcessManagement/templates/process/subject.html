@@ -40,78 +40,81 @@
 
         <div data-chardin-intro="Edit attributes of the currently selected subject." data-chardin-position="left">
             <label class="graphsectionheader">Subject Name:</label>
-            <input type="text" id="ge_cv_text" title="Name of a role instance"/>
+            <input type="text" data-bind="value: selectedSubjectText" title="Name of a role instance"/>
 
             <label class="graphsectionheader">Subject Id:</label>
-            <input type="text" id="ge_cv_subject_id" disabled title="Id of the subject. Only change if you know what you are doing"/>
+            <input type="text" data-bind="value: selectedSubjectId" title="Id of the subject. Only change if you know what you are doing" disabled />
 
             <label class="graphsectionheader" data-bind="text: assignedRoleText">Assigned-Role:</label>
-            <select id="ge_cv_id" title="Assign a specific role to a subject"
-                    data-bind="options: rolesOrUsers, optionsValue: 'name', optionsText: 'name'">
+            <select title="Assign a specific role to a subject"
+                    data-bind="value: selectedSubjectRole, options: rolesOrUsers, optionsValue: 'name', optionsText: 'name'">
             </select>
         </div>
         <label class="graphsectionheader">Input Pool:</label>
-        <input type="text" id="ge_cv_inputPool" name="ge_cv_inputPool" title="Size of the Input Pool"/>
+        <input type="text" data-bind="value: selectedInputPool" title="Size of the Input Pool"/>
 
         <div id="subjectType" data-chardin-intro="Choose subject type. MULTI allows multiple instances of one subject."
              data-chardin-position="left">
             <label class="graphsectionheader">Subject type:</label>
             <label class="checkbox" title="Are there multiple instances of this subject?">
-                <input type="checkbox" id="ge_cv_type_multi" name="ge_cv_type_multi"/>
+                <input type="checkbox" data-bind="checked: selectedSubjectType" value="multi" />
                 Multi
             </label>
             <label class="checkbox" title="Does the subject come from without this Process or Case">
-                <input type="checkbox" id="ge_cv_type_external" name="ge_cv_type_external"/>
+                <input type="checkbox" data-bind="checked: selectedSubjectType" value="external" />
                 External
             </label>
             <label class="checkbox" title="Can the subject start a process / case instance?">
-                <input type="checkbox" id="ge_cv_startSubject" name="ge_cv_startSubject"/>
+                <input type="checkbox" data-bind="checked: selectedSubjectType" value="start" />
                 Start Subject
             </label>
         </div>
 
-        <div style="display:none;" id="ge_cv_relatedOuter">
+        <div data-bind="visible: _.contains(selectedSubjectType(), 'external')">
             <label class="graphsectionheader">Type of External Subject:</label>
 
             <div style="text-align:left;">
                 <label align="left" class="checkbox">
-                    <input type="radio" id="ge_cv_external_external" name="ge_cv_external_type"/>
+                    <input type="radio" data-bind="checked: selectedExternalType" value="external" />
                     External Subject
                 </label>
 
                 <label align="left" class="checkbox">
-                    <input type="radio" id="ge_cv_external_interface" name="ge_cv_external_type"/>
+                    <input type="radio" data-bind="checked: selectedExternalType" value="interface" />
                     Interface
                 </label>
 
                 <label align="left" class="checkbox">
-                    <input type="radio" id="ge_cv_external_instantInterface" name="ge_cv_external_type"/>
+                    <input type="radio" data-bind="checked: selectedExternalType" value="instantinterface" />
                     Instant Interface
                 </label>
 
                 <label align="left" class="checkbox">
-                    <input type="radio" id="ge_cv_external_blackbox" name="ge_cv_external_type"/>
+                    <input type="radio" data-bind="checked: selectedExternalType" value="blackbox" />
                     Blackbox Content
                 </label>
             </div>
 
-            <div id="ge_cv_blackboxname_outer" style="display:none;">
+            <div data-bind="visible: selectedExternalType() === 'blackbox'">
                 <label class="graphsectionheader">Blackbox Name:</label>
-                <input type="text" id="ge_cv_blackboxname"/>
+                <input type="text" data-bind="value: selectedBlackboxName" />
             </div>
 
-            <label class="graphsectionheader">Related Process:</label>
-            <select id="ge_cv_relatedProcess"
-                    data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'id', optionsCaption: 'Select a process...'"></select>
+            <div data-bind="visible: selectedExternalType() === 'external'">
+                <label class="graphsectionheader">Related Process:</label>
+                <select data-bind="value: selectedRelatedProcess, options: availableProcesses, optionsText: 'name', optionsValue: 'id', optionsCaption: 'Select a process...'"></select>
+            </div>
 
-            <label class="graphsectionheader" style="display: none;">Related Subject:</label>
-            <input type="text" id="ge_cv_relatedSubject" style="display: none;"/>
+            <div style="display: none;">
+                <label class="graphsectionheader">Related Subject:</label>
+                <input type="text" id="value: selectedRelatedSubject" />
+            </div>
         </div>
 
         <div id="subjectType" data-chardin-intro="Can be used for remarks regarding the currently selected subject."
              data-chardin-position="left">
             <label class="graphsectionheader">Comment:</label>
-            <textarea id="ge_subject_comment" title="Miscellaneous annotations"></textarea>
+            <textarea data-bind="value: selectedSubjectComment" title="Miscellaneous annotations"></textarea>
         </div>
         <input type="button" id="UpdateSubjectButton" title="Macro : Press &#34;U&#34;" onclick="gv_graph.updateNode();"
                value="Update subject"/>
@@ -127,7 +130,7 @@
                    onclick="gf_deactivateNode();" value="De-/Activate subject"/>
         </div>
 
-        <div id="mergeSubjects" data-bind="visible: selectedSubjectType() == 'single'">
+        <div id="mergeSubjects" data-bind="visible: _.contains(selectedSubjectType(), 'multi') === false">
             <label class="graphsectionheader">Merge Subject with</label>
             <select id="mergeSubjectsSelect" title="Assign a specific role to a subject"
                     data-bind="options: mergeSubjects, value: mergeSubject, optionsValue: 'subjectId', optionsText: 'subjectText'">

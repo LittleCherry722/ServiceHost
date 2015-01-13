@@ -575,7 +575,7 @@ function gf_functionExists ()
 
 	for (var gt_i = 0; gt_i < gt_argc; gt_i++)
 	{
-		if (typeof window[gt_argv[gt_i]] !== 'function')
+		if (gt_argv[gt_i].length === 0 || typeof window[gt_argv[gt_i]] !== 'function')
 		{
 			return false;
 		}
