@@ -106,7 +106,7 @@ case class Subject(
   //  states: Array[State],
   multi: Boolean,
   variablesMap:Map[String,String]) extends SubjectLike {
-  lazy val external = false
+  val external = false
   // TODO remove this function?
   def states: Array[State] = mainMacro.states
   def mainMacro = macros(mainMacroName)
@@ -122,7 +122,7 @@ case class ExternalSubject(
   relatedInterfaceId: Option[Int],
   isImplementation: Option[Boolean],
   variablesMap:Map[String,String]) extends SubjectLike {
-  lazy val external = true
+  val external = true
 }
 
 case class ProcessGraph(subjects: Map[String, SubjectLike]) {
