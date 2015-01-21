@@ -54,6 +54,7 @@ class ServiceActorManager extends InstrumentedActor {
     }
     case request: CreateServiceInstance => {
       log.debug("got CreateServiceInstance: " + request)
+
       for (targetIdNumber <- 0 until request.target.size) {
         val targetSubjectId = request.target(targetIdNumber)
         val serviceInstanceKey: ServiceInstanceKey = (request.processInstanceidentical, targetSubjectId)

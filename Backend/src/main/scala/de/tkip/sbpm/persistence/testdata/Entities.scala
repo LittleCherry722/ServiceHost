@@ -112,10 +112,11 @@ object Entities {
 //    (Process(None, None, false, """VASEC Router Stub""", false) -> loadJson("vasec_router_stub")),
 //
 ////  variables processes
-//    (Process(None, None, false, """Variables to subjects local""", false) -> loadJson("variables_to_subjects_local")),
-//    (Process(None, None, false, """Variables to subjects external""", false) -> loadJson("variables_to_subjects_external")),
-//    (Process(None, None, false, """Variables to variables external""", false) -> loadJson("variables_to_variables")),
-//    (Process(None, None, false, """Variables to variables and extraction external""", false) -> loadJson("variables_to_variables_extraction")),
+    (Process(None, None, false, """Variables simple local""", false) -> loadJson("variables_simple_local")),
+    (Process(None, None, false, """Variables to subjects local""", false) -> loadJson("variables_to_subjects_local")),
+    (Process(None, None, false, """Variables to subjects external""", false) -> loadJson("variables_to_subjects_external")),
+    (Process(None, None, false, """Variables to variables external""", false) -> loadJson("variables_to_variables")),
+    (Process(None, None, false, """Variables to variables and extraction external""", false) -> loadJson("variables_to_variables_extraction")),
 //
 //    (Process(None, None, false, """test8080""", false) -> loadJson("test8080")),
 ////    (Process(None, None, false, """RatioDrink""", false) -> loadJson("ratiodrink")),
@@ -127,7 +128,10 @@ object Entities {
     (Process(None, None, false, """VASEC Bundle""", false) -> loadJson("VASECC Bundle")),
     (Process(None, None, false, """VASEC Bundle TemplateService""", false) -> loadJson("VASECC Bundle TemplateService")),
     (Process(None, None, false, """VASEC""", false) -> loadJson("VASECC")),
-    (Process(None, None, false, """Multi Senders""", false) -> loadJson("MultiSender"))
+    (Process(None, None, false, """Multi Senders""", false) -> loadJson("MultiSender")),
+    (Process(None, None, false, """Variable In ServiceHost""", false) -> loadJson("VariableInServiceHost")),
+    (Process(None, None, false, """Multi Variables""", false) -> loadJson("Multi_Variable"))
+
    )
 
 

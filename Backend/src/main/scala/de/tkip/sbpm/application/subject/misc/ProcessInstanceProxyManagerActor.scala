@@ -37,7 +37,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, proces
     Map((processId, url) -> (for {
       proxy <- (actor ?? GetProxyActor).mapTo[ActorRef]
     } yield new ProcessInstanceProxy(actor, proxy)))
-
+private var processInstanceIdentical = ""
   def wrappedReceive = {
     // TODO exchange GetSubjectAddr -> GetProcessInstanceAddr
     case GetProcessInstanceProxy(agent) => {
@@ -108,19 +108,26 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, proces
 
 
     // create the message which is used to create a process instance
+    val tempProcessInstanceIdentical = UUID.randomUUID().toString
+    if(processInstanceIDMap.contains(processInstanceId)){
+      processInstanceIdentical = processInstanceIDMap(processInstanceId)
+    }else{
+      processInstanceIDMap += processInstanceId -> tempProcessInstanceIdentical
+      processInstanceIdentical = tempProcessInstanceIdentical
+    }
+
     implicit val config = context.system.settings.config
     val createMessage = CreateServiceInstance(
       userID = ExternalUser,
       processID = targetProcessId,
       name = newProcessInstanceName,
       target = targetSubjectIDs,
-      processInstanceidentical = targetProcessId + "_" + UUID.randomUUID().toString(),
+      //processInstanceidentical = targetProcessId + "_" + UUID.randomUUID().toString(),
+      processInstanceIdentical,
       agentsMap = mapping,
       manager = Some(self),
       managerUrl = SystemProperties.akkaRemoteUrl
     )
-
-    processInstanceIDMap += processInstanceId -> createMessage.processInstanceidentical
     val instanceProxy = for {
       // createma the processinstance
       created <- (targetManagerSelection ?? createMessage).mapTo[ProcessInstanceCreated]

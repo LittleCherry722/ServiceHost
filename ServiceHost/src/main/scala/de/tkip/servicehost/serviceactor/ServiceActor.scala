@@ -12,6 +12,8 @@ import de.tkip.servicehost.Messages._
 import de.tkip.servicehost.ServiceAttributes._
 import de.tkip.servicehost.serviceactor.stubgen.State
 
+import scala.collection.mutable.ListBuffer
+
 abstract class ServiceActor extends InstrumentedActor {
   protected implicit val service = this
 
@@ -33,77 +35,17 @@ abstract class ServiceActor extends InstrumentedActor {
   protected var receiver: ActorRef = null
   var branchCondition: String = null
   var returnMessageContent: String = "received message"
-
-
+  var serviceInstance: ServiceActorRef = null
   val selectedMessages = collection.mutable.ListBuffer[Tuple2[ActorRef, SubjectToSubjectMessage]]()
+  private val variablesOfSubject = scala.collection.mutable.Map[Tuple2[String, Int], ListBuffer[Variable]]()
 
-  private val variablesOfSubject = scala.collection.mutable.Map[String, Variable]()
-
-
-  protected case class Variable(id: String) {
-    //abstract  class Variable(id: String) {
-    val vId = id
-    var tiefe: Int = 0
-    private val receivedMessages = collection.mutable.ListBuffer[Tuple2[ActorRef, SubjectToSubjectMessage]]()
-    private val receivedVariables = collection.mutable.ListBuffer[Tuple2[ActorRef, Variable]]()
-
-
-    def addMessage(absender: ActorRef, message: SubjectToSubjectMessage) {
-      receivedMessages.append(Tuple2(absender, message))
-    }
-
-    //def messages = receivedMessages.toArray
-
-    var messages = receivedMessages.toArray
-
-    def addVariable(absender: ActorRef, vmsg: Variable) {
-      receivedVariables.append(Tuple2(absender, vmsg))
-    }
-
-    override def toString() = {
-      "{%s <- %s}".format(id, receivedMessages.mkString("[", ", ", "]"))
-    }
-  }
-
-  def vVereinigung() = {
-
-  }
-
-  def vSchnitt() = {
-
-  }
-
-  def vSelection(v: Variable) = {
-    for (i <- 0 until v.messages.size) {
-      if (v.messages(i)._2.messageContent == "conditions") {
-        selectedMessages.append(v.messages(i))
-      }
-    }
-    selectedMessages.toArray
-  }
-
-  def vDifference() = {
-
-  }
-
-  def vExtract() = {
-
-  }
-
-  // create newVariable
-  def vEncapsulation(selectedMessage: Array[(ActorRef, SubjectToSubjectMessage)], v: Variable): Variable = {
-    val newVariable = Variable(v.id)
-    newVariable.tiefe = 0
-    newVariable.messages = selectedMessage
-    newVariable
-  }
 
 
   def reset(): Unit = {
     state = getStartState()
   }
 
-  def processMsg(): Unit
+  def processMsg(msg: Any): Unit
 
   def processSendState(): Unit
 
@@ -114,6 +56,7 @@ abstract class ServiceActor extends InstrumentedActor {
   def getState(id: Int): State
 
   def storeMsg(message: Any, tosender: ActorRef): Unit
+
 
   def getDestination(): ActorRef
 
