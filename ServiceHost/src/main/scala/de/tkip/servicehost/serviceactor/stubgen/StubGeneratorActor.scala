@@ -85,13 +85,13 @@ class StubGeneratorActor extends InstrumentedActor {
       val graph: Graph = export.process.graph.get
 
       val subject: GraphSubject = graph.subjects(subjectId)
-      val variables: Map[String, String] = subject.variables.map({ case (x, v) => (v.id, v.name)}) ////////////////////////////////////////////
+      val variablesOfSubject: Map[String, String] = subject.variables.map({ case (x, v) => (v.id, v.name)})
 
       val subjectName = subject.name
       val states = extractStates(subject)
       val messages: Map[String, String] = graph.messages.map({ case (x, m) => (m.id, m.name)})
 
-      val f: File = fillInClass("./src/main/scala/de/tkip/servicehost/serviceactor/stubgen/$TemplateServiceActor.scala", subjectName, subjectId, states, messages)
+      val f: File = fillInClass("./src/main/scala/de/tkip/servicehost/serviceactor/stubgen/$TemplateServiceActor.scala", subjectName, subjectId, states, messages,variablesOfSubject)
       val className = f.getName().replaceAll(".scala", "")
       val packagePath_tmp = f.getParent().replace("\\", "/")
       val packagePath = packagePath_tmp.substring(packagePath_tmp.indexOf("/de/") + 1, packagePath_tmp.length()).replaceAll("/", ".")
@@ -145,6 +145,7 @@ class StubGeneratorActor extends InstrumentedActor {
         case _ => (id.toInt -> null)
       }
     }
+
     for ((id, node) <- nodes) {
       if (node.isStart == true) {
         startNodeIndex = id.toString
@@ -202,17 +203,32 @@ class StubGeneratorActor extends InstrumentedActor {
         }
 
       }
-
-      state.variableId = "\"" + edge.variableId.getOrElse("") + "\""
-
-
+      // whether the current state uses variable or not.
+      state match {
+        case (ReceiveState(_, _, _, _, _, _) | SendState(_, _, _, _, _, _)) => {
+          state.variableId = "\"" + edge.variableId.getOrElse("") + "\""
+        }
+        case _ => {
+          var vID = ""
+          for ((id, node) <- nodes) {
+            if (id == startNodeId) {
+              vID = node.variableId.getOrElse("")
+            }
+          }
+          if (vID == "") {
+            state.variableId = "\"" + edge.variableId.getOrElse("") + "\""
+          } else {
+            state.variableId = "\"" + vID + "\""
+          }
+        }
+      }
     }
     statesList
-
   }
 
 
-  def fillInClass(classPath: String, name: String, id: String, states: Map[Int, State], messages: Map[String, String]): File = {
+  def fillInClass(classPath: String, name: String, id: String, states: Map[Int, State], messages: Map[String, String], variablesOfSubject: Map[String, String]): File = {
+    println("22222222222222222222222222222"  + variablesOfSubject)
     var classText = scala.io.Source.fromFile(classPath).mkString
     classText = classText.replace("$SERVICEID", id)
     classText = classText.replace("$STARTNODEINDEX", startNodeIndex)
@@ -244,7 +260,11 @@ class StubGeneratorActor extends InstrumentedActor {
       classText = classText.replace("$TemplateServiceActor", name + "ServiceActor")
     }
     classText = fillInMessages(classText, messages)
-    //classText = fillInVariables(classText, variables)
+    if(!variablesOfSubject.isEmpty){
+      classText = fillInVariables(classText, variablesOfSubject)
+    }else{
+      classText = fillInVariables(classText, Map())
+    }
     var impementation: String = ""
     for (state <- states.values) {
       state match {
@@ -252,6 +272,9 @@ class StubGeneratorActor extends InstrumentedActor {
 
           impementation = impementation + "\n  case class " + state.text.replaceAll("\"", "").replaceAll(" ", "").replaceAll("\\p{Punct}", "") + "(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String, override val variableId: String) extends State(\"action\", id, exitType, targets, targetIds, text, variableId) {\n"
           impementation = impementation + "\n    def process()(implicit actor: ServiceActor) {"
+          impementation = impementation + "\n        if(state.variableId != null && !variablesMap.contains(variableId)) {"
+          impementation = impementation + "\n             variablesMap += variableId -> ListBuffer()"
+          impementation = impementation + "\n         }"
           if (edgeMap(s.id).length > 1) {
             for (i <- 0 until edgeMap(s.id).length) {
               impementation = impementation + "\n			  if(true) {" + "// custom condition"
@@ -298,13 +321,18 @@ class StubGeneratorActor extends InstrumentedActor {
     classText.replace("//$EMPTYMESSAGE$//", text.subSequence(0, text.length - 1))
   }
 
-  //  def fillInVariables(classText: String, variables: Map[String, String]): String = {
-  //    var text = ""
-  //    for ((vId, vType) <- variables) {
-  //      text = text + "\"" + vType + "\" -> \"" + vId + "\","
-  //    }
-  //    classText.replace("//$EMPTYVARIABLES$//", text.subSequence(0, text.length - 1))
-  //  }
+    def fillInVariables(classText: String, variables: Map[String, String]): String = {
+      if(variables.isEmpty){
+        classText.replace("//$EMPTYVARIABLES$//", "")
+      }else{
+        var text = ""
+        for ((vId, vType) <- variables) {
+          text = text + "\"" + vType + "\" -> \"" + vId + "\","
+        }
+        classText.replace("//$EMPTYVARIABLES$//", text.subSequence(0, text.length - 1))
+      }
+
+    }
 
   def saveServiceExport(export: ServiceExport, className: String): String = {
     implicit val mapper: RoleMapper = RoleMapper.noneMapper
