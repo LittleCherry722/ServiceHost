@@ -44,6 +44,7 @@ case class SubjectToSubjectMessage(
   messageType: MessageType,
   messageContent: MessageContent,
   fileID: Option[String] = None,
+  isReservation: Boolean = false,
   var fileInfo: Option[GDriveFileInfo] = None) extends MessageObject {
 
   def to = target.subjectID

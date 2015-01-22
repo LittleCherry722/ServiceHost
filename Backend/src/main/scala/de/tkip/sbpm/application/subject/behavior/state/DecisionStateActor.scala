@@ -46,7 +46,7 @@ case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) 
     for((key,variable) <- variables) {
       for(value <- variable.messages) {
         value match {
-          case SubjectToSubjectMessage(_,_,_,_,_,"Travel Application",msg,_,_) => {ret = msg; log.debug("DecisionStateActor extractVariable: found with key '"+key+"': " + value)}
+          case SubjectToSubjectMessage(_,_,_,_,_,"Travel Application",msg,_,false,_) => {ret = msg; log.debug("DecisionStateActor extractVariable: found with key '"+key+"': " + value)}
           case x => {log.debug("DecisionStateActor extractVariable: it is not '"+key+"' with value: " + x)}
         }
       }
