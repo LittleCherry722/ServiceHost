@@ -321,12 +321,23 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   }
 
   private def createSubjectContainer(subject: SubjectLike): SubjectContainer = {
-    val maybeAgent = if (subject.external) {
-      val externalSubject = externalSubjectAgent(subject.asInstanceOf[ExternalSubject])
-      log.info("Creating new external subject container for subject: {} - {}", subject.id, externalSubject)
-      Some(externalSubject)
-    } else {
-      None
+    // TODO: why the attribute "external" instead of just using pattern matching?
+    val maybeAgent = subject match {
+      case extSub: ExternalSubject => {
+        log.info(">>> subject is external!")
+        val externalSubject = externalSubjectAgent(subject.asInstanceOf[ExternalSubject])
+        // TODO remove verbose logging messages before merging with master
+        log.debug(">>> Creating new external subject container for subject: {} - {}", subject.id, externalSubject)
+        Some(externalSubject)
+      }
+      case _: Subject => {
+        log.info(">>> subject is NOT external!")
+        None
+      }
+      case _ => {
+        log.info(">>> subject is NOT external! (unknown SubjectLike)")
+        None
+      }
     }
 
     val subjectContainer = new SubjectContainer(
