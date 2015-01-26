@@ -135,7 +135,7 @@ case class SendStateActor(data: StateData)
           val messageType = transition.messageType
           val toSubject = transition.subjectID
           val messageID = nextMessageID
-          val isReservation = true
+          val isEnabled = false
           unsentMessageIDs(messageID) = transition
 
           log.debug("SendR@" + userID + "/" + subjectID + ": Reservation[" +
@@ -185,9 +185,9 @@ case class SendStateActor(data: StateData)
               subjectID,
               target,
               messageType,
-              null, //messageContent.get
+              messageContent.get,
               action.actionData.fileId,
-              isReservation)
+              isEnabled)
           sendProxy ! msg
           // send the ActionExecuted to the blocking actor, it will send it
           // to the process instance, when this user is ready

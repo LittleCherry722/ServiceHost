@@ -137,9 +137,9 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     //if the reservation is possible (space is avalilabe and allocatable) the space will be allocated and a storred message will be
     //sent back to the sender. The sender now can send the message which will be storred at the allocated space.
     //this case is guarded with the condition, that the message queue has not reached its limit!
-    case message: SubjectToSubjectMessage if (spaceAvailableInMessageQueue(message) && message.isReservation) => {
+    case message: SubjectToSubjectMessage if (spaceAvailableInMessageQueue(message) && !message.enabled) => {
       //store reservation message
-      log.debug("InputPool received reservation from " + sender)
+      log.debug("InputPool received disabled message from " + sender + " which message.messageID = " +message.messageID)
       //send stored notification back to sender
       sender !! Stored(message.messageID)
       // store the reservation
@@ -151,7 +151,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     //if the reservation is possible (space is avalilabe and allocatable). In this case the message queue is already full, so 
     //the id of the sender will be stored. If there is space in the queue available again, the sender will be informed
     //this case is guarded with the condition, that the message queue has reached its limit!
-    case message: SubjectToSubjectMessage if (!spaceAvailableInMessageQueue(message) && message.isReservation) => {
+    case message: SubjectToSubjectMessage if (!spaceAvailableInMessageQueue(message) && !message.enabled) => {
       //store reservation message
       log.debug("InputPool received reservation from " + sender + " -> but message queue is full! Save sender id and reject reservation")
       //send stored notification back to sender
@@ -165,7 +165,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     //if the reservation is possible (space is avalilabe and allocatable) the space will be allocated and a storred message will be
     //sent back to the sender. The sender now can send the message which will be storred at the allocated space.
     //this case is guarded with the condition, that the message queue has not reached its limit!
-    case message: SubjectToSubjectMessage if (!message.isReservation) => {
+    case message: SubjectToSubjectMessage if (!message.enabled) => {
       log.debug("InputPool received message from " + sender)
       //replace reservation with real message
       
@@ -191,6 +191,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
       blockingHandlerActor ! UnBlockUser(userID)
     }
 
+    /*
     case message: SubjectToSubjectMessage => {
       log.debug("InputPool received: " + message + " from " + sender)
       // Unlock the sender
@@ -204,7 +205,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
       // unblock this user
       blockingHandlerActor ! UnBlockUser(userID)
     }
-
+*/
     case DeleteInputPoolMessages(fromSubject, messageType, messages) => {
       val result =
         dequeueMessages((fromSubject, messageType), messages)
@@ -336,8 +337,11 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
 
   /**
    * returns true or false if for the condition messageQueue.size < messageLimit
+   * return true if messageLimit is -1 (no limit set)
    */
   private def spaceAvailableInMessageQueue(message: SubjectToSubjectMessage) : Boolean = {
+     log.debug("Checking for queue space!")
+    
     // get or create the message queue
     val messageQueue =
       messageQueueMap.getOrElseUpdate(
@@ -345,7 +349,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
         Queue[SubjectToSubjectMessage]())
 
     // check the queue size
-    if (messageQueue.size < messageLimit) {
+    if (messageQueue.size < messageLimit || messageLimit == -1) {
       true
     } else {
       false
@@ -381,11 +385,12 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
         Queue[SubjectToSubjectMessage]())
 
     // if the queue is not to big, enqueue the message
-    if (messageQueue.size < messageLimit) {
+    //if (messageQueue.size < messageLimit) {
       messageQueue.enqueue(message)
-    } else {
+      log.debug("message has be queued!")
+    //} else {
       // TODO log error?
-    }
+    //}
   }
   
 
@@ -400,10 +405,10 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
         Queue[SubjectToSubjectMessage]())
 
     
-    if(messageQueue.count(a => a.messageID == message.messageID && a.isReservation) == 1) {
+    if(messageQueue.count(a => a.messageID == message.messageID && a.enabled) == 1) {
       
     	//create temp queue with filter
-    	messageQueue = messageQueue.filterNot(a => a.messageID == message.messageID && a.isReservation)
+    	messageQueue = messageQueue.filterNot(a => a.messageID == message.messageID && a.enabled)
 		//append new message at the end of the queue
 		messageQueue.enqueue(message)
 		
