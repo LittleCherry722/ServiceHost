@@ -221,9 +221,19 @@ define([
 
     // load the template from the server
     require([ path ], function( template ) {
-      templateNode = document.getElementById( nodeId );
-
+      var templateNode = document.getElementById( nodeId );
       templateNode.innerHTML = template;
+
+      /* this is a bit hackish to 'ensure' that we bind to an element
+         which is removed by a page change as otherwise knockout in newer
+         versions complains about binding against the same element multiple
+         times (Earlier versions did not complain, but it was always wrong). */
+      var children = 0;
+      for (var i = 0; i < templateNode.childNodes.length; ++i)
+        if (templateNode.childNodes[i].nodeName !== '#text')
+          ++children;
+      if (children === 1)
+        templateNode = templateNode.firstChild;
 
       // Apply the viewModel to the newly inserted content if available.
       if ( viewModel ) {
