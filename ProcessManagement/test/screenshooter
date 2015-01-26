@@ -1,0 +1,129 @@
+#!/bin/sh
+set -e
+
+BASEURL='http://localhost:8080/sbpm/'
+TESTDIR="$(readlink -f $(dirname $0))"
+CMPDIR="${TESTDIR}/screenshooter-compare"
+
+if [ -n "$ENGINE" ]; then true # already set, nothing to do
+elif which slimerjs >/dev/null 2>&1; then ENGINE='slimerjs'
+elif which phantomjs >/dev/null 2>&1; then
+	echo >&2 'WARNING: Using phantomjs which does not display some pages correctly or at all!'
+	ENGINE='phantomjs'
+else
+	echo >&2 'ERROR: Neither slimerjs nor phantomjs in PATH. Make either available or set with ENGINE explicitly.'
+	exit 1
+fi
+
+if [ ! -d "$CMPDIR" ]; then
+	echo >&2 "WARNING: $CMPDIR doesn't exist, so we can't compare with anything."
+fi
+
+DIR="$(mktemp -d)"
+if [ -z "$DIR" ] || [ ! -d "$DIR" ]; then
+	echo >&2 'ERROR: tmpdir creation failed!'
+	exit 2
+fi
+trap "rm -rf ${DIR};" 0 HUP INT QUIT ILL ABRT FPE SEGV PIPE TERM
+
+runtest() {
+	local NAME="$1"
+	local URL="${BASEURL}${2}"
+	local IMGFILE="${DIR}/${NAME}.png"
+
+	local TESTFILE="${DIR}/${NAME}.js"
+	echo "# TEST: $URL -> $ENGINE $TESTFILE"
+	cat > $TESTFILE <<EOF
+var page = require('webpage').create();
+// some process views are really large
+page.viewportSize = { width: 2000, height : 2000 };
+var baseurl = '${URL}';
+
+// get messages from the javascript console and general errors
+page.onError = function (msg, trace) {
+	console.log("ERROR: " + msg);
+};
+page.onConsoleMessage = function(msg, line, file) {
+	console.log(file + ":" + line + ": " + msg);
+};
+
+// click on the middle of the given element
+var mouseClick = function(element) {
+	var bounding = element.getBoundingClientRect();
+	page.sendEvent('click', (bounding.left + ((bounding.right - bounding.left)/2)),
+		(bounding.top + ((bounding.bottom - bounding.top)/2)), 'left', 0);
+}
+
+page.open(baseurl, function (status) {
+	if (status !== 'success') {
+		console.log('Unable to access network');
+	} else {
+		var sub = page.evaluate(function() {
+			// hide the calendar widget as day-flips are annoying false-positive changes
+			var calendar = document.getElementById('calendar');
+			if (calendar !== undefined && calendar !== null)
+				calendar.setAttribute('style', 'display: none');
+
+			// search for a subject/state and if one can be found return it
+			// note: this is not always the first visible one
+			var rects = document.getElementsByTagName('rect');
+			if (rects.length !== 0)
+				for (var i = 0; i < rects.length; ++i)
+					if (rects[i].getAttribute('fill') === '#999999' || rects[i].getAttribute('fill') === '#90ffff')
+						return rects[i];
+			return undefined;
+		});
+
+		// if we found a subject/state earlier, click on it to get the detail view on the right
+		if (sub !== undefined && sub !== null)
+			mouseClick(sub);
+		page.render('${IMGFILE}');
+		phantom.exit();
+	}
+});
+EOF
+	$ENGINE $TESTFILE
+	local CMPFILE="${CMPDIR}/${NAME}.png"
+	if [ -e "$CMPFILE" ]; then
+		if cmp --silent $CMPFILE $IMGFILE; then
+			echo '# No visible difference detected'
+		else
+			echo "# WARNING: Visible difference! Compare: $CMPFILE $IMGFILE"
+		fi
+	else
+		echo '# WARNING: Comparefile does not exist.'
+	fi
+}
+
+
+runtest 'home' '#/home'
+runtest 'home-actions' '#/home/Actions'
+runtest 'home-history' '#/home/History'
+runtest 'admin' '#/administration'
+runtest 'admin-users' '#/administration/Users'
+runtest 'admin-groups' '#/administration/Groups'
+runtest 'admin-roles' '#/administration/Roles'
+runtest 'admin-debug' '#/administration/Debug'
+runtest 'admin-log' '#/administration/Logs'
+runtest 'account' '#/account'
+runtest 'messages' '#/messages'
+runtest 'console' '#/console'
+runtest 'messages-new' '#/messages/messageComposer'
+runtest 'process-new' '#/processes/new'
+runtest 'process-list' '#/processList'
+for i in $(seq 1 36); do
+	runtest "process-$(printf '%03d' "$i")" "#/processes/$i"
+done
+
+runtest 'process-001-großunternehmen' '#/processes/1/Großunternehmen'
+runtest 'process-001-staples' '#/processes/1/Staples'
+runtest 'process-036-ratiodrink' '#/processes/36/Subj1:c19e3135-4cef-480d-910a-123ff35a69f9'
+runtest 'process-036-kunde' '#/processes/36/Subj2:f8770cfc-e29b-4d75-bd1d-9a68a8c5c2f1'
+
+
+echo -n 'Tests results in:'
+cd "$DIR"
+pwd
+echo 'A shell is now started in this directory.'
+echo 'Explore freely; exit shell to trigger cleanup.'
+$SHELL

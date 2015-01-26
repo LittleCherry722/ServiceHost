@@ -1,0 +1,24 @@
+= ./screenshooter
+
+The script uses slimerjs (or phantomjs) to create PNG screenshots of some pages
+including the process view of all processes. In the console output all errors
+from the JavaScript console will be shown (if any). The screenshots are
+compared on a binary level to a set created previously, which you can store in
+a directory called 'screenshooter-compare' in this directory.  This can be
+handy to detect changes caused by updating JavaScript libraries or CSS rules.
+
+After all screenshots are created the script will drop you in a new shell
+started in the temporary directory with all scripts and the screenshots they
+created, so you can easily inspect the screenshots or run specific scripts.
+Exiting the shell automatically removes this temporary directory again.
+
+
+= SlimerJS or PhantomJS?
+
+PhantomJS ( http://phantomjs.org/ ) is a headless WebKit browser scriptable
+with a JavaScript API.  SlimerJS ( http://www.slimerjs.org/ ) is a Gecko
+browser (= Firefox) with an API compatible to PhantomJS. While the later isn't
+headless, the former doesn't display all pages correctly currently.  It is
+therefore adviseable to use SlimerJS if possible. As a bonus, it is also easier
+to run as it can us a stock Firefox install while PhantomJS requires building
+the browser engine statically.
