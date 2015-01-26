@@ -28,10 +28,10 @@ import ExecutionContext.Implicits.global
 
 import scala.concurrent.Await
 
-class processConfigServiceActor extends ServiceActor {
+class bossServiceActor extends ServiceActor {
   override protected val INPUT_POOL_SIZE: Int = 20
-  override protected val serviceID: ServiceID = "Subj4:f161330e-6a7c-4ba3-81d9-cd4e3bf49cca"
-  override protected val subjectID: SubjectID = "Subj4:f161330e-6a7c-4ba3-81d9-cd4e3bf49cca"
+  override protected val serviceID: ServiceID = "Subj8:a29d5f2c-3a15-4683-941c-1ceb16011822"
+  override protected val subjectID: SubjectID = "Subj8:a29d5f2c-3a15-4683-941c-1ceb16011822"
   protected val serviceInstanceMap = Map[SubjectID, ServiceActorRef]()
   val tempAgentsMap = collection.mutable.Map[String, ProcessInstanceActor.Agent]()
   var from: SubjectID = null
@@ -39,10 +39,12 @@ class processConfigServiceActor extends ServiceActor {
   var managerURL: String = ""
   val startNodeIndex: String = "0"
   var receivedMessageType: String = ""
-  var continue = false
 
   override protected def states: List[State] = List(
-    ReceiveState(0,"exitcondition",Map("m2" -> Target("Subj3:738bfec0-40a6-44b7-8e8f-7f2449e2f1b4",-1,-1,false,"")),Map("m2" -> 2),"receiveConfig",""),SendState(5,"exitcondition",Map("m4" -> Target("Subj3:738bfec0-40a6-44b7-8e8f-7f2449e2f1b4",-1,-1,false,"")),Map("m4" -> 1),"","v2"),ExitState(1,null,Map(),Map(),null,null),preparePOI(2,"exitcondition",Map(),Map("2" -> 3),"preparePOI","v1"),SendState(3,"exitcondition",Map("m3" -> Target("Subj3:738bfec0-40a6-44b7-8e8f-7f2449e2f1b4",-1,-1,false,"")),Map("m3" -> 4),"sendPOI","v1"),prepareROI(4,"exitcondition",Map(),Map("4" -> 5),"prepareROI","v2")
+    ReceiveState(0, "exitcondition", Map("m2" -> Target("Subj7:3182f0e9-a0a6-4fab-b073-73267056bf23", -1, -1, false, "")), Map("m2" -> 1), "receive", ""),
+    process(1, "exitcondition", Map(), Map("1" -> 2), "process", "v0"),
+    SendState(2, "exitcondition", Map("m3" -> Target("Subj7:3182f0e9-a0a6-4fab-b073-73267056bf23", -1, -1, false, "")), Map("m3" -> 3), "", "v0"),
+    ExitState(3, null, Map(), Map(), null, null)
   )
 
   // different received messageType -> different outgoing messageType like: m1 -> m2, m3 -> m4
@@ -56,18 +58,20 @@ class processConfigServiceActor extends ServiceActor {
   }
 
   private val messages: Map[MessageType, MessageText] = Map(
-    "Start" -> "m1","Config" -> "m2","ConfigPOI" -> "m3","ConfigROI" -> "m4"
+    "Reply" -> "m1", "collectionResult" -> "m2", "checkResult" -> "m3"
   )
   private val variablesOfSubject: Map[String, String] = Map(
-    "POI" -> "v1","ROI" -> "v2"
+    "EinladungResult" -> "v0"
   )
 
   private val inputPool: scala.collection.mutable.Map[Tuple2[MessageType, SubjectID], Queue[SubjectToSubjectMessage]] = scala.collection.mutable.Map()
   // Subject default values
-  private val collectorOfMessage = scala.collection.mutable.Map[Tuple2[String, Int], ListBuffer[SubjectToSubjectMessage]]()
+  // varialbesMap means the current subject collects all variable which from different subjects.
   private val variablesMap = scala.collection.mutable.Map[String, ListBuffer[Variable]]()
   private val inputPoolVariable = Map[Tuple2[String, SubjectID], Queue[Variable]]()
+  // if a variable or a varialbeList has been already processed, it should be stored to sendingVariable. It will be sent to another subject.
   private val sendingVariable = Map[String, Variable]()
+  private val vDepthMap = Map[String, Int]()
   private var target = -1
   private var messageContent: String = "" // will be used in getResult
 
@@ -108,8 +112,7 @@ class processConfigServiceActor extends ServiceActor {
           }
 
           case msg: Variable => {
-            println("========= match Variable =========")
-            val key = (msg.vId, msg.from)
+            val key = (msg.vName, msg.from)
             var variable: Variable = null
             if (inputPoolVariable.contains(key)) {
               variable = inputPoolVariable(key).dequeue()
@@ -130,6 +133,7 @@ class processConfigServiceActor extends ServiceActor {
 
   def processSendState() {
     //find or create the target service actor
+    log.debug("=== PROCESS SEND STATE ===")
     val sTarget = if (state.targets.size > 1) {
       state.targets(inputAndOutputMap(receivedMessageType)).target
     } else state.targets.head._2.target
@@ -140,8 +144,8 @@ class processConfigServiceActor extends ServiceActor {
     /*
     if sentState has multi edges,messageType can be determined according to inputAndOutputMap
      */
-//    val messageType = inputAndOutputMap(receivedMessageType)
-//    this.branchCondition = inputAndOutputMap(receivedMessageType)
+    //    val messageType = inputAndOutputMap(receivedMessageType)
+    //    this.branchCondition = inputAndOutputMap(receivedMessageType)
     val userID = 1
     val processID = getProcessID()
     val subjectID = getSubjectID()
@@ -162,14 +166,19 @@ class processConfigServiceActor extends ServiceActor {
       Some(processInstanceIdentical)
     )
     if (state.variableId == "") {
-
+      // send normal SubjectToSubjectMessage
       determineReceiver(targetSubjectID, message)
 
     } else {
-      if (!sendingVariable.contains(state.variableId)) {
-        vEncapsulation(state.variableId, ListBuffer(message))
+      var vrName = ""
+      for ((vName, vType) <- variablesOfSubject) {
+        if (vType == state.variableId)
+          vrName = vName
       }
-      determineReceiver(targetSubjectID, sendingVariable(state.variableId))
+      if (!sendingVariable.contains(vrName)) {
+        vEncapsulation(vrName, ListBuffer(message))
+      }
+      determineReceiver(targetSubjectID, sendingVariable(vrName))
     }
   }
 
@@ -181,11 +190,18 @@ class processConfigServiceActor extends ServiceActor {
 
       state match {
         case rs: ReceiveState => {
-          if (rs.variableId != null) { // collect all subjectToSubjectMessage and create a new Variable, the depth is 0.
-            if (variablesMap.contains(rs.variableId)) {
-             variablesMap(rs.variableId).head.messagesSet.append(message)
+          if (rs.variableId != "") {
+            // collect all subjectToSubjectMessage and create a new Variable, the depth is 0.
+            var variableName = ""
+            for ((vName, vType) <- variablesOfSubject) {
+              if (vType == rs.variableId) {
+                variableName = vName
+              }
+            }
+            if (sendingVariable.contains(variableName)) {
+              sendingVariable(variableName).messagesSet.append(message)
             } else {
-              variablesMap += rs.variableId -> ListBuffer(Variable(rs.variableId, 0, getSubjectID(), ListBuffer(message), null))
+              sendingVariable += variableName -> Variable(variableName, 0, getSubjectID(), ListBuffer(message), null)
             }
           }
           processMsg(message)
@@ -197,16 +213,21 @@ class processConfigServiceActor extends ServiceActor {
 
     case subjectToSubjectVariable: Variable => {
       log.debug("receive Variable:  " + subjectToSubjectVariable)
+      from = subjectToSubjectVariable.from
       storeMsg(subjectToSubjectVariable, sender())
+
       state match {
         case rs: ReceiveState => {
-          if (variablesMap.contains(subjectToSubjectVariable.vId)) {
-
-            variablesMap(subjectToSubjectVariable.vId).append(subjectToSubjectVariable)
+          if (variablesMap.contains(subjectToSubjectVariable.vName) && vDepthMap(subjectToSubjectVariable.vName) == subjectToSubjectVariable.depth) {
+            variablesMap(subjectToSubjectVariable.vName).append(subjectToSubjectVariable)
+            processMsg(subjectToSubjectVariable)
+          } else if (variablesMap.contains(subjectToSubjectVariable.vName) && vDepthMap(subjectToSubjectVariable.vName) != subjectToSubjectVariable.depth) {
+            log.error("Please check the process. The different depth variables can't be merged!")
           } else {
-            variablesMap += subjectToSubjectVariable.vId -> ListBuffer(subjectToSubjectVariable)
+            variablesMap += subjectToSubjectVariable.vName -> ListBuffer(subjectToSubjectVariable)
+            vDepthMap += subjectToSubjectVariable.vName -> subjectToSubjectVariable.depth
+            processMsg(subjectToSubjectVariable)
           }
-          processMsg(subjectToSubjectVariable)
         }
       }
     }
@@ -276,7 +297,7 @@ class processConfigServiceActor extends ServiceActor {
       }
       case message: Variable => {
         log.debug("store variable")
-        val key = (message.vId, message.from)
+        val key = (message.vName, message.from)
         if (inputPoolVariable.contains(key)) {
           inputPoolVariable(key).enqueue(message)
         } else {
@@ -395,7 +416,7 @@ class processConfigServiceActor extends ServiceActor {
   }
 
   /*
-  first, merge different variables with same depth and variableId.
+  first, merge different variables with same depth and variableName.
   second, merge every variable's lastvariable.
   third, m : 1.
    */
@@ -409,19 +430,20 @@ class processConfigServiceActor extends ServiceActor {
           resultOfMerge.append(v)
         })
       })
-      Variable(key, vDepth, null, null, resultOfMerge)
+      Variable(key, vDepth, null, null, resultOfMerge) // when the depth isn't 0, the messageSet always is null.
     } else {
       variablesMap(key).foreach(variable => {
         variable.messagesSet.foreach(msg => {
           newMessageList.append(msg)
         })
       })
-      Variable(key, vDepth, null, newMessageList, null)
+      Variable(key, vDepth, null, newMessageList, null) // when the depth is 0, the lastVariable always is null.
     }
 
 
   }
 
+  // merge all subjectToSubjectMessage which have the same variableName and the same depth.
   def mergeMessage(variable: Variable): ListBuffer[SubjectToSubjectMessage] = {
     val resultOfMerge = ListBuffer[SubjectToSubjectMessage]()
     var vDepth = variable.depth
@@ -451,12 +473,12 @@ class processConfigServiceActor extends ServiceActor {
     val splitVariable = ListBuffer[Variable]()
     if (vr.depth != 0) {
       vr.lastVariable.foreach(v => {
-        val tempSplitVariable = Variable(vr.vId, vr.depth, vr.from, null, ListBuffer(v))
+        val tempSplitVariable = Variable(vr.vName, vr.depth, vr.from, null, ListBuffer(v))
         splitVariable.append(tempSplitVariable)
       })
     } else {
       vr.messagesSet.foreach(msg => {
-        val tempSplitVariable = Variable(vr.vId, vr.depth, vr.from, ListBuffer(msg), null)
+        val tempSplitVariable = Variable(vr.vName, vr.depth, vr.from, ListBuffer(msg), null)
         splitVariable.append(tempSplitVariable)
       })
     }
@@ -472,7 +494,7 @@ class processConfigServiceActor extends ServiceActor {
     var differentVariable: List[Variable] = Nil
     var differentMessage: List[SubjectToSubjectMessage] = Nil
 
-    if (variableA.vId == variableB.vId && variableA.depth == variableB.depth) {
+    if (variableA.vName == variableB.vName && variableA.depth == variableB.depth) {
       var messageContentListA: List[String] = Nil
       var messageContentListB: List[String] = Nil
       mergeMessage(variableA).foreach(msg => messageContentListA = msg.messageContent :: messageContentListA)
@@ -522,41 +544,41 @@ encapsulate variable,increase variableDepth, m : 1
     variables.foreach(v => {
       lastVariables.append(v)
     })
-    sendingVariable += variables.head.vId -> Variable(variables.head.vId, variables.head.depth + 1, getSubjectID(), null, lastVariables)
-    sendingVariable(variables.head.vId)
+    sendingVariable += variables.head.vName -> Variable(variables.head.vName, variables.head.depth + 1, getSubjectID(), null, lastVariables)
+    sendingVariable(variables.head.vName)
   }
 
   /*
-  encapsulate variable, the depth is 0.
+  encapsulate subjectToSubjectMessage, the default depth is 0.
    */
-  def vEncapsulation(variableId: String, messageSet: ListBuffer[SubjectToSubjectMessage]): Variable = {
-    sendingVariable += variableId -> Variable(variableId, 0, getSubjectID(), messageSet, null)
-    sendingVariable(variableId)
+  def vEncapsulation(variableName: String, messageSet: ListBuffer[SubjectToSubjectMessage]): Variable = {
+    sendingVariable += variableName -> Variable(variableName, 0, getSubjectID(), messageSet, null)
+    sendingVariable(variableName)
   }
 
-  
-  case class preparePOI(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String, override val variableId: String) extends State("action", id, exitType, targets, targetIds, text, variableId) {
+  def vReplace(variableList: ListBuffer[Variable],newVariable: Variable): Unit ={
+    variableList.foreach(oldVariable => if(oldVariable.vName == newVariable.vName && oldVariable.depth == newVariable.depth && oldVariable.from == newVariable.from){
+      oldVariable.messagesSet.clear()
+      newVariable.messagesSet.foreach(msg => oldVariable.messagesSet.append(msg))
+      oldVariable.lastVariable.clear()
+      newVariable.lastVariable.foreach(v => oldVariable.lastVariable.append(v))
+    })
+  }
+
+
+  case class process(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String, override val variableId: String) extends State("action", id, exitType, targets, targetIds, text, variableId) {
 
     def process()(implicit actor: ServiceActor) {
-//        if(state.variableId != null && !variablesMap.contains(variableId)) {
-//          // create a new Variable with current variableId
- //        sendingVariable += state.variableId -> Variable(state.variableId, 0, getSubjectID(), null, null)
-//         }
-          actor.setMessage("POI POI POI POI !!!") //TODO set message
-          actor.changeState()
+      val newMessageSet = variablesMap("Einladung").head.messagesSet.drop(1)
+      var newVrName = ""
+      for ((vName, vType) <- variablesOfSubject) {
+        if (vType == state.variableId)
+          newVrName = vName
+      }
+      vEncapsulation(newVrName, newMessageSet)
+      actor.changeState()
 
-    	}
+    }
   }
-  case class prepareROI(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String, override val variableId: String) extends State("action", id, exitType, targets, targetIds, text, variableId) {
 
-    def process()(implicit actor: ServiceActor) {
-//        if(state.variableId != null && !variablesMap.contains(variableId)) {
-//          // create a new Variable with current variableId,like this
-//           sendingVariable += state.variableId -> Variable(state.variableId, 0, getSubjectID(), null, null)
-//         }
-          actor.setMessage("ROI ROI ROI ROI !!!") //TODO set message
-          actor.changeState()
-
-    	}
-  }
 }

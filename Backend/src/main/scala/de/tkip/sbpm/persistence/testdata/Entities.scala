@@ -130,7 +130,8 @@ object Entities {
     (Process(None, None, false, """VASEC""", false) -> loadJson("VASECC")),
     (Process(None, None, false, """Multi Senders""", false) -> loadJson("MultiSender")),
     (Process(None, None, false, """Variable In ServiceHost""", false) -> loadJson("VariableInServiceHost")),
-    (Process(None, None, false, """Multi Variables""", false) -> loadJson("Multi_Variable"))
+    (Process(None, None, false, """Multi Variables""", false) -> loadJson("Multi_Variable")),
+    (Process(None, None, false, """VariableTest""", false) -> loadJson("VariableTest"))
 
    )
 

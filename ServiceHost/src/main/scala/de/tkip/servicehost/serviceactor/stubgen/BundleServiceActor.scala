@@ -84,7 +84,7 @@ class BundleServiceActor extends ServiceActor {
     super.reset
   }
 
-  def processMsg() {
+  def processMsg(msg: Any) {
     log.debug("processMsg")
 
     state match {
@@ -238,14 +238,14 @@ class BundleServiceActor extends ServiceActor {
 
       state match {
         case rs: ReceiveState => {
-          if (rs.variableId != null) {
-            if (variablesOfSubject.contains(rs.variableId)) {
-              variablesOfSubject(rs.variableId).addMessage(sender, message)
-            } else {
-              variablesOfSubject += (rs.variableId) -> Variable(rs.variableId)
-              variablesOfSubject(rs.variableId).addMessage(sender, message)
-            }
-          }
+//          if (rs.variableId != null) {
+//            if (variablesOfSubject.contains(rs.variableId)) {
+//              variablesOfSubject(rs.variableId).addMessage(sender, message)
+//            } else {
+//              variablesOfSubject += (rs.variableId) -> Variable(rs.variableId)
+//              variablesOfSubject(rs.variableId).addMessage(sender, message)
+//            }
+//          }
 
           processMsg()
         }

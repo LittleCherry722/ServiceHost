@@ -272,8 +272,8 @@ class StubGeneratorActor extends InstrumentedActor {
 
           impementation = impementation + "\n  case class " + state.text.replaceAll("\"", "").replaceAll(" ", "").replaceAll("\\p{Punct}", "") + "(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String, override val variableId: String) extends State(\"action\", id, exitType, targets, targetIds, text, variableId) {\n"
           impementation = impementation + "\n    def process()(implicit actor: ServiceActor) {"
-          impementation = impementation + "\n        if(state.variableId != null && !variablesMap.contains(variableId)) {"
-          impementation = impementation + "\n             variablesMap += variableId -> ListBuffer()"
+          impementation = impementation + "\n        if(state.variableId != null) {"
+          impementation = impementation + "\n             //  create a new Variable and store it into sendingvariable"
           impementation = impementation + "\n         }"
           if (edgeMap(s.id).length > 1) {
             for (i <- 0 until edgeMap(s.id).length) {
