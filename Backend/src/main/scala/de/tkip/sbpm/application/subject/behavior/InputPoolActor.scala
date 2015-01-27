@@ -89,6 +89,9 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
   // this map holds the queue of the income messages for a channel
   private val messageQueueMap =
     MutableMap[ChannelID, Queue[SubjectToSubjectMessage]]()
+  // this map holds the overflow queue of the income messages for a channel
+  private val messageOverflowQueueMap =
+    MutableMap[ChannelID, Queue[SubjectToSubjectMessage]]()
   // this map holds the states which are subscribing a channel
   private val waitingStatesMap =
     //  MutableMap[ChannelID, WaitingStateList]()
@@ -133,10 +136,8 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
 
     
     
-    //this is the case, when a reservation message was received. The reservation message, tries to allocate space in the inputPool
-    //if the reservation is possible (space is avalilabe and allocatable) the space will be allocated and a storred message will be
-    //sent back to the sender. The sender now can send the message which will be storred at the allocated space.
-    //this case is guarded with the condition, that the message queue has not reached its limit!
+    //this case will be executed, if the inputpoo receives a disabled message and the input pool is not full.
+    //the incomming message will be stored and a reply (stored message) will be sent back to the sender
     case message: SubjectToSubjectMessage if (spaceAvailableInMessageQueue(message) && !message.enabled) => {
       //store reservation message
       log.debug("InputPool received disabled message from " + sender + " which message.messageID = " +message.messageID)
@@ -147,37 +148,39 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
       log.debug("reservation is done!")
     }
     
-    //this is the case, when a reservation message was received. The reservation message, tries to allocate space in the inputPool
-    //if the reservation is possible (space is avalilabe and allocatable). In this case the message queue is already full, so 
-    //the id of the sender will be stored. If there is space in the queue available again, the sender will be informed
-    //this case is guarded with the condition, that the message queue has reached its limit!
+    //this case will be executed, if a reable-request is received
+    //of so, the message which has to be enabled will be searched in the qeueu and will be enabled responding with a enabled-message
+    //if there is no message to enable, the response will be a rejected message
+    case message: SubjectToSubjectMessage if (message.enabled) => {
+      log.debug("InputPool received enable request from " + sender)
+      //replace reservation with real message
+      
+      if(enableMessage(message)){
+    	  //send enabled notification back to sender
+    	  sender !! Enabled(message.messageID)
+    	  log.debug("Message enabled")
+      }else{
+        //no reservation found for thei message! Send reject message
+        log.warning("message rejected, no message to enable: {}", message)
+        sender !! Rejected(message.messageID)
+      }
+    }
+    
+    //this case will be executed, if a disabled message was received and the input queue is full
+    //the message will be stored in the overflow queue and a oferflow-message will be sent to the sender
     case message: SubjectToSubjectMessage if (!spaceAvailableInMessageQueue(message) && !message.enabled) => {
       //store reservation message
       log.debug("InputPool received reservation from " + sender + " -> but message queue is full! Save sender id and reject reservation")
       //send stored notification back to sender
-      sender !! Rejected(message.messageID)
+      sender !! Overflow(message.messageID)
       // store the sender informations
       
-      //TODO: store sender information, so the sender can be informed, if there is space in the queue available again
+      //put message into the overflowQueue
+      enqueueOverflowMessage(message)
+      
     }
 
-    //this is the case, when a reservation message was received. The reservation message, tries to allocate space in the inputPool
-    //if the reservation is possible (space is avalilabe and allocatable) the space will be allocated and a storred message will be
-    //sent back to the sender. The sender now can send the message which will be storred at the allocated space.
-    //this case is guarded with the condition, that the message queue has not reached its limit!
-    case message: SubjectToSubjectMessage if (!message.enabled) => {
-      log.debug("InputPool received message from " + sender)
-      //replace reservation with real message
-      
-      if(replaceReservationByMessage(message)){
-    	  //send stored notification back to sender
-    	  sender !! Stored(message.messageID)
-      }else{
-        //no reservation found for thei message! Send reject message
-        log.warning("message rejected, no reservation: {}", message)
-        sender !! Rejected(message.messageID)
-      }
-    }
+  
  
     
     case message: SubjectToSubjectMessage if closedChannels.isChannelClosedAndNotReOpened((message.from, message.messageType)) => {
@@ -393,25 +396,50 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     //}
   }
   
+  /**
+   * Enqueue a message in the overflow queue, 
+   */
+  private def enqueueOverflowMessage(message: SubjectToSubjectMessage) = {
+    // get or create the message queue
+    val messageOverflowQueue =
+      messageOverflowQueueMap.getOrElseUpdate(
+        (message.from, message.messageType),
+        Queue[SubjectToSubjectMessage]())
+
+      messageOverflowQueue.enqueue(message)
+      log.debug("message has been queued to overflow queue!")
+  }
+  
 
   /**
-   * replace the reservation message by the original message
+   * enables previously received message
    */
-  private def replaceReservationByMessage(message: SubjectToSubjectMessage) : Boolean = {
+  private def enableMessage(message: SubjectToSubjectMessage) : Boolean = {
     // get or create the message queue
     var messageQueue =
       messageQueueMap.getOrElseUpdate(
         (message.from, message.messageType),
         Queue[SubjectToSubjectMessage]())
 
-    
-    if(messageQueue.count(a => a.messageID == message.messageID && a.enabled) == 1) {
+        //loop over queue and enable message if found
+        var counter = 0
+    	for (element <- messageQueue){
+    	  if(element.messageID == message.messageID && !element.enabled){
+    	    element.enabled = true
+    	    counter = counter + 1
+    	  }
+    	}
       
+    	//find message in queue
+    	//var messageQueueFound = messageQueue.filterNot(a => a.messageID == message.messageID && a.enabled)
+    	
     	//create temp queue with filter
-    	messageQueue = messageQueue.filterNot(a => a.messageID == message.messageID && a.enabled)
+    	//messageQueue = messageQueue.filterNot(a => a.messageID == message.messageID && !a.enabled)
 		//append new message at the end of the queue
-		messageQueue.enqueue(message)
-		
+
+    	
+    	
+	if(counter != 0){ 
     	true
     }else{
       false

@@ -79,6 +79,7 @@ case class SendStateActor(data: StateData)
   private var messageContent: Option[String] = None
   private val unsentMessageIDs: MutableMap[MessageID, Transition] =
     MutableMap[MessageID, Transition]()
+  private var executeAction: ExecuteAction = null	
 
   // TODO
   private val sendTransition: Transition =
@@ -128,6 +129,7 @@ case class SendStateActor(data: StateData)
         // can be blocked until a potentially new subject is created to ensure all available actions will
         // be returned when asking
         messageContent = action.actionData.messageContent
+        executeAction = action
 
         for (transition <- exitTransitions if transition.target.isDefined) {
           blockingHandlerActor ! BlockUser(userID) // TODO handle several targetusers
@@ -198,63 +200,26 @@ case class SendStateActor(data: StateData)
       }
     }
 
-    /*
-    case action: ExecuteAction if (action.actionData.messageContent.isDefined) => {
-      if (!messageContent.isDefined) {
-        // send subjectInternalMessage before sending executionAnswer to make sure that the executionAnswer
-        // can be blocked until a potentially new subject is created to ensure all available actions will
-        // be returned when asking
-        messageContent = action.actionData.messageContent
 
-        for (transition <- exitTransitions if transition.target.isDefined) {
-          blockingHandlerActor ! BlockUser(userID) // TODO handle several targetusers
-
-          val messageType = transition.messageType
+    case Stored(messageID) if (messageContent.isDefined &&
+      unsentMessageIDs.contains(messageID) // TODO might remove the message ID from unsentMessageIDs?
+      ) => {
+          val transition = unsentMessageIDs(messageID)
+    	  val messageType = transition.messageType
           val toSubject = transition.subjectID
-          val messageID = nextMessageID
-          val isReservation = false
-          unsentMessageIDs(messageID) = transition
-
-          log.debug("Send@" + userID + "/" + subjectID + ": Message[" +
-            messageID + "] \"" + messageType + " to " + transition.target +
-            "\" with content \"" + messageContent.get + "\"")
-
-          // This ArrayBuffer stores the user, which should be blocked
-          // one user can blocked several times
-          val blockUsers = ArrayBuffer[UserID]()
-
+          val isEnabled = true
           val target = transition.target.get
-          if (target.toVariable) {
-            target.insertVariable(variables(target.variable.get))
-            for ((_, userID) <- target.varSubjects) { blockUsers += userID }
-          } else if (targetUserIDs.isDefined) {
-            val userIDs = targetUserIDs.get
 
-            if (userIDs.length == target.min == target.max) {
-              target.insertTargetUsers(userIDs)
-            } else if (action.actionData.targetUsersData.isDefined) {
-              val targetUserData = action.actionData.targetUsersData.get
-              // TODO validate?!
-              target.insertTargetUsers(targetUserData.targetUsers)
-            } else {
-              // TODO error?
-            }
-
-            blockUsers ++= target.targetUsers
-          }
-
-          // block the target users for this message
-          for (userID <- blockUsers) {
-            blockingHandlerActor ! BlockUser(userID)
-          }
-
-          remainingStored += target.min
+          log.debug("SendR@" + userID + "/" + subjectID + ": Enable[" +
+            messageID + "] \"" + messageType + " to " + transition.target + "\"")
+            
+             log.debug("message with id {} stored. remaining:", messageID)
 
           // send the message over the process instance
           val sendProxy = context.actorOf(Props(
             new GoogleSendProxyActor(
               processInstanceActor,
-              action.userID.toString)), "GoogleSendProxyActor____" + UUID.randomUUID().toString())
+              executeAction.userID.toString)), "GoogleSendProxyActor____" + UUID.randomUUID().toString())
           val msg =
             SubjectToSubjectMessage(
               messageID,
@@ -263,21 +228,14 @@ case class SendStateActor(data: StateData)
               subjectID,
               target,
               messageType,
-              messageContent.get,
-              action.actionData.fileId,
-              isReservation)
+              "",
+              executeAction.actionData.fileId,
+              isEnabled)
           sendProxy ! msg
-          // send the ActionExecuted to the blocking actor, it will send it
-          // to the process instance, when this user is ready
-          blockingHandlerActor ! ActionExecuted(action)
-        }
-      } else {
-        log.error("Second send-message action request received")
-      }
+      
     }
-    */
-
-    case Stored(messageID) if (messageContent.isDefined &&
+    
+    case Enabled(messageID) if (messageContent.isDefined &&
       unsentMessageIDs.contains(messageID) // TODO might remove the message ID from unsentMessageIDs?
       ) => {
       val transition = unsentMessageIDs(messageID)
@@ -287,7 +245,7 @@ case class SendStateActor(data: StateData)
       // Change the state and enter the History entry
       remainingStored -= 1
 
-      log.debug("message with id {} stored. remaining: {}", messageID, remainingStored)
+      log.debug("message with id {} enabled. remaining: {}", messageID, remainingStored)
 
       if (remainingStored <= 0) {
         changeState(transition.successorID, data, message)
