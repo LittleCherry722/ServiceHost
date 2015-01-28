@@ -121,6 +121,7 @@ case class ExternalSubject(
   relatedProcessId: Option[Int],
   relatedInterfaceId: Option[Int],
   isImplementation: Option[Boolean],
+  externalType: Option[String],
   variablesMap:Map[String,String]) extends SubjectLike {
   val external = true
 }

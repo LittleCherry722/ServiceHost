@@ -325,7 +325,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
     val maybeAgent = subject match {
       case extSub: ExternalSubject => {
         log.info(">>> subject is external!")
-        val externalSubject = externalSubjectAgent(subject.asInstanceOf[ExternalSubject])
+        val externalSubject = externalSubjectAgent(extSub)
         // TODO remove verbose logging messages before merging with master
         log.debug(">>> Creating new external subject container for subject: {} - {}", subject.id, externalSubject)
         Some(externalSubject)
