@@ -252,6 +252,11 @@ case class SendStateActor(data: StateData)
         blockingHandlerActor ! UnBlockUser(userID)
       }
     }
+      
+    
+    case Overflow(messageID)  => {
+      //Overflow message was received, do something. But not necessary, we at least have to whait
+    }
 
     case Stored(messageID) => {
       log.warning("unknown message with id {}", messageID)
