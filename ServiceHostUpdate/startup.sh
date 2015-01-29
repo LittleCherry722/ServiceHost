@@ -1,1 +1,1 @@
-bin/sbt.sh run
+bin/sbt run
