@@ -52,13 +52,13 @@ class ServiceHostActor extends InstrumentedActor {
     }
     case upload: UploadService => {
       val jsonPath = "src/main/resources/service_JSONs"
-      val classPath = "target/scala-2.10/classes/de/tkip/servicehost/serviceactor/stubgen"
+      val classPath = "target/scala-2.11/classes/de/tkip/servicehost/serviceactor/stubgen"
       log.debug(upload.serviceClasses.toString)
       extractFile(upload.serviceClasses, classPath)
       extractFile(Map(upload.serviceJsonName->upload.serviceJson), jsonPath)
 
       implicit val timeout = Timeout(15 seconds)
-      val future = ActorLocator.referenceXMLActor ?? CreateXMLReferenceMessage(upload.serviceId, classPath.replaceAll("target/scala-2.10/classes/", "").replaceAll("/", ".")
+      val future = ActorLocator.referenceXMLActor ?? CreateXMLReferenceMessage(upload.serviceId, classPath.replaceAll("target/scala-2.11/classes/", "").replaceAll("/", ".")
         + "." + upload.serviceClassName.replaceAll(".class", ""), jsonPath + "/" + upload.serviceJsonName)
       
       future onComplete {
