@@ -86,6 +86,8 @@ case class SendStateActor(data: StateData)
     transitions.find(_.isExitCond).get
   private val sendExitCond = sendTransition.myType.asInstanceOf[ExitCond]
   private val sendTarget = sendExitCond.target.get
+  
+  private var block_gui_message_in_overflow = false;
 
   //  override def preStart() {
   // TODO so ist das noch nicht, besser machen!
@@ -246,6 +248,8 @@ case class SendStateActor(data: StateData)
       remainingStored -= 1
 
       log.debug("message with id {} enabled. remaining: {}", messageID, remainingStored)
+      
+      block_gui_message_in_overflow = false
 
       if (remainingStored <= 0) {
         changeState(transition.successorID, data, message)
@@ -256,6 +260,8 @@ case class SendStateActor(data: StateData)
     
     case Overflow(messageID)  => {
       //Overflow message was received, do something. But not necessary, we at least have to whait
+      
+      block_gui_message_in_overflow = true
     }
 
     case Stored(messageID) => {
@@ -283,7 +289,7 @@ case class SendStateActor(data: StateData)
     Array(
       ActionData(
         sendTransition.messageType,
-        !messageContent.isDefined && targetUserIDs.isDefined && targetUserIDs.get.length >= sendTarget.min,
+        !block_gui_message_in_overflow && !messageContent.isDefined && targetUserIDs.isDefined && targetUserIDs.get.length >= sendTarget.min,
         exitCondLabel,
         relatedSubject = Some(sendTransition.subjectID),
         targetUsersData =
