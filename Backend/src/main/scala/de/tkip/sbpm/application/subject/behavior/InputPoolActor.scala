@@ -212,6 +212,10 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     case DeleteInputPoolMessages(fromSubject, messageType, messages) => {
       val result =
         dequeueMessages((fromSubject, messageType), messages)
+      if (result)
+      {
+        // take out message from overflow queue and put it in main inputpool
+      }
       if (!result) {
         // TODO error, delete failed
       }
