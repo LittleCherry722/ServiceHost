@@ -212,12 +212,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     case DeleteInputPoolMessages(fromSubject, messageType, messages) => {
       val result =
         dequeueMessages((fromSubject, messageType), messages)
-      if (result)
-      {
-        // take out message from overflow queue and put it in main inputpool
-        /*enqueueMessage(Overflow(message.messageID))
-        log.debug("Message from Overflow moved to InputPool!")*/
-      }
+     
       if (!result) {
         // TODO error, delete failed
       }
@@ -471,7 +466,22 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
    */
   private def dequeueMessage(key: (SubjectID, MessageType)) =
     messageQueueMap(key).dequeue()
-    //Todo move from overflow to main queue (only enabled messages)
+    
+    /**Todo move from overflow to main queue (only enabled messages)
+     * if messageQueueMap(key).dequeue() {
+     *  if (messageOverflowQueueMap(key) != null) {
+     * 		messageQueueMap(key).enqueue(messageOverflowQueueMap(key).dequeue())
+     *   }
+     *    else
+     *    	{
+     *     		log.debug("Overflow Queue empty")
+     *     }
+     * }
+     * else
+     * {
+     * //log.debug("Can not dequeue Message")
+     * }
+     */
 
   /**
    * Returns if the message queue for the key is empty.
