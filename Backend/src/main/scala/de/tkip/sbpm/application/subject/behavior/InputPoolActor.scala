@@ -471,6 +471,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
    */
   private def dequeueMessage(key: (SubjectID, MessageType)) =
     messageQueueMap(key).dequeue()
+    //Todo move from overflow to main queue (only enabled messages)
 
   /**
    * Returns if the message queue for the key is empty.
