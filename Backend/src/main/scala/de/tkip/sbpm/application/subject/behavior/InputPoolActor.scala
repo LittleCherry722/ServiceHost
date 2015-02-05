@@ -215,6 +215,8 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
       if (result)
       {
         // take out message from overflow queue and put it in main inputpool
+        /*enqueueMessage(Overflow(Message))
+        log.debug("Message from Overflow moved to InputPool!")*/
       }
       if (!result) {
         // TODO error, delete failed
