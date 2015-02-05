@@ -350,9 +350,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
 
   private def externalSubjectAgent(subject: ExternalSubject): Agent = {
     log.info("externalSubjectAgent: " + subject)
-    // If an agents list for this subject exists, use it.
-    // Otherwise update the list and return agents for this external subject.
-    // May still be an empty set if no agents exist.
+    // If an agent for this subject exists, use it.
     agentsMap.get(subject.id) match {
       case Some(agent) => agent
       case None => {
