@@ -74,6 +74,14 @@ require.config({
 		"jquery.bootstrap.modal": ["jquery"],
 		"select2": ["jquery"],
 	},
+	urlArgs: (function() {
+		// ensure that browser caches aren't used, but only on localhost
+		// see https://stackoverflow.com/questions/8315088/prevent-requirejs-from-caching-required-scripts
+		if (window.location.hostname === 'localhost')
+			return "cachebust=" + (new Date()).getTime();
+		else
+			return "";
+	})()
 });
 
 require([ "app", "router", "knockout.custom" ], function( App, Router ){
