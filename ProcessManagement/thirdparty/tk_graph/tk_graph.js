@@ -14,16 +14,16 @@
 var gv_filePrefix = "thirdparty/tk_graph";
 
 // include Raphael
-gf_includeJS("thirdparty/raphael-min.js");
+gf_includeJS("../raphael/raphael.js");
 
 // include jQuery scrollTo plugin
-gf_includeJS("thirdparty/jquery.scrollTo-min.js");
+gf_includeJS("../jquery-scrollTo/jquery.scrollTo.js");
 
 // include jQuery MouseWheel plugin
-gf_includeJS("thirdparty/jquery.mousewheel.min.js");
+gf_includeJS("../jquery-mousewheel/jquery.mousewheel.js");
 
 // include PubSub
-gf_includeJS("thirdparty/pubsub.js");
+gf_includeJS("../jquery-pubsub/jquery.pubsub.js");
 
 // include classes
 gf_includeJS("graph/classes/behavior.class.js");
