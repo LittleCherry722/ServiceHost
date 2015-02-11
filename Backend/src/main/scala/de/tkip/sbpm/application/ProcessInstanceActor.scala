@@ -350,11 +350,14 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
 
   private def externalSubjectAgent(subject: ExternalSubject): Agent = {
     log.info("externalSubjectAgent: " + subject)
+    log.info("externalSubjectType: " + subject.externalType)
     // If an agent for this subject exists, use it.
     agentsMap.get(subject.id) match {
       case Some(agent) => agent
       case None => {
-        if (subject.externalType == "external") {
+        //if (subject.externalType == "external") {
+        // TODO externalType richtig implementieren
+        if (subject.externalType != "external") {
           log.debug("Attempt to retrieve agent of external subject with subject type external. This is not supported yet.")
           // TODO what agent to use when the subject is part of an external process which runs locally?
           addExternalAgent(subject)
@@ -371,11 +374,9 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   private def addExternalAgent(subject: ExternalSubject) = {
     val ownAddress = AgentAddress(ip = SystemProperties.akkaRemoteHostname
       , port = SystemProperties.akkaRemotePort)
-    val test = processID
-    val agent = Agent(processID = test,
-    adress = ownAddress,
-    subjectId = subject.id)
-    agentsMap + (subject.id -> agent)
+    val test = this.id
+    val agent = new Agent(test,ownAddress, subject.id)
+    agentsMap = agentsMap + (subject.id -> agent)
     log.debug("Added agent for external subject: {}", subject.id)
   }
 
