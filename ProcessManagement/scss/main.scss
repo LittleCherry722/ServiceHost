@@ -12,13 +12,16 @@
  */
 
 @import "variables";
-@import "../thirdparty/bootstrap/bootstrap";
+@import "../thirdparty/bootstrap/scss/bootstrap";
+@import "../thirdparty/jquery-chardin/chardinjs";
+@import "../thirdparty/intro/introjs";
 @import "flexbox";
 @import "calc";
 @import "forms";
-@import "../thirdparty/jquery-chardin/chardinjs";
 @import "chardinjs-behavior";
-@import "../thirdparty/intro/introjs";
+@import "dashboard";
+
+
 
 .flexbox {
   @include display-box;
@@ -155,7 +158,7 @@ h4 {
   width: 50px;
   padding: 10px 15px 10px 15px;
   background: #fff;
-  @include border-radius(5px);
+  border-radius: 5px;
   border: 1px solid #cdcdcd;
   color: #4c535b;
   text-shadow: 0 1px 0 #fff;
@@ -407,7 +410,7 @@ a#show_menu {
   border: 1px solid #CCC;
   position: relative;
   background: #EBEBEB;
-  @include border-radius(3px);
+  border-radius: 3px;
   color: #4B4F5D;
   font-weight: bold;
   cursor: e-resize;
@@ -441,12 +444,12 @@ a#show_menu {
   background: #fff;
   border: 1px solid #cdcdcd;
   margin: 0;
-  @include border-radius(5px);
+  border-radius: 5px;
   @include box-shadow(0 1px 2px #ccc);
 
   .content {
     background: url(../images/bg_ip.png) repeat-x;
-    @include border-radius(5px);
+    border-radius: 5px;
     border-top: 0px solid #bdbdbd;
     padding: 15px;
   }
@@ -468,7 +471,7 @@ a#show_menu {
   width: 49%;
   background: #fff;
   border: 1px solid #cdcdcd;
-  @include border-radius(5px);
+  border-radius: 5px;
   @include box-shadow(0 1px 4px #ccc);
   box-shadow: 0 1px 2px #ccc;
   float: left;
@@ -486,7 +489,7 @@ a#show_menu {
   width: 100%;
   height: 40px;
   border-bottom: 1px solid #ccc;
-  @include border-radius(5px 5px 0 0);
+  border-radius: 5px 5px 0 0;
 }
 
 .column_left .header span, .column_right .header span {
@@ -501,7 +504,7 @@ a#show_menu {
 
 .column_left .content, .column_right .content {
   background: url(../images/bg_ip.png) repeat-x;
-  @include border-radius(0 0 5px 5px);
+  border-radius: 0 0 5px 5px;
   border-top: 0px solid #bdbdbd;
   padding-bottom: 10px;
   padding: 25px 15px 15px 15px;
@@ -616,7 +619,7 @@ table.data2 tr td {
   background: #e6e6e6;
   border-left: 1px solid #bbb;
   border-bottom: 1px solid #ccc;
-  @include border-radius(0 0 5px 0);
+  border-radius: 0 0 5px 0;
 
   .chzn-container-multi {
     height: auto;
@@ -679,7 +682,7 @@ table.data2 tr td {
     background-color: #EEE;
     padding: 5px;
     border: 1px solid #CFCFCF;
-    @include border-radius(4px);
+    border-radius: 4px;
 
     p {
       text-align: left;
@@ -775,7 +778,7 @@ table.data2 tr td {
   margin-top: 1px;
 
   .btn {
-    @include border-radius(13px);
+    border-radius: 13px;
     width: 25px;
     height: 25px;
     line-height: 25px;
@@ -793,7 +796,7 @@ table.data2 tr td {
   li {
     padding: 5px 0;
     a {
-      @include border-radius(8px);
+      border-radius: 8px;
       @include box-shadow(0 0 2px rgba(0, 0, 0, 0.2));
       display: inline-block;
       background-color: #EEE;
@@ -849,7 +852,7 @@ table.data2 tr td {
   @include calc(min-height, "100% - 45px");
   min-width: 1px;
   background-color: #fff;
-  @include border-radius(5px);
+  border-radius: 5px;
   border: 1px solid #cdcdcd;
   @include box-shadow(0 1px 2px #ccc);
 
@@ -903,7 +906,7 @@ table.data2 tr td {
     ul.chzn-choices {
       @include box-shadow(inset 0 1px 1px rgba(0, 0, 0, 0.075));
       @include transition(border linear 0.2s, box-shadow linear 0.2s);
-      @include border-radius(4px);
+      border-radius: 4px;
       height: 16px;
       color: #555;
 
@@ -941,12 +944,12 @@ table.data2 tr td {
       display: block;
       padding: 0;
       margin-right: 5px;
-      @include border-radius(5px 5px 0 0);
+      border-radius: 5px 5px 0 0;
 
       a {
         padding: 8px 25px;
         margin: 0;
-        @include border-radius(5px 5px 0 0);
+        border-radius: 5px 5px 0 0;
 
         &:hover {
           border-bottom: 1px solid #ccc;
@@ -975,12 +978,12 @@ table.data2 tr td {
 #executionContent {
   @include calc(height, "100% - 120px");
   background-color: #fff;
-  @include border-radius(5px);
+  border-radius: 5px;
   border: 1px solid #cdcdcd;
   @include box-shadow(0 0 3px #ccc);
 
   &.first-tab-selected {
-    @include border-radius(0 5px 5px 5px);
+    border-radius: 0 5px 5px 5px;
   }
 
   .content {
@@ -1006,7 +1009,7 @@ table.data2 tr td {
   height: 30px;
   padding: 3px 5px;
   @include gradient-vertical(#f8f8f8, #e6e6e6);
-  @include border-radius(5px 5px 0 0);
+  border-radius: 5px 5px 0 0;
   @include box-shadow(inset 0 1px 1px #fff);
   border-bottom: 1px solid #ccc;
 
@@ -1052,7 +1055,7 @@ table.data2 tr td {
 }
 
 .first-tab-selected .header {
-  @include border-radius(0 5px 0 0);
+  border-radius: 0 5px 0 0;
 }
 
 .btn.btn-primary {
@@ -1667,5 +1670,189 @@ span.icon_clear:hover {
     line-height: 1.4;
     color: #444;
     font-size: 13px;
+  }
+}
+
+/*!
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2012 Johannes Decher, Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+/* bootstrap overrides */
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  padding-top: 70px;
+}
+
+/*
+ * Off Canvas
+ * --------------------------------------------------
+ */
+@media screen and (max-width: 768px) {
+  .navbar-default {
+    background: #777777 !important;
+  }
+  .row-offcanvas {
+    position: relative;
+    -webkit-transition: all 0.25s ease-out;
+    -moz-transition: all 0.25s ease-out;
+    transition: all 0.25s ease-out;
+  }
+  .row-offcanvas-left {
+    .sidebar-offcanvas {
+      left: -50%;
+      /* 6 columns */
+    }
+    &.active {
+      left: 50%;
+      /* 6 columns */
+    }
+  }
+  .sidebar-offcanvas {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    /* 6 columns */
+  }
+}
+
+.navbar-default {
+  .navbar-brand {
+    color: #fff;
+    &:hover, &:focus {
+      color: #fff;
+    }
+  }
+  background-image: url(../images/bg_header.png);
+  color: #fff;
+  .navbar-nav > {
+    .active > a {
+      color: #fff;
+      &:hover, &:focus {
+        color: #fff;
+      }
+    }
+    li > a {
+      &:hover, &:focus {
+        color: #fff;
+      }
+      color: #fff;
+    }
+  }
+}
+
+.container {
+  max-width: 100%;
+  #main {
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 6px 6px 6px 6px;
+    padding-bottom: 18px;
+    background-color: #F5F5F5;
+    border: 1px solid #E3E3E3;
+    color: inherit;
+    line-height: 2.14286;
+    margin-bottom: 30px;
+    padding: 20px;
+    padding-top: 0;
+    .breadcrumb {
+      margin-bottom: 0;
+    }
+  }
+}
+
+#executionContent {
+  padding: 10px;
+  &.first-tab-selected {
+    border-radius: 0 5px 5px 5px;
+  }
+  background-color: #FFFFFF;
+  border: 1px solid #CDCDCD;
+  border-radius: 5px 5px 5px 5px;
+  box-shadow: 0 0 3px #CCCCCC;
+}
+
+#dashboard {
+  .select2-container {
+    .select2-choice {
+      background: none;
+      border: 0;
+      height: 42px;
+      box-shadow: none;
+      line-height: 1.42857;
+      padding: 10px 15px;
+      .select2-arrow {
+        border: 0;
+        background: none;
+        top:5px;
+      }
+    }
+    .select2-choice:hover {
+      background-color: #EEE;
+    }
+  }
+  .select2-dropdown-open {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    border-color: #CCCCCC #CCCCCC -moz-use-text-color;
+    border-image: none;
+    border-style: solid solid none;
+    border-width: 1px 1px medium;
+    box-shadow: 0 0 3px #CCCCCC;
+    height: 29px;
+    position: relative;
+    top: -3px;
+    border-radius: 5px 5px 0 0;
+    .select2-choice {
+      background-color: #FCFCFC;
+      background-image: linear-gradient(to bottom, white, #F8F8F8);
+      background-repeat: repeat-x;
+      border: medium none;
+      border-radius: 4px 4px 0 0;
+     }
+  }
+  .select2-drop {
+    border-color: #CCCCCC;
+  }
+  .select2-search {
+    margin: 2px;
+  }
+  .select2-default {
+    color: #4B4F5D !important;
+  }
+}
+
+.item_info {
+  .table {
+      margin:0;
+      thead > tr > td  {
+        border-top:0;
+        border-bottom: 1px solid #DDDDDD;
+    }
+  }
+}
+.processitem {
+  .col3 {
+    text-align:right;
+  }
+}
+.processhead {
+  .col3 {
+    text-align:right;
   }
 }

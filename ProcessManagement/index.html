@@ -1,78 +1,73 @@
 <!DOCTYPE html>
-
-<!-- S-BPM Groupware v1.2
--
-- http://www.tk.informatik.tu-darmstadt.de/
--
-- Copyright 2012 Johannes Decher, Telecooperation Group @ TU Darmstadt
-- Contact: Stephan.Borgert@cs.tu-darmstadt.de
--
-- This Source Code Form is subject to the terms of the Mozilla Public
-- License, v. 2.0. If a copy of the MPL was not distributed with this file,
-- You can obtain one at http://mozilla.org/MPL/2.0/.  -->
-
 <html>
 	<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<meta http-equiv="X-UA-Compatible" content="chrome=1">
+		<!-- Title -->
+		<title>S-BPM Groupware</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<!-- Title -->
-	<title>S-BPM Groupware</title>
+		<!-- Favicon -->
+		<link rel="icon" href="images/icons/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="images/icons/favicon.ico" type="image/x-icon" />
 
-	<!-- Favicon -->
-	<link rel="icon" href="images/icons/favicon.ico" type="image/x-icon" />
-	<link rel="shortcut icon" href="images/icons/favicon.ico" type="image/x-icon" />
+		<!-- stylesheets -->
+		<link href="thirdparty/rainbow/rainbow-github.css" rel="stylesheet" type="text/css" media="all">
+		<link href="thirdparty/jquery-ui/jquery.ui.css" rel="stylesheet" type="text/css" media="all" />
+		<link href="thirdparty/jquery-ui/datepicker.css" rel="stylesheet" type="text/css" media="all">
+		<link href="thirdparty/jquery-fancybox/jquery.fancybox.css" rel="stylesheet" type="text/css" media="screen" />
+		<link href="thirdparty/jquery-freeow/freeow.css" rel="stylesheet" type="text/css" media="all" />
+		<link href="thirdparty/jquery-chosen/chosen.css" rel="stylesheet" type="text/css" media="all" />
+		<link href="thirdparty/select2/select2.css" rel="stylesheet" type="text/css" media="all" />
+		<link href="css/main.css" rel="stylesheet" type="text/css" media="all">
 
-	<!-- stylesheets -->
-	<link href="thirdparty/rainbow/rainbow-github.css" rel="stylesheet" type="text/css" media="all">
-	<link href="thirdparty/jquery-ui/jquery.ui.css" rel="stylesheet" type="text/css" media="all" />
-	<link href="thirdparty/jquery-ui/datepicker.css" rel="stylesheet" type="text/css" media="all">
-	<link href="thirdparty/jquery-fancybox/jquery.fancybox.css" rel="stylesheet" type="text/css" media="screen" />
-	<link href="thirdparty/jquery-freeow/freeow.css" rel="stylesheet" type="text/css" media="all" />
-	<link href="thirdparty/jquery-chosen/chosen.css" rel="stylesheet" type="text/css" media="all" />
-	<link href="thirdparty/select2/select2.css" rel="stylesheet" type="text/css" media="all" />
-	<link href="css/main.css" rel="stylesheet" type="text/css" media="all">
-
-	<!--
-			jquery is needed for tk_graph and tk graph is not yet compatible to
-			requirejs
-		-->
-	<script type="text/javascript" src="thirdparty/jquery/jquery.js"></script>
-	<script type="text/javascript" src="thirdparty/jquery-fancybox/jquery.fancybox.js"></script>
-	<script type="text/javascript" src="thirdparty/jquery-chosen/jquery.chosen.js"></script>
-	<script type="text/javascript" src="thirdparty/jquery-chardin/jquery.chardinjs.js"></script>
-	<script type="text/javascript" src="thirdparty/jquery-pubsub/jquery.pubsub.js"></script>
-	<script type="text/javascript" src="thirdparty/bootstrap/jquery.bootstrap-tooltip.js"></script>
-	<script type="text/javascript" src="thirdparty/bootstrap/jquery.bootstrap-dropdown.js"></script>
-	<script type="text/javascript" src="thirdparty/bootstrap/jquery.bootstrap-modal.js"></script>
-	<script type="text/javascript" src="js/feedback.js"></script>
-	<script type="text/javascript" src="js/libs/uuid.js"></script>
-	<script type="text/javascript" src="thirdparty/FileSaver/FileSaver.js"></script>
-	<script type="text/javascript" src="thirdparty/keymaster/keymaster.js"></script>
-	<script type="text/javascript" src="js/libs/shortcuts.js"></script>
-	<script type="text/javascript" src="thirdparty/intro/intro.js"></script>
-	<script type="text/javascript" src="thirdparty/tk_graph/tk_graph.js"></script>
-	<script data-main="js/main" src="thirdparty/require/require.js"></script>
+		<!--
+				jquery is needed for tk_graph and tk graph is not yet compatible to
+				requirejs
+			-->
+		<script type="text/javascript" src="thirdparty/jquery/jquery.js"></script>
+		<script type="text/javascript" src="thirdparty/jquery-fancybox/jquery.fancybox.js"></script>
+		<script type="text/javascript" src="thirdparty/jquery-chosen/jquery.chosen.js"></script>
+		<script type="text/javascript" src="thirdparty/jquery-chardin/jquery.chardinjs.js"></script>
+		<script type="text/javascript" src="thirdparty/jquery-pubsub/jquery.pubsub.js"></script>
+		<script type="text/javascript" src="thirdparty/bootstrap/bootstrap.js"></script>
+		<script type="text/javascript" src="js/feedback.js"></script>
+		<script type="text/javascript" src="js/libs/uuid.js"></script>
+		<script type="text/javascript" src="thirdparty/FileSaver/FileSaver.js"></script>
+		<script type="text/javascript" src="thirdparty/keymaster/keymaster.js"></script>
+		<script type="text/javascript" src="js/libs/shortcuts.js"></script>
+		<script type="text/javascript" src="thirdparty/intro/intro.js"></script>
+		<script type="text/javascript" src="thirdparty/tk_graph/tk_graph.js"></script>
+		<script data-main="js/main" src="thirdparty/require/require.js"></script>
 
 	</head>
 	<body>
 		<div id="freeow" class="freeow freeow-top-right"></div>
-		<div class="content_wrapper clearfix">
 
-			<!-- header -->
-			<div id="header"></div>
-			<!-- End header -->
-			<div id="headAndLeft" class="clearfix">
-				<!--left panel -->
-				<a href="javascript:;" id="show_menu">&raquo;</a>
-				<div id="left_menu"></div>
-				<!-- End left panel -->
+		<!-- Fixed navbar -->
+		<div id="header" class="navbar navbar-default navbar-fixed-top"></div>
+		<div class="container">
+			<div class="row row-offcanvas row-offcanvas-left">
+				<div class="col-xs-6 col-sm-2 sidebar-offcanvas" id="sidebar" role="navigation">
+					<div class="well sidebar-nav" id="left_menu"></div>
+					<div class="well sidebar-nav" id="calendar" data-chardin-position="right"
+						data-chardin-intro="This is a nice calendar, isn't it? Later on this will somehow be linked with Google Calendar.">
+					</div>
+				</div>
 
-				<!-- Begin content -->
-				<div id="main"></div>
-				<!-- end content -->
+				<div class="col-xs-12 col-sm-10">
+					<p class="pull-left visible-xs">
+						<button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle nav</button>
+					</p>
+					<div id="main"></div>
+				</div>
+
 			</div>
-		</div>
 
+			<hr>
+
+			<footer>
+				<p>&copy; Company 2013</p>
+			</footer>
+
+		</div>
 	</body>
 </html>

@@ -28,6 +28,7 @@ require.config({
 			"intro": thirdpartyURI + "intro/intro",
 			"rainbow": thirdpartyURI + "rainbow/rainbow-custom.min",
 			"js_beautify": thirdpartyURI +"beautify/js_beautify",
+			"bootstrap": thirdpartyURI + "bootstrap/bootstrap",
 			"knockout": thirdpartyURI + "knockout/knockout",
 				"knockout.mapping": thirdpartyURI + "knockout/plugins/knockout.mapping",
 				"knockout.custom": thirdpartyURI + "knockout/plugins/knockout.custom-bindings",
@@ -39,8 +40,6 @@ require.config({
 				"jquery.pubsub": thirdpartyURI + "jquery-pubsub/jquery.pubsub",
 				"jquery.chardin": thirdpartyURI + "jquery-chardin/jquery.chardinjs",
 				"jquery.fancybox": thirdpartyURI + "jquery-fancybox/jquery.fancybox",
-			// bootstrap jquery plugins
-				"bootstrap.modal": thirdpartyURI + "bootstrap/jquery.bootstrap-modal",
 			// our own libraries
 			"model": ownURI + "model",
 			"notify": ownURI + "notify",
@@ -71,7 +70,7 @@ require.config({
 		"jquery.chosen": ["jquery"],
 		"jquery.scrollTo": ["jquery"],
 		"jquery.freeow": ["jquery"],
-		"jquery.bootstrap.modal": ["jquery"],
+		"bootstrap": ["jquery"],
 		"select2": ["jquery"],
 	},
 	urlArgs: (function() {

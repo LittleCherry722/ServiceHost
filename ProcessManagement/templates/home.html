@@ -1,15 +1,29 @@
 <div>
 <div id="dashboard">
   <div data-chardin-intro="This is your Dashboard." data-chardin-position="bottom" class="pull-left" style="min-width: 96%">
-    <h3>S-BPM Groupware v1.2</h3>
-    <div id="filter" class="btn-group">
-      <select data-bind="options: availableUsers, optionsText: 'name', optionsValue: 'id', value: selectedUser, optionsCaption: 'Select User'"></select>
-      <select data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'name', value: selectedProcess, optionsCaption: 'Select Process'"></select>
-      <select data-bind="options: availableStatetypes,  value: selectedStatetype, optionsCaption: 'Select Statetype'"></select>
-      <label for="from">From</label>
-      <input type="text" id="from" name="from" data-bind="value: selectedStart" />
-      <label for="to">to</label>
-      <input type="text" id="to" name="to" data-bind="value: selectedEnd"/>
+    <h1>S-BPM Groupware v1.2</h1>
+    <div class="row" id="filter">
+		<div class="col-sm-2">
+			<select class="form-control input-sm" data-bind="options: availableUsers, optionsText: 'name', optionsValue: 'id', value: selectedUser, optionsCaption: 'Select User'"></select>
+		</div>
+		<div class="col-sm-2">
+			<select class="form-control input-sm" data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'name', value: selectedProcess, optionsCaption: 'Select Process'"></select>
+		</div>
+		<div class="col-sm-2">
+			<select class="form-control input-sm" data-bind="options: availableStatetypes,  value: selectedStatetype, optionsCaption: 'Select Statetype'"></select>
+		</div>
+		<div class="col-sm-2">
+			<div class="input-group input-group-sm">
+				<span class="input-group-addon">From:</span>
+				<input class="form-control" type="text" id="from" name="from" data-bind="value: selectedStart" />
+			</div>
+		</div>
+		<div class="col-sm-2">
+			<div class="input-group input-group-sm">
+				<span class="input-group-addon">To:</span>
+				<input class="form-control" type="text" id="to" name="to" data-bind="value: selectedEnd"/>
+			</div>
+		</div>
     </div>
 
     <div id="notification" style="display: none;">
@@ -39,24 +53,32 @@
     </div>
     <div id="executionContent">
     </div>
+    <br />
+    <br />
+    <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+    <br />a
+    
+    
+    
   </div>
 </div>
 
-<div id="processNameModal" class="modal hide" tabindex="-1">
-	<div class="modal-header">
-		<a type="button" class="close pull-right" data-dismiss="modal">x</a>
-		<h3>Process Name</h3>
+<div id="processNameModal" class="modal fade in">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form data-bind="submit: newInstance">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h3>Process Name</h3>
+				</div>
+				<div class="modal-body">
+					<input type="hidden" name="processId" value="" />
+					<input name="instancename" class="form-control" type="text" />
+				</div>
+				<footer class="modal-footer">
+					<input type="submit" class="btn btn-primary" value="Start" />
+				</footer>
+			</form>
+		</div>
 	</div>
-	<div class="modal-body">
-		<form data-bind="submit: newInstance">
-      <div>
-		   <input type="hidden" name="processId" value="" />
-		   <input name="instancename" type="text"  style="width:250px;" />
-      </div>
-      <div>
-			  <input type="submit" value="Start" />
-      </div>
-		</form>
-	</div>
-</div>
 </div>

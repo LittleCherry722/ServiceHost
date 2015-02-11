@@ -131,7 +131,7 @@ var gv_nodeTypeImg	= {
  *
  * @type String
  */
-var gv_imgPath	= "tk_graph/img/";
+var gv_imgPath	= "thirdparty/tk_graph/img/";
 
 /**
  * Path to the empty image (placeholder).

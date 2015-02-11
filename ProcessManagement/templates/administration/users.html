@@ -14,43 +14,55 @@
 			<tr data-bind="attr: { id: 'user'+ id() }">
 				<td data-bind="text: id"></td>
 				<td>
-					<input type="text" class="inline" data-bind='value: name' />
+					<div class="input-group">
+						<span class="input-group-addon">Name:</span>
+						<input type="text" name="from" id="from" class="form-control" data-bind='value: name' />
+					</div>
 				</td>
 				<td>
-					<select data-bind="options: $parent.groups,
-						optionsText: 'name', optionsValue : 'id',
-						selectedOptions: groupIds"
-						class="chzn-select" multiple="multiple">
-					</select>
+					<div class="input-group">
+						<select class="chzn-select" style="min-width: 300px;" data-bind="options: $parent.groups,
+							optionsText: 'name', optionsValue : 'id',
+							selectedOptions: groupIds" multiple="multiple">
+						</select>
+					</div>
 				</td>
 				<td>
 					<input type="checkbox" data-bind="checked: isActive" />
 				</td>
 				<td>
-					
+
 				<div data-bind="foreach: $data.providerMail">
-				<div>
-				<input type="text" class="inline" data-bind='value: provider' />
-				<input type="text" class="inline" data-bind='value: mail' />
-				<input type="button" class="button" value="Delete" data-bind='click: $root.deleteEmail.bind($data,$parent)' />
+					<div class="form-inline">
+						<div class="form-group">
+							<label class="sr-only" for="exampleInputEmail2">Email address</label>
+							<input type="text" class="form-control input-sm" data-bind='value: provider' />
+						</div>
+						<div class="form-group">
+							<label class="sr-only" for="exampleInputEmail2">Email address</label>
+							<input type="email" class="form-control input-sm" data-bind='value: mail' />
+						</div>
+
+						<button type="button" class="btn btn-danger btn-xs" data-bind='click: $root.deleteEmail.bind($data,$parent)'>Delete</button>
+					</div>
 				</div>
-				</div>
-				<input type="button" class="button" value="Add" data-bind='click: $parent.addEmail' />
+				<input type="button" class="btn btn-success btn-xs" value="Add" data-bind='click: $parent.addEmail' />
 				</td>
 				<td>
-					<input type="button" class="button" value="Delete" data-bind='click: $parent.remove' />
-					<input type="button" class="button" value="Save changes" data-bind='click: $parent.save' />
-					<input type="button" class="button" value="Reset" data-bind='click: $parent.reset' />
+					<div class="btn-group">
+						<input type="button" class="btn btn-primary" value="Save changes" data-bind='click: $parent.save' />
+						<input type="button" class="btn btn-warning" value="Reset" data-bind='click: $parent.reset' />
+						<input type="button" class="btn btn-danger" value="Delete" data-bind='click: $parent.remove' />
+					</div>
 				</td>
 			</tr>
 		</tbody>
 	</table>
 
-	<input type="button" class="button" value="Create User" data-bind='click: create' />
+	<input type="button" class="btn btn-success" value="Create User" data-bind='click: create' />
 
 	<div class="form-actions">
-		<input type="button" class="button" value="Reset" data-bind="click: resetAll" />
-		<input type="button" class="button" value="Save" data-bind="click: saveAll" />
+		<input type="button" class="btn btn-warning btn-sm" value="Reset" data-bind="click: resetAll" />
+		<input type="button" class="btn btn-primary btn-sm" value="Save" data-bind="click: saveAll" />
 	</div>
 </div>
-

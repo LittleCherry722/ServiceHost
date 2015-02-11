@@ -1,54 +1,54 @@
-<div>
-<div id="logo">
-	<h1 style="float:left">S-BPM Groupware v1.2</h1>
+<div class="container">
+	<div class="navbar-header">
+  		<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+  		</button>
+  		<a class="navbar-brand" href="#">S-BPM Groupware v1.2</a>
+	</div>
+	<div class="navbar-collapse collapse">
+  		<ul class="nav navbar-nav">			
+			<!-- ko ifnot: currentUser() -->
+				<li><a href="./login.html"><i class="glyphicon glyphicon-user"></i> Login</a></li>
+			<!-- /ko -->
+			<!-- ko if: currentUser() -->
+			<li class="dropdown">
+				<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="glyphicon glyphicon-user"></i> Welcome  <span data-bind="text: currentUser().name"></span>&nbsp;<span class="badge">42</span>&nbsp;<span class="caret"></span></a>
+				<ul class="dropdown-menu">
+  					<li><a href="#/account">Profile</a></li>
+  					<li><a href="#" data-bind="click: oauth2callback" data-chardin-position="bottom" data-chardin-intro="Linking your account with Google allows you to sign-in through Google and use Google Drive to uplaod attachments for actions.">
+  						Link account to Google
+					</a></li>
+  					<li class="divider"></li>
+  					<li><a href="" data-bind="click:logout">Sign Out</a></li>
+				</ul>
+			</li>
+			<!-- /ko -->
+			<li><a href="#/administration" data-chardin-position="bottom" data-chardin-intro="Create new user accounts, groups, roles and reset the system">Administration</a></li>
+			<li><a href="#imprint">Impressum</a></li>
+			<li><a href="#" data-bind="click: showHelp"><i class="glyphicon glyphicon-question-sign"></i></a></li>
+  		</ul>
+  		<div class="pull-right hidden-xs">
+  			<a href="http://www.tu-darmstadt.de">
+				<img src="images/tu_darmstadt_web.png" alt="TU-Darmstadt"/>
+			</a>
+			<a href="http://www.tk.informatik.tu-darmstadt.de/">
+				<img src="images/tk_HintergrundWeiss_Web.png" alt="Telecooperation Group"/>
+			</a>
+  			
+  		</div>
+
+	</div><!--/.nav-collapse -->
 </div>
+<!--
+
 <div id="account_info" data-bind="with: currentUser" data-chardin-intro="This is your account. Here you can edit your profile and set your authentication provider." data-chardin-position="right">
 	<img src="images/icons/user_48.png" width="16px" height="16px" alt="Online" class="mid_align"/>
 	Hello
 	<a href="#/account" data-bind="text: name"></a>
 	(<a id="newMSG" href="newMSG.html" data-bind="fancybox : {}">
 		<!--<span data-bind="text: messageCount()"></span>-->
-	</a>)
+	<!--</a>)
 </div>
-<div id="misc">
-	<div id="menu">
-		<!-- ko if: currentUser() -->
-		<a href="#" data-bind="click: oauth2callback"
-			data-chardin-position="bottom" data-chardin-intro="Linking your account
-			with Google allows you to sign-in through Google and use Google Drive
-			to uplaod attachments for actions.">
-			Link account to Google
-			</a>
-			&middot;
-		<!-- /ko -->
-		<a href="#/administration" data-chardin-position="bottom"
-			data-chardin-intro="Create new user accounts, groups, roles and reset the system">
-			Administration
-		</a>
-		<!-- ko if: currentUser() -->
-			&middot;
-			<a href="" data-bind="click:logout">
-				Logout
-			</a>
-		<!-- /ko -->
-		<!-- ko ifnot: currentUser() -->
-			&middot;
-			<a href="./login.html">
-				Login
-			</a>
-		<!-- /ko -->
-    &middot;
-		<a href="" data-bind="click: showHelp">
-			?
-		</a>
-	</div>
-	<div id="img">
-		<a href="http://www.tu-darmstadt.de">
-			<img src="images/tu_darmstadt_web.png" alt="TU-Darmstadt"/>
-		</a>
-		<a href="http://www.tk.informatik.tu-darmstadt.de/">
-			<img src="images/tk_HintergrundWeiss_Web.png" alt="Telecooperation Group"/>
-		</a>
-	</div>
-</div>
-</div>
+-->
