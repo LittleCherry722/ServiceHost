@@ -2,9 +2,9 @@ define([
 	"knockout",
 	"models/process",
 	"text!../../templates/menu.html",
+	"jquery",
 	"jquery.ui"
-	// "jquery"
-], function( ko, Process, menuTemplate ) {
+], function( ko, Process, menuTemplate, $ ) {
 
 	var viewModel = function() {
 		// Where do we actually need this? Remove it?
@@ -23,7 +23,7 @@ define([
 	var expandListOfProcesses = function() {
 		$('#processListLink').trigger( "click" )
 	}
-	
+
 	// Initialize our menu.
 	// Write the template content in our menuNode and
 	// apply all bindings.
@@ -39,26 +39,26 @@ define([
 
 	var setupMenu = function() {
 		// Set up the main Menu accordion
-		jQuery("#main_menu").accordion({
+			$("#main_menu").accordion({
 			autoHeight : false
 		});
 
 		// Make vanilla links in accordions possible
-		jQuery("#main_menu a.link").live( 'click', function() {
+		$('#main_menu a.link').click(function() {
 			window.location = this.getAttribute('href');
 		});
 
-		jQuery("#calendar").datepicker({
+		$("#calendar").datepicker({
 			nextText : "&raquo;",
 			prevText : "&laquo;"
 		});
 
-		jQuery("#hide_menu, #show_menu").click(function() {
-			jQuery( "#left_menu, #show_menu" ).toggle();
-			jQuery( "body" ).toggleClass("no-menu");
+		$("#hide_menu, #show_menu").click(function() {
+			$( "#left_menu, #show_menu" ).toggle();
+			$( "body" ).toggleClass("no-menu");
 		});
 	}
-	
+
 	// Everything in this object will be the public API
 	return {
 		init: initialize,

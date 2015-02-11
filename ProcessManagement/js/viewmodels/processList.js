@@ -8,9 +8,11 @@ define([
 	"underscore",
 	"router",
 	"moment",
+	"jquery",
 	"select2",
 	"jquery.ui",
-], function( ko, App, Notify, Dialog, Process, ProcessInstance, _, Router, moment, select2 ) {
+    "jquery.bootstrap.modal"
+], function( ko, App, Notify, Dialog, Process, ProcessInstance, _, Router, moment, $ ) {
 	var ViewModel = function() {
 		var self = this;
 		self.processes = processlist;

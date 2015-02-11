@@ -51,7 +51,6 @@ define([
 		processInstance( instance );
 		
 		$(".state").click(showMessages);
-		$(".state").live( 'click', showMessages);
 		function showMessages() {
 			if($('.message'+$(this).attr('id')).css('display')=="table-row") {
 				$('.message'+$(this).attr('id')).css('display','none');

@@ -17,12 +17,15 @@ require.config({
 		"text":                "libs/require/plugins/text",
 		"jade":                "libs/require/plugins/jade",
 		"director":            "libs/director/director",
+		"jquery":           "libs/jquery/jquery",
 		"jquery.ui":           "libs/jquery/plugins/jquery-ui",
 		"jquery.freeow":       "libs/jquery/plugins/jquery.freeow",
-		"jquery.qtip":         "libs/jquery/plugins/jquery.qtip",
 		"jquery.scrollTo":     "libs/jquery/plugins/jquery.scrollTo",
 		"jquery.chosen":       "libs/jquery/plugins/jquery.chosen",
-		"jquery.bootstrap":    "libs/jquery/bootstrap.min",
+		"jquery.pubsub":       "libs/jquery/plugins/jquery.pubsub",
+		"jquery.chardin":       "libs/jquery/plugins/jquery.chardinjs",
+		"jquery.bootstrap.modal":"libs/jquery/plugins/jquery.bootstrap-modal",
+        "jquery.fancybox":     "../fancybox/jquery.fancybox",
 		"keymaster":           "libs/keymaster/keymaster",
 		"knockout":            "libs/knockout/knockout",
 		"knockout.mapping":    "libs/knockout/plugins/knockout.mapping",
@@ -51,9 +54,17 @@ require.config({
 		},
 		"rainbow": {
 			exports: "Rainbow"
-		}
-	}
-
+		},
+        "jquery.ui": ["jquery"],
+        "jquery.fancybox": ["jquery"],
+        "jquery.chardin": ["jquery"],
+        "jquery.pubsub": ["jquery"],
+        "jquery.chosen": ["jquery"],
+        "jquery.scrollTo": ["jquery"],
+        "jquery.freeow": ["jquery"],
+        "jquery.bootstrap.modal": ["jquery"],
+        "select2": ["jquery"],
+	},
 });
 
 require([ "app", "router", "knockout.custom" ], function( App, Router ){

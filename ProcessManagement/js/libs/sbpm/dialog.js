@@ -33,8 +33,7 @@ define([], function() {
 				'	<br>' + text + '<br><br><br>' +
 				'	<div id="dialog-buttons" align="center" >' +
 				buildButtonString(buttons) + '</div></div>',
-			onComplete : function() {
-
+			afterShow : function() {
 				// assign actions
 				for (var i = 0; i < buttons.length; i++) {
 					jQuery( "#" + buttons[i].id ).click( buttons[i].action );

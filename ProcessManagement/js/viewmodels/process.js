@@ -10,8 +10,14 @@ define([
     "models/user",
     "models/role",
     "models/interface",
-    "utilities"
-], function( ko, App, Notify, Dialog, Process, _, Router, async, User, Role, Interface, Utilities ) {
+    "utilities",
+    "jquery",
+    "jquery.pubsub",
+    "jquery.chosen",
+    "jquery.fancybox",
+    "jquery.scrollTo",
+    "jquery.chardin"
+], function( ko, App, Notify, Dialog, Process, _, Router, async, User, Role, Interface, Utilities, $ ) {
 
     // The main viewmodel. Every observable defined inside can be used by the
     // view. Lets keep it clean and define functions and other helper variables
@@ -778,7 +784,7 @@ define([
     var initializeListeners = function() {
 
         // Make internal settings screens toggle-able
-        $( ".processSettingsTrigger" ).live( "click", function() {
+        $('.processSettingsTrigger').click(function() {
             if ($(this).parent().next().is( ":visible" )) {
                 $(this).closest( "fieldset" ).addClass( "hidden" );
                 $(this).html( "Show" ).addClass( "show" );
@@ -790,17 +796,16 @@ define([
 
         // Show or hide the role warning. Show it when no Role has been selected
         // (empty val), otherwise hide it.
-        $( "#ge_cv_id" ).live( "change", showOrHideRoleWarning);
+        $('#ge_cv_id').click(showOrHideRoleWarning);
 
-        $( '#internalClearBehavior' ).live( "click", function() {
+        $('#internalClearBehavior').click(function() {
             Dialog.yesNo( 'Warning', 'Do you really want to clear the behavior?', function(){
                 gv_graph.clearGraph();
                 parent.$.fancybox.close();
             });
         });
 
-        var updateSubjectIds = "#UpdateSubjectButton, #DeleteSubjectButton, #AddSubjectButton";
-        $(updateSubjectIds).live( "click", function() {
+        $('#UpdateSubjectButton, #DeleteSubjectButton, #AddSubjectButton').click(function() {
             Router.setHasUnsavedChanges(true);
             updateListOfSubjects();
         });
@@ -810,17 +815,17 @@ define([
         });
 
         var changeNodeButtonIds = "#CreateNodeButton, #InsertSendNodeButton, #InsertReceiveButton, #InsertActionNodeButton, #internalClearBehavior, #UpdateEdgeButton, #DeleteEdgeButton";
-        $(changeNodeButtonIds).live( "click", function() {
+        $(changeNodeButtonIds).click(function() {
             Router.setHasUnsavedChanges(true);
         });
 
         // When a selectable tab is clicked, mark the tab as selected, update the
         // list of subjects and conversations.
         // See "selectTab" for more Information,
-        $( ".switch .btn[id^='tab']" ).live( "click", selectTab );
+        $( ".switch .btn[id^='tab']" ).click(selectTab);
 
         // Save Process buttons behavior
-        $( "#saveProcessAsButton" ).live( "click", function() {
+        $( "#saveProcessAsButton" ).click(function() {
             $('#newProcessName').val( currentProcess().name() ).trigger('change');
             setTimeout(function() {
                 $('#newProcessName').focus().select();
@@ -830,8 +835,7 @@ define([
         // tool tips
         $('.tooltip-enabled *[title]').tooltip();
 
-        $("#tab3").live( "click", function() {
-
+        $("#tab3").click(function() {
             gv_graph.selectedNode = null;
         });
     };

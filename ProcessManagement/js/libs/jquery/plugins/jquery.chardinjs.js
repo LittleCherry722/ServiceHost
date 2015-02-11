@@ -22,7 +22,7 @@
           return false;
         }
         this._add_overlay_layer();
-        _ref = this.$el.find('*[data-chardin-intro]');
+        _ref = this.$el.find('*[data-intro]:visible');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           el = _ref[_i];
           this._show_element(el);
@@ -42,7 +42,7 @@
         var el, _i, _len, _ref, _results;
 
         if (this._overlay_visible()) {
-          _ref = this.$el.find('*[data-chardin-intro]');
+          _ref = this.$el.find('*[data-intro]:visible');
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             el = _ref[_i];
@@ -100,13 +100,13 @@
           return _this.stop();
         };
         return setTimeout(function() {
-          styleText += "opacity: .8;";
+          styleText += "opacity: .8;opacity: .8;-ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=80)';filter: alpha(opacity=80);";
           return overlay_layer.setAttribute("style", styleText);
         }, 10);
       };
 
       chardinJs.prototype._get_position = function(element) {
-        return element.getAttribute('data-chardin-position') || 'bottom';
+        return element.getAttribute('data-position') || 'bottom';
       };
 
       chardinJs.prototype._place_tooltip = function(element) {
@@ -167,7 +167,7 @@
         this._position_helper_layer(element);
         this.$el.get()[0].appendChild(helper_layer);
         tooltip_layer.className = "chardinjs-tooltip chardinjs-" + (this._get_position(element));
-        tooltip_layer.innerHTML = "<div class='chardinjs-tooltiptext'>" + (element.getAttribute('data-chardin-intro')) + "</div>";
+        tooltip_layer.innerHTML = "<div class='chardinjs-tooltiptext'>" + (element.getAttribute('data-intro')) + "</div>";
         helper_layer.appendChild(tooltip_layer);
         this._place_tooltip(element);
         element.className += " chardinjs-show-element";

@@ -9,9 +9,11 @@ define([
   "models/processInstance",
   "moment",
   "notify",
+  "jquery",
   "select2",
-  "jquery.ui"
-], function( ko, App, _, User, Process, Actions, History, ProcessInstance, moment, Notify, select2 ) {
+  "jquery.ui",
+  "jquery.chardin",
+], function( ko, App, _, User, Process, Actions, History, ProcessInstance, moment, Notify, $ ) {
 
   var ViewModel = function() {
     var self = this;

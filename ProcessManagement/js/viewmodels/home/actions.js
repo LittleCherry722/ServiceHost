@@ -6,7 +6,10 @@ define([
     "models/processInstance",
     "models/process",
     "notify",
-    "moment"
+    "moment",
+    "jquery",
+    "jquery.pubsub",
+    "jquery.scrollTo",
 ], function( ko, App, _, Actions, ProcessInstance, Process, Notify, moment ) {
 
     var ViewModel = function() {
@@ -127,9 +130,8 @@ define([
 
     var showGraph = function(action){
         $.fancybox({
-            scrolling: 'yes',
-            transitionIn: 'none',
-            transitionOut: 'none',
+            openEffect: 'none',
+            closeEffect: 'none',
             href: '#graphModal'
         });
 
