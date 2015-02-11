@@ -9,9 +9,6 @@
  */
 
 // Core variables and mixins
-
-$fontAwesomePath: "../thirdparty/FontAwesome";
-
 @import "bootstrap/variables"; // Modify this for custom colors, font-sizes, etc
 @import "bootstrap/mixins";
 
@@ -30,7 +27,7 @@ $fontAwesomePath: "../thirdparty/FontAwesome";
 @import "bootstrap/tables";
 
 // Components: common
-@import "../FontAwesome/font-awesome";
+@import "../FontAwesome/scss/font-awesome";
 @import "bootstrap/dropdowns";
 // @import "bootstrap/wells";
 @import "bootstrap/component-animations";
