@@ -135,10 +135,9 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     }
 
     
-    
     //this case will be executed, if the inputpoo receives a disabled message and the input pool is not full.
     //the incomming message will be stored and a reply (stored message) will be sent back to the sender
-    case message: SubjectToSubjectMessage if (spaceAvailableInMessageQueue(message) && !message.enabled) => {
+    case message: SubjectToSubjectMessage if (spaceAvailableInMessageQueue(message.from, message.messageType) && !message.enabled) => {
       //store reservation message
       log.debug("InputPool received disabled message from " + sender + " which message.messageID = " +message.messageID)
       //send stored notification back to sender
@@ -158,7 +157,13 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
       if(enableMessage(message)){
     	  //send enabled notification back to sender
     	  sender !! Enabled(message.messageID)
-    	  log.debug("Message enabled")
+    	  log.debug("Message enabled" + getMessageArray(message.from, message.messageType).mkString("{", ", ", "}"))
+    	  
+	      // inform the states about this change
+	      broadcastChangeFor((message.from, message.messageType))
+	      // unblock this user
+	      blockingHandlerActor ! UnBlockUser(userID)
+      
       }else{
         //no reservation found for thei message! Send reject message
         log.warning("message rejected, no message to enable: {}", message)
@@ -168,21 +173,17 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     
     //this case will be executed, if a disabled message was received and the input queue is full
     //the message will be stored in the overflow queue and a oferflow-message will be sent to the sender
-    case message: SubjectToSubjectMessage if (!spaceAvailableInMessageQueue(message) && !message.enabled) => {
+    case message: SubjectToSubjectMessage if (!spaceAvailableInMessageQueue(message.from, message.messageType) && !message.enabled) => {
       //store reservation message
       log.debug("InputPool received reservation from " + sender + " -> but message queue is full! Save sender id and reject reservation")
       //send stored notification back to sender
       sender !! Overflow(message.messageID)
-      // store the sender informations
       
       //put message into the overflowQueue
       enqueueOverflowMessage(message)
-      
     }
 
-  
  
-    
     case message: SubjectToSubjectMessage if closedChannels.isChannelClosedAndNotReOpened((message.from, message.messageType)) => {
       // Unlock the sender
       sender !! Rejected(message.messageID)
@@ -208,7 +209,8 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
       // unblock this user
       blockingHandlerActor ! UnBlockUser(userID)
     }
-*/
+    */
+
     case DeleteInputPoolMessages(fromSubject, messageType, messages) => {
       val result =
         dequeueMessages((fromSubject, messageType), messages)
@@ -338,19 +340,22 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
   private def getMessageArray(subjectID: SubjectID, messageType: MessageType): Array[SubjectToSubjectMessage] =
     messageQueueMap.getOrElse((subjectID, messageType), Queue[SubjectToSubjectMessage]()).toArray
 
+   
   /**
    * returns true or false if for the condition messageQueue.size < messageLimit
    * return true if messageLimit is -1 (no limit set)
    */
-  private def spaceAvailableInMessageQueue(message: SubjectToSubjectMessage) : Boolean = {
+  private def spaceAvailableInMessageQueue(subjectID: SubjectID, messageType: MessageType) : Boolean = {
      log.debug("Checking for queue space!")
     
     // get or create the message queue
     val messageQueue =
       messageQueueMap.getOrElseUpdate(
-        (message.from, message.messageType),
+        (subjectID, messageType),
         Queue[SubjectToSubjectMessage]())
 
+        log.debug("Limit: " + messageLimit + "; current size: " + messageQueue.size)
+        
     // check the queue size
     if (messageQueue.size < messageLimit || messageLimit == -1) {
       true
@@ -358,6 +363,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
       false
     }
   }
+  
   
   /**
    * returns true or false if for the condition messageQueue.size < messageLimit
@@ -390,7 +396,9 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     // if the queue is not to big, enqueue the message
     //if (messageQueue.size < messageLimit) {
       messageQueue.enqueue(message)
-      log.debug("message has be queued!")
+      log.debug("message has been queued!")
+      
+      spaceAvailableInMessageQueue(message.from, message.messageType);
     //} else {
       // TODO log error?
     //}
@@ -430,15 +438,6 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     	  }
     	}
       
-    	//find message in queue
-    	//var messageQueueFound = messageQueue.filterNot(a => a.messageID == message.messageID && a.enabled)
-    	
-    	//create temp queue with filter
-    	//messageQueue = messageQueue.filterNot(a => a.messageID == message.messageID && !a.enabled)
-		//append new message at the end of the queue
-
-    	
-    	
 	if(counter != 0){ 
     	true
     }else{
@@ -450,9 +449,25 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
   }
   
   private def dequeueMessages(key: (SubjectID, MessageType), messages: Array[MessageID]): Boolean = {
-    if (messages forall (id => messageQueueMap(key).exists(_.messageID == id))) {
+    
+    //search for messages with match the key and are enabled
+    if (messages forall (id => messageQueueMap(key).exists(x => x.messageID == id && x.enabled == true))) {
       // TODO might increase performance
+      log.debug("Dequeueing message from normal queue! key:("+key._1+","+key._2+")")
+      
       messages foreach (id => messageQueueMap(key).dequeueAll(_.messageID == id))
+      
+      //enabled message has been found and removed from the queue
+	  //copy message from the overflow to the queue which has space avain
+	  if(spaceAvailableInMessageQueue(key._1, key._2)){
+	    log.debug("Dequeueing message from overflow queue!")
+	    var msg_from_overflow = messageOverflowQueueMap(key).dequeue()
+	    enqueueMessage(msg_from_overflow);
+	    
+	    //TODOX: inform sender so he can move on! How to address a subject just with a subjectId
+	    //sender !! Stored(message.messageID)
+	  }
+      
       true
     } else {
       false
@@ -463,9 +478,40 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
    * Dequeue a message, remove and return the first message
    * TODO sonst null?, oder muss man vorher abfragen
    */
-  private def dequeueMessage(key: (SubjectID, MessageType)) =
+  private def dequeueMessage(key: (SubjectID, MessageType)): SubjectToSubjectMessage = {
+  /*
+   *  X: all fine here!
+   *  
+    
+    log.debug("Dequeueing message from normal queue!")
+    
+    val tempQueue = Queue[SubjectToSubjectMessage]()
+    
+    for (i: Int <- 1 to messageQueueMap(key).size) {
+      var msg = messageQueueMap(key).dequeue()
+      if(!msg.enabled){
+        tempQueue.enqueue(msg)
+      }else{
+        messageQueueMap(key) = tempQueue ++ messageQueueMap(key)
+        log.debug("Move message from overflow queue to normal queue")
+        
+        //enabled message has been found and removed from the queue
+        //copy message from the overflow to the queue which has space avain
+        if(spaceAvailableInMessageQueue(key._1, key._2)){
+          log.debug("Dequeueing message from overflow queue!")
+          enqueueMessage(messageOverflowQueueMap(key).dequeue());
+        }
+        
+        return msg
+      }
+    }
+    
+    null
+*/
     messageQueueMap(key).dequeue()
-
+  }
+  
+ 
   /**
    * Returns if the message queue for the key is empty.
    * (A not existing queue is seen as empty)
