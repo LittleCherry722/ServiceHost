@@ -113,7 +113,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   private var id: ProcessInstanceID = _
   private val name = request.name
   private val startTime: Date = new Date()
-  private val processID = request.processID
+  private var processID = request.processID
   private var processName: String = _
   private var persistenceGraph: Graph = _
   private var graph: ProcessGraph = _
@@ -357,11 +357,26 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
         if (subject.externalType == "external") {
           log.debug("Attempt to retrieve agent of external subject with subject type external. This is not supported yet.")
           // TODO what agent to use when the subject is part of an external process which runs locally?
+          addExternalAgent(subject)
+          externalSubjectAgent(subject)
         }
-        log.error("Agent {} not available! Current Mapping: {}", subject.id, agentsMap)
-        throw new Exception(s"Agent ${subject.id} not available. Mapping available: $agentsMap")
+        else {
+          log.error("Agent {} not available! Current Mapping: {}", subject.id, agentsMap)
+          throw new Exception(s"Agent ${subject.id} not available. Mapping available: $agentsMap")
+        }
       }
     }
+  }
+
+  private def addExternalAgent(subject: ExternalSubject) = {
+    val ownAddress = AgentAddress(ip = SystemProperties.akkaRemoteHostname
+      , port = SystemProperties.akkaRemotePort)
+    val test = processID
+    val agent = Agent(processID = test,
+    adress = ownAddress,
+    subjectId = subject.id)
+    agentsMap + (subject.id -> agent)
+    log.debug("Added agent for external subject: {}", subject.id)
   }
 
   private def addAgentsMapping(mapping: AgentsMap): Unit = {
