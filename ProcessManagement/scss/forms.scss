@@ -12,7 +12,7 @@
  */
 
 @import 'variables';
-@import "bootstrap/mixins";
+@import "../thirdparty/bootstrap/bootstrap/mixins";
 
 // Do not display error lists in forms until the form is marked as erroneous.
 form ul.errors {

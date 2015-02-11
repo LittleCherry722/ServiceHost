@@ -13,37 +13,45 @@
 
 // Require.js allows us to configure shortcut alias
 require.config({
-	paths: {
-		"text":                "libs/require/plugins/text",
-		"jade":                "libs/require/plugins/jade",
-		"director":            "libs/director/director",
-		"jquery":           "libs/jquery/jquery",
-		"jquery.ui":           "libs/jquery/plugins/jquery-ui",
-		"jquery.freeow":       "libs/jquery/plugins/jquery.freeow",
-		"jquery.scrollTo":     "libs/jquery/plugins/jquery.scrollTo",
-		"jquery.chosen":       "libs/jquery/plugins/jquery.chosen",
-		"jquery.pubsub":       "libs/jquery/plugins/jquery.pubsub",
-		"jquery.chardin":       "libs/jquery/plugins/jquery.chardinjs",
-		"jquery.bootstrap.modal":"libs/jquery/plugins/jquery.bootstrap-modal",
-        "jquery.fancybox":     "../fancybox/jquery.fancybox",
-		"keymaster":           "libs/keymaster/keymaster",
-		"knockout":            "libs/knockout/knockout",
-		"knockout.mapping":    "libs/knockout/plugins/knockout.mapping",
-		"knockout.custom":     "libs/knockout/plugins/knockout.custom-bindings",
-		"underscore":          "libs/underscore/underscore",
-		"model":               "libs/knockout_model/model",
-		"model/associations":  "libs/knockout_model/model/associations",
-		"model/attributes":    "libs/knockout_model/model/attributes",
-		"notify":              "libs/sbpm/notify",
-		"dialog":              "libs/sbpm/dialog",
-		"async":               "libs/async/async",
-		"moment":              "libs/moment/moment",
-		"select2":             "libs/select2/select2.min",
-		"intro":               "libs/intro/intro",
-		"rainbow":			   "libs/rainbow/rainbow-custom.min",
-		"rainbow":			   "libs/rainbow/rainbow-custom.min",
-		"js_beautify":		   "libs/beautify/js_beautify"
-	},
+	paths: (function() {
+		var thirdpartyURI = '../thirdparty/';
+		var ownURI = 'libs/';
+		return {
+			"text": thirdpartyURI + "require/plugins/text",
+			"jade": thirdpartyURI + "require/plugins/jade",
+			"director": thirdpartyURI + "director/director",
+			"keymaster": thirdpartyURI + "keymaster/keymaster",
+			"underscore": thirdpartyURI + "underscore/underscore",
+			"async": thirdpartyURI + "async/async",
+			"moment": thirdpartyURI + "moment/moment",
+			"select2": thirdpartyURI + "select2/select2.min",
+			"intro": thirdpartyURI + "intro/intro",
+			"rainbow": thirdpartyURI + "rainbow/rainbow-custom.min",
+			"js_beautify": thirdpartyURI +"beautify/js_beautify",
+			"knockout": thirdpartyURI + "knockout/knockout",
+				"knockout.mapping": thirdpartyURI + "knockout/plugins/knockout.mapping",
+				"knockout.custom": thirdpartyURI + "knockout/plugins/knockout.custom-bindings",
+			"jquery": thirdpartyURI + "jquery/jquery",
+				"jquery.ui": thirdpartyURI + "jquery-ui/jquery-ui",
+				"jquery.freeow": thirdpartyURI + "jquery-freeow/jquery.freeow",
+				"jquery.scrollTo": thirdpartyURI + "jquery-scrollTo/jquery.scrollTo",
+				"jquery.chosen": thirdpartyURI + "jquery-chosen/jquery.chosen",
+				"jquery.pubsub": thirdpartyURI + "jquery-pubsub/jquery.pubsub",
+				"jquery.chardin": thirdpartyURI + "jquery-chardin/jquery.chardinjs",
+				"jquery.fancybox": thirdpartyURI + "jquery-fancybox/jquery.fancybox",
+			// bootstrap jquery plugins
+				"bootstrap.modal": thirdpartyURI + "bootstrap/jquery.bootstrap-modal",
+			// our own libraries
+			"model": ownURI + "model",
+			"notify": ownURI + "notify",
+			"model/associations": ownURI + "model/associations",
+			"model/storage": ownURI + "model/storage",
+			"model/polling": ownURI + "model/polling",
+			"model/attributes": ownURI + "model/attributes",
+			"shortcuts": ownURI + "shortcuts",
+			"uuid": ownURI + "uuid",
+			"dialog": ownURI + "dialog",
+	};})(),
 	shim: {
 		// Legacy libararies that do not follow the common.js module pattern.
 		"director": {
@@ -55,15 +63,16 @@ require.config({
 		"rainbow": {
 			exports: "Rainbow"
 		},
-        "jquery.ui": ["jquery"],
-        "jquery.fancybox": ["jquery"],
-        "jquery.chardin": ["jquery"],
-        "jquery.pubsub": ["jquery"],
-        "jquery.chosen": ["jquery"],
-        "jquery.scrollTo": ["jquery"],
-        "jquery.freeow": ["jquery"],
-        "jquery.bootstrap.modal": ["jquery"],
-        "select2": ["jquery"],
+		// ensure that all jquery plugins depend on jquery. Not all do in a requirejs-compatible way
+		"jquery.ui": ["jquery"],
+		"jquery.fancybox": ["jquery"],
+		"jquery.chardin": ["jquery"],
+		"jquery.pubsub": ["jquery"],
+		"jquery.chosen": ["jquery"],
+		"jquery.scrollTo": ["jquery"],
+		"jquery.freeow": ["jquery"],
+		"jquery.bootstrap.modal": ["jquery"],
+		"select2": ["jquery"],
 	},
 });
 

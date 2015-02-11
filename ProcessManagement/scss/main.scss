@@ -12,13 +12,13 @@
  */
 
 @import "variables";
-@import "bootstrap";
+@import "../thirdparty/bootstrap/bootstrap";
 @import "flexbox";
 @import "calc";
 @import "forms";
-@import "chardinjs";
+@import "../thirdparty/jquery-chardin/chardinjs";
 @import "chardinjs-behavior";
-@import "introjs";
+@import "../thirdparty/intro/introjs";
 
 .flexbox {
   @include display-box;

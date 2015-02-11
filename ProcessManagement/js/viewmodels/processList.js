@@ -11,7 +11,7 @@ define([
 	"jquery",
 	"select2",
 	"jquery.ui",
-    "jquery.bootstrap.modal"
+	"bootstrap.modal"
 ], function( ko, App, Notify, Dialog, Process, ProcessInstance, _, Router, moment, $ ) {
 	var ViewModel = function() {
 		var self = this;
