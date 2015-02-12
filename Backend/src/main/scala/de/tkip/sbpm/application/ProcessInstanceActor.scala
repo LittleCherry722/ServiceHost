@@ -355,9 +355,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
     agentsMap.get(subject.id) match {
       case Some(agent) => agent
       case None => {
-        //if (subject.externalType == "external") {
         // TODO externalType richtig implementieren
-        if (subject.externalType != "external") {
+        if (subject.externalType == Some("external")) {
           log.debug("Attempt to retrieve agent of external subject with subject type external. This is not supported yet.")
           // TODO what agent to use when the subject is part of an external process which runs locally?
           addExternalAgent(subject)
