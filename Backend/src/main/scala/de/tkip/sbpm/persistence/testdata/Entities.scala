@@ -125,7 +125,11 @@ object Entities {
 
 //  distributed processes
     (Process(None, None, false, """test8080""", false) -> loadJson("test8080")),
-    (Process(None, None, false, """RatioDrink""", false) -> loadJson("ratiodrink"))
+    (Process(None, None, false, """RatioDrink""", false) -> loadJson("ratiodrink")),
+
+//  external subject processes
+    (Process(None, None, false, """ExternalSubject Simple - Sender""", false) -> loadJson("externalsubject_simple_sender")),
+    (Process(None, None, false, """ExternalSubject Simple - Receiver""", false) -> loadJson("externalsubject_simple_receiver"))
    )
 
 

@@ -1,0 +1,338 @@
+{
+	"process" : [{
+			"id" : "Subj2:45e164c0-7451-4f64-9049-2ab4b81ebc28",
+			"name" : "Sender",
+			"type" : "external",
+			"mergedSubjects" : [{
+					"id" : "Subj2:45e164c0-7451-4f64-9049-2ab4b81ebc28",
+					"name" : "Sender"
+				}
+			],
+			"deactivated" : false,
+			"startSubject" : false,
+			"inputPool" : 100,
+			"blackboxname" : null,
+			"relatedProcess" : null,
+			"relatedSubject" : "Subj2:45e164c0-7451-4f64-9049-2ab4b81ebc28",
+			"relatedInterface" : null,
+			"isImplementation" : false,
+			"externalType" : "interface",
+			"role" : "default",
+			"url" : null,
+			"implementations" : [],
+			"comment" : "",
+			"variables" : {},
+			"variableCounter" : 1,
+			"macros" : [{
+					"id" : "##main##",
+					"name" : "internal behavior",
+					"nodeCounter" : 3,
+					"nodes" : [{
+							"id" : 0,
+							"text" : "Send first message",
+							"start" : true,
+							"end" : false,
+							"type" : "send",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : true,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 1,
+							"text" : "Receive a reply",
+							"start" : false,
+							"end" : false,
+							"type" : "receive",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 2,
+							"text" : "tau",
+							"start" : false,
+							"end" : true,
+							"type" : "tau",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}
+					],
+					"edges" : [{
+							"start" : 0,
+							"end" : 1,
+							"text" : "m1",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj3:2b9112be-f638-4668-8fa5-61b3e4590ad0",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 1,
+							"end" : 2,
+							"text" : "m2",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj3:2b9112be-f638-4668-8fa5-61b3e4590ad0",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}
+					]
+				}
+			],
+			"macroCounter" : 1
+		}, {
+			"id" : "Subj3:2b9112be-f638-4668-8fa5-61b3e4590ad0",
+			"name" : "Receiver",
+			"type" : "single",
+			"mergedSubjects" : [{
+					"id" : "Subj3:2b9112be-f638-4668-8fa5-61b3e4590ad0",
+					"name" : "Receiver"
+				}
+			],
+			"deactivated" : false,
+			"startSubject" : false,
+			"inputPool" : 100,
+			"blackboxname" : null,
+			"relatedProcess" : null,
+			"relatedSubject" : "Subj3:2b9112be-f638-4668-8fa5-61b3e4590ad0",
+			"relatedInterface" : 1,
+			"isImplementation" : true,
+			"externalType" : "external",
+			"role" : "default",
+			"url" : null,
+			"implementations" : [],
+			"comment" : "",
+			"variables" : {},
+			"variableCounter" : 1,
+			"macros" : [{
+					"id" : "##main##",
+					"name" : "internal behavior",
+					"nodeCounter" : 4,
+					"nodes" : [{
+							"id" : 1,
+							"text" : "Receive Request",
+							"start" : true,
+							"end" : false,
+							"type" : "receive",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : true,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 2,
+							"text" : "Send Reply",
+							"start" : false,
+							"end" : false,
+							"type" : "send",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 3,
+							"text" : "",
+							"start" : false,
+							"end" : true,
+							"type" : "end",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}
+					],
+					"edges" : [{
+							"start" : 1,
+							"end" : 2,
+							"text" : "m1",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj2:45e164c0-7451-4f64-9049-2ab4b81ebc28",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 2,
+							"end" : 3,
+							"text" : "m2",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj2:45e164c0-7451-4f64-9049-2ab4b81ebc28",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}
+					]
+				}
+			],
+			"macroCounter" : 1
+		}
+	],
+	"conversations" : {},
+	"conversationCounter" : 1,
+	"messages" : {
+		"m1" : "MessageA",
+		"m2" : "MessageB"
+	},
+	"messageCounter" : 3,
+	"nodeCounter" : 29
+}
