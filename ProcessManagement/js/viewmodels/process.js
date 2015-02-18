@@ -768,13 +768,14 @@ define([
 
     var initializeDOM = function() {
         // Initialize our chosen selects for subjects and conversations.
-        $( "#slctSbj" ).chosen();
-        $( "#slctCon" ).chosen();
-        $( "#slctMacro" ).chosen();
+        [ '#slctSbj', '#slctCon', '#slctMacro' ].forEach(function(id) {
+            $(id).chosen({ 'disable_search_threshold': 10 });
+        });
 
         // fancybox
-        $('#exportGraphButton').fancybox();
-        $('#importGraphButton').fancybox();
+        [ '#exportGraphButton', '#importGraphButton' ].forEach(function(id) {
+            $(id).fancybox();
+        });
     }
 
 

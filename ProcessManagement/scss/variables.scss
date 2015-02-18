@@ -1,13 +1,10 @@
-
-// Typography
 $baseFontSize: 12px;
 $baseLineHeight: 14px;
 
-$fa-font-path: "../thirdparty/FontAwesome/fonts";
 $icon-font-path: "../thirdparty/bootstrap/fonts/bootstrap/";
 
+$chosen-sprite-path: '../thirdparty/jquery-chosen/chosen-sprite.png';
+$chosen-sprite-retina-path: '../thirdparty/jquery-chosen/chosen-sprite@2x.png';
 
-// Links
-// -------------------------
 $linkColor:             #4B4F5D;
 $linkColorHover:        darken($linkColor, 15%) !default;

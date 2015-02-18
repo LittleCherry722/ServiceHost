@@ -17,7 +17,7 @@ require.config({
 		var thirdpartyURI = '../thirdparty/';
 		var ownURI = 'libs/';
 		return {
-			"text": thirdpartyURI + "require/plugins/text",
+			"text": thirdpartyURI + "require-text/text",
 			"director": thirdpartyURI + "director/director",
 			"keymaster": thirdpartyURI + "keymaster/keymaster",
 			"underscore": thirdpartyURI + "underscore/underscore",
