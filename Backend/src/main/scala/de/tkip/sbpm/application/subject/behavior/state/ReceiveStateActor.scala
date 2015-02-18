@@ -277,6 +277,8 @@ case class ReceiveStateActor(data: StateData)
     val messageData: ArrayBuffer[MessageData] = ArrayBuffer[MessageData]()
 
     def messages = messageData.toArray
+    
+    //def EnabledMessages = messageData.filter(x => x.enabled == true).toArray
 
     def receiveMessages: Array[MessageID] = {
       // TODO Transition max valie
@@ -318,6 +320,7 @@ case class ReceiveStateActor(data: StateData)
         case None                                       => (None, None, None)
       }
       messageData += MessageData(message.messageID, message.userID, message.messageContent, title, url, iconLink)
+      //messageData += MessageData(message.messageID, message.userID, message.messageContent, title, url, iconLink, message.enabled)
     }
   }
 }

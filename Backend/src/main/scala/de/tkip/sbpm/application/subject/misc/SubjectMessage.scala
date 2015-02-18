@@ -86,6 +86,7 @@ case class MessageData(
   title: Option[String] = None,
   url: Option[String] = None,
   iconLink: Option[String] = None)
+  //enabled: Boolean = false
 
 case class TargetUser(min: Int, max: Int, external: Boolean, targetUsers: Array[UserID])
 

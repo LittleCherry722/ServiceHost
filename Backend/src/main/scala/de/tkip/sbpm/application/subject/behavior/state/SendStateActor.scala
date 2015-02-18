@@ -196,6 +196,8 @@ case class SendStateActor(data: StateData)
           // send the ActionExecuted to the blocking actor, it will send it
           // to the process instance, when this user is ready
           blockingHandlerActor ! ActionExecuted(action)
+          
+//          actionChanged(Updated)
         }
       } else {
         log.error("Second send-message action request received")
@@ -262,6 +264,9 @@ case class SendStateActor(data: StateData)
       //Overflow message was received, do something. But not necessary, we at least have to whait
       
       block_gui_message_in_overflow = true
+      
+      //
+      actionChanged(Updated)
     }
 
     case Stored(messageID) => {

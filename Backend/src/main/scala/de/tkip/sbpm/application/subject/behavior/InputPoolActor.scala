@@ -91,7 +91,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     MutableMap[ChannelID, Queue[SubjectToSubjectMessage]]()
   // this map holds the overflow queue of the income messages for a channel
   private val messageOverflowQueueMap =
-    MutableMap[ChannelID, Queue[SubjectToSubjectMessage]]()
+    MutableMap[ChannelID, Queue[(ActorRef, SubjectToSubjectMessage)]]()
   // this map holds the states which are subscribing a channel
   private val waitingStatesMap =
     //  MutableMap[ChannelID, WaitingStateList]()
@@ -412,9 +412,9 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     val messageOverflowQueue =
       messageOverflowQueueMap.getOrElseUpdate(
         (message.from, message.messageType),
-        Queue[SubjectToSubjectMessage]())
+        Queue[(ActorRef, SubjectToSubjectMessage)]())
 
-      messageOverflowQueue.enqueue(message)
+      messageOverflowQueue.enqueue((sender, message))
       log.debug("message has been queued to overflow queue!")
   }
   
@@ -459,13 +459,13 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
       
       //enabled message has been found and removed from the queue
 	  //copy message from the overflow to the queue which has space avain
-	  if(spaceAvailableInMessageQueue(key._1, key._2)){
+	  if(spaceAvailableInMessageQueue(key._1, key._2) && messageOverflowQueueMap(key).size > 0){
 	    log.debug("Dequeueing message from overflow queue!")
 	    var msg_from_overflow = messageOverflowQueueMap(key).dequeue()
-	    enqueueMessage(msg_from_overflow);
+	    enqueueMessage(msg_from_overflow._2);
 	    
-	    //TODOX: inform sender so he can move on! How to address a subject just with a subjectId
-	    //sender !! Stored(message.messageID)
+	    //inform sender, that his message has been moved from overflow to the normal queue and is whaiting for enabed message
+	    msg_from_overflow._1 !! Stored(msg_from_overflow._2.messageID)
 	  }
       
       true
