@@ -1,0 +1,51 @@
+/* Process List */
+#clickablelist {
+  .result {
+    tbody tr.instances:hover {
+      background-color: #fff;
+    }
+
+    .instances {
+      tr, td {
+        border: 0;
+      }
+      hr {
+        margin: 0;
+      }
+      .col1 {
+        width: 10%;
+      }
+      .col2 {
+        width: 35%;
+      }
+      .col3 {
+        width: 35%;
+      }
+      .col4 {
+        width: 20%;
+        text-align: right;
+      }
+    }
+  }
+
+  .processitem {
+    .col1 {
+      width: 2%;
+    }
+    .col3 {
+      text-align: right;
+      padding-right: 23px;
+    }
+  }
+
+  .processhead {
+    .col1 {
+      width: 2%;
+    }
+    .col3 {
+
+      text-align: right;
+      padding-right: 221px;
+    }
+  }
+}

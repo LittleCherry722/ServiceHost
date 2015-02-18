@@ -1,0 +1,140 @@
+.row-offcanvas > div {
+  padding: 0;
+}
+
+div#subjectType input[type="checkbox"] {
+  margin-left: 0;
+  position: relative;
+}
+
+.header {
+  @include gradient-vertical(#f8f8f8, #e6e6e6);
+
+  .btn {
+    &:hover, &:active, &.active {
+      text-shadow: none;
+    }
+    &:active, &.active {
+      background-color: #ddd;
+      background-image: none;
+    }
+  }
+
+  .tab-dropdown {
+    text-align: left;
+    padding: 0;
+  }
+
+  .btn-group {
+    .btn-group {
+      .btn {
+        border-radius: 0;
+
+        &:first-of-type {
+          border-left: 0 none;
+        }
+        &:last-of-type {
+          border-right: 0 none;
+        }
+      }
+    }
+    .btn-group:last-child {
+      .btn:last-of-type {
+        @include border-right-radius(4px);
+        border-right: 1px solid #bbb;
+      }
+    }
+  }
+}
+
+.graphsettings {
+  .chzn-container-multi {
+    height: auto;
+    width: 100%;
+  }
+
+  .chzn-container .chzn-results li {
+    text-shadow: none;
+  }
+
+  legend {
+    font-size: 17px;
+    border-color: #ccc;
+  }
+
+  fieldset {
+    &.hidden {
+      margin-bottom: $baseLineHeight;
+      text-align: center;
+
+      legend {
+        margin-bottom: 0px;
+        text-align: left;
+        border-bottom: none;
+      }
+      &:before {
+        display: inline;
+        content: "\2026";
+      }
+      .processSettingsTrigger {
+        cursor: s-resize;
+      }
+      .toggle-able {
+        display: none;
+      }
+    }
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: inherit;
+    text-align: center;
+  }
+
+  h3 {
+    font-size: 17px;
+    font-weight: normal;
+    text-shadow: inherit;
+  }
+
+  h4 {
+    font-size: 15px;
+    font-weight: normal;
+    text-shadow: inherit;
+  }
+
+  p {
+    text-align: center;
+  }
+
+  .action {
+    background-color: #EEE;
+    padding: 5px;
+    border: 1px solid #CFCFCF;
+    border-radius: 4px;
+
+    p {
+      text-align: left;
+    }
+  }
+
+  label {
+    line-height: 18px;
+    margin-top: 5px;
+    margin-bottom: 3px;
+  }
+
+  textarea, input[type="text"], input[type="password"], input[type="datetime"],
+  input[type="datetime-local"], input[type="date"], input[type="month"],
+  input[type="time"], input[type="week"], input[type="number"],
+  input[type="email"], input[type="url"], input[type="search"],
+  input[type="tel"], input[type="color"], .uneditable-input, select {
+    width: 100%;
+  }
+
+  input[type="button"] {
+    @include box-sizing(border-box);
+    display: block;
+    margin-bottom: $baseLineHeight / 2;
+    font-size: 12px;
+  }
+}

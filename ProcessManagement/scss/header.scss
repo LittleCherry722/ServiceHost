@@ -1,0 +1,17 @@
+#header {
+  height: 50px;
+  background-image: url(../images/bg_header.png);
+  background-repeat: repeat-x;
+
+  ul.nav > li > a {
+    color: #F1F1F1;
+    font-weight: bold;
+
+    &:hover {
+      color: #D1D1D1;
+    }
+    &:active {
+      color: #000;
+    }
+  }
+}

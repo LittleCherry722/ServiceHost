@@ -21,6 +21,7 @@ Repository/project/target/*
 ProcessManagement/nbproject/*
 ProcessManagement/test/screenshooter-compare/
 ProcessManagement/**/.sass-cache/
+ProcessManagement/css/*.css.map
 *.cache
 Beispiel/SbpmEventGenerator/target/*
 ServiceHost/target/*

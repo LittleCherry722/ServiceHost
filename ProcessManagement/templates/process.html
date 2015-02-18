@@ -22,7 +22,7 @@
 	<!-- <h2 id="process_name" style="color:#525252" data-bind="text: activeView "></h2>-->
 	<!-- Begin graph window -->
 	<div id="row">
-		<div class="col-md-12">
+		<div>
 			<div class="header nav nav-tabs">
 
 				<div class="pull-right" id="processHelpButtons">
@@ -130,146 +130,143 @@
 				</div>
 			</div>
 
-			<div id="saveAsModal" class="modal fade" tabindex="-1">
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-header">
-							<a type="button" class="close" data-dismiss="modal">x</a>
-							<h3>Save Graph As</h3>
-						</div>
-						<div id="saveProcessAs" class="modal-body">
-							<label for="newProcessName">New Process Name</label>
-							<input id="newProcessName" type="text"
-								  data-bind="value: newProcessName, valueUpdate:'afterkeydown' "/>
-						</div>
-						<div class="modal-footer">
-							<button class="btn" data-dismiss="modal">Close</button>
-							<button class="btn btn-primary" data-dismiss="modal"
-									   data-bind="click: saveCurrentProcessAs">
-								Save Process
-							</button>
-						</div>
-					</div><!-- /.modal-content -->
-				</div><!-- /.modal-dialog -->
-			</div><!-- /.modal -->
-
-			<div id="saveBusinessInterfaceModal" class="modal" tabindex="-1">
-				<div class="modal-dialog">
-					<div class="modal-content">	
-						<div class="modal-header">
-							<a class="close" href="" type="button" data-dismiss="modal">x</a>
-							<h3>Save Business Interface</h3>
-						</div>
-						<div id="saveBusinessInterface" class="modal-body">
-							<div class="form-horizontal">
-								<div class="control-group">
-									<label class="control-label" for="interfaceName">
-										Choose Interface Subject
-									</label>
-									<div class="controls">
-										<select id="interfaceSubject"
-				  data-bind="options: availableInterfaces, optionsValue: 'id',
-				  optionsText: 'name', value: interfaceReplacementSubject">
-										</select>
-									</div>
-								</div>
-								<div class="control-group" data-bind="css: { error: businessInterfaceNameError }">
-									<label class="control-label" for="interfaceName">
-										Interface Name
-									</label>
-									<div class="controls">
-										<input id="interfaceName" type="text"
-									data-bind="value: newBusinessInterfaceName, valueUpdate: 'afterkeydown'" />
-										<div class="errors" data-bind="text: businessInterfaceNameError">
-										</div>
-									</div>
-								</div>
-								<hr />
-								<div class="control-group">
-									<label class="control-label" for="interfaceName">Interface Author</label>
-									<div class="controls">
-										<input id="interfaceName" type="text"
-									data-bind="value: newBusinessInterfaceAuthor, valueUpdate: 'afterkeydown'" />
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="modal-footer">
-							<button class="btn" data-dismiss="modal">Close</button>
-							<button class="btn btn-primary" data-dismiss="modal"
-									   data-bind="click: saveBusinessInterface,
-									   css: { disabled: businessInterfaceNameError },
-									   disable: businessInterfaceNameError">
-								Save Business Interface
-							</button>
-						</div>
-					</div><!-- /.modal-content -->
-				</div><!-- /.modal-dialog -->
-			</div><!-- /.modal -->
-
-			<div id="loadBusinessInterfaceModal" class="modal hide" tabindex="-1"
-														   style="margin-left: -425px; width: 850px;">
-				<div class="modal-header">
-					<a class="close" href="" type="button" data-dismiss="modal">x</a>
-					<h3>Load Business Interface</h3>
-				</div>
-				<div id="loadBusinessInterface" class="modal-body">
-					<div class="interface-select pull-left" data-bind="foreach: existingInterfaces">
-						<div class="interface-entry"
-		   data-bind="click: $parent.selectBusinessInterface,
-		   css: { active: $parent.selectedInterfaceId() == $data.id() }">
-							<strong data-bind="text: name"></strong>
-							<em data-bind="text: creator"></em>
-						</div>
-					</div>
-					<div class="interface-preview pull-left" data-bind="visible: selectedInterface">
-						<h4>Interface Name</h4>
-						<p data-bind="text: selectedInterfaceName"></p>
-						<h4>Author</h4>
-						<p data-bind="text: selectedInterfaceCreator"></p>
-						<!-- <h4>Description</h4> -->
-						<!-- <p data-bind="text: selectedInterfaceDescription"></p> -->
-						<h4>Insertion Behavior</h4>
-						<select data-bind="options: availableInterfaces, optionsText: 'name',
-						optionsValue: 'id', optionsCaption: 'New Interface'">
-						</select>
-						<!-- <h4>Preview</h4> -->
-						<!-- <img src="/sbpm/images/internal.png" heigh="400" width="400" -->
-						<!--      data-bind="visible: selectedInterface" /> -->
-					</div>
-				</div>
-				<div class="modal-footer">
-					<button class="btn" data-dismiss="modal" data-bind="click: resetInterfaceSelection">Close</button>
-					<button class="btn btn-primary" data-dismiss="modal"
-									 data-bind="click: loadBusinessInterface, disable: noInterfaceSelected">
-						Insert Business Interface
-					</button>
+			<div id="processContent">
+				<ul class="list-inline" id="graphZoombuttons">
+					<li>
+						<a onclick="gf_paperZoomIn();" >+</a>
+					</li>
+					<li>
+						<a onclick="gf_paperZoomOut();" >&minus;</a>
+					</li>
+					<li>
+						<a onclick="gf_paperZoomReset();" >±</a>
+					</li>
+				</ul>
+				<div class="tab-content">
+					<div id="tab1_content" class="tab_pane hide"></div>
+					<div id="tab2_content" class="tab-pane active"></div>
+					<div id="tab3_content" class="tab-pane hide" ></div>
 				</div>
 			</div>
 
-			<!-- data-bind="template: { name: SBPM.VM.processVM.activeView().name,
-	   data: SBPM.VM.processVM.activeView().data ,
-	   afterRender : SBPM.VM.processVM.activeView().afterRender}" -->
-	   <div id="processContent">
-		   <ul class="list-inline" id="graphZoombuttons">
-			   <li>
-				   <a onclick="gf_paperZoomIn();" >+</a>
-			   </li>
-			   <li>
-				   <a onclick="gf_paperZoomOut();" >&minus;</a>
-			   </li>
-			   <li>
-				   <a onclick="gf_paperZoomReset();" >±</a>
-			   </li>
-		   </ul>
-		   <div class="tab-content">
-			   <div id="tab1_content" class="tab_pane hide"></div>
-			   <div id="tab2_content" class="tab-pane active"></div>
-			   <div id="tab3_content" class="tab-pane hide" ></div>
-		   </div>
-	   </div>
-
 		</div>
+	</div>
+</div>
+
+<div id="saveAsModal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<a type="button" class="close" data-dismiss="modal">x</a>
+				<h3>Save Graph As</h3>
+			</div>
+			<div id="saveProcessAs" class="modal-body">
+				<label for="newProcessName">New Process Name</label>
+				<input id="newProcessName" type="text"
+							   data-bind="value: newProcessName, valueUpdate:'afterkeydown' "/>
+			</div>
+			<div class="modal-footer">
+				<button class="btn" data-dismiss="modal">Close</button>
+				<button class="btn btn-primary" data-dismiss="modal"
+									data-bind="click: saveCurrentProcessAs">
+					Save Process
+				</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div id="saveBusinessInterfaceModal" class="modal" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">	
+			<div class="modal-header">
+				<a class="close" href="" type="button" data-dismiss="modal">x</a>
+				<h3>Save Business Interface</h3>
+			</div>
+			<div id="saveBusinessInterface" class="modal-body">
+				<div class="form-horizontal">
+					<div class="control-group">
+						<label class="control-label" for="interfaceName">
+							Choose Interface Subject
+						</label>
+						<div class="controls">
+							<select id="interfaceSubject"
+			   data-bind="options: availableInterfaces, optionsValue: 'id',
+			   optionsText: 'name', value: interfaceReplacementSubject">
+							</select>
+						</div>
+					</div>
+					<div class="control-group" data-bind="css: { error: businessInterfaceNameError }">
+						<label class="control-label" for="interfaceName">
+							Interface Name
+						</label>
+						<div class="controls">
+							<input id="interfaceName" type="text"
+								 data-bind="value: newBusinessInterfaceName, valueUpdate: 'afterkeydown'" />
+							<div class="errors" data-bind="text: businessInterfaceNameError">
+							</div>
+						</div>
+					</div>
+					<hr />
+					<div class="control-group">
+						<label class="control-label" for="interfaceName">Interface Author</label>
+						<div class="controls">
+							<input id="interfaceName" type="text"
+								 data-bind="value: newBusinessInterfaceAuthor, valueUpdate: 'afterkeydown'" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn" data-dismiss="modal">Close</button>
+				<button class="btn btn-primary" data-dismiss="modal"
+									data-bind="click: saveBusinessInterface,
+									css: { disabled: businessInterfaceNameError },
+									disable: businessInterfaceNameError">
+					Save Business Interface
+				</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div id="loadBusinessInterfaceModal" class="modal hide" tabindex="-1"
+														style="margin-left: -425px; width: 850px;">
+	<div class="modal-header">
+		<a class="close" href="" type="button" data-dismiss="modal">x</a>
+		<h3>Load Business Interface</h3>
+	</div>
+	<div id="loadBusinessInterface" class="modal-body">
+		<div class="interface-select pull-left" data-bind="foreach: existingInterfaces">
+			<div class="interface-entry"
+		data-bind="click: $parent.selectBusinessInterface,
+		css: { active: $parent.selectedInterfaceId() == $data.id() }">
+				<strong data-bind="text: name"></strong>
+				<em data-bind="text: creator"></em>
+			</div>
+		</div>
+		<div class="interface-preview pull-left" data-bind="visible: selectedInterface">
+			<h4>Interface Name</h4>
+			<p data-bind="text: selectedInterfaceName"></p>
+			<h4>Author</h4>
+			<p data-bind="text: selectedInterfaceCreator"></p>
+			<!-- <h4>Description</h4> -->
+			<!-- <p data-bind="text: selectedInterfaceDescription"></p> -->
+			<h4>Insertion Behavior</h4>
+			<select data-bind="options: availableInterfaces, optionsText: 'name',
+			optionsValue: 'id', optionsCaption: 'New Interface'">
+			</select>
+			<!-- <h4>Preview</h4> -->
+			<!-- <img src="/sbpm/images/internal.png" heigh="400" width="400" -->
+			<!--      data-bind="visible: selectedInterface" /> -->
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button class="btn" data-dismiss="modal" data-bind="click: resetInterfaceSelection">Close</button>
+		<button class="btn btn-primary" data-dismiss="modal"
+								  data-bind="click: loadBusinessInterface, disable: noInterfaceSelected">
+			Insert Business Interface
+		</button>
 	</div>
 </div>
 </div>
