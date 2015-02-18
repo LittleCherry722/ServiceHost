@@ -1,3 +1,19 @@
+/* play nice with require */
+(function(root, factory) {
+	if (typeof define === 'function' && define.amd) {
+		define(['jquery'], function($) {
+			return factory($);
+		});
+	}
+	else if (typeof exports !== 'undefined') {
+		var $ = require('jquery');
+		module.exports = factory($);
+	}
+	else {
+		factory(root.$);
+	}
+}(this, function(jQuery) {
+
 /*!
  * Bootstrap v3.3.2 (http://getbootstrap.com)
  * Copyright 2011-2015 Twitter, Inc.
@@ -2304,3 +2320,5 @@ if (typeof jQuery === 'undefined') {
   })
 
 }(jQuery);
+
+}));

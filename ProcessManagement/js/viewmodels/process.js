@@ -89,7 +89,6 @@ define([
 
         this.selectedInterfaceImplSubjects = ko.computed(function() {
             window.selectedInterface = self.selectedInterface();
-            console.log(self.selectedInterface());
             if ( self.selectedInterface() ) {
                 return self.selectedInterface().implementedInterfaceSubjects();
             } else {

@@ -18,7 +18,6 @@ require.config({
 		var ownURI = 'libs/';
 		return {
 			"text": thirdpartyURI + "require/plugins/text",
-			"jade": thirdpartyURI + "require/plugins/jade",
 			"director": thirdpartyURI + "director/director",
 			"keymaster": thirdpartyURI + "keymaster/keymaster",
 			"underscore": thirdpartyURI + "underscore/underscore",

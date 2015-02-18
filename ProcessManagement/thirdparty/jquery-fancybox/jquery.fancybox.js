@@ -1,3 +1,18 @@
+/* play nice with require */
+(function(root, factory) {
+	if (typeof define === 'function' && define.amd) {
+		define(['jquery'], function($) {
+			return factory($);
+		});
+	}
+	else if (typeof exports !== 'undefined') {
+		var $ = require('jquery');
+		module.exports = factory($);
+	}
+	else {
+		factory(root.$);
+	}
+}(this, function(jQuery) {
 /*!
  * fancyBox - jQuery Plugin
  * version: 2.1.5 (Fri, 14 Jun 2013)
@@ -2018,3 +2033,4 @@
 	});
 
 }(window, document, jQuery));
+}));
