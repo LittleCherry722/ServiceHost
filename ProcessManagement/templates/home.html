@@ -3,14 +3,14 @@
 	<div data-chardin-intro="This is your Dashboard." data-chardin-position="bottom">
 		<h1>S-BPM Groupware v1.2</h1>
 		<div class="row" id="filter">
-			<div class="col-sm-2">
-				<select class="form-control input-sm" data-bind="options: availableUsers, optionsText: 'name', optionsValue: 'id', value: selectedUser, optionsCaption: 'Select User'"></select>
+			<div class="col-sm-3">
+				<select class="form-control" data-placeholder="Filter User" data-bind="options: availableUsers, optionsText: 'name', optionsValue: 'id', value: selectedUser, optionsCaption: '', chosen: { disable_search_threshold: 10, allow_single_deselect: true }"></select>
+			</div>
+			<div class="col-sm-3">
+				<select class="form-control" data-placeholder="Filter Process" data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'name', value: selectedProcess, optionsCaption: '', chosen: { disable_search_threshold: 10, allow_single_deselect: true }"></select>
 			</div>
 			<div class="col-sm-2">
-				<select class="form-control input-sm" data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'name', value: selectedProcess, optionsCaption: 'Select Process'"></select>
-			</div>
-			<div class="col-sm-2">
-				<select class="form-control input-sm" data-bind="options: availableStatetypes,  value: selectedStatetype, optionsCaption: 'Select Statetype'"></select>
+				<select class="form-control" data-placeholder="Filter Statetype" data-bind="options: availableStatetypes, value: selectedStatetype, optionsCaption: '', chosen: { disable_search_threshold: 10, allow_single_deselect: true }"></select>
 			</div>
 			<div class="col-sm-2">
 				<div class="input-group input-group-sm">
@@ -47,7 +47,7 @@
 				</li>
 				<!-- /ko -->
 				<li>
-					<select class="sel" data-placeholder="Start Process" data-bind="options: startableProcesses, optionsText: 'name', value: startProcessId, optionsValue: 'id'"></select>
+					<select id="slctProcess" data-placeholder="Start Process" data-bind="options: startableProcesses, optionsText: 'name', optionsCaption: '', value: startProcessId, optionsValue: 'id', chosen: { disable_search_threshold: 10, allow_single_deselect: true }"></select>
 				</li>
 			</ul>
 		</div>

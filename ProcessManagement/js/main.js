@@ -23,7 +23,6 @@ require.config({
 			"underscore": thirdpartyURI + "underscore/underscore",
 			"async": thirdpartyURI + "async/async",
 			"moment": thirdpartyURI + "moment/moment",
-			"select2": thirdpartyURI + "select2/select2.min",
 			"intro": thirdpartyURI + "intro/intro",
 			"rainbow": thirdpartyURI + "rainbow/rainbow-custom.min",
 			"js_beautify": thirdpartyURI +"beautify/js_beautify",
@@ -31,6 +30,7 @@ require.config({
 			"knockout": thirdpartyURI + "knockout/knockout",
 				"knockout.mapping": thirdpartyURI + "knockout/plugins/knockout.mapping",
 				"knockout.custom": thirdpartyURI + "knockout/plugins/knockout.custom-bindings",
+				"knockout.chosen": thirdpartyURI + "knockout/plugins/knockout.chosen",
 			"jquery": thirdpartyURI + "jquery/jquery",
 				"jquery.ui": thirdpartyURI + "jquery-ui/jquery-ui",
 				"jquery.freeow": thirdpartyURI + "jquery-freeow/jquery.freeow",
@@ -70,7 +70,6 @@ require.config({
 		"jquery.scrollTo": ["jquery"],
 		"jquery.freeow": ["jquery"],
 		"bootstrap": ["jquery"],
-		"select2": ["jquery"],
 	},
 	urlArgs: (function() {
 		// ensure that browser caches aren't used, but only on localhost

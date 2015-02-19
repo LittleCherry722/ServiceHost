@@ -8,7 +8,7 @@
 	</div>
 	<!-- End header -->
 	<div id="filter">
-		<select class="sel" data-placeholder="Select Process" data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'id'"></select>
+		<select id="slctProcess" data-placeholder="Start Process" data-bind="options: availableProcesses, optionsText: 'name', optionsCaption: '', value: selectedProcess, optionsValue: 'id'"></select>
 		<label for="from">From:</label>
 		<span class="clearable">
 			<input class="data_field" type="text" id="from" name="from" data-bind="value: selectedStart" /><span class="icon_clear">x</span>

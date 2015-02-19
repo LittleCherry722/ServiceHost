@@ -10,9 +10,11 @@ define([
   "moment",
   "notify",
   "jquery",
-  "select2",
   "jquery.ui",
   "jquery.chardin",
+  "jquery.chosen",
+  "knockout.chosen",
+  "bootstrap"
 ], function( ko, App, _, User, Process, Actions, History, ProcessInstance, moment, Notify, $ ) {
 
   var ViewModel = function() {
@@ -37,10 +39,7 @@ define([
     this.tabs = tabs;
     this.tabDescriptions = tabDescriptions;
     this.currentTab = currentTab;
-    this.startProcessId = startProcess;
-    this.startProcess = ko.computed(function() {
-      return Process.find(self.startProcessId());
-    });
+    this.startProcessId = startProcessId;
     this.actionCount = actionCount;
 
     this.newInstance = function(formElement) {
@@ -83,18 +82,6 @@ define([
     return count;
   });
 
-  var tabs = [ 'Actions', 'History' ];
-  var tabDescriptions = {
-    'Actions': 'Here you can view the execution graph of the current subject internal behavior',
-    'History': 'Here you can view the execution history of this process'
-  };
-  var currentTab = ko.observable();
-  var startProcess = ko.observable();
-
-  var setView = function( tab ) {
-    currentTab( tab );
-  };
-
   /* Start Filter */
   var selectedUser = ko.observable();
   selectedUser.subscribe(function( User ) {
@@ -136,6 +123,16 @@ define([
   });
   /* End Filter */
 
+  var tabs = [ 'Actions', 'History' ];
+  var tabDescriptions = {
+    'Actions': 'Here you can view the execution graph of the current subject internal behavior',
+    'History': 'Here you can view the execution history of this process'
+  };
+  var currentTab = ko.observable();
+  var setView = function( tab ) {
+    currentTab( tab );
+  };
+
   currentTab.subscribe(function( newTab ) {
     if ( !newTab ) {
       currentTab( tabs[0] );
@@ -160,6 +157,15 @@ define([
     } else {
       $("#executionContent").removeClass("first-tab-selected");
     }
+  });
+
+  var startProcessId = ko.observable();
+  startProcessId.subscribe(function(id) {
+	  if (id === undefined) return;
+	  var process = Process.find(id);
+	  $("input[name='processId']").val(id);
+	  $("input[name='instancename']").val(process.name() +' ' + moment().format('YYYY-MM-DD HH:mm'));
+	  $("#processNameModal").modal();
   });
 
   var initialize = function(subSite) {
@@ -195,20 +201,6 @@ define([
         }
       });
       $("#ui-datepicker-div").wrap('<div id="dashboard_datepicker" />');
-      $(".sel").prepend('<option/>').val(function(){return $('[selected]',this).val() ;})
-      var select2 = $(".sel").select2( {
-        width: "copy",
-        dropdownAutoWidth: "true"
-
-      });
-
-      $(".sel").on("change", function(e) {
-        var process = Process.find( e.val ) ;
-        $(".sel").select2("val", "");
-        $("input[name='processId']").val(e.val);
-        $("input[name='instancename']").val(process.name() +' ' + moment().format('YYYY-MM-DD HH:mm'));
-        $("#processNameModal").modal();
-      });
     });
   };
 

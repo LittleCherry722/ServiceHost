@@ -54,60 +54,8 @@
     }
   }
 
-  .select2-container .select2-choice {
-    background: none;
-    border: 0;
-    height: 14px;
-    box-shadow: none;
-    line-height: 16px;
-
-    .select2-arrow {
-      border: 0;
-      background: none;
-    }
-
-
-    &:hover {
-      background-color: #EEE;
-    }
-  }
-
-  .select2-dropdown-open {
-    -moz-border-bottom-colors: none;
-    -moz-border-left-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-top-colors: none;
-    border-color: #CCCCCC #CCCCCC -moz-use-text-color;
-    border-image: none;
-    border-style: solid solid none;
-    border-width: 1px 1px medium;
-    box-shadow: 0 0 3px #CCCCCC;
-    height: 29px;
-    position: relative;
-    top: 2px;
-    border-radius: 5px 5px 0 0;
-
-    .select2-choice {
-      background-color: #FCFCFC;
-      background-image: linear-gradient(to bottom, white, #F8F8F8);
-      background-repeat: repeat-x;
-      border: medium none;
-      border-radius: 4px 4px 0 0;
-    }
-  }
-
-  .select2-drop {
-    border-color: #CCCCCC;
-  }
-  .select2-search {
-    margin: 2px;
-  }
-  .select2-default {
-    color: #4B4F5D !important;
-  }
-  .select2-container .select2-choice .select2-arrow {
-    border: 0;
-    background: none;
+  #slctProcess_chosen > .chosen-single > span {
+    margin-top: -10px;
   }
 }
 
@@ -123,7 +71,7 @@
   input {
     margin-right: 15px;
   }
-  select, .select2-container {
+  select {
     margin-right: 20px;
   }
   label {

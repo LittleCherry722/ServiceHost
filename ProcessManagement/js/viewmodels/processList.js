@@ -9,8 +9,8 @@ define([
 	"router",
 	"moment",
 	"jquery",
-	"select2",
 	"jquery.ui",
+	"jquery.chosen",
 	"bootstrap"
 ], function( ko, App, Notify, Dialog, Process, ProcessInstance, _, Router, moment, $ ) {
 	var ViewModel = function() {
@@ -149,20 +149,14 @@ define([
 				}
 			});
 			$("#ui-datepicker-div").wrap('<div id="dashboard_datepicker" />');
-			$(".sel").prepend('<option/>').val(function(){return $('[selected]',this).val() ;});
-			var select2 = $(".sel").select2( {
-        width: "copy",
-        allowClear: true,
-        dropdownAutoWidth: "true"
-      });
-      $(".sel").on("change", function(e) {
-				viewModel.selectedProcess(e.val);
-			});
+
+			$('#slctProcess').chosen({ allow_single_deselect: true });
+
 			$(document).on('propertychange change keyup input paste', 'input.data_field', function(){
-        var io = $(this).val().length ? 1 : 0 ;
-        $(this).next('.icon_clear').stop().fadeTo(300,io);
+				var io = $(this).val().length ? 1 : 0 ;
+				$(this).next('.icon_clear').stop().fadeTo(300,io);
 			}).on('click', '.icon_clear', function() {
-        $(this).delay(300).fadeTo(300,0).prev('input').val('').change();
+				$(this).delay(300).fadeTo(300,0).prev('input').val('').change();
 			});
 		});
 	};
