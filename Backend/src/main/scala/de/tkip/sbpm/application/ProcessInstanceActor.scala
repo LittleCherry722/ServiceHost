@@ -375,7 +375,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
       , port = SystemProperties.akkaRemotePort)
     subject.relatedProcessId match {
       case Some(relProcessId) => {
-        val relProcessId = subject.relatedProcessId.get
         val agent = new Agent(relProcessId,ownAddress, subject.id)
         agentsMap = agentsMap + (subject.id -> agent)
         log.debug("Added agent for external subject: {}", subject.id)
