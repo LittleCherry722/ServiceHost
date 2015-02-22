@@ -373,10 +373,15 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   private def addExternalAgent(subject: ExternalSubject) = {
     val ownAddress = AgentAddress(ip = SystemProperties.akkaRemoteHostname
       , port = SystemProperties.akkaRemotePort)
-    val test = this.id
-    val agent = new Agent(test,ownAddress, subject.id)
-    agentsMap = agentsMap + (subject.id -> agent)
-    log.debug("Added agent for external subject: {}", subject.id)
+    subject.relatedProcessId match {
+      case Some(relProcessId) => {
+        val relProcessId = subject.relatedProcessId.get
+        val agent = new Agent(relProcessId,ownAddress, subject.id)
+        agentsMap = agentsMap + (subject.id -> agent)
+        log.debug("Added agent for external subject: {}", subject.id)
+      }
+      case None => throw new Exception(s"ExternalSubject without related process: ${subject.id}")
+    }
   }
 
   private def addAgentsMapping(mapping: AgentsMap): Unit = {
