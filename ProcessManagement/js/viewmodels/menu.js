@@ -3,7 +3,7 @@ define([
 	"models/process",
 	"text!../../templates/menu.html",
 	"jquery",
-	"jquery.ui"
+	"bootstrap.datepicker"
 ], function( ko, Process, menuTemplate, $ ) {
 
 	var viewModel = function() {
@@ -38,19 +38,9 @@ define([
 	}
 
 	var setupMenu = function() {
-		// Set up the main Menu accordion
-			$("#main_menu").accordion({
-			autoHeight : false
-		});
-
-		// Make vanilla links in accordions possible
-		$('#main_menu a.link').click(function() {
-			window.location = this.getAttribute('href');
-		});
-
 		$("#calendar").datepicker({
-			nextText : "&raquo;",
-			prevText : "&laquo;"
+			todayHighlight: true,
+			weekStart: 1,
 		});
 
 		$("#hide_menu, #show_menu").click(function() {

@@ -4,24 +4,24 @@
 		<h1>S-BPM Groupware v1.2</h1>
 		<div class="row" id="filter">
 			<div class="col-sm-3">
-				<select class="form-control" data-placeholder="Filter User" data-bind="options: availableUsers, optionsText: 'name', optionsValue: 'id', value: selectedUser, optionsCaption: '', chosen: { disable_search_threshold: 10, allow_single_deselect: true }"></select>
+				<select class="form-control" data-placeholder="Filter User" data-bind="options: availableUsers, optionsText: 'name', optionsValue: 'id', value: selectedUser, optionsCaption: '', chosen: { allow_single_deselect: true }"></select>
 			</div>
 			<div class="col-sm-3">
-				<select class="form-control" data-placeholder="Filter Process" data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'name', value: selectedProcess, optionsCaption: '', chosen: { disable_search_threshold: 10, allow_single_deselect: true }"></select>
+				<select class="form-control" data-placeholder="Filter Process" data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'name', value: selectedProcess, optionsCaption: '', chosen: { allow_single_deselect: true }"></select>
 			</div>
 			<div class="col-sm-2">
-				<select class="form-control" data-placeholder="Filter Statetype" data-bind="options: availableStatetypes, value: selectedStatetype, optionsCaption: '', chosen: { disable_search_threshold: 10, allow_single_deselect: true }"></select>
+				<select class="form-control" data-placeholder="Filter Statetype" data-bind="options: availableStatetypes, value: selectedStatetype, optionsCaption: '', chosen: { allow_single_deselect: true }"></select>
 			</div>
 			<div class="col-sm-2">
 				<div class="input-group input-group-sm">
 					<span class="input-group-addon">From:</span>
-					<input class="form-control" type="text" id="from" name="from" data-bind="value: selectedStart" />
+					<input class="form-control" type="text" id="from" name="from" data-bind="value: selectedStart, datepicker: { autoclose: true, clearBtn: true }" />
 				</div>
 			</div>
 			<div class="col-sm-2">
 				<div class="input-group input-group-sm">
 					<span class="input-group-addon">To:</span>
-					<input class="form-control" type="text" id="to" name="to" data-bind="value: selectedEnd"/>
+					<input class="form-control" type="text" id="to" name="to" data-bind="value: selectedEnd, datepicker: { autoclose: true, clearBtn: true }"/>
 				</div>
 			</div>
 		</div>

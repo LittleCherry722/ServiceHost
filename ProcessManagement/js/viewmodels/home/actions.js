@@ -102,7 +102,6 @@ define([
 
     var actionsList = ko.computed(function() {
         var actions = _.chain( Actions.all()).map(function( action ) {
-            var processStarted = parseInt(moment(action.processStarted).format('X'), 10);
             if (selectedUser() && selectedUser() !== action.userID()) {
                 return null;
             }
@@ -112,6 +111,7 @@ define([
             if (selectedStatetype() && selectedStatetype() !== action.stateType()) {
                 return null;
             }
+            var processStarted = parseInt(moment(action.processStarted).format('X'), 10);
             if (selectedStart() && parseInt(selectedStart(), 10) >= processStarted) {
                 return null;
             }

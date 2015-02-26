@@ -10,11 +10,10 @@ define([
   "moment",
   "notify",
   "jquery",
-  "jquery.ui",
   "jquery.chardin",
   "jquery.chosen",
   "knockout.chosen",
-  "bootstrap"
+  "knockout.datepicker",
 ], function( ko, App, _, User, Process, Actions, History, ProcessInstance, moment, Notify, $ ) {
 
   var ViewModel = function() {
@@ -24,11 +23,11 @@ define([
     this.availableProcesses = ko.observableArray(Process.all());
     this.availableStatetypes= availableStatetypes;
 
-    this.startableProcesses = ko.observableArray(
-      $.grep(Process.all(), function(p) {
+    this.startableProcesses = ko.pureComputed(function() {
+      return $.grep(this.availableProcesses(), function(p) {
         return p.startAble();
-      })
-    );
+      });
+    }, this);
 
     this.selectedUser = selectedUser;
     this.selectedProcess = selectedProcess;
@@ -117,7 +116,7 @@ define([
       if(End) {
         currentSubView().setEnd( moment(End).format("X") );
       } else {
-        currentSubView().setStart("");
+        currentSubView().setEnd("");
       }
     }
   });
@@ -183,24 +182,8 @@ define([
         currentTab( subSite );
       }
 
-
-      $( "#from" ).datepicker({
-        defaultDate: "+1w",
-        changeMonth: true,
-        numberOfMonths: 3,
-        onClose: function( selectedDate ) {
-          $( "#to" ).datepicker( "option", "minDate", selectedDate );
-        }
-      });
-      $( "#to" ).datepicker({
-        defaultDate: "+1w",
-        changeMonth: true,
-        numberOfMonths: 3,
-        onClose: function( selectedDate ) {
-          $( "#from" ).datepicker( "option", "maxDate", selectedDate );
-        }
-      });
-      $("#ui-datepicker-div").wrap('<div id="dashboard_datepicker" />');
+      $('#from').on('changeDate', function(date) { $('#to').datepicker('setStartDate', date.date); });
+      $('#to').on('changeDate', function(date) { $('#from').datepicker('setEndDate', date.date); });
     });
   };
 

@@ -1,22 +1,22 @@
 require([
 		"knockout",
 		"jquery",
-		"jquery.chosen",
+		"bootstrap.datepicker",
 ], function( ko, $ ) {
 
-	// idea from https://stackoverflow.com/questions/22022261/jquery-chosen-doesnt-update-select-options-while-working-with-knockout-js
-	ko.bindingHandlers.chosen =
+	ko.bindingHandlers.datepicker =
 	{
 		init: function (element, valueAccessor, allBindings) {
 			var opts = valueAccessor();
-			if (opts.disable_search_threshold === undefined) opts.disable_search_threshold = 10;
-			$(element).chosen(opts);
+			if (opts.todayHighlight === undefined) opts.todayHighlight = true;
+			if (opts.weekStart === undefined) opts.weekStart = 1;
+			$(element).datepicker(opts);
 
 			// trigger chosen:updated event when the bound value or options changes
-			[ 'value', 'selectedOptions', 'options' ].forEach(function (e) {
+			[ 'value' ].forEach(function (e) {
 				var bv = allBindings.get(e);
 				if (ko.isObservable(bv)) {
-					bv.subscribe(function () { $(element).trigger('chosen:updated'); });
+					bv.subscribe(function () { $(element).trigger('datepicker:updated'); });
 
 					// FIXME: for some reason I need an additional explicit listener
 					if (e === 'value')
@@ -25,7 +25,7 @@ require([
 			});
 		},
 		update: function (element) {
-			$(element).trigger('chosen:updated');
+			$(element).trigger('datepicker:updated');
 		}
 	};
 
