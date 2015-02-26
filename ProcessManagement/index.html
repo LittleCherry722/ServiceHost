@@ -17,17 +17,7 @@
 		<link href="thirdparty/bootstrap-datepicker/bootstrap-datepicker3.css" rel="stylesheet" type="text/css" media="all" />
 		<link href="css/main.css" rel="stylesheet" type="text/css" media="all">
 
-		<!--
-				jquery is needed for tk_graph and tk graph is not yet compatible to
-				requirejs
-			-->
-		<script type="text/javascript" src="thirdparty/jquery/jquery.js"></script>
-		<script type="text/javascript" src="thirdparty/jquery-fancybox/jquery.fancybox.js"></script>
-		<script type="text/javascript" src="thirdparty/jquery-chosen/jquery.chosen.js"></script>
-		<script type="text/javascript" src="thirdparty/jquery-chardin/jquery.chardinjs.js"></script>
-		<script type="text/javascript" src="thirdparty/jquery-pubsub/jquery.pubsub.js"></script>
-		<script type="text/javascript" src="thirdparty/bootstrap/bootstrap.js"></script>
-		<script type="text/javascript" src="js/feedback.js"></script>
+		<!-- javascripts which don't work with requirejs (yet) -->
 		<script type="text/javascript" src="js/libs/uuid.js"></script>
 		<script type="text/javascript" src="thirdparty/FileSaver/FileSaver.js"></script>
 		<script type="text/javascript" src="thirdparty/keymaster/keymaster.js"></script>
@@ -42,19 +32,17 @@
 
 		<!-- Fixed navbar -->
 		<div id="header" class="navbar navbar-inverse navbar-fixed-top"></div>
-		<div class="container">
-			<div class="row row-offcanvas row-offcanvas-left">
-				<div class="col-xs-6 col-sm-2 sidebar-offcanvas" id="sidebar" role="navigation">
+		<div class="container-fluid">
+			<div class="row">
+				<div id="sidebar">
 					<div class="sidebar-nav" id="left_menu"></div>
 				</div>
-
-				<div class="col-xs-12 col-sm-10">
-					<p class="pull-left visible-xs">
-						<button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle nav</button>
+				<div class="col-sm-12">
+					<p class="pull-left">
+						<button type="button" style="display: none;" class="btn btn-primary btn-xs" data-toggle="sidebar">&raquo;</button>
 					</p>
 					<div id="main"></div>
 				</div>
-
 			</div>
 		</div>
 	</body>

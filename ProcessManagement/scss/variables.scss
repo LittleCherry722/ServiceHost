@@ -1,5 +1,4 @@
-$baseFontSize: 12px;
-$baseLineHeight: 14px;
+$font-size-base: 12px;
 
 $icon-font-path: "../thirdparty/bootstrap/fonts/bootstrap/";
 
@@ -8,3 +7,6 @@ $chosen-sprite-retina-path: '../thirdparty/jquery-chosen/chosen-sprite@2x.png';
 
 $linkColor:             #4B4F5D;
 $linkColorHover:        darken($linkColor, 15%) !default;
+
+$baseLineHeight: 14px;
+$sidebar-width: 220px;

@@ -16,7 +16,8 @@ define([
     "jquery.chosen",
     "jquery.fancybox",
     "jquery.scrollTo",
-    "jquery.chardin"
+    "jquery.chardin",
+    "bootstrap",
 ], function( ko, App, Notify, Dialog, Process, _, Router, async, User, Role, Interface, Utilities, $ ) {
 
     // The main viewmodel. Every observable defined inside can be used by the
@@ -776,24 +777,24 @@ define([
         [ '#exportGraphButton', '#importGraphButton' ].forEach(function(id) {
             $(id).fancybox();
         });
+
+        $('.panel-heading').append('<span class="panel-show-hide pull-right">hide</span>');
+
+        // Make internal settings screens toggle-able
+        $('.panel-show-hide').click(function() {
+            var panelbody = $(this).parent().next();
+            panelbody.toggle();
+            if (panelbody.is(":visible"))
+                $(this).html("hide")
+            else
+                $(this).html("show");
+        });
     }
 
 
     // Initialize listeners. These are either bound to the DOM (for click events
     // etc.), or listeners for the graph library.
     var initializeListeners = function() {
-
-        // Make internal settings screens toggle-able
-        $('.processSettingsTrigger').click(function() {
-            if ($(this).parent().next().is( ":visible" )) {
-                $(this).closest( "fieldset" ).addClass( "hidden" );
-                $(this).html( "Show" ).addClass( "show" );
-            } else {
-                $(this).closest( "fieldset" ).removeClass( "hidden" );
-                $(this).html( "Hide" )
-            }
-        });
-
         // Show or hide the role warning. Show it when no Role has been selected
         // (empty val), otherwise hide it.
         $('#ge_cv_id').click(showOrHideRoleWarning);
@@ -833,7 +834,7 @@ define([
         });
 
         // tool tips
-        $('.tooltip-enabled *[title]').tooltip();
+        $('[data-toggle="tooltip"]').tooltip();
 
         $("#tab3").click(function() {
             gv_graph.selectedNode = null;
@@ -1104,9 +1105,11 @@ define([
         // current tab contents and only selectively show the tab content of the
         // currently clicked tab.
         $( ".tab_content" ).addClass( "hide" );
-        $( "#switch .btn" ).removeClass( "active" );
-        $( "#tab" + tabIndex ).addClass( "active" );
-        $( "#tab" + tabIndex + "_content" ).removeClass( "hide" );
+        $( "#switch" ).removeClass( "active" );
+        [ 1, 2, 3 ].forEach(function(i) {
+            $( "#tab" + i + "_content" ).removeClass( "active" );
+        });
+        $( "#tab" + tabIndex + "_content" ).addClass( "active" );
         $( "#instance_tab" + tabIndex + "_content" ).removeClass( "hide" );
         $( "#slctMacroDropDown" ).hide();
 

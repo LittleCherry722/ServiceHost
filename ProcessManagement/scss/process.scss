@@ -2,7 +2,8 @@
   padding: 0;
 }
 
-div#subjectType input[type="checkbox"] {
+div.graphsettings input[type="checkbox"],
+div.graphsettings input[type="radio"] {
   margin-left: 0;
   position: relative;
 }
@@ -62,29 +63,6 @@ div#subjectType input[type="checkbox"] {
     border-color: #ccc;
   }
 
-  fieldset {
-    &.hidden {
-      margin-bottom: $baseLineHeight;
-      text-align: center;
-
-      legend {
-        margin-bottom: 0px;
-        text-align: left;
-        border-bottom: none;
-      }
-      &:before {
-        display: inline;
-        content: "\2026";
-      }
-      .processSettingsTrigger {
-        cursor: s-resize;
-      }
-      .toggle-able {
-        display: none;
-      }
-    }
-  }
-
   h1, h2, h3, h4, h5, h6 {
     color: inherit;
     text-align: center;
@@ -134,7 +112,13 @@ div#subjectType input[type="checkbox"] {
   input[type="button"] {
     @include box-sizing(border-box);
     display: block;
-    margin-bottom: $baseLineHeight / 2;
-    font-size: 12px;
+    margin-bottom: $line-height-base;
+    font-size: $font-size-base;
   }
+}
+
+.panel-show-hide {
+  font-size: $font-size-base - 2;
+  cursor: n-resize;
+  text-decoration: underline;
 }

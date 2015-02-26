@@ -43,9 +43,13 @@ define([
 			weekStart: 1,
 		});
 
-		$("#hide_menu, #show_menu").click(function() {
-			$( "#left_menu, #show_menu" ).toggle();
-			$( "body" ).toggleClass("no-menu");
+		$('[data-toggle=sidebar]').click(function() {
+			var sidebar = $('#sidebar');
+			if (sidebar.is(":visible"))
+				sidebar.addClass('hidden');
+			else
+				sidebar.removeClass('hidden');
+			$('[data-toggle=sidebar]').toggle();
 		});
 	}
 

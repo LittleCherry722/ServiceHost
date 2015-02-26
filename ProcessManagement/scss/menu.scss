@@ -39,26 +39,8 @@ a#hide_menu {
   }
 }
 
-a#show_menu {
-  display: none;
-  margin: 10px 5px 5px 10px;
-  padding: 5px 10px 5px 10px;
-  border: 1px solid #CCC;
-  position: relative;
-  background: #EBEBEB;
-  border-radius: 3px;
-  color: #4B4F5D;
-  font-weight: bold;
-  cursor: e-resize;
-  float: left;
-
-  &:hover {
-    background: #ccc;
-  }
-}
-
 #left_menu {
-  width: 210px;
+  width: $sidebar-width;
   background-color: #ebebeb;
   //border-right: 1px solid #bcbcbc;
   border: 1px solid #E3E3E3;
@@ -70,4 +52,20 @@ a#show_menu {
   }
 }
 
+#sidebar {
+  width: $sidebar-width;
+  position: fixed;
+  z-index: 999;
+}
 
+#sidebar.hidden {
+  display: none;
+}
+
+#sidebar + div {
+  padding-left: $sidebar-width;
+}
+
+#sidebar.hidden + div {
+  padding-left: 0;
+}
