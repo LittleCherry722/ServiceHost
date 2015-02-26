@@ -289,7 +289,11 @@ case class ReceiveStateActor(data: StateData)
 
     def setMessages(messages: Array[SubjectToSubjectMessage]) {
       clearMessages()
-      for (message <- messages) addMessage(message)
+      for (message <- messages){
+        if(message.enabled){
+        	addMessage(message)
+        }
+      } 
     }
 
     private def clearMessages() {
@@ -320,7 +324,6 @@ case class ReceiveStateActor(data: StateData)
         case None                                       => (None, None, None)
       }
       messageData += MessageData(message.messageID, message.userID, message.messageContent, title, url, iconLink)
-      //messageData += MessageData(message.messageID, message.userID, message.messageContent, title, url, iconLink, message.enabled)
     }
   }
 }
