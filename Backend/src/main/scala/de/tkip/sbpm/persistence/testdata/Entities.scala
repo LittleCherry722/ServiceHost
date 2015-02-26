@@ -128,8 +128,11 @@ object Entities {
     (Process(None, None, false, """RatioDrink""", false) -> loadJson("ratiodrink")),
 
 //  external subject processes
-    (Process(None, None, false, """ExternalSubject Simple - Sender""", false) -> loadJson("externalsubject_simple_sender")),
-    (Process(None, None, false, """ExternalSubject Simple - Receiver""", false) -> loadJson("externalsubject_simple_receiver"))
+    (Process(None, None, false, """ExternalSubject Simple - Sender""", false) -> loadJson("externalsubject_simple_sender")),           // 37
+    (Process(None, None, false, """ExternalSubject Simple - Receiver""", false) -> loadJson("externalsubject_simple_receiver")),       // 38
+    (Process(None, None, false, """ExternalSubject Dreieck - Kunde""", false) -> loadJson("externalsubject_dreieck_kunde")),           // 39
+    (Process(None, None, false, """ExternalSubject Dreieck - Hersteller""", false) -> loadJson("externalsubject_dreieck_hersteller")), // 40
+    (Process(None, None, false, """ExternalSubject Dreieck - Lieferant""", false) -> loadJson("externalsubject_dreieck_lieferant"))    // 41
    )
 
 

@@ -12,11 +12,11 @@
 			"startSubject" : false,
 			"inputPool" : 100,
 			"blackboxname" : null,
-			"relatedProcess" : null,
+			"relatedProcess" : 37,
 			"relatedSubject" : "Subj2:45e164c0-7451-4f64-9049-2ab4b81ebc28",
 			"relatedInterface" : null,
 			"isImplementation" : false,
-			"externalType" : "interface",
+			"externalType" : "external",
 			"role" : "default",
 			"url" : null,
 			"implementations" : [],
@@ -189,9 +189,9 @@
 			"macros" : [{
 					"id" : "##main##",
 					"name" : "internal behavior",
-					"nodeCounter" : 4,
+					"nodeCounter" : 3,
 					"nodes" : [{
-							"id" : 1,
+							"id" : 0,
 							"text" : "Receive Request",
 							"start" : true,
 							"end" : false,
@@ -219,7 +219,7 @@
 								"storevar" : ""
 							}
 						}, {
-							"id" : 2,
+							"id" : 1,
 							"text" : "Send Reply",
 							"start" : false,
 							"end" : false,
@@ -247,7 +247,7 @@
 								"storevar" : ""
 							}
 						}, {
-							"id" : 3,
+							"id" : 2,
 							"text" : "",
 							"start" : false,
 							"end" : true,
@@ -277,8 +277,8 @@
 						}
 					],
 					"edges" : [{
-							"start" : 1,
-							"end" : 2,
+							"start" : 0,
+							"end" : 1,
 							"text" : "m1",
 							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
@@ -299,8 +299,8 @@
 							"comment" : "",
 							"transportMethod" : ["internal"]
 						}, {
-							"start" : 2,
-							"end" : 3,
+							"start" : 1,
+							"end" : 2,
 							"text" : "m2",
 							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
