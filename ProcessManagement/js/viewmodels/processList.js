@@ -10,6 +10,7 @@ define([
 	"moment",
 	"jquery",
 	"jquery.chosen",
+	"knockout.datepicker",
 ], function( ko, App, Notify, Dialog, Process, ProcessInstance, _, Router, moment, $ ) {
 	var ViewModel = function() {
 		var self = this;
@@ -130,23 +131,10 @@ define([
 		var viewModel = new ViewModel();
 
 		App.loadTemplate( "processList", viewModel, null, function() {
-			$( "#from" ).datepicker({
-				defaultDate: "+1w",
-				changeMonth: true,
-				numberOfMonths: 3,
-				onClose: function( selectedDate ) {
-					$( "#to" ).datepicker( "option", "minDate", selectedDate );
-				}
-			});
-			$( "#to" ).datepicker({
-				defaultDate: "+1w",
-				changeMonth: true,
-				numberOfMonths: 3,
-				onClose: function( selectedDate ) {
-					$( "#from" ).datepicker( "option", "maxDate", selectedDate );
-				}
-			});
-			$("#ui-datepicker-div").wrap('<div id="dashboard_datepicker" />');
+			$('#from').on('changeDate', function(date) { $('#to').datepicker('setStartDate', date.date); });
+			$('#to').on('changeDate', function(date) { $('#from').datepicker('setEndDate', date.date); });
+			$('#from').on('clearDate', function(date) { $('#to').datepicker('setStartDate', null); });
+			$('#to').on('clearDate', function(date) { $('#from').datepicker('setEndDate', null); });
 
 			$('#slctProcess').chosen({ allow_single_deselect: true });
 

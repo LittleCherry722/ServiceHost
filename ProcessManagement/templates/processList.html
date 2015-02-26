@@ -7,16 +7,23 @@
 		</h3>
 	</div>
 	<!-- End header -->
-	<div id="filter">
-		<select id="slctProcess" data-placeholder="Start Process" data-bind="options: availableProcesses, optionsText: 'name', optionsCaption: '', value: selectedProcess, optionsValue: 'id'"></select>
-		<label for="from">From:</label>
-		<span class="clearable">
-			<input class="data_field" type="text" id="from" name="from" data-bind="value: selectedStart" /><span class="icon_clear">x</span>
-		</span>
-		<label for="to">To:</label>
-		<span class="clearable">
-			<input class="data_field" id="to" name="to" type="text" data-bind="value: selectedEnd" /><span class="icon_clear">x</span>
-		</span>
+	<div id="filter" class="row">
+		<div class="col-sm-4">
+			<select id="slctProcess" data-placeholder="Start Process" data-bind="options: availableProcesses, optionsText: 'name', optionsCaption: '', value: selectedProcess, optionsValue: 'id'"></select>
+		</div>
+
+		<div class="col-sm-2">
+			<div class="input-group input-group-sm">
+				<span class="input-group-addon">From:</span>
+				<input class="form-control" type="text" id="from" name="from" data-bind="value: selectedStart, datepicker: { autoclose: true, clearBtn: true }" />
+			</div>
+		</div>
+		<div class="col-sm-2">
+			<div class="input-group input-group-sm">
+				<span class="input-group-addon">To:</span>
+				<input class="form-control" type="text" id="to" name="to" data-bind="value: selectedEnd, datepicker: { autoclose: true, clearBtn: true }"/>
+			</div>
+		</div>
 	</div>
 	<hr>
 	<div id="clickablelist">

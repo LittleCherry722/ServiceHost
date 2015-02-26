@@ -6,10 +6,12 @@ require([
 
 	ko.bindingHandlers.datepicker =
 	{
+		format: 'DD.MM.YYYY',
 		init: function (element, valueAccessor, allBindings) {
 			var opts = valueAccessor();
 			if (opts.todayHighlight === undefined) opts.todayHighlight = true;
 			if (opts.weekStart === undefined) opts.weekStart = 1;
+			opts.format = ko.bindingHandlers.datepicker.format.toLowerCase();
 			$(element).datepicker(opts);
 
 			// trigger chosen:updated event when the bound value or options changes

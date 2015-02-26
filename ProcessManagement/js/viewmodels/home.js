@@ -104,7 +104,7 @@ define([
   selectedStart.subscribe(function( Start) {
     if ( currentSubView() ) {
       if(Start) {
-        currentSubView().setStart( moment(Start).format("X") );
+        currentSubView().setStart( moment(Start, ko.bindingHandlers.datepicker.format).format("X") );
       } else {
         currentSubView().setStart("");
       }
@@ -114,7 +114,7 @@ define([
   selectedEnd.subscribe(function( End ) {
     if ( currentSubView() ) {
       if(End) {
-        currentSubView().setEnd( moment(End).format("X") );
+        currentSubView().setEnd( moment(End, ko.bindingHandlers.datepicker.format).format("X") );
       } else {
         currentSubView().setEnd("");
       }
@@ -184,6 +184,8 @@ define([
 
       $('#from').on('changeDate', function(date) { $('#to').datepicker('setStartDate', date.date); });
       $('#to').on('changeDate', function(date) { $('#from').datepicker('setEndDate', date.date); });
+      $('#from').on('clearDate', function(date) { $('#to').datepicker('setStartDate', null); });
+      $('#to').on('clearDate', function(date) { $('#from').datepicker('setEndDate', null); });
     });
   };
 
