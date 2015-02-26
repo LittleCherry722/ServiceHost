@@ -23,112 +23,102 @@
 	<!-- Begin graph window -->
 	<div id="row">
 		<div>
-			<div class="header nav nav-tabs">
+			<ul class="header nav nav-tabs">
+				<li role="presentation" class="pull-right"><a type="button" class="btn btn-link" data-toggle="modal" data-target="#processHelpModal">?</a></li>
 
-				<div class="pull-right" id="processHelpButtons">
-					<a id="help-button" class="btn btn-small" href="help.html"
-											   data-bind="fancybox : {width : '30', height : '41'}" >
-											   ?
+				<li role="presentation" class="active" id="switch">
+					<a type="button" class="btn btn-link" data-bind="click: goToRoot" data-chardin-intro="Go back to Process Overview" data-chardin-position="top">Subject-Interaction-View</a>
+				</li>
+
+				<li role="presentation" class="dropdown" data-chardin-intro="Choose subject to modify its internal behaviour." data-chardin-position="bottom">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">
+						<!-- ko ifnot: currentSubject() -->
+						Select Internal behavior
+						<!-- /ko -->
+						<!-- ko if: currentSubject() -->
+						<span data-bind="text: currentSubjectName()"></span>
+						<!-- /ko -->
+						<b class="caret"></b>
 					</a>
-				</div>
+					<ul class="dropdown-menu" role="menu" data-bind="foreach: availableSubjects">
+						<li data-bind="css: { active: $parent.currentSubject() == $data['subjectId'] }">
+							<a data-bind="attr: { href: $parent.currentProcess().url() +
+							'/' + $data['subjectId'] }, text: $data['subjectText']">
+							</a>
+						</li>
+					</ul>
+				</li>
 
-				<div class="btn-group" id="switch">
-					<button id="tab2" class="btn" data-bind="click: goToRoot"
-								   data-chardin-intro="Go back to Process Overview" data-chardin-position="top">
-						Subject-Interaction-View
-					</button>
+				<!-- FIXME: with no conversations, the count is always 3 instead of … 1 (or maybe even 0) -->
+				<li role=presentation" data-chardin-intro="Filter by conversation" data-chardin-position="top" data-bind="visible: availableConversations().length > 3">
+					<select id="slctCon" data-placeholder="Select conversation"
+						  class="middle_switch chzn-select" tabindex="1"
+										  data-bind="options: availableConversations, optionsText: 'text',
+										  optionsValue: 'conversationID',
+										  value: currentConversation, caption: ''">
+					</select>
+				</li>
 
-					<div class="btn-group" data-chardin-intro="Choose subject to modify its internal behaviour."
-							data-chardin-position="bottom">
-						<a class="btn dropdown-toggle" data-toggle="dropdown">
-							<!-- ko ifnot: currentSubject() -->
-							Select Internal behavior
-							<!-- /ko -->
-							<!-- ko if: currentSubject() -->
-							<span data-bind="text: currentSubjectName()"></span>
-							<!-- /ko -->
-							<b class="caret"></b>
+				<li role=presentation" id="slctMacroDropDown" style="display: none;" data-bind="visible: availableMacros().length > 1">
+					<select id="slctMacro" data-placeholder="Select Macro"
+							class="middle_switch chzn-select" tabindex="1"
+										 data-bind="options: availableMacros, optionsText: 'value',
+										 optionsValue: 'id', value: currentMacro, caption: ''">
+					</select>
+				</li>
+
+				<li role="presentation" data-chardin-intro="Save, save as... or discard changes." data-chardin-position="top">
+					<div style="position: relative; padding: 10px 15px; margin-right: 2px; line-height: 1.42857;">
+						<a data-bind="click: saveCurrentProcess" title="Save Process" style="display: inline; cursor: hand; text-decoration: none;">
+							<span class="glyphicon glyphicon-save" aria-hidden="true"></span> Save
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false" style="display: inline; border-left: 1px solid lightgrey;margin-left:1em;padding-left:0.5em;">
+								<b class="caret"></b>
+							</a>
 						</a>
-						<ul class="dropdown-menu save-dropdown" data-bind="foreach: availableSubjects">
-							<li data-bind="css: { active: $parent.currentSubject() == $data['subjectId'] }">
-								<a data-bind="attr: { href: $parent.currentProcess().url() +
-								'/' + $data['subjectId'] }, text: $data['subjectText']">
-								</a>
-							</li>
-						</ul>
-					</div>
-
-					<div class="btn tab-dropdown" data-chardin-intro="Filter by conversation"
-								   data-chardin-position="top">
-						<select id="slctCon" data-placeholder="Select conversation"
-						   class="middle_switch chzn-select" tabindex="1"
-										   data-bind="options: availableConversations, optionsText: 'text',
-										   optionsValue: 'conversationID',
-										   value: currentConversation, caption: ''">
-						</select>
-					</div>
-					<div id="slctMacroDropDown" class="btn tab-dropdown" style="display: none;">
-						<select id="slctMacro" data-placeholder="Select Macro"
-							 class="middle_switch chzn-select" tabindex="1"
-										  data-bind="options: availableMacros, optionsText: 'value',
-										  optionsValue: 'id', value: currentMacro, caption: ''">
-						</select>
-					</div>
-
-					<!-- <button id="tab3" class="btn" data-bind="click: goToRoutings" -->
-					<!--         data-chardin-intro="Show routing table." data-chardin-position="bottom"> -->
-					<!--   Routing -->
-					<!-- </button> -->
-					<div class="btn-group" data-chardin-intro="Save, save as... or discard changes."
-							data-chardin-position="top">
-						<a class="btn" data-bind="click: saveCurrentProcess" title="Save Process">
-							<i class="glyphicon glyphicon-save"></i> Save
-						</a>
-
-						<a class="btn dropdown-toggle" data-toggle="dropdown">
-							<b class="caret"></b>
-						</a>
-						<ul class="dropdown-menu save-dropdown">
+						<ul class="dropdown-menu" role="menu">
 							<li>
-								<a data-bind="click: saveCurrentProcess" title="Save Process">
-									<i class="glyphicon glyphicon-save"></i> Save
+								<a href="#" data-bind="click: saveCurrentProcess" title="Save Process">
+									<span class="glyphicon glyphicon-save" aria-hidden="true"></span> Save
 								</a>
 							</li>
 							<li>
 								<a href="#saveAsModal" id="saveProcessAsButton" data-toggle="modal">
-									<i class="glyphicon glyphicon-copy"></i> Save As
+									<span class="glyphicon glyphicon-copy" aria-hidden="true"></span> Save As
 								</a>
 							</li>
 							<li class="divider"></li>
 							<li>
 								<a href="#" id="resetProcessButton" data-bind="click: resetProcess">
-									<i class="glyphicon glyphicon-undo"></i> Discard Changes
+									<span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Discard Changes
 								</a>
 							</li>
 						</ul>
 					</div>
+				</li>
 
-					<div class="btn-group" data-chardin-intro="Save or load Business Interfaces"
-							data-chardin-position="bottom" style="margin-left: 0;">
-						<a class="btn dropdown-toggle" data-toggle="dropdown"
-									 style="border-left: 1px solid #bbbbbb;">
-							<i class="glyphicon glyphicon-cloud"></i>
-							Business Interfaces
-							<b class="caret"></b>
-						</a>
-						<ul class="dropdown-menu save-dropdown">
-							<li>
-								<a href="#saveBusinessInterfaceModal" data-toggle="modal">
-									<i class="glyphicon glyphicon-cloud-upload"></i> Save Interface
-								</a>
-								<a href="#loadBusinessInterfaceModal" data-toggle="modal">
-									<i class="glyphicon glyphicon-cloud-download"></i> Load Interface
-								</a>
-							</li>
-						</ul>
-					</div>
-				</div>
-			</div>
+				<li data-chardin-intro="Save or load Business Interfaces" data-chardin-position="bottom">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">
+						<span class="glyphicon glyphicon-cloud" aria-hidden="true"></span> more <b class="caret"></b>
+					</a>
+					<ul class="dropdown-menu" role="menu">
+						<li>
+							<a href="#saveServiceModal" data-toggle="modal">
+								<span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> Export Service
+							</a>
+						</li>
+						<li>
+							<a href="#loadBusinessInterfaceModal" data-toggle="modal">
+								<span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span> Browse Interface
+							</a>
+						</li>
+						<li>
+							<a href="#" data-bind="css: { active: currentProcess().publishInterface() }, click: updatePublishInterface">
+								<span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> Publish
+							</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
 
 			<div id="processContent">
 				<ul class="list-inline" id="graphZoombuttons">
@@ -143,9 +133,9 @@
 					</li>
 				</ul>
 				<div class="tab-content">
-					<div id="tab1_content" class="tab_pane hide"></div>
-					<div id="tab2_content" class="tab-pane active"></div>
-					<div id="tab3_content" class="tab-pane hide" ></div>
+					<div id="tab1_content" role="tabpanel" class="tab-pane"></div>
+					<div id="tab2_content" role="tabpanel" class="tab-pane active"></div>
+					<div id="tab3_content" role="tabpanel" class="tab-pane" ></div>
 				</div>
 			</div>
 
@@ -153,120 +143,153 @@
 	</div>
 </div>
 
-<div id="saveAsModal" class="modal fade" tabindex="-1">
+<div class="modal fade" id="saveAsModal" tabindex="-1" role="dialog" aria-labelledby="saveAsModalTitle" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<a type="button" class="close" data-dismiss="modal">x</a>
-				<h3>Save Graph As</h3>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="saveAsModalTitle">Save Graph As</h4>
 			</div>
-			<div id="saveProcessAs" class="modal-body">
+			<div class="modal-body">
 				<label for="newProcessName">New Process Name</label>
 				<input id="newProcessName" type="text"
 							   data-bind="value: newProcessName, valueUpdate:'afterkeydown' "/>
 			</div>
 			<div class="modal-footer">
-				<button class="btn" data-dismiss="modal">Close</button>
+				<button class="btn btn-default" data-dismiss="modal">Close</button>
 				<button class="btn btn-primary" data-dismiss="modal"
 									data-bind="click: saveCurrentProcessAs">
 					Save Process
 				</button>
 			</div>
-		</div><!-- /.modal-content -->
-	</div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+		</div>
+	</div>
+</div>
 
-<div id="saveBusinessInterfaceModal" class="modal" tabindex="-1">
+<div class="modal fade" id="saveServiceModal" tabindex="-1" role="dialog" aria-labelledby="saveServiceModalTitle" aria-hidden="true">
 	<div class="modal-dialog">
-		<div class="modal-content">	
+		<div class="modal-content">
 			<div class="modal-header">
-				<a class="close" href="" type="button" data-dismiss="modal">x</a>
-				<h3>Save Business Interface</h3>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="saveServiceModalTitle">Export for Service Host</h4>
 			</div>
-			<div id="saveBusinessInterface" class="modal-body">
+			<div class="modal-body">
 				<div class="form-horizontal">
 					<div class="control-group">
 						<label class="control-label" for="interfaceName">
-							Choose Interface Subject
+							Choose target Subject
 						</label>
 						<div class="controls">
-							<select id="interfaceSubject"
+							<select id="serviceSubject"
 			   data-bind="options: availableInterfaces, optionsValue: 'id',
-			   optionsText: 'name', value: interfaceReplacementSubject">
+			   optionsText: 'name', value: serviceSubject">
 							</select>
 						</div>
 					</div>
-					<div class="control-group" data-bind="css: { error: businessInterfaceNameError }">
-						<label class="control-label" for="interfaceName">
-							Interface Name
+					<div class="control-group">
+						<label class="control-label" for="serviceName">
+							Service Name
 						</label>
 						<div class="controls">
-							<input id="interfaceName" type="text"
-								 data-bind="value: newBusinessInterfaceName, valueUpdate: 'afterkeydown'" />
-							<div class="errors" data-bind="text: businessInterfaceNameError">
-							</div>
+							<input id="serviceName" type="text"
+							   data-bind="value: serviceName, valueUpdate: 'afterkeydown'" />
 						</div>
 					</div>
 					<hr />
 					<div class="control-group">
-						<label class="control-label" for="interfaceName">Interface Author</label>
+						<label class="control-label" for="interfaceName">Service Author</label>
 						<div class="controls">
-							<input id="interfaceName" type="text"
-								 data-bind="value: newBusinessInterfaceAuthor, valueUpdate: 'afterkeydown'" />
+							<input id="serviceName" type="text"
+							   data-bind="value: serviceAuthor, valueUpdate: 'afterkeydown'" />
 						</div>
 					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button class="btn" data-dismiss="modal">Close</button>
+				<button class="btn btn-default" data-dismiss="modal">Close</button>
 				<button class="btn btn-primary" data-dismiss="modal"
-									data-bind="click: saveBusinessInterface,
-									css: { disabled: businessInterfaceNameError },
-									disable: businessInterfaceNameError">
-					Save Business Interface
+									data-bind="click: exportService">
+					Export
 				</button>
 			</div>
-		</div><!-- /.modal-content -->
-	</div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-
-<div id="loadBusinessInterfaceModal" class="modal hide" tabindex="-1"
-														style="margin-left: -425px; width: 850px;">
-	<div class="modal-header">
-		<a class="close" href="" type="button" data-dismiss="modal">x</a>
-		<h3>Load Business Interface</h3>
-	</div>
-	<div id="loadBusinessInterface" class="modal-body">
-		<div class="interface-select pull-left" data-bind="foreach: existingInterfaces">
-			<div class="interface-entry"
-		data-bind="click: $parent.selectBusinessInterface,
-		css: { active: $parent.selectedInterfaceId() == $data.id() }">
-				<strong data-bind="text: name"></strong>
-				<em data-bind="text: creator"></em>
-			</div>
 		</div>
-		<div class="interface-preview pull-left" data-bind="visible: selectedInterface">
-			<h4>Interface Name</h4>
-			<p data-bind="text: selectedInterfaceName"></p>
-			<h4>Author</h4>
-			<p data-bind="text: selectedInterfaceCreator"></p>
-			<!-- <h4>Description</h4> -->
-			<!-- <p data-bind="text: selectedInterfaceDescription"></p> -->
-			<h4>Insertion Behavior</h4>
-			<select data-bind="options: availableInterfaces, optionsText: 'name',
-			optionsValue: 'id', optionsCaption: 'New Interface'">
-			</select>
-			<!-- <h4>Preview</h4> -->
-			<!-- <img src="/sbpm/images/internal.png" heigh="400" width="400" -->
-			<!--      data-bind="visible: selectedInterface" /> -->
-		</div>
-	</div>
-	<div class="modal-footer">
-		<button class="btn" data-dismiss="modal" data-bind="click: resetInterfaceSelection">Close</button>
-		<button class="btn btn-primary" data-dismiss="modal"
-								  data-bind="click: loadBusinessInterface, disable: noInterfaceSelected">
-			Insert Business Interface
-		</button>
 	</div>
 </div>
+
+<div class="modal fade" id="loadBusinessInterfaceModal" tabindex="-1" role="dialog" aria-labelledby="loadBusinessInterfaceModalTitle" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="loadBusinessInterfaceModalTitle">Load Business Interface</h4>
+			</div>
+			<div class="modal-body">
+				<div class="interface-select pull-left" data-bind="foreach: existingInterfaces">
+					<div class="interface-entry"
+		  data-bind="click: $parent.selectBusinessInterface,
+		  css: { active: $parent.selectedInterfaceId() == $data.id() }">
+						<strong data-bind="text: name"></strong>
+						<em data-bind="text: creator"></em>
+					</div>
+				</div>
+				<div class="interface-preview pull-left" data-bind="visible: selectedInterface">
+					<h4>Interface Name</h4>
+					<p data-bind="text: selectedInterfaceName"></p>
+					<h4>Author</h4>
+					<p data-bind="text: selectedInterfaceCreator"></p>
+					<!-- <h4>Description</h4> -->
+					<!-- <p data-bind="text: selectedInterfaceDescription"></p> -->
+					<h4>Insertion Behavior</h4>
+					<select data-bind="options: availableInterfaces, optionsText: 'name',
+					optionsValue: 'id', optionsCaption: 'New Interface'">
+					</select>
+					<!-- <h4>Preview</h4> -->
+					<!-- <img src="/sbpm/images/internal.png" heigh="400" width="400" -->
+					<!--      data-bind="visible: selectedInterface" /> -->
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-default" data-dismiss="modal" data-bind="click: resetInterfaceSelection">Close</button>
+				<button class="btn btn-primary" data-dismiss="modal"
+									data-bind="click: loadBusinessInterface, disable: noInterfaceSelected">
+					Insert Business Interface
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="processHelpModal" tabindex="-1" role="dialog" aria-labelledby="processHelpModalTitle" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="processHelpModalTitle">Help</h4>
+			</div>
+			<div class="modal-body">
+				<strong>There are multiple shortcuts for modelling a process:</strong></br></br>
+				Add new defined nodes:</br>
+				<i>1 (Number)</i> -> Insert send node </br>
+				<i>2 (Number)</i> -> Insert receive node </br>
+				<i>3 (Number)</i> -> Insert action node </br>
+				</br>
+				Other commands:</br>
+				<i>a </i> -> Add new node </br>
+				<i>c </i> -> Activate connect mode </br>
+				<i>u </i> -> Update node </br>
+				<i>d </i> -> Delete node </br>
+				</br>
+				Maneuver through graph</br> (a node has to be selected first):</br>
+				<i>UP (Arrow Keys) </i> -> Previous node  </br>
+				<i>DOWN (Arrow Keys) </i> -> Next node </br>
+				<i>LEFT (Arrow Keys) </i> -> Left node </br>
+				<i>RIGHT (Arrow Keys) </i> -> Right node </br>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 </div>

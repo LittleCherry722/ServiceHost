@@ -30,21 +30,21 @@ define([
 
 		this.info = function( title, text ) {
 			return context.jQuery( freeOwId ).freeow( title, text, {
-				classes: [ infoClass ],
+				classes: [ "smokey", infoClass ],
 				autohide: true
 			});
 		}
 
 		this.error = function( title, text ) {
 			return context.jQuery( freeOwId ).freeow( title, text, {
-				classes: [ errClass ],
+				classes: [ "smokey", errClass ],
 				autohide: true
 			});
 		}
 
 		this.warning = function( title, text ) {
 			return context.jQuery( freeOwId ).freeow( title, text, {
-				classes: [ warnClass ],
+				classes: [ "smokey", warnClass ],
 				autohide: true
 			});
 		}

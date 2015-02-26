@@ -16,6 +16,8 @@ var gv_filePrefix = "thirdparty/tk_graph";
 // include Raphael
 gf_includeJS("../raphael/raphael.js");
 
+gf_includeJS("../jquery/jquery.js");
+
 // include jQuery scrollTo plugin
 gf_includeJS("../jquery-scrollTo/jquery.scrollTo.js");
 

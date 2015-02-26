@@ -4,13 +4,10 @@
 	<div class="graphsettings">
 
 		<div class="panel panel-default">
-			<div class="panel-heading" data-chardin-intro="Export this process as a JSON string or import the JSON string of another process." data-chardin-position="left">Import &amp; Export<span class="processSettingsTrigger pull-right">&times;</span></div>
-			<div class="panel-body">
-				<!-- <label for="timestamps">Change revision</label>-->
-				<!-- <select id="timestamps" data-bind="options: graphHistory(), optionsText: 'date', value: currentGraph, optionsCaption: 'Graph history'"></select>-->
-				<!-- <br />-->
-				<a class="btn" id="importGraphButton" href="#importModal" data-bind="click: clearGraphText">Import</a>
-				<a class="btn" id="exportGraphButton" href="#exportModal" data-bind="click: exportGraph">Export</a>
+			<div class="panel-heading" data-chardin-intro="Export this process as a JSON string or import the JSON string of another process." data-chardin-position="left">Import &amp; Export</div>
+			<div class="panel-body text-center">
+				<a class="btn btn-link" id="importGraphButton" href="#importModal" data-bind="click: clearGraphText"><span class="glyphicon glyphicon-import" aria-hidden="true"></span> Import</a>
+				<a class="btn btn-link" id="exportGraphButton" href="#exportModal" data-bind="click: exportGraph"><span class="glyphicon glyphicon-export" aria-hidden="true"></span> Export</a>
 			</div>
 		</div>
 		<div class="panel panel-default">
@@ -98,18 +95,21 @@
 					<label class="graphsectionheader">Comment:</label>
 					<textarea data-bind="value: selectedSubjectComment" title="Miscellaneous annotations"></textarea>
 				</div>
-				<input type="button" id="UpdateSubjectButton" title="Macro : Press &#34;U&#34;" onclick="gv_graph.updateNode();"
-																					value="Update subject"/>
 
-				<div id="subjectType" data-chardin-intro="Add (Shortcut: [A]) or delete [D] subject."
+				<div id="subjectButtons" data-chardin-intro="Add (Shortcut: [A]) or delete [D] subject."
 						  data-chardin-position="left">
-					<label class="graphsectionheader">Node functions:</label>
-					<input type="button" id="AddSubjectButton" title="Macro : Press &#34;A&#34;"
-												onclick="gv_graph.createNode();" value="Add subject"/>
-					<input type="button" id="DeleteSubjectButton" title="Macro : Press &#34;D&#34;"
-												   onclick="gv_graph.deleteNode();" value="Delete subject"/>
-					<input type="button" id="DeactivateSubjectButton" title="Macro : Press &#34;I&#34;"
-													   onclick="gf_deactivateNode();" value="De-/Activate subject"/>
+					<button class="btn btn-default" id="AddSubjectButton" data-toggle="tooltip" title="Shortcutkey: &#34;A&#34;" onclick="gv_graph.createNode();">
+						<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Add subject
+					</button>
+					<button class="btn btn-default" id="UpdateSubjectButton" data-toggle="tooltip" title="Shortcutkey: &#34;U&#34;" onclick="gv_graph.updateNode();">
+						<span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Update subject
+					</button>
+					<button class="btn btn-default" id="DeactivateSubjectButton" data-toggle="tooltip" title="Shortcutkey: &#34;I&#34;" onclick="gf_deactivateNode();">
+						<span class="glyphicon glyphicon-flash" aria-hidden="true"></span> De-/Activate subject
+					</button>
+					<button class="btn btn-warning" id="DeleteSubjectButton" data-toggle="tooltip" title="Shortcutkey: &#34;D&#34;" onclick="gv_graph.deleteNode();">
+						<span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span> Delete subject
+					</button>
 				</div>
 
 				<div id="mergeSubjects" data-bind="visible: _.contains(selectedSubjectType(), 'multi') === false">

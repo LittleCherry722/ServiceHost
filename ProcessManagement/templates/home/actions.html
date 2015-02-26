@@ -10,7 +10,7 @@
     There are no Processes running at the moment :(
   </p>
 
-  <img style="position: absolute; top: 96px; left: 366px;" src="images/arrow_dashboard.png"/>
+  <img id="startProcessArrow" src="images/arrow_dashboard.png"/>
 
   <p style="font-size: 140%; line-height: 150%; margin-top: 20px;">
     You can start a new process instance by clicking "<b>Start Process</b>" in the top bar (blue arrow). <br/>
@@ -76,7 +76,7 @@
 					<input type="text" data-bind="value: messageText"/>
 					<br />
 					<input type="text" placeholder="No file selected" disabled="disabled" class="disabled" data-bind="value: $parent.currentSelectedFile().title" style="margin-left:0;" />
-					<a href="#googleDriveModal" style="width:130px;" data-bind="click: $root.refreshGoogleDriveData, attr: { href:'#googleDriveModal'+$parent.processInstanceID()+$parent.subjectID()  }" class="btn" id="googleDriveButton" data-toggle="modal">
+					<a href="#googleDriveModal" style="width:130px;" data-bind="click: $root.refreshGoogleDriveData, attr: { href:'#googleDriveModal'+$parent.processInstanceID()+$parent.subjectID()  }" class="btn btn-default" id="googleDriveButton" data-toggle="modal">
 						<i class="glyphicon glyphicon-cloud-upload"></i> Choose File
 					</a>
 					<div data-bind="attr: { id:'googleDriveModal'+$parent.processInstanceID()+$parent.subjectID() }" class="modal gdrive-modal" tabindex="-1">
@@ -107,13 +107,13 @@
 					</div>
 
 					<br />
-					<input type="button" value="Send" class="btn"
+					<input type="button" value="Send" class="btn btn-default"
 									   data-bind="click: $parent.send.bind($parent, $data), visible: $data.executeAble"/>
 				</div>
 			</div>
 
 			<div data-bind="visible: (stateType()==='action' || stateType()==='$splitguard'), foreach: data">
-				<input class="btn" type="button"
+				<input class="btn btn-default" type="button"
 					   data-bind="value: $data.text ? $data.text : $parent.stateText(), click: $parent.action.bind($parent, $data), visible: $data.executeAble"/>
 			</div>
 
@@ -139,7 +139,7 @@
 					</div>
 					<!-- /ko -->
 
-					<input class="btn" type="button" value="Received"
+					<input class="btn btn-default" type="button" value="Received"
 									  data-bind="click: $parent.action.bind($parent, $data), enable: $data.executeAble"/>
 				</div>
 				<div data-bind="visible: !$data.executeAble, visible: !$parent.executable()">
@@ -157,7 +157,7 @@
 				<select data-bind="options: possibleAgents, optionsText: function(data) {return data.address.ip + ':' + data.address.port;}, value: selectedAgent, optionsCaption: 'Select agent'"></select>
 
 				<br />
-				<input class="btn" type="button" value="Set agent"
+				<input class="btn btn-default" type="button" value="Set agent"
 									 data-bind="click: $parent.action.bind($parent, $data)"/>
 			</div>
 			<!-- /$CHOOSEAGENT -->
@@ -166,7 +166,7 @@
 				<strong>Process ended. No actions available.</strong>
 			</div>
 
-			<input type="button" value="Show Graph" class="btn pull-right show-graph" data-bind="click: $parent.showGraph"/>
+			<input type="button" value="Show Graph" class="btn btn-default pull-right show-graph" data-bind="click: $parent.showGraph"/>
 			<div class="graph"></div>
 		</td>
 	</tr>
