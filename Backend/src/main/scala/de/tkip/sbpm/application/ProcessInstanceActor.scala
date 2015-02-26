@@ -315,21 +315,13 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   }
 
   private def createSubjectContainer(subject: SubjectLike): SubjectContainer = {
-    // TODO: why the attribute "external" instead of just using pattern matching?
     val maybeAgent = subject match {
       case extSub: ExternalSubject => {
-        log.info(">>> subject is external!")
         val externalSubject = externalSubjectAgent(extSub)
-        // TODO remove verbose logging messages before merging with master
-        log.debug(">>> Creating new external subject container for subject: {} - {}", subject.id, externalSubject)
+        log.debug("Creating new external subject container for subject: {} - {}", subject.id, externalSubject)
         Some(externalSubject)
       }
-      case _: Subject => {
-        log.info(">>> subject is NOT external!")
-        None
-      }
       case _ => {
-        log.info(">>> subject is NOT external! (unknown SubjectLike)")
         None
       }
     }
@@ -355,10 +347,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
     agentsMap.get(subject.id) match {
       case Some(agent) => agent
       case None => {
-        // TODO externalType richtig implementieren
         if (subject.externalType == Some("external")) {
-          log.debug("Attempt to retrieve agent of external subject with subject type external. This is not supported yet.")
-          // TODO what agent to use when the subject is part of an external process which runs locally?
           addExternalAgent(subject)
           externalSubjectAgent(subject)
         }
