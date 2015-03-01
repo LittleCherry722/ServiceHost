@@ -18,6 +18,7 @@ define([
     "jquery.scrollTo",
     "jquery.chardin",
     "bootstrap",
+    "knockout.chosen",
 ], function( ko, App, Notify, Dialog, Process, _, Router, async, User, Role, Interface, Utilities, $ ) {
 
     // The main viewmodel. Every observable defined inside can be used by the
@@ -109,10 +110,6 @@ define([
             var id = this.id();
             self.selectedInterface( Interface.find( id ) );
         };
-
-        this.noInterfaceSelected = ko.computed(function() {
-            return !self.selectedInterface();
-        });
 
         this.resetInterfaceSelection = function() {
             self.selectedInterface( null );

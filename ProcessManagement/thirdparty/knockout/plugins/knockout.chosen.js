@@ -10,6 +10,7 @@ require([
 		init: function (element, valueAccessor, allBindings) {
 			var opts = valueAccessor();
 			if (opts.disable_search_threshold === undefined) opts.disable_search_threshold = 10;
+			if (opts.width === undefined) opts.width = '100%';
 			$(element).chosen(opts);
 
 			// trigger chosen:updated event when the bound value or options changes

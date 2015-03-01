@@ -122,3 +122,38 @@ div.graphsettings input[type="radio"] {
   cursor: n-resize;
   text-decoration: underline;
 }
+
+.interface-entry {
+  padding: 10px;
+  background-color: #f3f5f6;
+  border: 1px solid #ccc;
+  border-top-width: 0;
+
+  height: $interface-entry-height;
+
+  @include transition(margin 0.10s);
+
+  &:hover {
+    background-color: #FAFCFD;
+  }
+
+  &.active {
+    background-color: #FAFAF0;
+  }
+
+  strong {
+    display: block;
+    font-size: 120%;
+    margin-bottom: 7px;
+  }
+
+  &:first-child {
+    border-top-width: 1px;
+    @include border-top-radius(0.25em);
+  }
+  &:last-child {
+    @include border-bottom-radius(0.25em);
+  }
+}
+
+

@@ -224,36 +224,42 @@
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				<h4 class="modal-title" id="loadBusinessInterfaceModalTitle">Load Business Interface</h4>
 			</div>
-			<div class="modal-body">
-				<div class="interface-select pull-left" data-bind="foreach: existingInterfaces">
-					<div class="interface-entry"
-		  data-bind="click: $parent.selectBusinessInterface,
-		  css: { active: $parent.selectedInterfaceId() == $data.id() }">
+			<div class="modal-body row">
+				<div class="col-sm-6" data-bind="foreach: existingInterfaces">
+					<div class="interface-entry" data-bind="click: $parent.selectBusinessInterface, css: { active: $parent.selectedInterfaceId() == $data.id() }">
 						<strong data-bind="text: name"></strong>
 						<em data-bind="text: creator"></em>
 					</div>
 				</div>
-				<div class="interface-preview pull-left" data-bind="visible: selectedInterface">
+				<div class="col-sm-6" data-bind="visible: selectedInterface">
 					<h4>Interface Name</h4>
 					<p data-bind="text: selectedInterfaceName"></p>
 					<h4>Author</h4>
 					<p data-bind="text: selectedInterfaceCreator"></p>
-					<!-- <h4>Description</h4> -->
-					<!-- <p data-bind="text: selectedInterfaceDescription"></p> -->
-					<h4>Insertion Behavior</h4>
-					<select data-bind="options: availableInterfaces, optionsText: 'name',
-					optionsValue: 'id', optionsCaption: 'New Interface'">
+					<h4>Description</h4>
+					<p data-bind="text: selectedInterfaceDescription"></p>
+					<h4>Available Interfaces</h4>
+					<div data-bind="foreach: selectedInterfaceImplSubjects">
+						<p>
+						<em data-bind="text: $data.name"></em>:
+						<span data-bind="text: $data.impCount"></span> agents
+						</p>
+					</div>
+					<h4>Interface to implement</h4>
+					<select data-bind="options: selectedInterfaceImplSubjects, optionsText: 'name',
+					optionsValue: 'id', optionsCaption: 'Choose one…', value: interfaceInsertionSubject, chosen: {}">
 					</select>
-					<!-- <h4>Preview</h4> -->
-					<!-- <img src="/sbpm/images/internal.png" heigh="400" width="400" -->
-					<!--      data-bind="visible: selectedInterface" /> -->
+					<h4>Insertion Behavior</h4>
+					<label><input type="radio" value="new" name="interfaceInsertionStrategy" data-bind="checked: interfaceInsertionStrategy" disabled> New Process</label><br/>
+					<label><input type="radio" value="insert" name="interfaceInsertionStrategy" data-bind="checked: interfaceInsertionStrategy" selected> Insert in current Process</label>
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button class="btn btn-default" data-dismiss="modal" data-bind="click: resetInterfaceSelection">Close</button>
-				<button class="btn btn-primary" data-dismiss="modal"
-									data-bind="click: loadBusinessInterface, disable: noInterfaceSelected">
-					Insert Business Interface
+				<button class="btn btn-default" data-dismiss="modal" data-bind="click: resetInterfaceSelection">
+					<span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span> Close
+				</button>
+				<button class="btn btn-default" data-dismiss="modal" data-bind="click: loadBusinessInterface, disable: !interfaceInsertionSubject(), css { 'btn-primary': interfaceInsertionSubject }">
+					<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Insert Business Interface
 				</button>
 			</div>
 		</div>
