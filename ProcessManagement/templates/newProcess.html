@@ -4,7 +4,7 @@
 	<div class="col-md-2">
 		<form data-bind="submit: createProcess" class="span3" action="#">
 			<label for="new_process">Name</label>
-			<input id="new_process" type="text" data-bind=" css: { 'has-error': showErrors } " class="form-control" data-bind="value : processName, valueUpdate:'afterkeydown'" data-chardin-intro="Please specify a process name." data-chardin-position="bottom"/>
+			<input id="new_process" type="text" class="form-control" data-bind="value : processName, valueUpdate:'afterkeydown', css: { 'has-error': showErrors }" data-chardin-intro="Please specify a process name." data-chardin-position="bottom"/>
 			<div class="control-group">
 				<ul data-bind="foreach: processErrors" class="list-unstyled">
 					<li data-bind="text: $data" ></li>
@@ -15,7 +15,7 @@ document.getElementById("new_process").focus();
 			</div>
 			<label class="radio">
 				<input type="radio" name="processType" value="process" data-bind="checked: processType"/>
-				<span>Create Process</span> 
+				<span>Create Process</span>
 			</label>
 			<label class="radio" >
 				<input  type="radio" name="processType" value="case" data-bind="checked: processType"/>
