@@ -50,7 +50,7 @@ define([
 
             _( self.graph().process ).each(function( s ) {
               t = s.subjectType ? s.subjectType : s.type;
-              if (t === "external" && s.externalType === "interface" && test(s)) {
+              if (t === "external" && (s.externalType === "interface" || s.externalType === "external") && test(s)) {
                 var imps = s.implementations;
                 subjects.push({id: s.id, name: s.name, impCount: imps.length, imps: imps});
               }

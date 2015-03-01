@@ -113,11 +113,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   private var id: ProcessInstanceID = _
   private val name = request.name
   private val startTime: Date = new Date()
-  private val processID = request.processID
+  private var processID = request.processID
   private var processName: String = _
   private var persistenceGraph: Graph = _
   private var graph: ProcessGraph = _
-  private val additionalSubjects = MutableMap[SubjectID, SubjectLike]() // TODO: read all subjects from graph to avoid two subject maps
 
   // whether the process instance is terminated or not
   private var runningSubjectCounter = 0
@@ -217,11 +216,11 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
       log.debug("process instance [" + id + "]: subject terminated " + st.subjectID)
     }
 
-    case sm: SubjectToSubjectMessage if (graph.subjects.contains(sm.to) || additionalSubjects.contains(sm.to)) => {
+    case sm: SubjectToSubjectMessage if (graph.subjects.contains(sm.to)) => {
       val to = sm.to
       // Send the message to the container, it will deal with it
       log.info("Subject to Subject Message received. Updating subject map and forwarding message. Subject mapping now: {}", subjectMap)
-      val subj: SubjectLike = if (graph.subjects.contains(sm.to)) { graph.subjects(to) } else { additionalSubjects(to) }
+      val subj: SubjectLike = graph.subjects(to)
       lazy val newSubjectContainer = createSubjectContainer(subj)
       subjectMap.getOrElseUpdate(to, newSubjectContainer)
       log.info("Subject Mapping after update: {}", subjectMap)
@@ -266,16 +265,11 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
     }
 
     case rs: RegisterSubjects => {
-      registerAdditionalSubjects(rs.subjects)
-
+      graph = ProcessGraph(graph.subjects ++ rs.subjects)
       addAgentsMapping(rs.agentsMapping)
     }
 
     case x => log.warning("ProcessInstanceActor did not handle: " + x)
-  }
-
-  private def registerAdditionalSubjects(subjects: Map[SubjectID, SubjectLike]): Unit = {
-    additionalSubjects ++= subjects
   }
 
   private var sendProcessInstanceCreated = true
@@ -321,12 +315,15 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   }
 
   private def createSubjectContainer(subject: SubjectLike): SubjectContainer = {
-    val maybeAgent = if (subject.external) {
-      val externalSubject = externalSubjectAgent(subject.asInstanceOf[ExternalSubject])
-      log.info("Creating new external subject container for subject: {} - {}", subject.id, externalSubject)
-      Some(externalSubject)
-    } else {
-      None
+    val maybeAgent = subject match {
+      case extSub: ExternalSubject => {
+        val externalSubject = externalSubjectAgent(extSub)
+        log.debug("Creating new external subject container for subject: {} - {}", subject.id, externalSubject)
+        Some(externalSubject)
+      }
+      case _ => {
+        None
+      }
     }
 
     val subjectContainer = new SubjectContainer(
@@ -345,15 +342,33 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
 
   private def externalSubjectAgent(subject: ExternalSubject): Agent = {
     log.info("externalSubjectAgent: " + subject)
-    // If an agents list for this subject exists, use it.
-    // Otherwise update the list and return agents for this external subject.
-    // May still be an empty set if no agents exist.
+    log.info("externalSubjectType: " + subject.externalType)
+    // If an agent for this subject exists, use it.
     agentsMap.get(subject.id) match {
       case Some(agent) => agent
       case None => {
-        log.error("Agent {} not available! Current Mapping: {}", subject.id, agentsMap)
-        throw new Exception(s"Agent ${subject.id} not availabie. Mapping available: $agentsMap")
+        if (subject.externalType == Some("external")) {
+          addExternalAgent(subject)
+          externalSubjectAgent(subject)
+        }
+        else {
+          log.error("Agent {} not available! Current Mapping: {}", subject.id, agentsMap)
+          throw new Exception(s"Agent ${subject.id} not available. Mapping available: $agentsMap")
+        }
       }
+    }
+  }
+
+  private def addExternalAgent(subject: ExternalSubject) = {
+    val ownAddress = AgentAddress(ip = SystemProperties.akkaRemoteHostname
+      , port = SystemProperties.akkaRemotePort)
+    subject.relatedProcessId match {
+      case Some(relProcessId) => {
+        val agent = new Agent(relProcessId,ownAddress, subject.id)
+        agentsMap = agentsMap + (subject.id -> agent)
+        log.debug("Added agent for external subject: {}", subject.id)
+      }
+      case None => throw new Exception(s"ExternalSubject without related process: ${subject.id}")
     }
   }
 
@@ -390,7 +405,9 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   }
 
   private def getInterfacePartnerSubjects: Seq[SubjectLike] = {
-    // TODO: additionalSubjects ?
+    // TODO: this function has not been changed after additionalSubjects was merged with graphs.
+    //  That means, with the new version, the returned sequence might contain SubjectLikes which
+    //  would not have been contained in the previous version.
     graph.subjects.map(_._2).filter(!_.external).toSeq
   }
 }

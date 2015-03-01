@@ -1,0 +1,589 @@
+{
+	"process" : [{
+			"id" : "Subj2:c3848ad8-b39b-4d1f-95c9-674086328dab",
+			"name" : "Kunde",
+			"type" : "external",
+			"mergedSubjects" : [{
+					"id" : "Subj2:c3848ad8-b39b-4d1f-95c9-674086328dab",
+					"name" : "Kunde"
+				}
+			],
+			"deactivated" : false,
+			"startSubject" : true,
+			"inputPool" : 100,
+			"blackboxname" : null,
+			"relatedProcess" : 39,
+			"relatedSubject" : null,
+			"relatedInterface" : null,
+			"isImplementation" : false,
+			"externalType" : "external",
+			"role" : "default",
+			"url" : null,
+			"implementations" : [],
+			"comment" : "",
+			"variables" : {},
+			"variableCounter" : 1,
+			"macros" : [{
+					"id" : "##main##",
+					"name" : "internal behavior",
+					"nodeCounter" : 4,
+					"nodes" : [{
+							"id" : 0,
+							"text" : "Bestellformular ausfüllen",
+							"start" : true,
+							"end" : false,
+							"type" : "action",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : true,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 1,
+							"text" : "Kunde - sende Bestellung",
+							"start" : false,
+							"end" : false,
+							"type" : "send",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 2,
+							"text" : "Kunde - empfange Produkt",
+							"start" : false,
+							"end" : false,
+							"type" : "receive",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 3,
+							"text" : "end via sender",
+							"start" : false,
+							"end" : true,
+							"type" : "end",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}
+					],
+					"edges" : [{
+							"start" : 0,
+							"end" : 1,
+							"text" : "erledigt",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 1,
+							"end" : 2,
+							"text" : "m3",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj3:0396a4bc-0c47-4edc-b95b-c572e2c07dc7",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 2,
+							"end" : 3,
+							"text" : "m4",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj4:032b6d32-cc8c-4fa9-a5aa-79f5f79de955",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}
+					]
+				}
+			],
+			"macroCounter" : 1
+		}, {
+			"id" : "Subj3:0396a4bc-0c47-4edc-b95b-c572e2c07dc7",
+			"name" : "Hersteller",
+			"type" : "single",
+			"mergedSubjects" : [{
+					"id" : "Subj3:0396a4bc-0c47-4edc-b95b-c572e2c07dc7",
+					"name" : "Hersteller"
+				}
+			],
+			"deactivated" : false,
+			"startSubject" : false,
+			"inputPool" : 100,
+			"blackboxname" : null,
+			"relatedProcess" : null,
+			"relatedSubject" : null,
+			"relatedInterface" : null,
+			"isImplementation" : false,
+			"externalType" : "external",
+			"role" : "default",
+			"url" : null,
+			"implementations" : [],
+			"comment" : "",
+			"variables" : {},
+			"variableCounter" : 1,
+			"macros" : [{
+					"id" : "##main##",
+					"name" : "internal behavior",
+					"nodeCounter" : 4,
+					"nodes" : [{
+							"id" : 0,
+							"text" : "Hersteller - empfange Bestellung",
+							"start" : true,
+							"end" : false,
+							"type" : "receive",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : true,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 1,
+							"text" : "Produkt herstellen",
+							"start" : false,
+							"end" : false,
+							"type" : "action",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 2,
+							"text" : "end",
+							"start" : false,
+							"end" : true,
+							"type" : "end",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 3,
+							"text" : "Hersteller - sende Produkt",
+							"start" : false,
+							"end" : false,
+							"type" : "send",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}
+					],
+					"edges" : [{
+							"start" : 0,
+							"end" : 1,
+							"text" : "m3",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj2:c3848ad8-b39b-4d1f-95c9-674086328dab",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 1,
+							"end" : 3,
+							"text" : "erledigt",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 3,
+							"end" : 2,
+							"text" : "m4",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj4:032b6d32-cc8c-4fa9-a5aa-79f5f79de955",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}
+					]
+				}
+			],
+			"macroCounter" : 1
+		}, {
+			"id" : "Subj4:032b6d32-cc8c-4fa9-a5aa-79f5f79de955",
+			"name" : "Lieferant",
+			"type" : "external",
+			"mergedSubjects" : [{
+					"id" : "Subj4:032b6d32-cc8c-4fa9-a5aa-79f5f79de955",
+					"name" : "Lieferant"
+				}
+			],
+			"deactivated" : false,
+			"startSubject" : false,
+			"inputPool" : 100,
+			"blackboxname" : null,
+			"relatedProcess" : 41,
+			"relatedSubject" : null,
+			"relatedInterface" : null,
+			"isImplementation" : false,
+			"externalType" : "external",
+			"role" : "default",
+			"url" : null,
+			"implementations" : [],
+			"comment" : "",
+			"variables" : {},
+			"variableCounter" : 1,
+			"macros" : [{
+					"id" : "##main##",
+					"name" : "internal behavior",
+					"nodeCounter" : 3,
+					"nodes" : [{
+							"id" : 0,
+							"text" : "Lieferant - empfange Produkt",
+							"start" : true,
+							"end" : false,
+							"type" : "receive",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : true,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 1,
+							"text" : "Lieferant - übergebe Produkt",
+							"start" : false,
+							"end" : false,
+							"type" : "send",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 2,
+							"text" : "",
+							"start" : false,
+							"end" : true,
+							"type" : "end",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "*",
+								"conversation" : "*",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}
+					],
+					"edges" : [{
+							"start" : 0,
+							"end" : 1,
+							"text" : "m4",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj3:0396a4bc-0c47-4edc-b95b-c572e2c07dc7",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 1,
+							"end" : 2,
+							"text" : "m4",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj2:c3848ad8-b39b-4d1f-95c9-674086328dab",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}
+					]
+				}
+			],
+			"macroCounter" : 1
+		}
+	],
+	"conversations" : {},
+	"conversationCounter" : 1,
+	"messages" : {
+		"m1" : "request",
+		"m2" : "response",
+		"m3" : "Bestellung",
+		"m4" : "Produkt"
+	},
+	"messageCounter" : 5,
+	"nodeCounter" : 956
+}
