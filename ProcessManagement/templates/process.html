@@ -96,6 +96,12 @@
 					</div>
 				</li>
 
+				<li role="presentation">
+					<a class="btn btn-link" data-bind="css: { active: currentProcess().publishInterface() }, click: updatePublishInterface">
+						<span class="glyphicon" data-bind="css: { 'glyphicon-cloud-upload': currentProcess().publishInterface(), 'glyphicon-cloud': !currentProcess().publishInterface() }"></span> Publish
+					</a>
+				</li>
+
 				<li data-chardin-intro="Save or load Business Interfaces" data-chardin-position="bottom">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">
 						<span class="glyphicon glyphicon-cloud" aria-hidden="true"></span> more <b class="caret"></b>
@@ -109,11 +115,6 @@
 						<li>
 							<a href="#loadBusinessInterfaceModal" data-toggle="modal">
 								<span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span> Browse Interface
-							</a>
-						</li>
-						<li>
-							<a href="#" data-bind="css: { active: currentProcess().publishInterface() }, click: updatePublishInterface">
-								<span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> Publish
 							</a>
 						</li>
 					</ul>
