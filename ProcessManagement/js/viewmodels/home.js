@@ -14,6 +14,7 @@ define([
   "jquery.chosen",
   "knockout.chosen",
   "knockout.datepicker",
+  "bootstrap"
 ], function( ko, App, _, User, Process, Actions, History, ProcessInstance, moment, Notify, $ ) {
 
   var ViewModel = function() {
@@ -160,7 +161,7 @@ define([
 
   var startProcessId = ko.observable();
   startProcessId.subscribe(function(id) {
-	  if (id === undefined) return;
+	  if (typeof id !== "string" || id.length === 0) return;
 	  var process = Process.find(id);
 	  $("input[name='processId']").val(id);
 	  $("input[name='instancename']").val(process.name() +' ' + moment().format('YYYY-MM-DD HH:mm'));
