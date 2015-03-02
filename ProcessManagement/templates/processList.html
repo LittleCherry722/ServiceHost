@@ -36,7 +36,7 @@
 				</tr>
 			</thead>
 			<tbody data-bind='foreach: Process.all()'>
-				<tr data-bind="click:  function() { if($data.hasInstances&&$data.startAble()) $('#'+id()).toggle(); $('#icon-triangle-s'+id()).toggle(); $('#icon-triangle-n'+id()).toggle(); }, style: { cursor: $data.hasInstances()&&$data.startAble() ? 'pointer' : '' }, attr: { class: !$data.hasInstances()||!$data.startAble() ? 'processitem noinstances' : 'processitem' }  ">
+				<tr class="processitem" data-bind="click: function() { if ($data.hasInstances && $data.startAble()) $('#' + id() + ', #icon-triangle-s'+id() + ', #icon-triangle-n' + id()).toggle() }, css: { 'noinstances': (!$data.hasInstances() || !$data.startAble()) }">
 					<td class="col1">
 						<!-- ko if: $data.hasInstances()&&$data.startAble() -->
 						<span data-bind="attr: {id: 'icon-triangle-s'+id()}" class="glyphicon glyphicon-chevron-down"></span>
@@ -44,17 +44,17 @@
 						<!-- /ko -->
 					</td>
 					<td class="col2">
-						<a href="#" data-bind="click:  function() { window.location.href=url();  }, text: menuName()"></a> (<span data-bind="text: instanceCount"></span>)
+						<a data-bind="attr: { href: url() }, text: menuName(), click: function() { window.location.href=url(); }, clickBubble: false"></a> (<span data-bind="text: instanceCount"></span>)
 					</td>
 					<td class="col3">
 						<div class="btn-group">
-							<a class="btn btn-primary" href="#" data-bind="click: $parent.showProcessNameModal, css: { disabled: !$data.startAble() }"><i class="glyphicon glyphicon-new-window"></i> new Instance</a>
+							<a class="btn btn-primary" href="#" data-bind="click: $parent.showProcessNameModal, clickBubble: false, css: { disabled: !$data.startAble() }"><i class="glyphicon glyphicon-new-window"></i> new Instance</a>
 						</div>
 						<div class="btn-group">
-							<a class="btn btn-info" data-bind="click:  function() { window.location.href=url();  }"><i class="glyphicon glyphicon-pencil"></i> Edit</a>
+							<a class="btn btn-info" data-bind="click: function() { window.location.href=url(); }, clickBubble: false"><i class="glyphicon glyphicon-pencil"></i> Edit</a>
 						</div>
 						<div class="btn-group">
-							<button class="btn btn-danger" data-bind="click: $parent.remove"><i class="glyphicon glyphicon-remove-circle"></i> Delete</button>
+							<button class="btn btn-danger" data-bind="click: $parent.remove, clickBubble: false"><i class="glyphicon glyphicon-remove-circle"></i> Delete</button>
 						</div>
 					</td>
 				</tr>

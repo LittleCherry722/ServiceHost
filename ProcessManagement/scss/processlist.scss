@@ -29,6 +29,8 @@
   }
 
   .processitem {
+    cursor: pointer;
+
     .col1 {
       width: 2%;
     }
@@ -36,6 +38,10 @@
       text-align: right;
       padding-right: 23px;
     }
+  }
+
+  .processitem.noinstances {
+    cursor: default;
   }
 
   .processhead {
