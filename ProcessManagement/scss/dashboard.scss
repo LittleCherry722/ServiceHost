@@ -138,3 +138,32 @@
   top: -177px;
   left: 150px;
 }
+
+.circle {
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.circle-red {
+  background-image: -moz-radial-gradient(0px 0px -45deg, circle cover, white 0%, red 100%, #000 5%);
+  background-image: -webkit-radial-gradient(0px 0px, circle cover, white, red);
+  background-image: radial-gradient(0px 0px -45deg, circle cover, white 0%, red 100%, #000 5%);
+  border: 1px solid red;
+}
+
+.circle-yellow {
+  background-image: -moz-radial-gradient(0px 0px -45deg, circle cover, white 0%, orange 100%, #000 5%);
+  background-image: -webkit-radial-gradient(0px 0px, circle cover, white, orange);
+  background-image: radial-gradient(0px 0px -45deg, circle cover, white 0%, orange 100%, #000 5%);
+  border: 1px solid orange;
+}
+
+.circle-green {
+  background-image: -moz-radial-gradient(0px 0px -45deg, circle cover, white 0%, #96CD32 100%, #000 5%);
+  background-image: -webkit-radial-gradient(0px 0px, circle cover, white, #96CD32);
+  background-image: radial-gradient(0px 0px -45deg, circle cover, white 0%, #96CD32 100%, #000 5%);
+  border: 1px solid #96CD32;
+}

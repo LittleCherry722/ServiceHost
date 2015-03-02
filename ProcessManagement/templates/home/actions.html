@@ -30,15 +30,15 @@
 	<tr style="cursor: pointer;" data-bind="click: function(data, event) { $(event.currentTarget).next().toggle(); }">
 		<td class="col1">
 			<!-- ko if: executable() -->
-			<img src="images/icons/circle-green-24-ns.png" title="Action required"/>
+			<span class="circle circle-green" title="Action required"></span>
 			<!-- /ko -->
 
 			<!-- ko if: (!executable() && hasActions()) -->
-			<img src="images/icons/circle-yellow-24-ns.png" title="Waiting for other user"/>
+			<span class="circle circle-yellow" title="Waiting for other user"></span>
 			<!-- /ko -->
 
 			<!-- ko if: !executable() && !hasActions() -->
-			<img src="images/icons/circle-red-24-ns.png" title="completed"/>
+			<span class="circle circle-red" title="completed"></span>
 			<!-- /ko -->
 
 		</td>
@@ -175,7 +175,8 @@
 	</table>
 </div>
 <div data-bind="visible: actions().length>0">
-  <b>Legend:</b> <img src="images/icons/circle-green-24-ns.png" title="Action required"/>Action required <img
-  src="images/icons/circle-yellow-24-ns.png" title="Waiting for other user"/> Waiting for other user
+	<b>Legend:</b>
+	<span class="circle circle-green"></span> Action required
+	<span class="circle circle-yellow"></span> Waiting for other user
 </div>
 </div>

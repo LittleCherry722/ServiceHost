@@ -44,7 +44,7 @@
               		<div class="left"><strong>@State:</strong></div><div class="right">&nbsp;<span data-bind="text: transitionEvent().toState.stateType"></span></div><div style="clear:both;"></div>
               	<!-- /ko -->
               </td>
-              <td><!-- ko if: transitionEvent() && $data.transitionEvent().hasOwnProperty("message") --><img src="images/icons/e-mail.png" alt="Messages" /><!-- /ko --> </td>
+              <td><!-- ko if: transitionEvent() && $data.transitionEvent().hasOwnProperty("message") --><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span><!-- /ko --></td>
             </tr>
               <!-- Line below will be recognized by ko parser-->
               <!-- ko if: transitionEvent() && $data.transitionEvent().hasOwnProperty("message") -->

@@ -66,15 +66,15 @@
 							<tr>
 								<td class="col1">
 									<!-- ko if: executable() -->
-							<img src="images/icons/circle-green-24-ns.png" title="Action required"/>
+							<span class="circle circle-green" title="Action required"></span>
 							<!-- /ko -->
 
 							<!-- ko if: (!executable() && hasActions()) -->
-							<img src="images/icons/circle-yellow-24-ns.png" title="Waiting for other user"/>
+							<span class="circle circle-yellow" title="Waiting for other user"></span>
 							<!-- /ko -->
 
 							<!-- ko if: !executable() && !hasActions() -->
-							<img src="images/icons/circle-red-24-ns.png" title="completed"/>
+							<span class="circle circle-red" title="completed"></span>
 							<!-- /ko -->
 
 								</td>
