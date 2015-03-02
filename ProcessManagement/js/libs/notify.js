@@ -17,7 +17,7 @@ define([
 
 	var Notify = function() {
 		var freeOwId = "#freeow",
-			infoClass = "ok",
+			infoClass = "success",
 			warnClass = "notice",
 			errClass  = "error",
 			context;

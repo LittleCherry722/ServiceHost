@@ -15,7 +15,7 @@ define([
 		this.save = function( role ) {
 			role.save(null, {
 				success: function( textStatus ) {
-					notify.info( "Succcess", "Role " + role.name() + " has successfully been saved." )
+					notify.info( "Success", "Role " + role.name() + " has successfully been saved." )
 				},
 				error: function( textStatus, error ) {
 					if ( role.errors().length > 0 ) {
@@ -43,7 +43,7 @@ define([
 				if ( error ) {
 					notify.error( "Error", "Error saving roles. Not all roles have been saved. Please check your input and try again." )
 				} else {
-					notify.info( "Succcess", "All roles have successfully been saved." )
+					notify.info( "Success", "All roles have successfully been saved." )
 				}
 			});
 		}

@@ -15,7 +15,7 @@ define([
 		this.save = function( user ) {
 			user.save(null, {
 				success: function( error ) {
-					notify.info( "Succcess", "User " + user.name() + " has successfully been saved." )
+					notify.info( "Success", "User " + user.name() + " has successfully been saved." )
 				},
 				error: function( textStatus, error ) {
 					if ( user.errors().length > 0 ) {
@@ -43,7 +43,7 @@ define([
 				if ( error ) {
 					notify.error( "Error", "Error saving users. Not all users have been saved. Please check your input and try again." );
 				} else {
-					notify.info( "Succcess", "All users have successfully been saved." );
+					notify.info( "Success", "All users have successfully been saved." );
 				}
 			});
 		}

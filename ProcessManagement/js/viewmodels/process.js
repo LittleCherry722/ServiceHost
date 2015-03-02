@@ -10,7 +10,6 @@ define([
     "models/user",
     "models/role",
     "models/interface",
-    "utilities",
     "jquery",
     "jquery.pubsub",
     "jquery.chosen",
@@ -19,7 +18,7 @@ define([
     "jquery.chardin",
     "bootstrap",
     "knockout.chosen",
-], function( ko, App, Notify, Dialog, Process, _, Router, async, User, Role, Interface, Utilities, $ ) {
+], function( ko, App, Notify, Dialog, Process, _, Router, async, User, Role, Interface, $ ) {
 
     // The main viewmodel. Every observable defined inside can be used by the
     // view. Lets keep it clean and define functions and other helper variables

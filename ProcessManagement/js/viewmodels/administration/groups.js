@@ -20,7 +20,7 @@ define([
 					}
 				},
 				success: function( textStatus ) {
-					notify.info( "Succcess", "Group " + group.name() + " has successfully been saved." )
+					notify.info( "Success", "Group " + group.name() + " has successfully been saved." )
 				}
 			});
 		}
@@ -39,7 +39,7 @@ define([
 				if ( error ) {
 					notify.error( "Error", "Error saving groups. Not all groups have been saved. Please check your input and try again." );
 				} else {
-					notify.info( "Succcess", "All groups have successfully been saved." );
+					notify.info( "Success", "All groups have successfully been saved." );
 				}
 			});
 		}
