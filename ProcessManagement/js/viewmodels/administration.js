@@ -1,7 +1,8 @@
 define([
 	"knockout",
 	"app",
-	"underscore"
+	"underscore",
+	"knockout.chosen"
 ], function( ko, App, _ ) {
 
 	var ViewModel = function() {

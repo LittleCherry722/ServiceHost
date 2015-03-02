@@ -70,7 +70,6 @@ define([
 			Role.build().id("Save to \nreceive Id");
 
 			$("#listOfRoles input.inline").last().focus()
-			$("#listOfRoles tr:last-child .chzn-select").chosen();
 		}
 
 		this.remove = function( role ) {
@@ -85,8 +84,6 @@ define([
 
 		// Get the required template;
 		App.loadTemplate( "administration/roles", viewModel, "right_content", function() {
-			$(".chzn-select").chosen();
-
 			if ( typeof callback === "function" ) {
 				callback();
 			}

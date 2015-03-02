@@ -9,9 +9,17 @@ require([
 	{
 		init: function (element, valueAccessor, allBindings) {
 			var opts = valueAccessor();
+			var e = $(element);
 			if (opts.disable_search_threshold === undefined) opts.disable_search_threshold = 10;
-			if (opts.width === undefined) opts.width = '100%';
-			$(element).chosen(opts);
+			if (opts.width == undefined) {
+				if (e[0].multiple === true) {
+					//FIXME: find a better way to avoid empty multi-select boxes to be size zero
+					opts.width = '200px';
+				}
+				else
+					opts.width = '100%';
+			}
+			e.chosen(opts);
 
 			// trigger chosen:updated event when the bound value or options changes
 			[ 'value', 'selectedOptions', 'options' ].forEach(function (e) {

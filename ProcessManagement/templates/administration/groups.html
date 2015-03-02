@@ -9,24 +9,25 @@
 		</thead>
 		<tbody id="listOfGroups" data-bind="foreach: groups">
 			<tr>
-				<td data-bind="text: id"></td>
+				<td data-bind="text: id" class="text-center"></td>
 				<td>
-					<input type="text" class="inline" data-bind="value: name, valueUpdate:'afterkeydown'" />
+					<input type="text" class="form-control" data-bind="value: name, valueUpdate:'afterkeydown'" />
 				</td>
-				<td>
-					<input type="button" class="button" value="Delete" data-bind="click: $parent.remove" />
-					<input type="button" class="button" value="Save changes"
-					data-bind="click: $parent.save, visible: hasChanged" />
-					<input type="button" class="button" value="Reset"
-					data-bind="click: $parent.reset, visible: hasChanged" />
+
+				<td class="text-center">
+					<div data-bind="css: { 'btn-group btn-group-sm': hasChanged }">
+						<button type="button" class="btn btn-primary" data-bind='click: $parent.save, visible: hasChanged'>Save changes</button>
+						<button type="button" class="btn btn-warning" data-bind='click: $parent.reset, visible: hasChanged'>Reset</button>
+						<button type="button" class="btn btn-danger btn-sm" data-bind='click: $parent.remove'>Delete</button>
+					</div>
 				</td>
 			</tr>
 		</tbody>
 	</table>
-	<input type="button" class="button" value="Create Group" data-bind="click: create" />
 
-	<div class="form-actions">
-		<input type="button" class="button" value="Reset" data-bind="click: resetAll" />
-		<input type="button" class="button" value="Save" data-bind="click: saveAll" />
+	<div class="btn-group">
+		<button type="button" class="btn btn-success" data-bind='click: create'>Create Group</button>
+		<button type="button" class="btn btn-primary" data-bind="click: saveAll">Save all</button>
+		<button type="button" class="btn btn-warning" data-bind="click: resetAll">Reset all</button>
 	</div>
 </div>

@@ -10,31 +10,32 @@
 		</thead>
 		<tbody id="listOfRoles" data-bind="foreach: roles">
 			<tr data-bind="attr: { id: 'role'+ id() }">
-				<td data-bind="text: id"></td>
+				<td data-bind="text: id" class="text-center"></td>
 				<td>
-					<input type="text" class="inline" data-bind='value: name' />
+					<input type="text" class="form-control" data-bind='value: name' />
 				</td>
 				<td>
 					<select data-bind="options: $parent.groups,
 						optionsText: 'name', optionsValue : 'id',
-						selectedOptions: groupIds"
+						selectedOptions: groupIds, chosen: {}"
 						class="chzn-select" multiple="multiple">
 					</select>
 				</td>
-				<td>
-					<input type="button" class="button" value="Delete" data-bind='click: $parent.remove' />
-					<input type="button" class="button" value="Save changes" data-bind='click: $parent.save' />
-					<input type="button" class="button" value="Reset" data-bind='click: $parent.reset' />
+				<td class="text-center">
+					<div class="btn-group btn-group-sm">
+						<button type="button" class="btn btn-primary" data-bind='click: $parent.save'>Save changes</button>
+						<button type="button" class="btn btn-warning" data-bind='click: $parent.reset'>Reset</button>
+						<button type="button" class="btn btn-danger btn-sm" data-bind='click: $parent.remove'>Delete</button>
+					</div>
 				</td>
 			</tr>
 		</tbody>
 	</table>
 
-	<input type="button" class="button" value="Create Role" data-bind='click: create' />
-
-	<div class="form-actions">
-		<input type="button" class="button" value="Reset" data-bind="click: resetAll" />
-		<input type="button" class="button" value="Save" data-bind="click: saveAll" />
+	<div class="btn-group">
+		<button type="button" class="btn btn-success" data-bind='click: create'>Create Role</button>
+		<button type="button" class="btn btn-primary" data-bind="click: saveAll">Save all</button>
+		<button type="button" class="btn btn-warning" data-bind="click: resetAll">Reset all</button>
 	</div>
 </div>
 

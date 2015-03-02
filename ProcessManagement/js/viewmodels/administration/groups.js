@@ -56,7 +56,6 @@ define([
 			Group.build().id("Save to \nreceive Id")
 
 			$("#listOfGroups input.inline").last().focus()
-			$("#listOfGroups tr:last-child .chzn-select").chosen();
 		}
 
 		this.remove = function( group ) {

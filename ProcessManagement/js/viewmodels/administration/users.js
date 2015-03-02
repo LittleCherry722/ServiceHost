@@ -5,7 +5,8 @@ define([
 	"models/user",
 	"models/group",
 	"async",
-	"notify"
+	"notify",
+	"knockout.chosen"
 ], function( ko, App, _, User, Group, async, notify ) {
 
 	var ViewModel = function() {
@@ -70,7 +71,6 @@ define([
 			User.build().id("Save to \nreceive Id");
 
 			$("#listOfUsers input.inline").last().focus()
-			$("#listOfUsers tr:last-child .chzn-select").chosen();
 		}
 
 		this.remove = function( user ) {
@@ -91,8 +91,6 @@ define([
 		window.uView = viewModel; //TODO: remove debug
 		// Get the required template;
 		App.loadTemplate( "administration/users", viewModel, "right_content", function() {
-			$(".chzn-select").chosen();
-
 			if ( typeof callback === "function" ) {
 				callback();
 			}

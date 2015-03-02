@@ -12,57 +12,55 @@
 		</thead>
 		<tbody id="listOfUsers" data-bind="foreach: users">
 			<tr data-bind="attr: { id: 'user'+ id() }">
-				<td data-bind="text: id"></td>
+				<td data-bind="text: id" class="inline"></td>
 				<td>
-					<div class="input-group">
-						<span class="input-group-addon">Name:</span>
+					<div class="form-group">
+						<label class="sr-only">Name:</label>
 						<input type="text" name="from" id="from" class="form-control" data-bind='value: name' />
 					</div>
 				</td>
 				<td>
 					<div class="input-group">
-						<select class="chzn-select" style="min-width: 300px;" data-bind="options: $parent.groups,
+						<select class="chzn-select" data-bind="options: $parent.groups,
 							optionsText: 'name', optionsValue : 'id',
-							selectedOptions: groupIds" multiple="multiple">
+							selectedOptions: groupIds, chosen: {}" multiple="multiple">
 						</select>
 					</div>
 				</td>
-				<td>
+				<td class="text-center">
 					<input type="checkbox" data-bind="checked: isActive" />
 				</td>
 				<td>
 
 				<div data-bind="foreach: $data.providerMail">
-					<div class="form-inline">
-						<div class="form-group">
-							<label class="sr-only" for="exampleInputEmail2">Email address</label>
-							<input type="text" class="form-control input-sm" data-bind='value: provider' />
-						</div>
-						<div class="form-group">
-							<label class="sr-only" for="exampleInputEmail2">Email address</label>
-							<input type="email" class="form-control input-sm" data-bind='value: mail' />
-						</div>
-
-						<button type="button" class="btn btn-danger btn-xs" data-bind='click: $root.deleteEmail.bind($data,$parent)'>Delete</button>
+					<div class="form-group">
+						<label class="sr-only" for="exampleInputEmail2">Email address</label>
+						<input type="text" class="form-control input-sm" data-bind='value: provider' />
+					</div>
+					<div class="form-group">
+						<label class="sr-only" for="exampleInputEmail2">Email address</label>
+						<input type="email" class="form-control input-sm" data-bind='value: mail' />
+					</div>
+					<div class="btn-group btn-group-xs">
+						<button type="button" class="btn btn-success" data-bind='click: $parent.addEmail'>Add</button>
+						<button type="button" class="btn btn-danger" data-bind='click: $root.deleteEmail.bind($data,$parent)'>Delete</button>
 					</div>
 				</div>
-				<input type="button" class="btn btn-success btn-xs" value="Add" data-bind='click: $parent.addEmail' />
 				</td>
-				<td>
-					<div class="btn-group">
-						<input type="button" class="btn btn-primary" value="Save changes" data-bind='click: $parent.save' />
-						<input type="button" class="btn btn-warning" value="Reset" data-bind='click: $parent.reset' />
-						<input type="button" class="btn btn-danger" value="Delete" data-bind='click: $parent.remove' />
+				<td class="text-center">
+					<div class="btn-group btn-group-sm">
+						<button type="button" class="btn btn-primary" data-bind='click: $parent.save'>Save changes</button>
+						<button type="button" class="btn btn-warning" data-bind='click: $parent.reset'>Reset</button>
+						<button type="button" class="btn btn-danger btn-sm" data-bind='click: $parent.remove'>Delete</button>
 					</div>
 				</td>
 			</tr>
 		</tbody>
 	</table>
 
-	<input type="button" class="btn btn-success" value="Create User" data-bind='click: create' />
-
-	<div class="form-actions">
-		<input type="button" class="btn btn-warning btn-sm" value="Reset" data-bind="click: resetAll" />
-		<input type="button" class="btn btn-primary btn-sm" value="Save" data-bind="click: saveAll" />
+	<div class="btn-group">
+		<button type="button" class="btn btn-success" data-bind='click: create'>Create User</button>
+		<button type="button" class="btn btn-primary" data-bind="click: saveAll">Save all</button>
+		<button type="button" class="btn btn-warning" data-bind="click: resetAll">Reset all</button>
 	</div>
 </div>
