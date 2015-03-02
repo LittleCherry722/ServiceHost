@@ -415,7 +415,6 @@ define([
         this.importGraph = function() {
             currentProcess().graphString(this.graphText());
             loadGraph(currentProcess().graph());
-            $.fancybox.close();
         };
 
         this.uploadGraphDataClicked = function() {
@@ -767,11 +766,6 @@ define([
         // Initialize our chosen selects for subjects and conversations.
         [ '#slctSbj', '#slctCon', '#slctMacro' ].forEach(function(id) {
             $(id).chosen({ 'disable_search_threshold': 10 });
-        });
-
-        // fancybox
-        [ '#exportGraphButton', '#importGraphButton' ].forEach(function(id) {
-            $(id).fancybox();
         });
 
         $('.panel-heading').append('<span class="panel-show-hide pull-right">hide</span>');

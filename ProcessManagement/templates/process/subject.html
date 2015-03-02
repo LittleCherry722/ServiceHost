@@ -2,14 +2,6 @@
 <div class="col-xs-12 col-sm-9"><div id="graph_cv_outer" class="fluid" style="min-width: 1px; height: 100%; overflow:auto;"></div></div>
 <div class="col-xs-6 col-sm-3 sidebar-offcanvas">
 	<div class="graphsettings">
-
-		<div class="panel panel-default">
-			<div class="panel-heading" data-chardin-intro="Export this process as a JSON string or import the JSON string of another process." data-chardin-position="left">Import &amp; Export</div>
-			<div class="panel-body text-center">
-				<a class="btn btn-link" id="importGraphButton" href="#importModal" data-bind="click: clearGraphText"><span class="glyphicon glyphicon-import" aria-hidden="true"></span> Import</a>
-				<a class="btn btn-link" id="exportGraphButton" href="#exportModal" data-bind="click: exportGraph"><span class="glyphicon glyphicon-export" aria-hidden="true"></span> Export</a>
-			</div>
-		</div>
 		<div class="panel panel-default">
 			<div class="panel-heading">Subject settings</div>
 			<div class="panel-body">
@@ -129,19 +121,6 @@
 </div>
 <div class="clearfix"></div>
 </div>
-<div class="hide">
-	<div id="exportModal">
-		<textarea data-bind='value: graphText' rows='15' onclick="this.select()" style="width: 400px"> </textarea><br>
-		<a class="btn btn-primary pull-right" href="#" data-bind="click: saveGraphDataClicked">Save as...</a>
-	</div>
-	<div id="importModal">
-		<textarea data-bind='value: graphText' rows='15' style="width: 400px"> </textarea><br>
-		<input type="file" id="graph-import-fileupload" class="invisible" data-bind="event: {change: readUploadGraphData}"/>
-		<a class="btn pull-left" href="#" data-bind="click: uploadGraphDataClicked">From local file...</a>
-		<a class="btn btn-primary pull-right" href="#" data-bind="click: importGraph" id="importGraphButtonAction">Import</a>
-	</div>
-</div>
-
 <div id="process-subject-help" class="invisible">
 	<p>Here you can create the first subject</p>
 </div>

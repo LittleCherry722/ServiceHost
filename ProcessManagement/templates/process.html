@@ -117,6 +117,16 @@
 								<span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span> Browse Interface
 							</a>
 						</li>
+						<li>
+							<a id="importGraphButton" href="#importModal" data-bind="click: clearGraphText" data-toggle="modal">
+								<span class="glyphicon glyphicon-import" aria-hidden="true"></span> Import JSON
+							</a>
+						</li>
+						<li>
+							<a id="exportGraphButton" href="#exportModal" data-bind="click: exportGraph" data-toggle="modal">
+								<span class="glyphicon glyphicon-export" aria-hidden="true"></span> Export JSON
+							</a>
+						</li>
 					</ul>
 				</li>
 			</ul>
@@ -299,4 +309,41 @@
 	</div>
 </div>
 
+<div class="modal fade" id="exportModal" tabindex="-1" role="dialog" aria-labelledby="exportModalTitle" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="exportModalTitle">Export JSON</h4>
+			</div>
+			<div class="modal-body">
+				<textarea data-bind='value: graphText' rows='15' onclick="this.select()" style="width: 100%"></textarea>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button class="btn btn-primary" href="#" data-bind="click: saveGraphDataClicked" data-dismiss="modal">Save as...</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalTitle" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="importModalTitle">Import JSON</h4>
+			</div>
+			<div class="modal-body">
+				<textarea data-bind='value: graphText' rows='15' style="width: 100%"></textarea><br>
+				<input type="file" id="graph-import-fileupload" class="invisible" data-bind="event: {change: readUploadGraphData}"/>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button class="btn btn-default" href="#" data-bind="click: uploadGraphDataClicked">From local file...</button>
+				<button class="btn btn-primary" href="#" data-bind="click: importGraph" id="importGraphButtonAction" data-dismiss="modal">Import</button>
+			</div>
+		</div>
+	</div>
+</div>
 </div>
