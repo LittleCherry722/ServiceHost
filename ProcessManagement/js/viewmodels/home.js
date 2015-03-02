@@ -166,6 +166,7 @@ define([
 	  $("input[name='processId']").val(id);
 	  $("input[name='instancename']").val(process.name() +' ' + moment().format('YYYY-MM-DD HH:mm'));
 	  $("#processNameModal").modal();
+	  startProcessId(undefined);
   });
 
   var initialize = function(subSite) {
