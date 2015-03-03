@@ -80,6 +80,15 @@ object DatabaseAccess {
     }
   }
 
+  def init() : Unit = {
+    DatabaseConnection.configString("startupAction") match {
+      case "create" => createDatabase()
+      case "optional-create" => optionalCreateDatabase()
+      case "recreate" => recreateDatabase()
+      case x => println("DatabaseAccess.init: startupAction is '" + x + "', doing nothing")
+    }
+  }
+
   /**
    * Executes the given statements and skip all statements
    * that produce an exception.
@@ -105,12 +114,12 @@ private object DatabaseConnection {
   private val configPath = "sbpm.repo.db."
 
   // read string from akka config
-  private def configString(key: String) = {
+  def configString(key: String) = {
     config.getString(configPath + key)
   }
 
   // read number from akka config
-  private def configInt(key: String) = {
+  def configInt(key: String) = {
     config.getInt(configPath + key)
   }
 
