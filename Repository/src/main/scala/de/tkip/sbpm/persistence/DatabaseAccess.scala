@@ -137,6 +137,7 @@ private object DatabaseConnection {
       // read pool properties from akka config
       ds.setDriverClass(configString("jdbcDriver"))
       ds.setJdbcUrl(url)
+      ds.setInitialPoolSize(configInt("initialPoolSize"))
       ds.setMinPoolSize(configInt("minPoolSize"))
       ds.setAcquireIncrement(configInt("poolAcquireIncrement"))
       ds.setMaxPoolSize(configInt("maxPoolSize"))

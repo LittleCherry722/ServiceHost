@@ -11,7 +11,7 @@ Revolver.settings
 
 mainClass in assembly := Some("de.tkip.sbpm.repo.Boot")
 
-scalaVersion := "2.11.1"
+scalaVersion := "2.11.5"
 
 retrieveManaged := true
 

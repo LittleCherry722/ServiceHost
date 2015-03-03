@@ -64,7 +64,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   }
 
   implicit def bufferFormat[T: JsonFormat] = new RootJsonFormat[scala.collection.mutable.Buffer[T]] {
-    def write(array: scala.collection.mutable.Buffer[T]) = JsArray(array.map(_.toJson).toList)
+    def write(array: scala.collection.mutable.Buffer[T]) = JsArray(array.map(_.toJson).toVector)
     def read(value: JsValue) = value match {
       case JsArray(elements) => scala.collection.mutable.Buffer[T]() ++ elements.map(_.convertTo[T])
       case x                 => deserializationError("Expected Array as JsArray, but got " + x)
