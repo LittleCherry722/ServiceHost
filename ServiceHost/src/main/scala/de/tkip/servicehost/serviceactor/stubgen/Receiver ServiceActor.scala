@@ -66,7 +66,7 @@ class Receiver ServiceActor extends ServiceActor {
 
   def processMsg() {
     log.debug("processMsg")
-
+    //new code:
     state match {
       case rs: ReceiveState => {
         var message: SubjectToSubjectMessage = null
@@ -96,6 +96,40 @@ class Receiver ServiceActor extends ServiceActor {
       case _ =>
         log.info("unable to handle message now, needs to be in ReceiveState. Current state is: " + state)
     }
+    
+    
+    //old code:
+    /*
+    state match {
+      case rs: ReceiveState => {
+        var message: SubjectToSubjectMessage = null
+
+        for ((branch, target) <- state.targets) {
+          val messageType: MessageType = branch
+          val fromSubjectID: SubjectID = target.target.subjectID
+          val key = (messageType, fromSubjectID)
+          log.debug("processMsg: key = " + key)
+
+          if (inputPool.contains(key) && inputPool(key).length > 0) {
+            message = inputPool(key).dequeue;
+          }
+        }
+
+        log.debug("processMsg: message = " + message)
+
+        if (message != null) {
+          this.messageContent = message.messageContent
+
+          this.branchCondition = message.messageType
+
+          rs.handle(message) // calls changeState
+        }
+        else log.info("ReceiveState could not find any matching message. ReceiveState will wait until it arrivies")
+      }
+      case _ =>
+        log.info("unable to handle message now, needs to be in ReceiveState. Current state is: " + state)
+    }
+     */
   }
 
   def stateReceive = {
@@ -114,7 +148,7 @@ class Receiver ServiceActor extends ServiceActor {
       log.debug("reservation is done!")
     }
     
-    //this case will be executed, if a reable-request is received
+    //this case will be executed, if a enable-request is received
     //of so, the message which has to be enabled will be searched in the qeueu and will be enabled responding with a enabled-message
     //if there is no message to enable, the response will be a rejected message
     case message: SubjectToSubjectMessage if (message.enabled) => {
@@ -127,9 +161,16 @@ class Receiver ServiceActor extends ServiceActor {
     	  log.debug("Message enabled" + getMessageArray(message.from, message.messageType).mkString("{", ", ", "}"))
     	  
 	      // inform the states about this change
-	      broadcastChangeFor((message.from, message.messageType))
+	      //broadcastChangeFor((message.from, message.messageType))
 	      // unblock this user
-	      blockingHandlerActor ! UnBlockUser(userID)
+	      //blockingHandlerActor ! UnBlockUser(userID)
+    	  
+    	  state match {
+		    case rs: ReceiveState =>
+		      processMsg()
+		    case _ =>
+		      log.info("message will be handled when state changes to ReceiveState. Current state is: " + state)
+		  }
       
       }else{
         //no reservation found for thei message! Send reject message
@@ -153,6 +194,7 @@ class Receiver ServiceActor extends ServiceActor {
     
     
     //old code:
+    /*
     case message: SubjectToSubjectMessage => {
       // TODO forward /set variables?
       log.debug("receive message: " + message)
@@ -165,6 +207,7 @@ class Receiver ServiceActor extends ServiceActor {
           log.info("message will be handled when state changes to ReceiveState. Current state is: " + state)
       }
     }
+     */
   }
 
   def changeState() {
@@ -322,6 +365,32 @@ class Receiver ServiceActor extends ServiceActor {
     }else{
       false
       //throw new exception
+    }
+  }
+  
+    private def dequeueMessages(key: (SubjectID, MessageType)): SubjectToSubjectMessage = {
+    
+    //search for messages with match the key and are enabled
+    if (messages forall (id => messageQueueMap(key).exists(x => x.messageID == id && x.enabled == true))) {
+      // TODO might increase performance
+      log.debug("Dequeueing message from normal queue! key:("+key._1+","+key._2+")")
+      
+      messages foreach (id => messageQueueMap(key).dequeueAll(_.messageID == id))
+      
+      //enabled message has been found and removed from the queue
+	  //copy message from the overflow to the queue which has space avain
+	  if(spaceAvailableInMessageQueue(key._1, key._2) && messageOverflowQueueMap(key).size > 0){
+	    log.debug("Dequeueing message from overflow queue!")
+	    var msg_from_overflow = messageOverflowQueueMap(key).dequeue()
+	    enqueueMessage(msg_from_overflow._2);
+	    
+	    //inform sender, that his message has been moved from overflow to the normal queue and is whaiting for enabed message
+	    msg_from_overflow._1 !! Stored(msg_from_overflow._2.messageID)
+	  }
+      
+      true
+    } else {
+      false
     }
   }
 
