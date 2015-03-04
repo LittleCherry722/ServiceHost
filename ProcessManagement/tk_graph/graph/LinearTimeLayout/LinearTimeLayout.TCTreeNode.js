@@ -19,15 +19,48 @@
 /*
  * TCTreeNode
  */
+
+/**
+ * Node of TCTree
+ * 
+ * @class TCTreeNode
+ * @see org.jbpt.algo.tree.tctree.TCTreeNode
+ * @param {Object} parent - Instance of LinearTimeLayout
+ */
 LinearTimeLayout.prototype.TCTreeNode = function (parent)
 {
+	/**
+	 * ID of the node.
+	 * @memberof! TCTreeNode
+	 * @type {String}
+	 */
 	this.id			= "";
+	
+	/**
+	 * Name of the node.
+	 * @memberof! TCTreeNode
+	 * @type {String}
+	 */
 	this.name		= "";
+	
+	/**
+	 * Instance of Linear Time Layout.
+	 * @memberof! TCTreeNode
+	 * @type {Object}
+	 */
 	this.parent		= parent;
+	
+	/**
+	 * Skeleton instance of the TCTree.
+	 * @memberof! TCTreeNode
+	 * @type {Object}
+	 */
 	this.skeleton	= new this.parent.TCTreeSkeleton(this.parent);
+	
+	/**
+	 * Type of the triconnected component.
+	 * @memberof! TCTreeNode
+	 * @type {String}
+	 */
 	this.type		= null;
 };
-
-/*
- * TCTreeNode Methods
- */

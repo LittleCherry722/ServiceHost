@@ -25,6 +25,27 @@
  */
 function GCnode (parentMacro, parentBehavior, id, text, type)
 {
+
+    /**
+     * Indicates whether the action should be automatically executed or not
+     * @type {boolean}
+     */
+    this.autoExecute = false;
+
+	/**
+	 * The name of a blackbox that is associated with this node.
+	 *
+	 * @type String
+	 */
+	this.blackboxname	= "";
+
+	/**
+	 * Settings for the predefined "create subjects" action.
+	 *
+	 * @type Object
+	 */
+	this.chooseAgentSubject = null;
+	
 	/**
 	 * The node's conversation.
 	 * Conversations are used to group nodes and edges within an internal behavior.
@@ -55,13 +76,6 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	this.createSubjects	= {subject: null, storevar: "", min: -1, max: -1};
 
 	/**
-	 * Settings for the predefined "create subjects" action.
-	 *
-	 * @type Object
-	 */
-	this.chooseAgentSubject = null;
-
-	/**
 	 * This attribute states whether the node is deactivated.
 	 *
 	 * @type boolean
@@ -90,18 +104,18 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	this.macro	= "";
 
 	/**
-	 * The name of a blackbox that is associated with this node.
-	 *
-	 * @type String
-	 */
-	this.blackboxname	= "";
-
-	/**
 	 * Flag to indicate whether a start node is the major startNode of the internal behavior.
 	 *
 	 * @type boolean
 	 */
 	this.majorStartNode	= false;
+
+    /**
+     * The user-defined manual offset for the node position
+     *
+     * @type {?{dx: int, dy: int}}
+     */
+    this.manualPositionOffset = null;
 
 	/**
 	 * Options for predefined actions.
@@ -169,19 +183,6 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	 */
 	this.type	= "action";
 
-    /**
-     * The user-defined manual offset for the node position
-     *
-     * @type {?{dx: int, dy: int}}
-     */
-    this.manualPositionOffset = null;
-
-    /**
-     * Indicates whether the action should be automatically executed or not
-     * @type {boolean}
-     */
-    this.autoExecute = false;
-
 	/**
 	 * Activates the node.
 	 *
@@ -200,6 +201,26 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	this.deactivate = function ()
 	{
 		this.deactivated = true;
+	};
+
+	/**
+	 * Returns the name of the blackbox associated with this node or an empty String when the node is no blackbox node.
+	 *
+	 * @returns {String} The name of the blackbox associated with this node.
+	 */
+	this.getBlackboxname = function ()
+	{
+		return this.blackboxname == null || (this.getType() != "$blackbox") ? "" : this.blackboxname;
+	};
+
+	/**
+	 * Returns either one entry of the varMan objct or the whole object.
+	 *
+	 * @returns {String|Object} Either the whole createSubjects object or a single entry.
+	 */
+	this.getChooseAgentSubject = function ()
+	{
+		return this.chooseAgentSubject;
 	};
 
 	/**
@@ -233,6 +254,24 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 		return this.comment;
 	};
 
+    /**
+     * @returns {Array.<GCedge>} a list of edges that are connected to the node
+     */
+    this.getConnectedEdges = function ()
+    {
+        var gt_edges = this.parentMacro.getEdges(),
+            connectedEdges = [];
+
+        for (var gt_edgeId in gt_edges)
+        {
+            var gt_edge	= gt_edges[gt_edgeId];
+            if (gt_edge.end	== this.id || gt_edge.start == this.id) {
+                connectedEdges.push(gt_edge);
+            }
+        }
+        return connectedEdges;
+    };
+
 	/**
 	 * Returns the correlationId of the node.
 	 *
@@ -241,16 +280,6 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	this.getCorrelationId = function ()
 	{
 		return this.correlationId;
-	};
-
-	/**
-	 * Returns either one entry of the varMan objct or the whole object.
-	 *
-	 * @returns {String|Object} Either the whole createSubjects object or a single entry.
-	 */
-	this.getChooseAgentSubject = function ()
-	{
-		return this.chooseAgentSubject;
 	};
 
 	/**
@@ -321,15 +350,16 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 		return this.macro == null || (this.getType() != "macro") ? "" : this.macro;
 	};
 
-	/**
-	 * Returns the name of the blackbox associated with this node or an empty String when the node is no blackbox node.
-	 *
-	 * @returns {String} The name of the blackbox associated with this node.
-	 */
-	this.getBlackboxname = function ()
-	{
-		return this.blackboxname == null || (this.getType() != "$blackbox") ? "" : this.blackboxname;
-	};
+    /**
+     * The user-defined manual offset for the node position. If the user defined no offset, an offstet of 0 pixels in
+     * each direction is returned
+     *
+     * @returns {{dx: int, dy: int}}
+     */
+    this.getManualPositionOffset = function ()
+    {
+        return this.manualPositionOffset || {dx: 0, dy: 0};
+    };
 
 	/**
 	 * Returns options of predefined actions.
@@ -391,25 +421,6 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 			return this.type.toLowerCase();
 		}
 	};
-
-    /**
-     * The user-defined manual offset for the node position. If the user defined no offset, an offstet of 0 pixels in
-     * each direction is returned
-     *
-     * @returns {{dx: int, dy: int}}
-     */
-    this.getManualPositionOffset = function ()
-    {
-        return this.manualPositionOffset || {dx: 0, dy: 0};
-    };
-
-    /**
-     * @returns {boolean} true if the the node has a user-defined offset
-     */
-    this.hasManualPositionOffset = function ()
-    {
-        return this.manualPositionOffset !== null && 'dx' in this.manualPositionOffset && 'dy' in this.manualPositionOffset;
-    };
 
 	/**
 	 * Returns the variable of the node.
@@ -498,6 +509,14 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 		return false;
 	};
 
+    /**
+     * @returns {boolean} true if the the node has a user-defined offset
+     */
+    this.hasManualPositionOffset = function ()
+    {
+        return this.manualPositionOffset !== null && 'dx' in this.manualPositionOffset && 'dy' in this.manualPositionOffset;
+    };
+
 	/**
 	 * Returns true when the node has a parent (node that is connected via an edge ending at this node).
 	 *
@@ -516,21 +535,18 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	};
 
     /**
-     * @returns {Array.<GCedge>} a list of edges that are connected to the node
+     * @returns {boolean} true if the action should be automatically executed
      */
-    this.getConnectedEdges = function ()
+    this.isAutoExecute = function ()
     {
-        var gt_edges = this.parentMacro.getEdges(),
-            connectedEdges = [];
+        return this.autoExecute === true;
+    };
 
-        for (var gt_edgeId in gt_edges)
-        {
-            var gt_edge	= gt_edges[gt_edgeId];
-            if (gt_edge.end	== this.id || gt_edge.start == this.id) {
-                connectedEdges.push(gt_edge);
-            }
-        }
-        return connectedEdges;
+    /**
+     * @returns {boolean} true if the node supports automatic execution
+     */
+    this.isAutoExecuteSupported = function () {
+        return this.type === "receive";
     };
 
 	/**
@@ -589,14 +605,6 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	};
 
     /**
-     * @returns {boolean} true if the action should be automatically executed
-     */
-    this.isAutoExecute = function ()
-    {
-        return this.autoExecute === true;
-    };
-
-    /**
      * @param val {boolean}
      */
     this.setAutoExecute = function (val)
@@ -604,12 +612,33 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
         this.autoExecute = val == true;
     };
 
-    /**
-     * @returns {boolean} true if the node supports automatic execution
-     */
-    this.isAutoExecuteSupported = function () {
-        return this.type === "receive";
-    };
+	/**
+	 * Updates the blackbox associated with this node.
+	 *
+	 * @param {String} blackboxname The name of the blackbox.
+	 * @returns {void};
+	 */
+	this.setBlackboxname = function (blackboxname)
+	{
+		if (gf_isset(blackboxname) && this.getType() == "$blackbox")
+		{
+			this.blackboxname = blackboxname;
+		}
+	};
+
+	/**
+	 * Update the settings of the "create subjects" predefined action.
+	 *
+	 * @param {Object} An object holding the necessary data for the subjects to be created.
+	 * @returns {void}
+	 */
+	this.setChooseAgentSubject = function (subject)
+	{
+		if (this.getType() == "$chooseagent" && gf_isset(subject))
+		{
+      this.chooseAgentSubject = subject;
+		}
+	};
 
 	/**
 	 * Updates the conversation of the node.
@@ -647,20 +676,6 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 		if (gf_isset(correlationId))
 		{
 			this.correlationId = correlationId;
-		}
-	};
-
-	/**
-	 * Update the settings of the "create subjects" predefined action.
-	 *
-	 * @param {Object} An object holding the necessary data for the subjects to be created.
-	 * @returns {void}
-	 */
-	this.setChooseAgentSubject = function (subject)
-	{
-		if (this.getType() == "$chooseagent" && gf_isset(subject))
-		{
-      this.chooseAgentSubject = subject;
 		}
 	};
 
@@ -729,20 +744,6 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	};
 
 	/**
-	 * Updates the blackbox associated with this node.
-	 *
-	 * @param {String} blackboxname The name of the blackbox.
-	 * @returns {void};
-	 */
-	this.setBlackboxname = function (blackboxname)
-	{
-		if (gf_isset(blackboxname) && this.getType() == "$blackbox")
-		{
-			this.blackboxname = blackboxname;
-		}
-	};
-
-	/**
 	 * Mark the node as the major startNode of the internal behavior.
 	 * Only one major start node can be active per internal behavior.
 	 *
@@ -770,6 +771,17 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 			}
 		}
 	};
+
+    /**
+     * Sets the user-defined manual offset for the node position
+     *
+     * @param {null|{dx: int, dy: int}} offset
+     * @returns {void}
+     */
+    this.setManualPositionOffset = function (offset)
+    {
+        this.manualPositionOffset = offset;
+    };
 
 	/**
 	 * Update the options of predefined actions.
@@ -846,17 +858,6 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 			this.type = type;
 		}
 	};
-
-    /**
-     * Sets the user-defined manual offset for the node position
-     *
-     * @param {null|{dx: int, dy: int}} offset
-     * @returns {void}
-     */
-    this.setManualPositionOffset = function (offset)
-    {
-        this.manualPositionOffset = offset;
-    };
 
 	/**
 	 * Updates the variable of the node.
@@ -1049,7 +1050,7 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 		}
 		else if (type == "action" && this.getVariable() != null && this.getVariable() != "")
 		{
-			text	+= " (" + this.getVariable("name") + ")"
+			text	+= " (" + this.getVariable("name") + ")";
 		}
 		return text;
 	};

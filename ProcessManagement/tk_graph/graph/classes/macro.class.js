@@ -32,20 +32,6 @@ function GCmacro (parent, id, name)
 	this.connectMode	= false;
 
 	/**
-	 * When setStartEdgeMode is set to true and a node is selected, its start node will be set to the node that is clicked on next, given that it is not the current target (end) of this edge and that the type of the new start node is the same as the type of the old start node.
-	 *
-	 * @type boolean
-	 */
-	this.setStartEdgeMode	= false;
-
-	/**
-	 * When setEndEdgeMode is set to true and a node is selected, its target (end) node will be set to the node that is clicked on next, given that it is not the current start node.
-	 *
-	 * @type boolean
-	 */
-	this.setEndEdgeMode	= false;
-
-	/**
 	 * Initialized with 0.
 	 * This counter is used to give every edge an unique id.
 	 * Thus the counter is increased with every new edge.
@@ -62,6 +48,13 @@ function GCmacro (parent, id, name)
 	 * @type GCedge[]
 	 */
 	this.edges	= {};
+
+	/**
+	 * The edge (key of edges array) of the edge that is currently selected for being assigned a new end Node.
+	 *
+	 * @type int
+	 */
+	this.endEdge		= null;
 
 	/**
 	 * The id of this macro.
@@ -125,12 +118,18 @@ function GCmacro (parent, id, name)
 	this.selectedNode	= null;
 
 	/**
-	 * The id (key of nodes array) of the node that will be the start node of a new edge.
+	 * When setEndEdgeMode is set to true and a node is selected, its target (end) node will be set to the node that is clicked on next, given that it is not the current start node.
 	 *
-	 * @see GCmacro.connectNodes(), GCmacro.createNode()
-	 * @type int
+	 * @type boolean
 	 */
-	this.startNode		= null;
+	this.setEndEdgeMode	= false;
+
+	/**
+	 * When setStartEdgeMode is set to true and a node is selected, its start node will be set to the node that is clicked on next, given that it is not the current target (end) of this edge and that the type of the new start node is the same as the type of the old start node.
+	 *
+	 * @type boolean
+	 */
+	this.setStartEdgeMode	= false;
 
 	/**
 	 * The edge (key of edges array) of the edge that is currently selected for being assigned a new start Node.
@@ -140,11 +139,12 @@ function GCmacro (parent, id, name)
 	this.startEdge		= null;
 
 	/**
-	 * The edge (key of edges array) of the edge that is currently selected for being assigned a new end Node.
+	 * The id (key of nodes array) of the node that will be the start node of a new edge.
 	 *
+	 * @see GCmacro.connectNodes(), GCmacro.createNode()
 	 * @type int
 	 */
-	this.endEdge		= null;
+	this.startNode		= null;
 
 	/**
 	 * Creates a new GCedge and stores it in the edges array.
@@ -242,15 +242,15 @@ function GCmacro (parent, id, name)
 		if (gf_isset(end) && end === true)
 			gt_node.setEnd(true);
 
-				if (typeof manualPositionOffsetX === "number" && typeof manualPositionOffsetY === "number")
-						gt_node.setManualPositionOffset({dx: manualPositionOffsetX, dy: manualPositionOffsetY});
+		if (typeof manualPositionOffsetX === "number" && typeof manualPositionOffsetY === "number")
+				gt_node.setManualPositionOffset({dx: manualPositionOffsetX, dy: manualPositionOffsetY});
 
-				if (typeof autoExecute === "boolean")
-						gt_node.setAutoExecute(autoExecute);
+		if (typeof autoExecute === "boolean")
+				gt_node.setAutoExecute(autoExecute);
 
-				// pass the deactivated attribute to the node
-				if (gf_isset(deactivated) && deactivated === true)
-						gt_node.deactivate();
+		// pass the deactivated attribute to the node
+		if (gf_isset(deactivated) && deactivated === true)
+				gt_node.deactivate();
 
 		// store the node
 		this.nodes["n" + this.nodeCounter++] = gt_node;
@@ -303,48 +303,6 @@ function GCmacro (parent, id, name)
 		{
 			this.connectMode	= true;
 			this.startNode		= this.selectedNode;
-		}
-	};
-
-	/**
-	 * When setStartEdge() is called setStartEdgeMode is toggled.
-	 * When setStartEdgeMode is set to true the setStartEdgeMode is changed to false.
-	 * When it is false setStartEdgeMode is set to true and the currently selected edge is backed up as the startEdge.
-	 *
-	 * @returns {void}
-	 */
-	this.setStartEdge = function ()
-	{
-		if (this.setStartEdgeMode === true)
-		{
-			this.setStartEdgeMode	= false;
-			this.startEdge		= null;
-		}
-		else
-		{
-			this.setStartEdgeMode	= true;
-			this.startEdge		= this.getEdge(this.selectedEdge);
-		}
-	};
-
-	/**
-	 * When setEndEdge() is called setEndEdgeMode is toggled.
-	 * When setEndEdgeMode is set to true the setEndEdgeMode is changed to false.
-	 * When it is false setEndEdgeMode is set to true and the currently selected edge is backed up as the endEdge.
-	 *
-	 * @returns {void}
-	 */
-	this.setEndEdge = function ()
-	{
-		if (this.setEndEdgeMode === true)
-		{
-			this.setEndEdgeModeonnectMode	= false;
-			this.endEdge		= null;
-		}
-		else
-		{
-			this.setEndEdgeMode	= true;
-			this.endEdge		= this.getEdge(this.selectedEdge);
 		}
 	};
 
@@ -517,11 +475,11 @@ function GCmacro (parent, id, name)
 			// initialize nodes
 			for (var gt_nid in this.nodes)
 			{
-				var gt_node =		this.nodes[gt_nid],
-										gt_nodeId	= gt_nid.substr(1);
+				var gt_node 	= this.nodes[gt_nid],
+					gt_nodeId	= gt_nid.substr(1);
 
-								gt_nodePositions[gt_nodeId]	= new GCrenderNode(gt_nodeId, gt_node);
-								gt_nodePositions[gt_nodeId].setPositionRelative(gt_node.getManualPositionOffset()['dx'], gt_node.getManualPositionOffset()['dy']);
+				gt_nodePositions[gt_nodeId]	= new GCrenderNode(gt_nodeId, gt_node);
+				gt_nodePositions[gt_nodeId].setPositionRelative(gt_node.getManualPositionOffset()['dx'], gt_node.getManualPositionOffset()['dy']);
 			}
 
 			if (this.selectedNode != null && gt_nodePositions[this.selectedNode])
@@ -546,7 +504,9 @@ function GCmacro (parent, id, name)
 			{
 				gf_timeCalc("macro - draw (preparation)");
 				var ltl	= new LinearTimeLayout();
-								ltl.setRenderObjects(gt_nodePositions, gt_edgePositions);
+					ltl.setRenderObjects(gt_nodePositions, gt_edgePositions);
+					ltl.setSpaces({"x": gv_bv_nodeSettings.distanceX, "y": gv_bv_nodeSettings.distanceY});
+					ltl.setAreaSize(gv_paperSizes.bv_width, gv_paperSizes.bv_height);
 
 				for (var gt_nid in this.nodes)
 				{
@@ -568,6 +528,9 @@ function GCmacro (parent, id, name)
 
 				}
 				gf_timeCalc("macro - draw (preparation)");
+
+				// for left-to-right orientation
+				// ltl.orientation = "ltr";
 
 				gf_timeCalc("macro - draw (drawGraph)");
 				// if (this.edgeCounter > 0)
@@ -781,7 +744,7 @@ function GCmacro (parent, id, name)
 	 */
 	this.selectNode = function (id)
 	{
-    var intId = parseInt(id, 10);
+    	var intId = parseInt(id, 10);
 		if (!gf_isset(this.nodes["n" + id]) && gf_isset(this.nodeIDs[id]))
 		{
 			id = this.nodeIDs[id];
@@ -848,6 +811,48 @@ function GCmacro (parent, id, name)
 		this.connectMode	= false;
 		this.setStartEdgeMode	= false;
 		this.setEndEdgeMode	= false;
+	};
+
+	/**
+	 * When setEndEdge() is called setEndEdgeMode is toggled.
+	 * When setEndEdgeMode is set to true the setEndEdgeMode is changed to false.
+	 * When it is false setEndEdgeMode is set to true and the currently selected edge is backed up as the endEdge.
+	 *
+	 * @returns {void}
+	 */
+	this.setEndEdge = function ()
+	{
+		if (this.setEndEdgeMode === true)
+		{
+			this.setEndEdgeModeonnectMode	= false;
+			this.endEdge		= null;
+		}
+		else
+		{
+			this.setEndEdgeMode	= true;
+			this.endEdge		= this.getEdge(this.selectedEdge);
+		}
+	};
+
+	/**
+	 * When setStartEdge() is called setStartEdgeMode is toggled.
+	 * When setStartEdgeMode is set to true the setStartEdgeMode is changed to false.
+	 * When it is false setStartEdgeMode is set to true and the currently selected edge is backed up as the startEdge.
+	 *
+	 * @returns {void}
+	 */
+	this.setStartEdge = function ()
+	{
+		if (this.setStartEdgeMode === true)
+		{
+			this.setStartEdgeMode	= false;
+			this.startEdge		= null;
+		}
+		else
+		{
+			this.setStartEdgeMode	= true;
+			this.startEdge		= this.getEdge(this.selectedEdge);
+		}
 	};
 
 	/**
@@ -955,6 +960,7 @@ function GCmacro (parent, id, name)
 		if (this.selectedNode != null && gf_isset(this.nodes["n" + this.selectedNode], values) && (this.id == "##main##" || "n" + this.selectedNode != "n0"))
 		{
 			gt_node = this.nodes["n" + this.selectedNode];
+			
 			var gt_text								= gf_isset(values.text)								? values.text								: "";
 			var gt_isAutoExecute			= gf_isset(values.autoExecute)				? values.autoExecute				: false;
 			var gt_isStart						= gf_isset(values.isStart)						? values.isStart						: false;

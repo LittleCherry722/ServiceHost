@@ -228,28 +228,6 @@ function GCbehavior (name)
  	};
 
 	/**
-	 * Calls the setStartEdge() method of the currently selected macro.
-	 *
-	 * @see GCmacro.setStartEdgeMode()
-	 * @returns {void}
-	 */
-	this.setStartEdge = function ()
-	{
-		this.getMacro().setStartEdge();
- 	};
-
-	/**
-	 * Calls the setEndEdge() method of the currently selected macro.
-	 *
-	 * @see GCmacro.setEndEdgeMode()
-	 * @returns {void}
-	 */
-	this.setEndEdge = function ()
-	{
-		this.getMacro().setEndEdge();
- 	};
-
-	/**
 	 * This method creates a new edge in the currently selected macro.
 	 *
 	 * @see GCmacro.createEdge()
@@ -517,6 +495,28 @@ function GCbehavior (name)
 	this.selectNothing = function ()
 	{
 		this.getMacro().selectNothing();
+ 	};
+
+	/**
+	 * Calls the setEndEdge() method of the currently selected macro.
+	 *
+	 * @see GCmacro.setEndEdgeMode()
+	 * @returns {void}
+	 */
+	this.setEndEdge = function ()
+	{
+		this.getMacro().setEndEdge();
+ 	};
+
+	/**
+	 * Calls the setStartEdge() method of the currently selected macro.
+	 *
+	 * @see GCmacro.setStartEdgeMode()
+	 * @returns {void}
+	 */
+	this.setStartEdge = function ()
+	{
+		this.getMacro().setStartEdge();
  	};
 
 	/**

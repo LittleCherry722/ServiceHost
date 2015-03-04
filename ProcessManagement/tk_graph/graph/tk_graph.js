@@ -522,6 +522,8 @@ function gf_elementExists ()
 function gf_estimateTextHeight (text, style)
 {
 	var height	= 0;
+	
+	// TODO: add borders, padding, minWidth and further style elements
 
 	if (text != "")
 	{
@@ -545,6 +547,8 @@ function gf_estimateTextHeight (text, style)
 function gf_estimateTextWidth (text, style)
 {
 	var width	= 0;
+	
+	// TODO: add borders, padding, minWidth and further style elements
 
 	if (text != "")
 	{
@@ -1326,7 +1330,7 @@ function gf_taskCounterPrint (type)
 				gt_taskStrings[gt_taskStrings.length] = "\t" + gt_type + ": " + gv_taskCounter[gt_type] + " times";
 			}
 
-			gt_taskStrings.sort()
+			gt_taskStrings.sort();
 
 			for (var gt_taskString in gt_taskStrings)
 			{
@@ -1422,7 +1426,7 @@ function gf_timePrint (type)
 				gt_timeStrings[gt_timeStrings.length] = "\t" + gt_type + ": " + gv_times[gt_type]/1000 + "s";
 			}
 
-			gt_timeStrings.sort()
+			gt_timeStrings.sort();
 
 			for (var gt_timeString in gt_timeStrings)
 			{

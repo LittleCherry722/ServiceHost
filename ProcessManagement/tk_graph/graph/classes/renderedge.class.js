@@ -37,6 +37,8 @@ function GCrenderEdge (id, edge)
 	this.loopPosition	= "right";
 
 	this.loopSpace		= 0;
+	
+	this.ltl			= null;			// used for LTL layouter
 
 	this.posEndH		= "center";		// left, center, right
 
@@ -134,42 +136,81 @@ GCrenderEdge.prototype.draw = function ()
 				x2	+= this.loopSpace;
 			}
 		}
+		
+		
+		if (this.ltl != null)
+		{
+			gf_timeCalc("drawing edges - drawArrow() - create GCpath");
+				var path	= new GCpath(x1, y1, x2, y2, "LTL", this.text, this.id, true, this.ltl);
+			gf_timeCalc("drawing edges - drawArrow() - create GCpath");
+			
+			
+			gf_timeCalc("drawing edges - drawArrow() - apply settings");
+				// apply the deactivation status to the path
+				if (gf_isset(this.edge.isDeactivated) && this.edge.isDeactivated())
+					path.deactivate(true);
+					
+				// apply the optional status to the path
+				path.setOptional(gf_isset(this.edge.isOptional) && this.edge.isOptional(), true);
+				
+				// apply the selection status to the path
+				if (this.selected)
+					path.select(true);
+		
+				// add the click events to the path
+				path.click();
+			gf_timeCalc("drawing edges - drawArrow() - apply settings");
+				
+				
+			gf_timeCalc("drawing edges - drawArrow() - apply style");
+				path.setStyle(this.style);
+			gf_timeCalc("drawing edges - drawArrow() - apply style");
+			
+			
+			gf_timeCalc("drawing edges - drawArrow() - apply calculated path");
+				path.setShape("LTL", 2);
+			gf_timeCalc("drawing edges - drawArrow() - apply calculated path");
+		}
+		
+		else
+		{
 
-		gf_timeCalc("drawing edges - drawArrow() - create GCpath");
-            var path	= new GCpath(x1, y1, x2, y2, this.shape, this.text, this.id, true);
-		gf_timeCalc("drawing edges - drawArrow() - create GCpath");
-
-
-		gf_timeCalc("drawing edges - drawArrow() - apply settings");
-			// apply the deactivation status to the path
-			if (gf_isset(this.edge.isDeactivated) && this.edge.isDeactivated())
-				path.deactivate(true);
-
-			// apply the optional status to the path
-			path.setOptional(gf_isset(this.edge.isOptional) && this.edge.isOptional(), true);
-
-			// apply the selection status to the path
-			if (this.selected)
-				path.select(true);
-
-			// add the click events to the path
-			path.click();
-		gf_timeCalc("drawing edges - drawArrow() - apply settings");
-
-
-		gf_timeCalc("drawing edges - drawArrow() - apply style");
-			path.setStyle(this.style);
-		gf_timeCalc("drawing edges - drawArrow() - apply style");
-
-
-		gf_timeCalc("drawing edges - drawArrow() - apply calculated path");
-			/*
-			gt_bv_edge.setFirstLine(gt_bv_firstLine);
-			gt_bv_edge.setSpace1(gt_bv_space1);
-			gt_bv_edge.setSpace2(gt_bv_space2);
-			*/
-			path.setShape(this.shape, 2);
-		gf_timeCalc("drawing edges - drawArrow() - apply calculated path");
+			gf_timeCalc("drawing edges - drawArrow() - create GCpath");
+	            var path	= new GCpath(x1, y1, x2, y2, this.shape, this.text, this.id, true);
+			gf_timeCalc("drawing edges - drawArrow() - create GCpath");
+	
+	
+			gf_timeCalc("drawing edges - drawArrow() - apply settings");
+				// apply the deactivation status to the path
+				if (gf_isset(this.edge.isDeactivated) && this.edge.isDeactivated())
+					path.deactivate(true);
+	
+				// apply the optional status to the path
+				path.setOptional(gf_isset(this.edge.isOptional) && this.edge.isOptional(), true);
+	
+				// apply the selection status to the path
+				if (this.selected)
+					path.select(true);
+	
+				// add the click events to the path
+				path.click();
+			gf_timeCalc("drawing edges - drawArrow() - apply settings");
+	
+	
+			gf_timeCalc("drawing edges - drawArrow() - apply style");
+				path.setStyle(this.style);
+			gf_timeCalc("drawing edges - drawArrow() - apply style");
+	
+	
+			gf_timeCalc("drawing edges - drawArrow() - apply calculated path");
+				/*
+				gt_bv_edge.setFirstLine(gt_bv_firstLine);
+				gt_bv_edge.setSpace1(gt_bv_space1);
+				gt_bv_edge.setSpace2(gt_bv_space2);
+				*/
+				path.setShape(this.shape, 2);
+			gf_timeCalc("drawing edges - drawArrow() - apply calculated path");
+		}
 	}
 };
 
@@ -189,6 +230,15 @@ GCrenderEdge.prototype.init = function ()
 			this.style	= gf_mergeStyles(gv_bv_arrow.style, gv_bv_arrow.styleException);
 		}
 	}
+};
+
+GCrenderEdge.prototype.setLTL = function (label, bend1, bend2)
+{
+	this.ltl	= {
+		"label":	label,
+		"bend1":	bend1,
+		"bend2":	bend2
+	};
 };
 
 GCrenderEdge.prototype.setPosEnd = function (horizontal, vertical)

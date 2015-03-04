@@ -681,6 +681,7 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 				this.img = gv_paper.image(src, 0, 0, params.width, params.height);
 			else
 				this.img.attr(params);
+				
             this.updateBoundariesImg();
 		}
 	};
@@ -899,7 +900,7 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	this.toPathSegments = function ()
 	{
 		return this.pathSegments;
-	}
+	};
 	
 	/**
 	 * Update the boundaries of the Raphael Elements that are associated with this label depending on the information stored in this label.
@@ -908,7 +909,8 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	 */
 	this.updateBoundaries = function ()
 	{
-        if(this.img) {
+        if (this.img)
+        {
             this.updateBoundariesImg();
         }
 		// TODO: some more options like apply padding and move the text according to the new position

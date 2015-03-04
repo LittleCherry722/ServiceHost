@@ -19,20 +19,85 @@
 /*
  * Fragment class
  */
+
+/**
+ * A fragment of the graph.
+ * 
+ * @class Fragment
+ * @see org.jbpt.graph.Fragment
+ * @param {Object} parent - LinearTimeLayout instance
+ * @param {Object} rpstnode - Node from RPST
+ */
 LinearTimeLayout.prototype.Fragment = function (parent, rpstnode)
 {
+	/**
+	 * Edges of the fragment.
+	 * @memberof! Fragment
+	 * @type {Array}
+	 */
 	this.edges			= {};
+	
+	/**
+	 * Edges outgoing of nodes, stored for each node.
+	 * @memberof! Fragment
+	 * @type {Object}
+	 */
 	this.incidentEdges	= {};
+	
+	/**
+	 * Nodes of the fragment.
+	 * @memberof! Fragment
+	 * @type {Array}
+	 */
 	this.nodes			= {};
+	
+	/**
+	 * Counter of outgoing edges per node.
+	 * @memberof! Fragment
+	 * @type {Array}
+	 */
 	this.outEdges		= {};
+	
+	/**
+	 * Edges that belong to the fragment itself instead of one of its child fragments.
+	 * @memberof! Fragment
+	 * @type {Array}
+	 */
 	this.ownEdges		= {};
+	
+	/**
+	 * Nodes that belong to the fragment itself instead of one of its child fragments.
+	 * @memberof! Fragment
+	 * @type {Array}
+	 */
 	this.ownNodes		= null;
+	
+	/**
+	 * LinearTimeLayout
+	 * @memberof! Fragment
+	 * @type {Object}
+	 */
 	this.parent			= parent;
+	
+	/**
+	 * Assigned node of RPST.
+	 * @memberof! Fragment
+	 * @type {Object}
+	 */
 	this.rpstnode		= rpstnode;
 };
 
 /**
  * Fragment Methods
+ */
+
+/**
+ * Add edge to fragment.
+ * 
+ * @memberof! Fragment
+ * @param {String} edge - ID of the graph's edge to add to the fragment.
+ * @param {boolean} ownEdge - Indicates if edge belongs to fragment itself instead of one of its child fragments.
+ * @returns {void}
  */
 LinearTimeLayout.prototype.Fragment.prototype.addEdge = function (edge, ownEdge)
 {
@@ -52,6 +117,7 @@ LinearTimeLayout.prototype.Fragment.prototype.addEdge = function (edge, ownEdge)
 		this.outEdges[source]++;
 		this.incidentEdges[source].push(edge);
 		
+		// potentially unused
 		if (ownEdge)
 		{
 			this.ownEdges[edge]	= edge;
@@ -59,6 +125,13 @@ LinearTimeLayout.prototype.Fragment.prototype.addEdge = function (edge, ownEdge)
 	}
 };
 
+/**
+ * Add multiple edges to the fragment.
+ * 
+ * @memberof! Fragment
+ * @param {Array} edges - Array of edges to add via addEdge()
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.Fragment.prototype.addEdges = function (edges)
 {
 	for (var e in edges)
@@ -67,12 +140,19 @@ LinearTimeLayout.prototype.Fragment.prototype.addEdges = function (edges)
 	}
 };
 
+/**
+ * Add nodes to fragment.
+ * 
+ * @memberof! Fragment
+ * @param {Array} nodes - Array of nodes to add.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.Fragment.prototype.addNodes = function (nodes)
 {
 	for (var n in nodes)
 	{
+		// load ID of original node from nn2on map of LinearTimeLayout
 		var node			= this.parent.nn2on[nodes[n]];
-		// TODO: find cause for undefined nodes (SNK, SRC are still in the nodeset)
 		if (gf_isset(node))
 		{
 			this.nodes[node]	= node;
@@ -80,6 +160,13 @@ LinearTimeLayout.prototype.Fragment.prototype.addNodes = function (nodes)
 	}
 };
 
+/**
+ * Checks if the fragment contains all edges passed.
+ * 
+ * @memberof! Fragment
+ * @param {Array} edges - Edges to check for.
+ * @returns {boolean} True if all edges are contained in the fragment, false otherwise.
+ */
 LinearTimeLayout.prototype.Fragment.prototype.containsAll = function (edges)
 {
 	for (var e in edges)
@@ -92,6 +179,14 @@ LinearTimeLayout.prototype.Fragment.prototype.containsAll = function (edges)
 	return true;
 };
 
+/**
+ * Opposite of containsAll().
+ * Checks if fragment contains none of the edges passed.
+ * 
+ * @memberof! Fragment
+ * @param {Object} edges - Edges to check for.
+ * @returns {boolean} True if none of the edges is contained in the fragment, false otherwise.
+ */
 LinearTimeLayout.prototype.Fragment.prototype.containsNone = function (edges)
 {
 	for (var e in edges)
@@ -104,6 +199,13 @@ LinearTimeLayout.prototype.Fragment.prototype.containsNone = function (edges)
 	return true;
 };
 
+/**
+ * Get nodes of fragment.
+ * 
+ * @memberof! Fragment
+ * @param {boolean} allNodes - Return only nodes of fragment or also include all nodes of its child fragments?
+ * @returns {Array} Array of nodes contained in the fragment.
+ */
 LinearTimeLayout.prototype.Fragment.prototype.getNodes = function (allNodes)
 {
 	if (!gf_isset(allNodes))

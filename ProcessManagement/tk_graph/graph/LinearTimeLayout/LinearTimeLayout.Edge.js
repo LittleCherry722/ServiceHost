@@ -14,119 +14,251 @@
 /*
  * create Edge SubClass
  */
+
+/**
+ * Generic edge object.
+ * 
+ * @class Edge
+ * @see org.jbpt.graph.Edge
+ * @param {String} id - ID of the edge
+ * @param {String} source - ID of source node
+ * @param {String} target - ID of target node
+ * @param {Object} edgeData - Additional information (style information, assigned text, ...)
+ */
 LinearTimeLayout.prototype.Edge	= function (id, source, target, edgeData)
 {
 	/**
-	 * @type {GCedge}
+	 * Flag to determine if edge is backedge.
+	 * @memberof! Edge
+	 * @type {boolean}
 	 */
-	this.backedge		= false;	// back edge?
-	this.components		= {};
-	this.deactivated	= false;
-	this.edgeData		= null;
-	this.height			= 0;
-	this.id				= id;
-	this.inEdgesCurID	= null;
-	this.inEdgesOldID	= null;
-	this.optional		= false;
-	this.orgId			= id;
-	this.outEdgesCurID	= null;
-	this.outEdgesOldID	= null;
-	this.reversed		= false;
-	this.selected		= false;
-
+	this.backedge		= false;
+	
 	/**
+	 * Deactivation flag (for drawing reasons).
+	 * @memberof! Edge
+	 * @type {boolean}
+	 */
+	this.deactivated	= false;
+	
+	/**
+	 * Additional information, like style information, assigned text, ...
+	 * @memberof! Edge
+	 * @type {Object}
+	 */
+	this.edgeData		= null;
+	
+	/**
+	 * Height of the edge's label.
+	 * @memberof! Edge
 	 * @type {int}
+	 */
+	this.height			= 0;
+	
+	/**
+	 * ID of the edge.
+	 * @memberof! Edge
+	 * @type {String}
+	 */
+	this.id				= id;
+	
+	/**
+	 * ID in inEdges array of LinearTimeLayout class.
+	 * @memberof! Edge
+	 * @type {int}
+	 */
+	this.inEdgesCurID	= null;
+	
+	/**
+	 * ID in inEdges array of LinearTimeLayout class.
+	 * @memberof! Edge
+	 * @type {int}
+	 */
+	this.inEdgesOldID	= null;
+	
+	/**
+	 * Flag if edge is optional (for drawing reasons).
+	 * @memberof! Edge
+	 * @type {boolean}
+	 */
+	this.optional		= false;
+	
+	/**
+	 * Original ID of the edge (for normalized edges).
+	 * @memberof! Edge
+	 * @type {String}
+	 */
+	this.orgId			= id;
+	
+	/**
+	 * ID in outEdges array of LinearTimeLayout class.
+	 * @memberof! Edge
+	 * @type {int}
+	 */
+	this.outEdgesCurID	= null;
+	
+	/**
+	 * ID in outEdges array of LinearTimeLayout class.
+	 * @memberof! Edge
+	 * @type {int}
+	 */
+	this.outEdgesOldID	= null;
+	
+	/**
+	 * Flag if edge is reversed, i.e. source and target node exchanged.
+	 * @memberof! Edge
+	 * @type {boolean}
+	 */
+	this.reversed		= false;
+	
+	/**
+	 * Flag if edge is selected (for drawing reasons).
+	 * @memberof! Edge
+	 * @type {boolean}
+	 */
+	this.selected		= false;
+		
+	/**
+	 * ID of source node.
+	 * @memberof! Edge
+	 * @type {String}
 	 */
 	this.source			= 0;
-	this.style			= null;
-
+	
 	/**
-	 * @type {int}
+	 * Style information.
+	 * @memberof! Edge
+	 * @type {Object}
+	 */
+	this.style			= null;
+		
+	/**
+	 * ID of target node.
+	 * @memberof! Edge
+	 * @type {String}
 	 */
 	this.target			= 0;
+	
+	/**
+	 * Additional text for edge label. Default: id of edge.
+	 * @memberof! Edge
+	 * @type {String}
+	 */
 	this.text			= id;
-	this.virtual		= false;	// virtual edge?
+	
+	/**
+	 * Flag if edge is virtual.
+	 * @memberof! Edge
+	 * @type {boolean}
+	 */
+	this.virtual		= false;
+	
+	/**
+	 * Width of the edge's label.
+	 * @memberof! Edge
+	 * @type {int}
+	 */
 	this.width			= 0;
-
+	
+	/**
+	 * Initialize the edge
+	 */
 	this.init(source, target, edgeData);
 };
-
-
+	
+	
 /*
  * Edge Methods
  */
+
+/**
+ * Calculate height of the edge's label.
+ * 
+ * @memberof! Edge
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.Edge.prototype.calculateHeight = function ()
 {
-	// TODO: calculate width + height of label
-	// calc height by number-of-lines * (font-size + some space) + padding + border
-	// function calcHeight (text, style)
 	if (this.style != null)
 	{
+		// if an image is assigned to the element the element's height is the height of the image 
 		if (this.img != null)
 		{
 			this.height	= this.img.height;
 		}
+		
+		// for text elements the element's height is estimated based on the text
 		else if (this.text != "")
 		{
-			/*
-			var split	= this.text.split(/<br>|<br \/>|<br\/>|\\r\\n|\\r|\\n|\n/gi);
-
-			// estimation: number of lines * (fontSize + someSpace)
-			this.height	= Math.ceil(split.length * (this.style.fontSize + 3));
-			*/
-
+			// accesses the gf_estimateTextHeight function provided in the tk_graph library
 			this.height	= gf_estimateTextHeight(this.text, this.style);
 		}
-
-		// TODO: add borders, padding, minHeight, ... to height
 	}
 };
 
+/**
+ * Calculate width of the edge's label.
+ * 
+ * @memberof! Edge
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.Edge.prototype.calculateWidth = function ()
 {
-	// TODO: calculate width + height of label
-	// calc width by max-width of text + padding + border
-	// function calcWidth (text, style)
 	if (this.style != null)
 	{
+		// if an image is assigned to the element the element's width is the width of the image 
 		if (this.img != null)
 		{
 			this.width	= this.img.width;
 		}
+		
+		// for text elements the element's width is estimated based on the text
 		else if (this.text != "")
 		{
-			/*
-			var split	= this.text.split(/<br>|<br \/>|<br\/>|\\r\\n|\\r|\\n|\n/gi);
-			for (var s in split)
-			{
-				// estimation: max of length of each line
-				this.width	= Math.ceil(Math.max(split[s].length * (this.style.fontSize / 2.434), this.width));
-			}
-			*/
+			// accesses the gf_estimateTextWidth function provided in the tk_graph library
 			this.width	= gf_estimateTextWidth(this.text, this.style);
 		}
-
-		// TODO: add borders, padding, minWidth, ... to width
 	}
 };
 
+/**
+ * Get height of edge's label.
+ * 
+ * @memberof! Edge
+ * @returns {int} Height of label.
+ */
 LinearTimeLayout.prototype.Edge.prototype.getHeight = function ()
 {
 	return this.height;
 };
 
+/**
+ * Get width of edge's label.
+ * 
+ * @memberof! Edge
+ * @returns {int} Width of label.
+ */
 LinearTimeLayout.prototype.Edge.prototype.getWidth = function ()
 {
 	return this.width;
 };
 
+/**
+ * Initialize the edge.
+ * 
+ * @memberof! Edge
+ * @param {Object} source - ID of source node.
+ * @param {Object} target - ID of target node.
+ * @param {Object} edgeData - Additional information (e.g. style information, assigned text, ...)
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.Edge.prototype.init	= function (source, target, edgeData)
 {
 
 	this.source		= source;
 	this.target		= target;
-
-
+	
+	
 	// set GCEdge
 	if (edgeData == "virtual")
 	{
@@ -139,7 +271,7 @@ LinearTimeLayout.prototype.Edge.prototype.init	= function (source, target, edgeD
 	else
 	{
 		this.edgeData	= edgeData;
-
+		
 		// load style: preload complete style set for node and store the compiled style here to pass it for width-calc, height-calc and actual drawing
 		this.style		= gv_bv_arrow.style;
 		if (gf_isset(edgeData.getType))
@@ -153,34 +285,40 @@ LinearTimeLayout.prototype.Edge.prototype.init	= function (source, target, edgeD
 				this.style	= gf_mergeStyles(gv_bv_arrow.style, gv_bv_arrow.styleException);
 			}
 		}
-
+		
 		if (gf_isset(edgeData.isDeactivated) && edgeData.isDeactivated())
 			this.deactivated	= true;
-
+			
 		if (gf_isset(edgeData.isOptional) && edgeData.isOptional())
 			this.optional		= true;
-
+		
 		if (gf_isset(edgeData.selected) && edgeData.selected === true)
 			this.selected		= true;
-
+			
 		if (gf_isset(edgeData.textToString))
 		{
 			this.text			= edgeData.textToString();
 			this.orgId			= this.id.substr(1);
 		}
 	}
-
+	
 	// calculate height / width
 	this.calculateHeight();
 	this.calculateWidth();
 };
 
+/**
+ * Reverse edge.
+ * 
+ * @memberof! Edge
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.Edge.prototype.reverse = function ()
 {
 	var temp	= this.source;
 	this.source	= this.target;
 	this.target	= temp;
-
+	
 	// set reversed flag
 	this.reversed	= !this.reversed;
 };

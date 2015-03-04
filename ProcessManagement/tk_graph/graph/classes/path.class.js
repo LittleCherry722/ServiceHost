@@ -25,9 +25,10 @@
  * @param {String} text The text to display on the edge's label
  * @param {String} id The id of the edge.
  * @param {boolean} performanceMode When set to true the style won't be updated on init.
+ * @param {Object} ltl Set ltl drawing information. (see setLTL)
  * @returns {void}
  */
-function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
+function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode, ltl)
 {
 	/**
 	 * Deactivation flag.
@@ -68,6 +69,20 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 	this.label	= null;
 	
 	/**
+	 * Information for drawing the edge calculated by the LTL layouter.
+	 * 
+	 * @type Object
+	 */
+	this.ltl	= null;
+
+    /**
+     * The user-defined manual offset for the position of the path label
+     *
+     * @type {?{dx: int, dy: int}}
+     */
+    this.manualPositionOffsetLabel = null;
+	
+	/**
 	 * Optional flag.
 	 * Whe it is set to true the path will be displayed as an optional path.
 	 * 
@@ -82,15 +97,6 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 	 * @type Element (from Raphael)
 	 */
 	this.path	= null;
-
-
-    /**
-     * A Raphael Path which starts at the labels original position and ends on the labels offset position
-     *
-     * @see Paper.path() at the <a href="http://raphaeljs.com/reference.html#Paper.path">Raphael documentation</a>
-     * @type Element (from Raphael)
-     */
-    this.pathToLabel	= null;
 
 	/**
 	 * A Raphael Path.
@@ -114,6 +120,14 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 	 * @type String
 	 */
 	this.pathStr	= "";
+
+    /**
+     * A Raphael Path which starts at the labels original position and ends on the labels offset position
+     *
+     * @see Paper.path() at the <a href="http://raphaeljs.com/reference.html#Paper.path">Raphael documentation</a>
+     * @type Element (from Raphael)
+     */
+    this.pathToLabel	= null;
 	
 	/**
 	 * The end position of the path.
@@ -165,13 +179,6 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 	 * @type Object
 	 */
 	this.style = gv_defaultStyle;
-
-    /**
-     * The user-defined manual offset for the position of the path label
-     *
-     * @type {?{dx: int, dy: int}}
-     */
-    this.manualPositionOffsetLabel = null;
 
 
 	/**
@@ -260,6 +267,33 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 				this.calculatePathSegments(null, {x: x2, y: y2});
 			}
 			
+			// shape given by ltl, passed by renderedge
+			else if (shape == "LTL")
+			{
+				var src	= this.ltl.start;
+				var tgt	= this.ltl.end;
+				var b1	= this.ltl.bend1;
+				var b2	= this.ltl.bend2;
+				var lbl	= this.ltl.label;
+				
+				cPath	= "";
+				
+				if (b1 != null)
+				{
+					cPath	+= "L" + b1.x + "," + b1.y;
+				}
+				
+				if (b2 != null)
+				{
+					cPath	+= "L" + b2.x + "," + b2.y;
+				}
+				
+				cPath	+= "L" + x2 + "," + y2;
+				
+				cX		= lbl.x;
+				cY		= lbl.y;
+			}
+			
 			// shapes for ltl with one straight element and one diagonal element
 			else if (shape == "DIAGVERT" || shape == "VERTDIAG")
 			{
@@ -291,7 +325,6 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 			// loop edge in ltl for left-to-right layout
 			else if (shape == "LOOPLTR")
 			{
-				console.log("keks");
 				cPath	= "V" + y2 + "H" + x2 + "V" + y1;
 				cX		= rcX;
 				cY		= y2;
@@ -687,7 +720,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 				var gt_b1	= gt_s1p2.x - gt_s1p1.x;
 				var gt_b2	= gt_s2p2.x - gt_s2p1.x;
 				
-				var gt_denom = gt_a1 * gt_b2 - gt_a2 * gt_b1
+				var gt_denom = gt_a1 * gt_b2 - gt_a2 * gt_b1;
 			    if (gt_denom == 0)
 			    {
 			        //Lines are parallel
@@ -756,6 +789,17 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 		this.label.deselect();
 		this.refreshStyle();
 	};
+
+    /**
+     * The user-defined manual offset for the path label position. If the user defined no offset, an offstet of 0 pixels in
+     * each direction is returned
+     *
+     * @returns {{dx: int, dy: int}}
+     */
+    this.getManualPositionOffsetLabel = function ()
+    {
+        return this.manualPositionOffsetLabel || {dx: 0, dy: 0};
+    };
 	
 	/**
 	 * Returns the end point of the path.
@@ -799,7 +843,15 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 		}
 		
 		return statusDependent;
-	}
+	};
+
+    /**
+     * @returns {boolean} true if the the path label has a user-defined offset
+     */
+    this.hasManualPositionOffsetLabel = function ()
+    {
+        return this.manualPositionOffsetLabel !== null && 'dx' in this.manualPositionOffsetLabel && 'dy' in this.manualPositionOffsetLabel;
+    };
 	
 	/**
 	 * Hide the path and its label.
@@ -824,8 +876,8 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 			performanceMode	= false;
 			
 		this.path		    = gv_paper.path("M0,0L10,10");
-        this.pathToLabel	= gv_paper.path("M0,0L0,0");
 		this.pathClick	    = gv_paper.path("M0,0L10,10");
+        this.pathToLabel	= gv_paper.path("M0,0L0,0");
 		this.label		    = new GClabel(0, 0, text, "roundedrectangle", id, true, performanceMode);
 	};
 	
@@ -925,6 +977,28 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 	{
 		this.firstLine = firstLine;
 	};
+	
+	/**
+	 * Set the LTL information of this edge.
+	 * 
+	 * @param {Object} ltl Object containing bend1 (x,y), bend2 (x,y), label (x,y) positions
+	 * @returns {void}
+	 */
+	this.setLTL = function (ltl)
+	{
+		this.ltl = ltl;
+	};
+
+    /**
+     * Sets the user-defined manual offset for the path label position
+     *
+     * @param {null|{dx: int, dy: int}} offset
+     * @returns {void}
+     */
+    this.setManualPositionOffsetLabel = function (offset)
+    {
+        this.manualPositionOffsetLabel = offset;
+    };
 	
 	/**
 	 * Set the optional flag to the path.
@@ -1047,36 +1121,6 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 		this.label.setText(text, performanceMode);
 	};
 
-    /**
-     * The user-defined manual offset for the path label position. If the user defined no offset, an offstet of 0 pixels in
-     * each direction is returned
-     *
-     * @returns {{dx: int, dy: int}}
-     */
-    this.getManualPositionOffsetLabel = function ()
-    {
-        return this.manualPositionOffsetLabel || {dx: 0, dy: 0};
-    };
-
-    /**
-     * Sets the user-defined manual offset for the path label position
-     *
-     * @param {null|{dx: int, dy: int}} offset
-     * @returns {void}
-     */
-    this.setManualPositionOffsetLabel = function (offset)
-    {
-        this.manualPositionOffsetLabel = offset;
-    };
-
-    /**
-     * @returns {boolean} true if the the path label has a user-defined offset
-     */
-    this.hasManualPositionOffsetLabel = function ()
-    {
-        return this.manualPositionOffsetLabel !== null && 'dx' in this.manualPositionOffsetLabel && 'dy' in this.manualPositionOffsetLabel;
-    };
-
 	/**
 	 * Show the path and its label.
 	 * 
@@ -1151,6 +1195,12 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 	
 	// initialize the path
 	this.init(true);
+	
+	// set ltl information
+	if (gf_isset(ltl))
+	{
+		this.setLTL(ltl);
+	}
 	
 	// set the starting and end position
 	this.setPositionStart(startx, starty);

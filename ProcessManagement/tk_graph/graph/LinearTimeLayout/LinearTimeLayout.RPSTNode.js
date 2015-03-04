@@ -19,24 +19,92 @@
 /*
  * RPSTNode
  */
+
+/**
+ * Node of the RPST.
+ * 
+ * @class RPSTNode
+ * @see org.jbpt.algo.tree.rpst.RPSTNode
+ * @param {Object} parent - Instance of LinearTimeLayout
+ * @param {Object} rpst - The RPST the node belongs to.
+ * @param {Object} tcnode - The node of the TCTree (triconnected component) that forms the RPSTNode (fragment).
+ */
 LinearTimeLayout.prototype.RPSTNode = function (parent, rpst, tcnode)
 {
-	this.dimensions	= {width: parent.spaces.x, height: parent.spaces.y};
-	this.entry		= null;
-	this.exit		= null;
-	this.fragment	= null;
-	this.id			= null;
-	this.name		= tcnode.name;
-	this.parent		= parent;
-	this.rpst		= rpst;
-	this.tcnode		= tcnode;
-	this.type		= tcnode.type;
-	this.x			= 0;
-	this.y			= 0;
+	/**
+	 * ID of the entry node of the fragment.
+	 * @memberof! RPSTNode
+	 * @type {String}
+	 */
+	this.entry			= null;
+	
+	/**
+	 * ID of the exit node of the fragment.
+	 * @memberof! RPSTNode
+	 * @type {String}
+	 */
+	this.exit			= null;
+	
+	/**
+	 * The actual fragment belonging to this RPSTNode.
+	 * @memberof! RPSTNode
+	 * @type {Object}
+	 */
+	this.fragment		= null;
+	
+	/**
+	 * The ID of the node.
+	 * @memberof! RPSTNode
+	 * @type {String}
+	 */
+	this.id				= null;
+	
+	/**
+	 * Name of the fragment.
+	 * @memberof! RPSTNode
+	 * @type {String}
+	 */
+	this.name			= tcnode.name;
+	
+	/**
+	 * Instance of LinearTimeLayout.
+	 * @memberof! RPSTNode
+	 * @type {Object}
+	 */
+	this.parent			= parent;
+	
+	/**
+	 * Instance of RPST.
+	 * @memberof! RPSTNode
+	 * @type {Object}
+	 */
+	this.rpst			= rpst;
+	
+	/**
+	 * Corresponding node of the TCTree (triconnected component).
+	 * @memberof! RPSTNode
+	 * @type {Object}
+	 */
+	this.tcnode			= tcnode;
+	
+	/**
+	 * Type of the triconnected component.
+	 * @memberof! RPSTNode
+	 * @type {String}
+	 */
+	this.type			= tcnode.type;
 };
 
 /*
  * RPSTNode Methods
+ */
+
+/**
+ * Determine boundaries of fragment.
+ * Determine exit and entry node of the fragment.
+ * 
+ * @memberof! RPSTNode
+ * @returns {void}
  */
 LinearTimeLayout.prototype.RPSTNode.prototype.classifyBoundaries = function ()
 {
@@ -131,6 +199,12 @@ LinearTimeLayout.prototype.RPSTNode.prototype.classifyBoundaries = function ()
 	}
 };
 
+/**
+ * Get edges of the fragment.
+ * 
+ * @memberof! RPSTNode
+ * @returns {Array} List of edges of the fragment.
+ */
 LinearTimeLayout.prototype.RPSTNode.prototype.getEdges = function ()
 {
 	var edges			= new Array();
@@ -149,6 +223,13 @@ LinearTimeLayout.prototype.RPSTNode.prototype.getEdges = function ()
 	return edges;
 };
 
+/**
+ * Get entry of the fragment.
+ * If entry is not yet set, classify boundaries to determine entry and exit of fragment.
+ * 
+ * @memberof! RPSTNode
+ * @returns {String} ID of the entry node.
+ */
 LinearTimeLayout.prototype.RPSTNode.prototype.getEntry = function ()
 {
 	if (this.entry == null)
@@ -159,6 +240,13 @@ LinearTimeLayout.prototype.RPSTNode.prototype.getEntry = function ()
 	return this.entry;
 };
 
+/**
+ * Get exit of the fragment.
+ * If exit is not yet set, classify boundaries to determine entry and exit of fragment.
+ * 
+ * @memberof! RPSTNode
+ * @returns {String} ID of the exit node.
+ */
 LinearTimeLayout.prototype.RPSTNode.prototype.getExit = function ()
 {
 	if (this.exit == null)
@@ -169,6 +257,13 @@ LinearTimeLayout.prototype.RPSTNode.prototype.getExit = function ()
 	return this.exit;
 };
 
+/**
+ * Get fragment belonging to this RPSTNode.
+ * If fragment has not yet been initialized: initialize the fragment.
+ * 
+ * @memberof! RPSTNode
+ * @returns {Object} The corresponding fragment.
+ */
 LinearTimeLayout.prototype.RPSTNode.prototype.getFragment = function ()
 {
 	if (this.fragment == null)

@@ -19,32 +19,119 @@
 /*
  * TCTree
  */
+
+/**
+ * The triconnected-components tree (TCTree)
+ * 
+ * @class TCTree
+ * @see org.jbpt.algo.tree.tctree.TCTree
+ * @param {Object} parent - Instance of LinearTimeLayout
+ * @param {String} backedge - ID of the backedge between the graph's sink and its source.
+ */
 LinearTimeLayout.prototype.TCTree = function (parent, backedge)
 {
+	/**
+	 * Adjacency list.
+	 * @memberof! TCTree
+	 * @type {Array}
+	 */
 	this.adjacency		= {};
-	this.edgeID			= 0;
-	this.edges			= {};
-	this.incidentEdges	= {};
-	this.nodeID			= 0;
-	this.nodes			= {};
-	this.parents		= {};
-	this.root			= null;		// node id
 
-	this.backedgeID	= backedge;
-	this.parent		= parent;
-	this.graph		= parent.normGraph;
+	/**
+	 * Backedge between graph's sink and its source node.
+	 * @memberof! TCTree
+	 * @type {Object}
+	 */
 	this.backedge	= parent.normGraph.edges[backedge];
 	
+	/**
+	 * ID of backedge between graph's sink and its source node.
+	 * @memberof! TCTree
+	 * @type {String}
+	 */
+	this.backedgeID		= backedge;
+	
+	/**
+	 * ID of last added edge.
+	 * @memberof! TCTree
+	 * @type {int}
+	 */
+	this.edgeID			= 0;
+	
+	/**
+	 * Edges of the TCTree.
+	 * @memberof! TCTree
+	 * @type {Array}
+	 */
+	this.edges			= {};
+	
+	/**
+	 * Normalized graph.
+	 * @memberof! TCTree
+	 * @type {Object} 
+	 */
+	this.graph			= parent.normGraph;
+	
+	/**
+	 * Incidence lists.
+	 * @memberof! TCTree
+	 * @type {Array}
+	 */
+	this.incidentEdges	= {};
+	
+	/**
+	 * ID of last added node.
+	 * @memberof! TCTree
+	 * @type {int}
+	 */
+	this.nodeID			= 0;
+	
+	/**
+	 * Nodes of the TCTree.
+	 * @memberof! TCTree
+	 * @type {Array}
+	 */
+	this.nodes			= {};
+	
+	/**
+	 * Instance of LinearTimeLayout.
+	 * @memberof! TCTree
+	 * @type {Object}
+	 */
+	this.parent			= parent;
+	
+	/**
+	 * Parents of nodes within the TCTree.
+	 * @memberof! TCTree
+	 * @type {Array}
+	 */
+	this.parents		= {};
+	
+	/**
+	 * ID of the tree's root.
+	 * @memberof! TCTree
+	 * @type {String}
+	 */
+	this.root			= null;
+	
+	// construct tree
 	this.construct();
 };
 
 /*
  * TCTree Methods
  */
+
+/**
+ * Add edge to TCTree.
+ * 
+ * @memberof! TCTree
+ * @param {String} v1 - ID of parent triconnected component.
+ * @param {String} v2 - ID of child triconnected component.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.TCTree.prototype.addEdge = function (v1, v2)
 {
-	// v1, v2: node ID
-	
 	var id		= "e" + this.edgeID++;
 	var edge	= new this.parent.BasicEdge(id, this.nodes[v1], this.nodes[v2]);
 	this.edges[id]	= edge;
@@ -53,13 +140,7 @@ LinearTimeLayout.prototype.TCTree.prototype.addEdge = function (v1, v2)
 	if (!gf_isset(this.adjacency[v1]))
 		this.adjacency[v1]	= {};
 		
-	// if (!gf_isset(this.adjacency[v2]))
-	//	this.adjacency[v2]	= {};
-		
 	this.adjacency[v1][id]	= id;
-	// this.adjacency[v2][id]	= id;
-	
-	// TODO: as tree: remove entries for v2? (remove this.adjacency[v2])
 	
 	// add parent
 	this.parents[v2]	= v1;
@@ -75,6 +156,13 @@ LinearTimeLayout.prototype.TCTree.prototype.addEdge = function (v1, v2)
 	this.incidentEdges[v2][id]	= edge;
 };
 
+/**
+ * Add node to TCTree.
+ * 
+ * @memberof! TCTree
+ * @param {Object} node - Triconnected component.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.TCTree.prototype.addNode = function (node)
 {
 	var id	= "n" + this.nodeID++;
@@ -82,11 +170,24 @@ LinearTimeLayout.prototype.TCTree.prototype.addNode = function (node)
 	this.nodes[id]	= node;
 };
 
+/**
+ * Checks if the given node is the root of the TCTree.
+ * 
+ * @memberof! TCTree
+ * @param {Object} node - A TCTreeNode (triconnected component).
+ * @returns {boolean} True if node is root of the TCTree, false otherwise.
+ */
 LinearTimeLayout.prototype.TCTree.prototype.checkRoot = function (node)
 {
 	return gf_isset(node.skeleton.o2e[this.backedgeID]);
 };
 
+/**
+ * Construct the tree of triconnected-components (TCTree).
+ * 
+ * @memberof! TCTree
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.TCTree.prototype.construct = function ()
 {
 	var components	= new Array();
@@ -197,12 +298,12 @@ LinearTimeLayout.prototype.TCTree.prototype.construct = function ()
 		{
 			if (i == 1)
 			{
-				v1	= ve2nodes[entryA][v]
+				v1	= ve2nodes[entryA][v];
 			}
 			
 			if (i == 2)
 			{
-				v2	= ve2nodes[entryA][v]
+				v2	= ve2nodes[entryA][v];
 				break;
 			}
 			
@@ -321,12 +422,12 @@ LinearTimeLayout.prototype.TCTree.prototype.construct = function ()
 		{
 			if (i == 1)
 			{
-				v1	= ve2nodes[entry][v]
+				v1	= ve2nodes[entry][v];
 			}
 			
 			if (i == 2)
 			{
-				v2	= ve2nodes[entry][v]
+				v2	= ve2nodes[entry][v];
 				break;
 			}
 			
@@ -380,6 +481,14 @@ LinearTimeLayout.prototype.TCTree.prototype.construct = function ()
 	}
 };
 
+/**
+ * Create empty or preset edge map to store virtual edges, etc.
+ * 
+ * @memberof! TCTree
+ * @param {Object} graph - The graph for which to create the map.
+ * @param {mixed} initialValue - Initial value that is assigned to each edge. (default: null)
+ * @returns {Array} Array of edge IDs, each entry set to null or to the initialValue.
+ */
 LinearTimeLayout.prototype.TCTree.prototype.createEdgeMap = function (graph, initialValue)
 {
 	var map	= {};
@@ -392,6 +501,13 @@ LinearTimeLayout.prototype.TCTree.prototype.createEdgeMap = function (graph, ini
 	return map;
 };
 
+/**
+ * Create empty node map to store adjacency lists.
+ * 
+ * @memberof! TCTree
+ * @param {Object} graph - The graph for which to create the map.
+ * @returns {Array} Array of node IDs, each entry set to null.
+ */
 LinearTimeLayout.prototype.TCTree.prototype.createNodeMap = function (graph)
 {
 	var map	= {};
@@ -402,6 +518,12 @@ LinearTimeLayout.prototype.TCTree.prototype.createNodeMap = function (graph)
 	return map;
 };
 
+/**
+ * Checks if the tree does not contain any edges.
+ * 
+ * @memberof! TCTree
+ * @returns {boolean} True if edge list of tree is empty, false otherwise.
+ */
 LinearTimeLayout.prototype.TCTree.prototype.edgesEmpty = function ()
 {
 	var isEmpty	= true;
@@ -413,6 +535,16 @@ LinearTimeLayout.prototype.TCTree.prototype.edgesEmpty = function ()
 	return isEmpty;
 };
 
+/**
+ * Find split components of tree.
+ * 
+ * @memberof! TCTree
+ * @param {Object} graph - The skeleton of the tree.
+ * @param {Array} components - Pointer to resulting array of triconnected components.
+ * @param {Object} meta - Additional meta data, e.g. adjacency lists, etc.
+ * @param {Object} root - The root node to start the DFSs with.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.TCTree.prototype.findSplitComponents = function (graph, components, meta, root)
 {
 	var adjMap	= this.createNodeMap(graph);
@@ -422,8 +554,7 @@ LinearTimeLayout.prototype.TCTree.prototype.findSplitComponents = function (grap
 		for (var e in graph.incidentEdges[v])
 		{
 			var edge	= graph.incidentEdges[v][e];
-			// adj.unshift(edge);
-			adj.push(edge);		// adj.add(e)
+			adj.push(edge);
 		}
 		adjMap[v]	= adj;
 	}
@@ -458,6 +589,13 @@ LinearTimeLayout.prototype.TCTree.prototype.findSplitComponents = function (grap
 		dfs3.start(root.id);
 };
 
+/**
+ * Get adjacent nodes for a given node.
+ * 
+ * @memberof! TCTree
+ * @param {String} nodeID - ID of the node to get the adjacent nodes for.
+ * @returns {Array} Array of adjacent nodes.
+ */
 LinearTimeLayout.prototype.TCTree.prototype.getAdjacent = function (nodeID)
 {	
 	if (!gf_isset(this.incidentEdges[nodeID]))
@@ -484,6 +622,13 @@ LinearTimeLayout.prototype.TCTree.prototype.getAdjacent = function (nodeID)
 	return adjacentNodes;
 };
 
+/**
+ * Get children of a node within the TCTree.
+ * 
+ * @memberof! TCTree
+ * @param {String} node - ID of node.
+ * @returns {Array} Child nodes within the TCTree.
+ */
 LinearTimeLayout.prototype.TCTree.prototype.getChildren = function (node)
 {
 	// return direct child nodes
@@ -504,6 +649,14 @@ LinearTimeLayout.prototype.TCTree.prototype.getChildren = function (node)
 	return childNodes;
 };
 
+/**
+ * Get all edges connecting two given nodes.
+ * 
+ * @memberof! TCTree
+ * @param {String} v1 - ID of first node.
+ * @param {String} v2 - ID of second node.
+ * @returns {Array} Array of edges connecting both nodes.
+ */
 LinearTimeLayout.prototype.TCTree.prototype.getEdges = function (v1, v2)
 {
 	var result	= new Array();
@@ -518,16 +671,41 @@ LinearTimeLayout.prototype.TCTree.prototype.getEdges = function (v1, v2)
 	return result;
 };
 
+/**
+ * Get parent for the given node.
+ * 
+ * @memberof! TCTree
+ * @param {String} node - ID of a node.
+ * @returns {String} ID of the node's parent within the TCTree.
+ */
 LinearTimeLayout.prototype.TCTree.prototype.getParent = function (node)
 {
 	return this.parents[node];
 };
 
+/**
+ * Checks if a given node is the root of the TCTree.
+ * 
+ * @memberof! TCTree
+ * @param {String} node - ID of a node.
+ * @returns {boolean} True if the given node is the root of the TCTree, false otherwise.
+ */
 LinearTimeLayout.prototype.TCTree.prototype.isRoot = function (node)
 {
 	return this.root == node;
 };
 
+/**
+ * Create a new component.
+ * 
+ * @memberof! TCTree
+ * @param {Object} skeleton - Link to the tree's skeleton.
+ * @param {Array} components - List of components to which the new component is added.
+ * @param {Array} tempComp - Edges of the component.
+ * @param {Object} meta - Additional meta data.
+ * @param {Object} lastEdge - Last edge of component.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.TCTree.prototype.newComponent = function (skeleton, components, tempComp, meta, lastEdge)
 {
 	for (var e in tempComp)
@@ -550,6 +728,14 @@ LinearTimeLayout.prototype.TCTree.prototype.newComponent = function (skeleton, c
 	components.push(tempComp);
 };
 
+/**
+ * Order the adjacency lists depending on the edge's type and additional meta data.
+ * 
+ * @memberof! TCTree
+ * @param {Object} graph - The graph for which to order the adjacency lists.
+ * @param {Object} meta - Additional meta data used for the ordering.
+ * @returns {Array} Ordered adjacency lists.
+ */
 LinearTimeLayout.prototype.TCTree.prototype.orderAdjLists = function (graph, meta)
 {
 	var edges		= graph.edges;
@@ -557,7 +743,7 @@ LinearTimeLayout.prototype.TCTree.prototype.orderAdjLists = function (graph, met
 	var bucketSize	= 3 * graph.nodeCount + 2;
 	for (var i = 0; i < bucketSize; i++)
 	{
-		bucket.push(new Array());	// bucket.add(EdgeList)
+		bucket.push(new Array());
 	}
 	
 	var phi	= 0;
@@ -606,18 +792,23 @@ LinearTimeLayout.prototype.TCTree.prototype.orderAdjLists = function (graph, met
 	
 };
 
+/**
+ * Remove edges from TCTree.
+ * 
+ * @memberof! TCTree
+ * @param {Array} edges - Array of edges to remove.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.TCTree.prototype.removeEdges = function (edges)
 {
 	for (var e in edges)
 	{
-		// this.remove(edges[e])
 		var edge	= edges[e];
 		
 		if (!(edge instanceof LinearTimeLayout.prototype.BasicEdge))
 		{
 			edge	= this.edges[edge];
 		}
-		
 		
 		// edge: edgeID
 		delete this.edges[edge.id];
@@ -626,6 +817,13 @@ LinearTimeLayout.prototype.TCTree.prototype.removeEdges = function (edges)
 	}
 };
 
+/**
+ * Remove node from TCTree.
+ * 
+ * @memberof! TCTree
+ * @param {String|Object} node - Either ID or actual node.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.TCTree.prototype.removeNode = function (node)
 {
 	if (gf_isset(node.id))
@@ -652,6 +850,13 @@ LinearTimeLayout.prototype.TCTree.prototype.removeNode = function (node)
 	}
 };
 
+/**
+ * Remove multiple nodes from the TCTree.
+ * 
+ * @memberof! TCTree
+ * @param {Array} nodes - List of nodes to remove.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.TCTree.prototype.removeNodes = function (nodes)
 {
 	for (var n in nodes)
@@ -660,6 +865,13 @@ LinearTimeLayout.prototype.TCTree.prototype.removeNodes = function (nodes)
 	}
 };
 
+/**
+ * Reorganize the TCTree to set a new root node.
+ * 
+ * @memberof! TCTree
+ * @param {String} node - ID of the node to set new root.
+ * @returns {String} ID of new root node.
+ */
 LinearTimeLayout.prototype.TCTree.prototype.reRoot = function (node)
 {
 	if (node == null || !gf_isset(this.nodes[node]))
@@ -702,6 +914,13 @@ LinearTimeLayout.prototype.TCTree.prototype.reRoot = function (node)
 	return this.root;
 };
 
+/**
+ * Sort edges so that multiple edges are ordered consecutively.
+ * 
+ * @memberof! TCTree
+ * @param {Object} graph - The skeleton of the TCTree.
+ * @returns {Array} Ordered list of edges.
+ */
 LinearTimeLayout.prototype.TCTree.prototype.sortConsecutiveMultipleEdges = function (graph)
 {
 	var indices	= {};
@@ -758,6 +977,15 @@ LinearTimeLayout.prototype.TCTree.prototype.sortConsecutiveMultipleEdges = funct
 	return sortedEdges;
 };
 
+/**
+ * Remove multiple edges by creating components.
+ * 
+ * @memberof! TCTree
+ * @param {Object} graph - Skeleton of TCTree.
+ * @param {Array} components - Pointer to the components array which holds the newly created components.
+ * @param {Object} meta - Additional meta data.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.TCTree.prototype.splitOffInitialMultipleEdges = function (graph, components, meta)
 {
 	var edges			= this.sortConsecutiveMultipleEdges(graph);
