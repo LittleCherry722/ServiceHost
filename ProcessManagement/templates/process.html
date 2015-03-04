@@ -68,12 +68,12 @@
 				</li>
 
 				<li role="presentation" data-chardin-intro="Save, save as... or discard changes." data-chardin-position="top">
-					<div style="position: relative; padding: 10px 15px; margin-right: 2px; line-height: 1.42857;">
-						<a data-bind="click: saveCurrentProcess" title="Save Process" style="display: inline; cursor: hand; text-decoration: none;">
+					<div id="save-dropdown">
+						<a data-bind="click: saveCurrentProcess" title="Save Process">
 							<span class="glyphicon glyphicon-save" aria-hidden="true"></span> Save
-							<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false" style="display: inline; border-left: 1px solid lightgrey;margin-left:1em;padding-left:0.5em;">
-								<b class="caret"></b>
-							</a>
+						</a>
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">
+							<span aria-hidden="true">| </span><b class="caret"></b>
 						</a>
 						<ul class="dropdown-menu" role="menu">
 							<li>

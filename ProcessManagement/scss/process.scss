@@ -156,4 +156,41 @@ div.graphsettings input[type="radio"] {
   }
 }
 
+// a button combined with a dropdown
+#save-dropdown {
+   border:  1px solid transparent;
+   border-radius: $border-radius-base $border-radius-base 0 0;
 
+  &.open {
+    border: 1px solid $component-active-bg;
+    background-color: $nav-link-hover-bg;
+
+    & > a, & a.dropdown-toggle,
+    & > a:focus, & a.dropdown-toggle:focus,
+    & > a:hover, & a.dropdown-toggle:hover {
+      background-color: transparent;
+    }
+  }
+
+  > a {
+    display:inline-block;
+    padding: $nav-link-padding;
+    cursor: pointer;
+    text-decoration: none;
+    &:hover, &:focus {
+      background-color: $nav-link-hover-bg;
+    }
+  }
+
+  a.dropdown-toggle {
+    padding-left: 0;
+
+    &:hover, &:focus {
+      background-color: $nav-link-hover-bg;
+    }
+
+    span {
+      color: lightgrey;
+    }
+  }
+}
