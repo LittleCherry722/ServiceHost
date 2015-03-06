@@ -29,28 +29,10 @@
       background-color: #EEEEEE;
     }
   }
-  #notification {
-    position: relative;
-    background-color: #FFF6DB;
-    border: 1px solid #C9A32E;
-    padding: 5px 15px 5px 5px;
-    margin: 15px 0;
-    border-top-right-radius: 10px;
 
-    h1 {
-      color: #000;
-      font-size: 16px;
-      font-weight: bold;
-    }
-
-    #notification_close {
-      font-weight: bold;
-      display: inline;
-      cursor: pointer;
-      font-size: 14px;
-      position: absolute;
-      top: 3px;
-      right: 6px;
+  #processExecution {
+    ul.nav.nav-tabs li:nth-child(3) {
+      width: 300px;
     }
   }
 

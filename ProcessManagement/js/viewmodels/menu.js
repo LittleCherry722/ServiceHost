@@ -41,13 +41,13 @@ define([
 			weekStart: 1,
 		});
 
-		$('[data-toggle=sidebar]').click(function() {
-			var sidebar = $('#sidebar');
-			if (sidebar.is(":visible"))
-				sidebar.addClass('hidden');
+		$('[data-toggle=left_menu]').click(function() {
+			var left_menu = $('#left_menu');
+			if (left_menu.is(":visible"))
+				left_menu.addClass('hidden');
 			else
-				sidebar.removeClass('hidden');
-			$('[data-toggle=sidebar]').toggle();
+				left_menu.removeClass('hidden');
+			$('[data-toggle=left_menu]').toggle();
 		});
 	}
 

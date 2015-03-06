@@ -2,6 +2,7 @@
 <div id="dashboard">
 	<div data-chardin-intro="This is your Dashboard." data-chardin-position="bottom">
 		<h1>S-BPM Groupware v1.2</h1>
+
 		<div class="row" id="filter">
 			<div class="col-sm-3">
 				<select class="form-control" data-placeholder="Filter User" data-bind="options: availableUsers, optionsText: 'name', optionsValue: 'id', value: selectedUser, optionsCaption: '', chosen: { allow_single_deselect: true }"></select>
@@ -24,12 +25,6 @@
 					<input class="form-control" type="text" id="to" name="to" data-bind="value: selectedEnd, datepicker: { autoclose: true, clearBtn: true }"/>
 				</div>
 			</div>
-		</div>
-
-		<div id="notification" style="display: none;">
-			<h1>Notification box</h1>
-			<span>Notification message</span>
-			<div id="notification_close" onclick="this.parentNode.style.display = 'none';">x</div>
 		</div>
 
 		<hr>

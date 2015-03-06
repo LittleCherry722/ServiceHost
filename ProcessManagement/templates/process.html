@@ -1,20 +1,12 @@
 <div class="inner">
-<div id="contentHead">
-	<h3 id="processName" data-bind="text: currentProcess().name "></h3>
-</div>
-
 <ul class="breadcrumb">
 	<li><a href="#/processList">Processes</a></li>
 	<!-- ko ifnot: currentSubject() -->
-	<li class="active"><span data-bind="text: currentProcess().name()"></span></li>
+	<li class="active"><h1 style="display:inline" data-bind="text: currentProcess().name()"></h1></li>
 	<!-- /ko -->
 	<!-- ko if: currentSubject() -->
-	<li><a data-bind="text: currentProcess().name(), attr: {
-	href: currentProcess().url() }"></a>
-	</li>
-	<li class="active">
-		<span data-bind="text: currentSubjectName()"></span>
-	</li>
+	<li><h1 style="display:inline"><a data-bind="text: currentProcess().name(), attr: { href: currentProcess().url() }"></a></h1></li>
+	<li class="active"><h2 style="display:inline" data-bind="text: currentSubjectName()"></h2></li>
 	<!-- /ko -->
 </ul>
 
@@ -153,6 +145,7 @@
 		</div>
 	</div>
 </div>
+<div style="height: 200px" aria-hidden="true"></div>
 
 <div class="modal fade" id="saveAsModal" tabindex="-1" role="dialog" aria-labelledby="saveAsModalTitle" aria-hidden="true">
 	<div class="modal-dialog">

@@ -20,7 +20,6 @@
 @import "calc";
 @import "forms";
 @import "chardinjs-behavior";
-@import "offcanvas";
 
 @import "header";
 @import "menu";
@@ -187,11 +186,6 @@ a:active {
   .onecolumn {
     height: 100%;
   }
-}
-
-#processContent {
-  position: relative;
-  @include calc(height, "100% - 36px");
 }
 
 #processHelpButtons {
@@ -724,36 +718,8 @@ span.icon_clear:hover {
   }
 }
 
-#graph_bv_outer, #graph_cv_outer {
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
 .select-subject-dropdown li.disabled a {
   pointer-events: none;
-}
-
-#process-subject-help {
-  position: absolute;
-  top: 310px;
-  right: 200px;
-
-  width: 314px;
-  height: 240px;
-  background: url(../images/arrow_process_create_subject.png) bottom right no-repeat;
-
-  > p {
-    margin-left: -75px;
-    width: 140px;
-    border: 1px solid #777;
-    padding: 4px;
-    margin-top: -25px;
-    line-height: 1.4;
-    color: #444;
-    font-size: 13px;
-  }
 }
 
 /*!
@@ -781,11 +747,17 @@ body {
 }
 
 #main {
-  padding-left: 3em;
+  padding-left: 2em;
+  padding-right: 2em;
   margin-bottom: 2em;
+  overflow: hidden;
 
   .breadcrumb {
     margin-bottom: 0;
+  }
+
+  h1 {
+    margin-top: 0;
   }
 }
 

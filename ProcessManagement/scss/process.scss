@@ -49,6 +49,13 @@ div.graphsettings input[type="radio"] {
 }
 
 .graphsettings {
+  width: $right-menu-width;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  overflow: auto;
+
   .chzn-container-multi {
     height: auto;
     width: 100%;
@@ -192,5 +199,51 @@ div.graphsettings input[type="radio"] {
     span {
       color: lightgrey;
     }
+  }
+}
+
+#processContent {
+  position: absolute;
+  // FIXME: magic number covering title and menu
+  top: $header-height + 110px;
+  bottom: 0;
+  left: $left-menu-width;
+  right: 0;
+  margin-left: 2em;
+  margin-right: 2em;
+}
+
+#graph_bv_outer, #graph_cv_outer {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  position: absolute;
+  right: $right-menu-width;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  overflow: auto;
+}
+
+#process-subject-help {
+  position: absolute;
+  top: 245px;
+  right: 225px;
+
+  width: 314px;
+  height: 240px;
+  background: url(../images/arrow_process_create_subject.png) bottom right no-repeat;
+
+  > p {
+    margin-left: -75px;
+    width: 140px;
+    border: 1px solid #777;
+    padding: 4px;
+    margin-top: -25px;
+    line-height: 1.4;
+    color: #444;
+    font-size: 13px;
   }
 }

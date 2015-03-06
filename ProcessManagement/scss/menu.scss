@@ -44,7 +44,9 @@ a#hide_menu {
 }
 
 #left_menu {
-  width: $sidebar-width;
+  width: $left-menu-width;
+  float: left;
+
   background-color: #ebebeb;
   //border-right: 1px solid #bcbcbc;
   border: 1px solid #E3E3E3;
@@ -56,20 +58,10 @@ a#hide_menu {
   }
 }
 
-#sidebar {
-  width: $sidebar-width;
-  position: fixed;
-  z-index: 999;
-}
-
-#sidebar.hidden {
+#left_menu.hidden {
   display: none;
-}
 
-#sidebar + div {
-  padding-left: $sidebar-width;
-}
-
-#sidebar.hidden + div {
-  padding-left: 0;
+  ~ div#main #processContent {
+    left: 2em;
+  }
 }
