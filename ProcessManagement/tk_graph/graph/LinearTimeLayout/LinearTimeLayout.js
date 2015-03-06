@@ -985,7 +985,7 @@ LinearTimeLayout.prototype.drawEdges = function ()
 				if (!gf_isset(this.renderObjects.edges[edge.orgId]))
 					this.renderObjects.edges[edge.orgId]	= new GCrenderEdge(edge.orgId, edge.edgeData);
 					
-				this.renderObjects.edges[edge.orgId].setEndPoints(src, tgt);
+				this.renderObjects.edges[edge.orgId].setEndPoints(this.idToGW(src), this.idToGW(tgt));
 				this.renderObjects.edges[edge.orgId].setPosStart(startH, startV);
 				this.renderObjects.edges[edge.orgId].setPosEnd(endH, endV);
 				this.renderObjects.edges[edge.orgId].setLTL(label, bend1, bend2);
@@ -1158,13 +1158,15 @@ LinearTimeLayout.prototype.drawNode = function (n, x, y)
 			// At this point the node and its position is passed to the renderer (the GCrenderNode is part of the tk_graph library)
 			if (this.renderElements == true)
 			{
+				var nid	= this.idToGW(n);
+				
 				if (!gf_isset(this.renderObjects.nodes))
 					this.renderObjects.nodes	= {};
 					
-				if (!gf_isset(this.renderObjects.nodes[n]))
-					this.renderObjects.nodes[n]	= new GCrenderNode(n, this.nodes[n].node);
+				if (!gf_isset(this.renderObjects.nodes[nid]))
+					this.renderObjects.nodes[nid]	= new GCrenderNode(nid, this.nodes[n].node);
 		
-				this.renderObjects.nodes[n].setPosition(Math.floor(this.nodex[n]), Math.floor(this.nodey[n]));
+				this.renderObjects.nodes[nid].setPosition(Math.floor(this.nodex[n]), Math.floor(this.nodey[n]));
 			}
 			
 			this.count.nodes++;
@@ -1553,6 +1555,21 @@ LinearTimeLayout.prototype.identifyEdgeTypes = function (nodeID, type, discovere
 	t++;
 	finished[nodeID]	= t;
 	return t;
+};
+
+/**
+ * Convert node ID to groupware conform ID.
+ * @param {String} n - ID of a node.
+ * @returns {String} Modified ID.
+ */
+LinearTimeLayout.prototype.idToGW = function (n)
+{
+	if (n.substr(0,1) == "n")
+	{
+		n	= n.substr(1);
+	}
+	
+	return n;
 };
 
 /**
