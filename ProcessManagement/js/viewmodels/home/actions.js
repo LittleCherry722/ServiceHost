@@ -7,9 +7,6 @@ define([
     "models/process",
     "notify",
     "moment",
-    "jquery",
-    "jquery.pubsub",
-    "jquery.scrollTo",
 ], function( ko, App, _, Actions, ProcessInstance, Process, Notify, moment ) {
 
     var ViewModel = function() {

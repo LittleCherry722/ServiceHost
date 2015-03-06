@@ -1,8 +1,6 @@
 require([
 		"knockout",
-		"jquery",
-		"bootstrap.datepicker",
-], function( ko, $ ) {
+], function( ko ) {
 
 	ko.bindingHandlers.datepicker =
 	{

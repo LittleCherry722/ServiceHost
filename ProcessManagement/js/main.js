@@ -31,15 +31,6 @@ require.config({
 				"knockout.custom": thirdpartyURI + "knockout/plugins/knockout.custom-bindings",
 				"knockout.chosen": thirdpartyURI + "knockout/plugins/knockout.chosen",
 				"knockout.datepicker": thirdpartyURI + "knockout/plugins/knockout.datepicker",
-			"jquery": thirdpartyURI + "jquery/jquery",
-				"jquery.freeow": thirdpartyURI + "jquery-freeow/jquery.freeow",
-				"jquery.scrollTo": thirdpartyURI + "jquery-scrollTo/jquery.scrollTo",
-				"jquery.chosen": thirdpartyURI + "jquery-chosen/jquery.chosen",
-				"jquery.pubsub": thirdpartyURI + "jquery-pubsub/jquery.pubsub",
-				"jquery.chardin": thirdpartyURI + "jquery-chardin/jquery.chardinjs",
-				"jquery.fancybox": thirdpartyURI + "jquery-fancybox/jquery.fancybox",
-			"bootstrap": thirdpartyURI + "bootstrap/bootstrap",
-				"bootstrap.datepicker": thirdpartyURI + "bootstrap-datepicker/bootstrap-datepicker",
 			// our own libraries
 			"model": ownURI + "model",
 			"notify": ownURI + "notify",
@@ -62,16 +53,6 @@ require.config({
 		"rainbow": {
 			exports: "Rainbow"
 		},
-		// ensure that all jquery plugins depend on jquery. Not all do in a requirejs-compatible way
-		"jquery.ui": ["jquery"],
-		"jquery.fancybox": ["jquery"],
-		"jquery.chardin": ["jquery"],
-		"jquery.pubsub": ["jquery"],
-		"jquery.chosen": ["jquery"],
-		"jquery.scrollTo": ["jquery"],
-		"jquery.freeow": ["jquery"],
-		"bootstrap": ["jquery"],
-		"bootstrap.datepicker": ["jquery"],
 	},
 	urlArgs: (function() {
 		// ensure that browser caches aren't used, but only on localhost
@@ -91,7 +72,6 @@ require([ "app", "router", "knockout.custom" ], function( App, Router ){
 		type : "GET",
 		async : false, // defaults to true
 		success : function(data, textStatus, jqXHR) {
-
 			$(function() {
 				// Initialize our application.
 				App.init(function() {

@@ -12,8 +12,7 @@
  */
 
 define([
-	"jquery.freeow"
-], function( jQuery ) {
+], function() {
 
 	var Notify = function() {
 		var freeOwId = "#freeow",

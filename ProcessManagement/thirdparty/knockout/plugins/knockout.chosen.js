@@ -1,8 +1,6 @@
 require([
 		"knockout",
-		"jquery",
-		"jquery.chosen",
-], function( ko, $ ) {
+], function( ko ) {
 
 	// idea from https://stackoverflow.com/questions/22022261/jquery-chosen-doesnt-update-select-options-while-working-with-knockout-js
 	ko.bindingHandlers.chosen =

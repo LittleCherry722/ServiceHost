@@ -9,13 +9,9 @@ define([
   "models/processInstance",
   "moment",
   "notify",
-  "jquery",
-  "jquery.chardin",
-  "jquery.chosen",
   "knockout.chosen",
   "knockout.datepicker",
-  "bootstrap"
-], function( ko, App, _, User, Process, Actions, History, ProcessInstance, moment, Notify, $ ) {
+], function( ko, App, _, User, Process, Actions, History, ProcessInstance, moment, Notify) {
 
   var ViewModel = function() {
     var self = this;

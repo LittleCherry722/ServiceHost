@@ -22,7 +22,6 @@ define([
     "model/storage",
     "model/polling"
     // "arne/model/attributes"
-    // "jquery"
 ], function( _, ko, Router, require, async, Associations, Attributes, Storage, Polling ) {
     var Model,
         models = [];

@@ -16,8 +16,6 @@ define([
 	"models/user",
 	"text!../../templates/header.html",
 	"notify",
-    "jquery",
-    "jquery.chardin"
 ], function( ko, App, User, headerTemplate, Notify ) {
 
 	// Our header viewmodel. Make this private and only export some methods as

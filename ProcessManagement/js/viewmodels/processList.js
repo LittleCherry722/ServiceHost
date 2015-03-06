@@ -8,10 +8,9 @@ define([
 	"underscore",
 	"router",
 	"moment",
-	"jquery",
-	"jquery.chosen",
+	"knockout.chosen",
 	"knockout.datepicker",
-], function( ko, App, Notify, Dialog, Process, ProcessInstance, _, Router, moment, $ ) {
+], function( ko, App, Notify, Dialog, Process, ProcessInstance, _, Router, moment ) {
 	var ViewModel = function() {
 		var self = this;
 		self.processes = processlist;

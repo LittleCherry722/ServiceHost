@@ -1,7 +1,5 @@
 require([
 	"knockout",
-	"jquery",
-	"jquery.fancybox"
 ], function( ko ) {
 
 // extended template binding with a listeners attributed

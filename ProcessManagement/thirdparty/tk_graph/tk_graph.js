@@ -16,17 +16,6 @@ var gv_filePrefix = "thirdparty/tk_graph";
 // include Raphael
 gf_includeJS("../raphael/raphael.js");
 
-gf_includeJS("../jquery/jquery.js");
-
-// include jQuery scrollTo plugin
-gf_includeJS("../jquery-scrollTo/jquery.scrollTo.js");
-
-// include jQuery MouseWheel plugin
-gf_includeJS("../jquery-mousewheel/jquery.mousewheel.js");
-
-// include PubSub
-gf_includeJS("../jquery-pubsub/jquery.pubsub.js");
-
 // include classes
 gf_includeJS("graph/classes/behavior.class.js");
 gf_includeJS("graph/classes/communication.class.js");

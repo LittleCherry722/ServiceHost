@@ -2,9 +2,7 @@ define([
 	"knockout",
 	"models/process",
 	"text!../../templates/menu.html",
-	"jquery",
-	"bootstrap.datepicker"
-], function( ko, Process, menuTemplate, $ ) {
+], function( ko, Process, menuTemplate ) {
 
 	var viewModel = function() {
 		// Where do we actually need this? Remove it?

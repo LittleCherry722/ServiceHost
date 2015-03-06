@@ -16,7 +16,6 @@ define([
 	"underscore",
 	"models/processInstance",
 	"router",
-	"jquery.pubsub"
 ], function( ko, App, _, ProcessInstance, Router ) {
 
 	var ViewModel = function() {
