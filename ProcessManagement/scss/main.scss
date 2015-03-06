@@ -816,6 +816,10 @@ body {
   }
 }
 
+#atlwdg-trigger {
+  z-index: 9999;
+}
+
 .freeow .success .icon {
   background-image: url(../images/freeow-success.png);
 }

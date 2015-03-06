@@ -77,6 +77,7 @@ require([ "app", "router", "knockout.custom" ], function( App, Router ){
 				App.init(function() {
 					// And load our router so we can actually navigate the page.
 					Router.init();
+					require(["feedback"], function () {});
 				});
 			});
 

@@ -20,5 +20,5 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/.
- */html{height:100%}body{height:100%;padding-top:70px}#main{padding-left:3em;margin-bottom:2em}#main .breadcrumb{margin-bottom:0}#executionContent{padding:10px;background-color:#FFFFFF;border:1px solid #CDCDCD;border-radius:5px 5px 5px 5px;box-shadow:0 0 3px #CCCCCC}#executionContent.first-tab-selected{border-radius:0 5px 5px 5px}.item_info .table{margin:0}.item_info .table thead>tr>td{border-top:0;border-bottom:1px solid #DDDDDD}.processhead .col3{text-align:right}.freeow .success .icon{background-image:url(../images/freeow-success.png)}
+ */html{height:100%}body{height:100%;padding-top:70px}#main{padding-left:3em;margin-bottom:2em}#main .breadcrumb{margin-bottom:0}#executionContent{padding:10px;background-color:#FFFFFF;border:1px solid #CDCDCD;border-radius:5px 5px 5px 5px;box-shadow:0 0 3px #CCCCCC}#executionContent.first-tab-selected{border-radius:0 5px 5px 5px}.item_info .table{margin:0}.item_info .table thead>tr>td{border-top:0;border-bottom:1px solid #DDDDDD}.processhead .col3{text-align:right}#atlwdg-trigger{z-index:9999}.freeow .success .icon{background-image:url(../images/freeow-success.png)}
 /*# sourceMappingURL=main.css.map */
