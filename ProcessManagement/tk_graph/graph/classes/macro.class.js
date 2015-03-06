@@ -533,6 +533,9 @@ function GCmacro (parent, id, name)
 				// ltl.orientation = "ltr";
 
 				gf_timeCalc("macro - draw (drawGraph)");
+				// init the paper
+				gf_paperChangeView("bv");
+					
 				// if (this.edgeCounter > 0)
 					ltl.layout();
 				gf_timeCalc("macro - draw (drawGraph)");
