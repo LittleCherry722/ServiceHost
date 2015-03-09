@@ -393,6 +393,35 @@ class Receiver ServiceActor extends ServiceActor {
       false
     }
   }
+ private def dequeueMessage(key: (SubjectID, MessageType)): SubjectToSubjectMessage = {
+   
+    
+    log.debug("Dequeueing message from normal queue!")
+    
+    val tempQueue = Queue[SubjectToSubjectMessage]()
+    
+    for (i: Int <- 1 to messageQueueMap(key).size) {
+      var msg = messageQueueMap(key).dequeue()
+      if(!msg.enabled){
+        tempQueue.enqueue(msg)
+      }else{
+        messageQueueMap(key) = tempQueue ++ messageQueueMap(key)
+        log.debug("Move message from overflow queue to normal queue")
+        
+        //enabled message has been found and removed from the queue
+        //copy message from the overflow to the main queue which has space again
+        if(spaceAvailableInMessageQueue(key._1, key._2)){
+          log.debug("Dequeueing message from overflow queue!")
+          enqueueMessage(messageOverflowQueueMap(key).dequeue());
+        }
+        
+        return msg
+      }
+    }
+    
+    null
 
+    messageQueueMap(key).dequeue()
+  }
   
 }
