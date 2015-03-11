@@ -59,8 +59,6 @@ define([ "director", "app"], function( Director, App ) {
 			setHasUnsavedChanges(false);
 		}
 
-		expandListOfProcesses();
-
 		if ( subjectId ) {
 			subjectId = subjectId.replace(/___/, " ");
 		}
@@ -91,12 +89,10 @@ define([ "director", "app"], function( Director, App ) {
 	}
 
 	var showNewProcess = function() {
-		expandListOfProcesses();
 		loadView( "newProcess", null, globalCallback() );
 	}
 
 	var showProcessList = function() {
-		expandListOfProcesses();
 		loadView( "processList", null, globalCallback() );
 	}
 
@@ -172,11 +168,6 @@ define([ "director", "app"], function( Director, App ) {
 			}
 		},
 		"console": showConsole
-	}
-
-	var expandListOfProcesses = function() {
-		Menu = require("viewmodels/menu");
-		Menu.expandListOfProcesses( true );
 	}
 
 	/*

@@ -18,10 +18,6 @@ define([
 		this.allProcesses = Process.all;
 	}
 
-	var expandListOfProcesses = function() {
-		$('#processListLink').trigger( "click" )
-	}
-
 	// Initialize our menu.
 	// Write the template content in our menuNode and
 	// apply all bindings.
@@ -54,7 +50,6 @@ define([
 	// Everything in this object will be the public API
 	return {
 		init: initialize,
-		expandListOfProcesses: expandListOfProcesses
 	}
 });
 
