@@ -56,7 +56,7 @@ define([
 		var newRoute;
 
 		if( subjectId ) {
-			subject = subjectId.replace(/___/, " ");
+			subject = decodeURIComponent(subjectId);
 			if ( gv_graph.subjects[subject] && !gv_graph.subjects[subject].isExternal() ) {
 				// let the graph know we want to go to the internal view of a subject.
 				Router.goTo([ "processinstances", processInstance().id(), "Graph", subject ]);

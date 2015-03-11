@@ -578,7 +578,7 @@ define([
         if ( subject ) {
             setGraph( currentProcess() );
 
-            subject = subject.replace(/___/, " ");
+            subject = decodeURIComponent(subject);
             var gv_subject = gv_graph.subjects[subject];
             if ( gv_subject && gv_subject.hasInternalBehavior()) {
                 if ( !Router.goTo([ Router.modelPath( currentProcess() ), subject ]) ) {

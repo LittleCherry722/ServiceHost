@@ -60,7 +60,7 @@ define([ "director", "app"], function( Director, App ) {
 		}
 
 		if ( subjectId ) {
-			subjectId = subjectId.replace(/___/, " ");
+			subjectId = decodeURIComponent(subjectId);
 		}
 
 		if ( App.currentMainViewModel() && App.currentMainViewModel().loadProcessByIds ) {
@@ -105,7 +105,7 @@ define([ "director", "app"], function( Director, App ) {
 	}
 
 	var showProcessExecution = function( id, tab, subject ) {
-		subjectId = subject ? subject.replace(/___/, " ") : undefined;
+		var subjectId = subject ? decodeURIComponent(subject) : undefined;
 
 		if ( App.isViewLoaded( "execution" ) ) {
 			App.currentMainViewModel().setView( id, tab, subjectId )
@@ -135,7 +135,7 @@ define([ "director", "app"], function( Director, App ) {
 		"/home":  {
 			on: showHome,
 			"/:tab": {
-			 	on: showHome
+				on: showHome
 			}
 		},
 		"/account": showAccount,
@@ -239,10 +239,10 @@ define([ "director", "app"], function( Director, App ) {
 		if ( _( path ).isArray() ) {
 			route = "";
 			_( path ).each( function( fragment ) {
-				if (!fragment) {
+				if (!fragment || typeof(fragment) !== 'string') {
 					return;
 				}
-				route += "/" + fragment.toString().replace(/ /, "___").replace(/^#/, "");
+				route += "/" + fragment.replace(/^#/, '');
 			});
 		} else if ( typeof path === "object" ) {
 			route = modelPath( path );

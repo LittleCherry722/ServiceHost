@@ -25,7 +25,7 @@ define([
         gvGraphDummy();
         if ( processInstance() && processInstance().process() ) {
 			return _.map(processInstance().process().subjectsArray(), function(subject){
-                var subjectId = subject[0].replace(/___/, " ");
+                var subjectId = decodeURIComponent(subject[0]);
                 return [subject[0], subject[1], gv_graph.subjects[subjectId] && !gv_graph.subjects[subjectId].isExternal()];
             });
 		} else {

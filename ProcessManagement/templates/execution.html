@@ -38,7 +38,7 @@
                 <ul class="dropdown-menu save-dropdown select-subject-dropdown" data-bind="foreach: subjects">
                     <li data-bind="css: { active: $parent.currentSubject() == $data[0], disabled: false === $data[2] }">
                         <a data-bind="attr: { href: $parent.processInstance().url() +
-							'/' + $parent.currentTab() + '/' + $data[0].replace(/ /, '___') }, text: $data[1]">
+							'/' + $parent.currentTab() + '/' + encodeURIComponent($data[0]) }, text: $data[1]">
                         </a>
                     </li>
                 </ul>
