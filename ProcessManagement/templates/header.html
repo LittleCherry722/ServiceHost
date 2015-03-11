@@ -26,7 +26,7 @@
 			<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="glyphicon glyphicon-user"></i> Welcome  <span data-bind="text: currentUser().name"></span>&nbsp;<span class="badge">42</span>&nbsp;<span class="caret"></span></a>
 			<ul class="dropdown-menu">
 				<li><a href="#/account">Profile</a></li>
-				<li><a href="#" data-bind="click: oauth2callback" data-chardin-position="bottom" data-chardin-intro="Linking your account with Google allows you to sign-in through Google and use Google Drive to uplaod attachments for actions.">
+				<li><a href="#" data-bind="click: oauth2callback" data-position="bottom" data-intro="Linking your account with Google allows you to sign-in through Google and use Google Drive to uplaod attachments for actions.">
 						Link account to Google
 					</a></li>
 					<li class="divider"></li>
@@ -34,7 +34,7 @@
 			</ul>
 		</li>
 		<!-- /ko -->
-		<li><a href="#/administration" data-chardin-position="bottom" data-chardin-intro="Create new user accounts, groups, roles and reset the system">Administration</a></li>
+		<li><a href="#/administration" data-position="bottom" data-intro="Create new user accounts, groups, roles and reset the system">Administration</a></li>
 		<li><a href="#" data-bind="click: showHelp"><i class="glyphicon glyphicon-question-sign"></i></a></li>
 	</ul>
 </nav>

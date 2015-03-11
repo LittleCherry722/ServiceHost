@@ -2,7 +2,7 @@
 <div class="col-md-3">
 	<label>Subjects</label>
 	<form>
-		<ul data-bind="foreach: subjectList" class="list-unstyled" data-chardin-intro="These subjects are currently set up and can interact within the new process."  data-chardin-position="right">
+		<ul data-bind="foreach: subjectList" class="list-unstyled" data-intro="These subjects are currently set up and can interact within the new process."  data-position="right">
 			<li class="form-inline">
 				<div class="form-group">
 					<div class="input-group">
@@ -14,7 +14,7 @@
 				</div>
 			</li>
 		</ul>
-		<div class="actions" data-chardin-intro="Click here to add further subjects to the process." data-chardin-position="right">
+		<div class="actions" data-intro="Click here to add further subjects to the process." data-position="right">
 			<button type="button" class="btn btn-success btn-xs" value="Add Subject" data-bind="click: addSubject">
 				<i class="glyphicon glyphicon-plus"></i> Add Subject
 			</button>
@@ -24,7 +24,7 @@
 <div class="col-md-7">
 	<label>Messages</label>
 	<form>
-		<ul data-bind="foreach: messageList" class="list-unstyled"  data-chardin-intro="This section defines the messages, that are sent between the involved subjects. Just give them a suitable name, the specific behaviour is modeled in the next step." data-chardin-position="bottom">
+		<ul data-bind="foreach: messageList" class="list-unstyled"  data-intro="This section defines the messages, that are sent between the involved subjects. Just give them a suitable name, the specific behaviour is modeled in the next step." data-position="bottom">
 			<li class="form-inline">
 				<div class="form-group">
 					<select class="form-control" data-bind="options: $parent.subjectList, optionsText: 'name', optionsCaption: 'Select a subject...', value: sender" class="input-medium"></select>
@@ -41,7 +41,7 @@
 			</li>
 		</ul>
 		<div class="actions">
-			<button type="button" class="btn btn-success btn-xs" data-bind="click: addMessage" data-chardin-intro="Click here to add further messages." data-chardin-position="bottom">
+			<button type="button" class="btn btn-success btn-xs" data-bind="click: addMessage" data-intro="Click here to add further messages." data-position="bottom">
 				<i class="glyphicon glyphicon-plus"></i> Add Message
 			</button>
 		</div>

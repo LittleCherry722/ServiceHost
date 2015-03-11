@@ -36,33 +36,29 @@ define([
 	// Displays help for whatever page is currently enabled, plus
 	// a basic overview of the site including header information etc. when
 	// the home view is the currently active page.
-	var showApplicationOverview = function() {
+	var showApplicationOverview = function(isundef) {
 
 		// if the dashboard is currently not displayed (no element with id
 		// 'dashboard' found), display chardin just for the current main html
 		// content, otherwise display for the whole page (to include navigation and
 		// header).
-		if( $('#dashboard').is(':visible') ) {
-                    
-			var mainHTML = $('#main').html()
-			$('#main').html("");
+		if(isundef !== 'no-dashboard' && $('#dashboard').is(':visible') ) {
+			$('#main').hide();
 			$('#main_menu').addClass('spaced');
 			setTimeout(function() {
-				$('body').chardinJs('start')
-				$( document ).one( 'chardinJs:stop', function() {
-					$('#main_menu').removeClass('spaced');
-					$('#main').html( mainHTML ).chardinJs('start');
-				})
+				$('body').chardinJs('start');
 			}.bind(this), 200);
-                        
-		} if ( $('#processContent') && App.currentMainViewModel().showHelp) {
-                    
-                        App.currentMainViewModel().showHelp();
-        
-                } else if( $('#main [data-chardin-intro]').length ) {
-                    
-			$('#main').chardinJs('start');
-                        
+			$( document ).one( 'chardinJs:stop', function() {
+				$('#main_menu').removeClass('spaced');
+				$('#main').show();
+				setTimeout(function() {
+					showApplicationOverview('no-dashboard');
+				}.bind(this), 500);
+			});
+		} else if( $('#main [data-intro]').is(':visible')) {
+			$('#main_menu, #calendar, #header').hide();
+			$('body').chardinJs('start');
+			$('#main_menu, #calendar, #header').show();
 		}
 	};
 

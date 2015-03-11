@@ -25,7 +25,7 @@
             <span class="divider">/</span>
         </li>
         <li data-bind="css: { active: !currentSubject() }">
-            <div class="btn-group" data-chardin-intro="Here you can select a subject to view its internal behavior" data-chardin-position="right">
+            <div class="btn-group" data-intro="Here you can select a subject to view its internal behavior" data-position="right">
                 <a class="btn dropdown-toggle" data-toggle="dropdown">
                     <!-- ko ifnot: currentSubject() -->
                     Select Internal behavior
@@ -48,7 +48,7 @@
 
     <div id="processExecution">
         <ul class="nav nav-tabs" data-bind="foreach: tabs">
-            <li data-bind="css: { active: $data === $root.currentTab() }, attr: { 'data-chardin-intro': $parent.tabDescriptions[$data] }">
+            <li data-bind="css: { active: $data === $root.currentTab() }, attr: { 'data-intro': $parent.tabDescriptions[$data] }">
                 <a data-bind="text: $data, attr: { href: '#/processinstances/' + $parent.processInstance().id() + '/' + $data }"></a>
             </li>
         </ul>

@@ -4,7 +4,7 @@
 	<div class="col-md-2">
 		<form data-bind="submit: createProcess" class="span3" action="#">
 			<label for="new_process">Name</label>
-			<input id="new_process" type="text" class="form-control" data-bind="value : processName, valueUpdate:'afterkeydown', css: { 'has-error': showErrors }" data-chardin-intro="Please specify a process name." data-chardin-position="bottom"/>
+			<input id="new_process" type="text" class="form-control" data-bind="value : processName, valueUpdate:'afterkeydown', css: { 'has-error': showErrors }" data-intro="Please specify a process name." data-position="right" />
 			<div class="control-group">
 				<ul data-bind="foreach: processErrors" class="list-unstyled">
 					<li data-bind="text: $data" ></li>
@@ -13,14 +13,16 @@
 document.getElementById("new_process").focus();
 				</script>
 			</div>
-			<label class="radio">
-				<input type="radio" name="processType" value="process" data-bind="checked: processType"/>
-				<span>Create Process</span>
-			</label>
-			<label class="radio" >
-				<input  type="radio" name="processType" value="case" data-bind="checked: processType"/>
-				<span>Create Case</span>
-			</label>
+			<div class="radio">
+				<label>
+					<input type="radio" name="processType" value="process" data-bind="checked: processType"/> Create Process
+				</label>
+			</div>
+			<div class="radio">
+				<label>
+					<input  type="radio" name="processType" value="case" data-bind="checked: processType"/> Create Case
+				</label>
+			</div>
 			<div class="checkbox">
 				<label>
 					<input type="checkbox" name="Table" value="Table" data-bind="checked: displayTable, disable: isCase" /> Use Table
@@ -34,7 +36,7 @@ document.getElementById("new_process").focus();
 	</div>
 </div>
 <div class="form-actions">
-	<button type="submit" class="btn btn-primary" data-bind="enable: processValid, click: createProcess" data-chardin-intro="When you're happy with your process, click accept." data-chardin-position="bottom">
+	<button type="submit" class="btn btn-primary" data-bind="enable: processValid, click: createProcess" data-intro="When you're happy with your process, click accept." data-position="bottom">
 		<i class="glyphicon glyphicon-floppy-disk"></i> Save
 	</button>
 	<button type="button" class="btn btn-warning" onclick="history.back()"><i class="glyphicon glyphicon-ban-circle"></i> Cancel</button>

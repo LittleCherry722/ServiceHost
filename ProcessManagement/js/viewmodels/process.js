@@ -1162,15 +1162,10 @@ define([
         return true;
     };
 
-    var showHelp = function() {
-        $('#main').chardinJs('start');
-    };
-
     // Everything in this object will be the public API
     return {
         init: initialize,
         loadProcessByIds: loadProcessByIds,
-        showHelp: showHelp,
         unload: unload
     };
 });

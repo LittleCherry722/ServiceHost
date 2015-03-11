@@ -7,7 +7,7 @@
 				You have to assign a role before you can enter a text.
 				</p>
 
-				<div data-chardin-intro="Edit attributes of the currently selected subject." data-chardin-position="left">
+				<div data-intro="Edit attributes of the currently selected subject." data-position="left">
 					<label class="graphsectionheader">Subject Name:</label>
 					<input type="text" data-bind="value: selectedSubjectText" title="Name of a role instance"/>
 
@@ -22,8 +22,8 @@
 				<label class="graphsectionheader">Input Pool:</label>
 				<input type="text" data-bind="value: selectedInputPool" title="Size of the Input Pool"/>
 
-				<div id="subjectType" data-chardin-intro="Choose subject type. MULTI allows multiple instances of one subject."
-						  data-chardin-position="left">
+				<div id="subjectType" data-intro="Choose subject type. MULTI allows multiple instances of one subject."
+						  data-position="left">
 					<label class="graphsectionheader">Subject type:</label>
 					<label class="checkbox" title="Are there multiple instances of this subject?">
 						<input type="checkbox" data-bind="checked: selectedSubjectType" value="multi" />
@@ -80,14 +80,14 @@
 					</div>
 				</div>
 
-				<div id="subjectType" data-chardin-intro="Can be used for remarks regarding the currently selected subject."
-						  data-chardin-position="left">
+				<div id="subjectType" data-intro="Can be used for remarks regarding the currently selected subject."
+						  data-position="left">
 					<label class="graphsectionheader">Comment:</label>
 					<textarea data-bind="value: selectedSubjectComment" title="Miscellaneous annotations"></textarea>
 				</div>
 
-				<div id="subjectButtons" data-chardin-intro="Add (Shortcut: [A]) or delete [D] subject."
-						  data-chardin-position="left">
+				<div id="subjectButtons" data-intro="Add (Shortcut: [A]) or delete [D] subject."
+						  data-position="left">
 					<button class="btn btn-default" id="AddSubjectButton" data-toggle="tooltip" title="Shortcutkey: &#34;A&#34;" onclick="gv_graph.createNode();">
 						<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Add subject
 					</button>
