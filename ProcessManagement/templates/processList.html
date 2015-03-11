@@ -47,14 +47,10 @@
 						<a data-bind="attr: { href: url() }, text: menuName(), click: function() { window.location.href=url(); }, clickBubble: false"></a> (<span data-bind="text: instanceCount"></span>)
 					</td>
 					<td class="col3">
-						<div class="btn-group">
+						<div class="btn-group btn-group-sm">
 							<a class="btn btn-primary" href="#" data-bind="click: $parent.showProcessNameModal, clickBubble: false, css: { disabled: !$data.startAble() }"><i class="glyphicon glyphicon-new-window"></i> new Instance</a>
-						</div>
-						<div class="btn-group">
 							<a class="btn btn-info" data-bind="click: function() { window.location.href=url(); }, clickBubble: false"><i class="glyphicon glyphicon-pencil"></i> Edit</a>
-						</div>
-						<div class="btn-group">
-							<button class="btn btn-danger" data-bind="click: $parent.remove, clickBubble: false"><i class="glyphicon glyphicon-remove-circle"></i> Delete</button>
+							<button class="btn btn-danger" data-bind="click: $parent.remove, clickBubble: false"><i class="glyphicon glyphicon-trash"></i> Delete</button>
 						</div>
 					</td>
 				</tr>
