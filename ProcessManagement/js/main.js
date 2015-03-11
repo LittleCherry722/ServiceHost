@@ -23,7 +23,6 @@ require.config({
 			"underscore": thirdpartyURI + "underscore/underscore",
 			"async": thirdpartyURI + "async/async",
 			"moment": thirdpartyURI + "moment/moment",
-			"intro": thirdpartyURI + "intro/intro",
 			"rainbow": thirdpartyURI + "rainbow/rainbow-custom.min",
 			"js_beautify": thirdpartyURI +"beautify/js_beautify",
 			"knockout": thirdpartyURI + "knockout/knockout",
