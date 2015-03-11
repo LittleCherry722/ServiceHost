@@ -14,6 +14,7 @@
 define([ "director", "app"], function( Director, App ) {
 	var router,
 		_globalCallback,
+		previousPath = '',
 		hasUnsavedChanges = false
 		hasUnsavedChangesMessage = "There are unsaved changes which will be lost. Continue?";
 
@@ -49,12 +50,15 @@ define([ "director", "app"], function( Director, App ) {
 	 */
 
 	var showProcess = function( processId, subjectId ) {
-            
-                if(hasUnsavedChanges && !confirm(hasUnsavedChangesMessage)) {
-			return;
+		var pp = previousPath.split('/');
+		var cp = currentPath().split('/');
+		if (pp[1] != cp[1] || pp[2] != cp[2]) {
+			if(hasUnsavedChanges && !confirm(hasUnsavedChangesMessage)) {
+				return;
+			}
+			setHasUnsavedChanges(false);
 		}
-		setHasUnsavedChanges(false);
-                
+
 		expandListOfProcesses();
 
 		if ( subjectId ) {
@@ -83,7 +87,7 @@ define([ "director", "app"], function( Director, App ) {
 	}
 
 	var showAccount = function() {
-		App.loadView( "account", null, globalCallback() );
+		loadView( "account", null, globalCallback() );
 	}
 
 	var showNewProcess = function() {
@@ -120,10 +124,10 @@ define([ "director", "app"], function( Director, App ) {
 
 	var showMessages = function ( tab ) {
 		if ( App.isViewLoaded( "messages" ) ) {
-                        App.loadView( "messages", [tab], globalCallback() );
+			loadView( "messages", [tab], globalCallback() );
 			App.currentMainViewModel().setView( tab )
 		} else {
-			App.loadView( "messages", [tab], globalCallback() );
+			loadView( "messages", [tab], globalCallback() );
 		}
 	}
 
@@ -187,6 +191,7 @@ define([ "director", "app"], function( Director, App ) {
 		}
 		setHasUnsavedChanges(false);
 		App.loadView( viewName, args, callback );
+		previousPath = currentPath();
 	}
 
 	// given a model, creates a path for this model.

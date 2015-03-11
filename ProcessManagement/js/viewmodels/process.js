@@ -1114,8 +1114,6 @@ define([
      * Initialization and unload methods
      ***************************************************************************/
 
-    var initialized = false;
-
     // Initialize our View.
     // Includes loading the template and creating the viewModel
     // to be applied to the template.
@@ -1138,10 +1136,7 @@ define([
                 // set the current process and initialize the view Listeners.
                 loadProcessByIds( processId, subjectId );
 
-                if ( !initialized ) {
-                    initialized = true;
-                    initializeListeners();
-                }
+                initializeListeners();
                 tryShowSubjectHelpBox();
 
                 initializeDOM();
