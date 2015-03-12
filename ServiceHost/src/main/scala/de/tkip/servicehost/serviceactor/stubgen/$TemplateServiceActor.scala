@@ -1,5 +1,6 @@
 package de.tkip.servicehost.serviceactor.stubgen
 
+import scala.collection.mutable.{ Map => MutableMap, Set => MutableSet, MutableList, Queue }
 import akka.actor.Actor
 import de.tkip.servicehost.serviceactor.ServiceActor
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
@@ -42,6 +43,12 @@ class $TemplateServiceActor extends ServiceActor {
     )
 
   private val inputPool: scala.collection.mutable.Map[Tuple2[MessageType, SubjectID], Queue[SubjectToSubjectMessage]] = scala.collection.mutable.Map()
+  
+  // this map holds the queue of the income messages for a channel
+  private val messageQueueMap = MutableMap[ChannelID, Queue[SubjectToSubjectMessage]]()
+  // this map holds the overflow queue of the income messages for a channel
+  private val messageOverflowQueueMap = MutableMap[ChannelID, Queue[(ActorRef, SubjectToSubjectMessage)]]()
+  
 
   // Subject default values
   private var target = -1
@@ -52,9 +59,43 @@ class $TemplateServiceActor extends ServiceActor {
     super.reset
   }
 
-  def processMsg() {
+def processMsg() {
     log.debug("processMsg")
+    //new code:
+    state match {
+      case rs: ReceiveState => {
+        var message: SubjectToSubjectMessage = null
 
+        for ((branch, target) <- state.targets) {
+          val messageType: MessageType = branch
+          val fromSubjectID: SubjectID = target.target.subjectID
+          val key = (fromSubjectID, messageType)
+          log.debug("processMsg: key = " + key)
+          
+
+          if (inputPool.contains(key) && inputPool(key).length > 0) {
+            message = dequeueMessage(key);
+          }
+        }
+
+        log.debug("processMsg: message = " + message)
+
+        if (message != null) {
+          this.messageContent = message.messageContent
+
+          this.branchCondition = message.messageType
+
+          rs.handle(message) // calls changeState
+        }
+        else log.info("ReceiveState could not find any matching message. ReceiveState will wait until it arrivies")
+      }
+      case _ =>
+        log.info("unable to handle message now, needs to be in ReceiveState. Current state is: " + state)
+    }
+    
+    
+    //old code:
+    /*
     state match {
       case rs: ReceiveState => {
         var message: SubjectToSubjectMessage = null
@@ -84,9 +125,72 @@ class $TemplateServiceActor extends ServiceActor {
       case _ =>
         log.info("unable to handle message now, needs to be in ReceiveState. Current state is: " + state)
     }
+     */
   }
 
-  def stateReceive = {
+ def stateReceive = {
+    
+    //new code:
+    
+    //this case will be executed, if the inputpoo receives a disabled message and the input pool is not full.
+    //the incomming message will be stored and a reply (stored message) will be sent back to the sender
+    case message: SubjectToSubjectMessage if (spaceAvailableInMessageQueue(message.from, message.messageType) && !message.enabled) => {
+      //store reservation message
+      log.debug("InputPool received disabled message from " + sender + " which message.messageID = " +message.messageID)
+      //send stored notification back to sender
+      sender !! Stored(message.messageID)
+      // store the reservation
+      enqueueMessage(message)
+      log.debug("reservation is done!")
+    }
+    
+    //this case will be executed, if a enable-request is received
+    //of so, the message which has to be enabled will be searched in the qeueu and will be enabled responding with a enabled-message
+    //if there is no message to enable, the response will be a rejected message
+    case message: SubjectToSubjectMessage if (message.enabled) => {
+      log.debug("InputPool received enable request from " + sender)
+      //replace reservation with real message
+      
+      if(enableMessage(message)){
+    	  //send enabled notification back to sender
+    	  sender !! Enabled(message.messageID)
+    	  log.debug("Message enabled" + getMessageArray(message.from, message.messageType).mkString("{", ", ", "}"))
+    	  
+	      // inform the states about this change
+	      //broadcastChangeFor((message.from, message.messageType))
+	      // unblock this user
+	      //blockingHandlerActor ! UnBlockUser(userID)
+    	  
+    	  state match {
+		    case rs: ReceiveState =>
+		      processMsg()
+		    case _ =>
+		      log.info("message will be handled when state changes to ReceiveState. Current state is: " + state)
+		  }
+      
+      }else{
+        //no reservation found for thei message! Send reject message
+        log.warning("message rejected, no message to enable: {}", message)
+        sender !! Rejected(message.messageID)
+      }
+    }
+    
+    //this case will be executed, if a disabled message was received and the input queue is full
+    //the message will be stored in the overflow queue and a oferflow-message will be sent to the sender
+    case message: SubjectToSubjectMessage if (!spaceAvailableInMessageQueue(message.from, message.messageType) && !message.enabled) => {
+      //store reservation message
+      log.debug("InputPool received reservation from " + sender + " -> but message queue is full! Save sender id and reject reservation")
+      //send stored notification back to sender
+      sender !! Overflow(message.messageID)
+      
+      //put message into the overflowQueue
+      enqueueOverflowMessage(message)
+    }
+    
+    
+    
+    //old code:
+    /*
     case message: SubjectToSubjectMessage => {
       // TODO forward /set variables?
       log.debug("receive message: " + message)
@@ -99,6 +203,7 @@ class $TemplateServiceActor extends ServiceActor {
           log.info("message will be handled when state changes to ReceiveState. Current state is: " + state)
       }
     }
+     */
   }
 
   def changeState() {
@@ -177,5 +282,117 @@ class $TemplateServiceActor extends ServiceActor {
     msg
   }
 
+   //new code:
+   /**
+   * returns true or false if for the condition messageQueue.size < INPUT_POOL_SIZE
+   * return true if INPUT_POOL_SIZE is -1 (no limit set)
+   */
+  private def spaceAvailableInMessageQueue(subjectID: SubjectID, messageType: MessageType) : Boolean = {
+     log.debug("Checking for queue space!")
+    
+    // get or create the message queue
+    val messageQueue =
+      messageQueueMap.getOrElseUpdate(
+        (subjectID, messageType),
+        Queue[SubjectToSubjectMessage]())
+
+        log.debug("Limit: " + INPUT_POOL_SIZE + "; current size: " + messageQueue.size)
+        
+    // check the queue size
+    if (messageQueue.size < INPUT_POOL_SIZE || messageLimit == -1) {
+      true
+    } else {
+      false
+    }
+  }
+  
+  /**
+   * Enqueue a message, add it to the correct queue
+   */
+  private def enqueueMessage(message: SubjectToSubjectMessage) = {
+    // get or create the message queue
+    val messageQueue =
+      messageQueueMap.getOrElseUpdate(
+        (message.from, message.messageType),
+        Queue[SubjectToSubjectMessage]())
+
+      messageQueue.enqueue(message)
+      log.debug("message has been queued!")
+      
+      spaceAvailableInMessageQueue(message.from, message.messageType);
+  }
+  
+  /**
+   * Enqueue a message in the overflow queue, 
+   */
+  private def enqueueOverflowMessage(message: SubjectToSubjectMessage) = {
+    // get or create the message queue
+    val messageOverflowQueue =
+      messageOverflowQueueMap.getOrElseUpdate(
+        (message.from, message.messageType),
+        Queue[(ActorRef, SubjectToSubjectMessage)]())
+
+      messageOverflowQueue.enqueue((sender, message))
+      log.debug("message has been queued to overflow queue!")
+  }
+  
+  /**
+   * enables previously received message
+   */
+  private def enableMessage(message: SubjectToSubjectMessage) : Boolean = {
+    // get or create the message queue
+    var messageQueue =
+      messageQueueMap.getOrElseUpdate(
+        (message.from, message.messageType),
+        Queue[SubjectToSubjectMessage]())
+
+        //loop over queue and enable message if found
+        var counter = 0
+    	for (element <- messageQueue){
+    	  if(element.messageID == message.messageID && !element.enabled){
+    	    element.enabled = true
+    	    counter = counter + 1
+    	  }
+    	}
+      
+	if(counter != 0){ 
+    	true
+    }else{
+      false
+      //throw new exception
+    }
+  }
+  
+    private def dequeueMessage(key: (SubjectID, MessageType)): SubjectToSubjectMessage = {
+   
+    
+    log.debug("Dequeueing message from normal queue!")
+    
+    val tempQueue = Queue[SubjectToSubjectMessage]()
+    
+    for (i: Int <- 1 to messageQueueMap(key).size) {
+      var msg = messageQueueMap(key).dequeue()
+      if(!msg.enabled){
+        tempQueue.enqueue(msg)
+      }else{
+        messageQueueMap(key) = tempQueue ++ messageQueueMap(key)
+        log.debug("Move message from overflow queue to normal queue")
+        
+        //enabled message has been found and removed from the queue
+        //copy message from the overflow to the main queue which has space again
+        if(spaceAvailableInMessageQueue(key._1, key._2)){
+          log.debug("Dequeueing message from overflow queue!")
+          enqueueMessage(messageOverflowQueueMap(key).dequeue());
+        }
+        
+        return msg
+      }
+    }
+    
+    null
+
+    //messageQueueMap(key).dequeue()
+  }
+  
   //$ACTIONSTATESIMPLEMENTATION$//
 }
