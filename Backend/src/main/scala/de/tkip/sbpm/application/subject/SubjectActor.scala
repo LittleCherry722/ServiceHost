@@ -169,11 +169,17 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
       if (macroId.contains(subject.mainMacroName)) {
         log.debug("Subject Terminated")
         killAll()
+        if(inputPoolActor.)
         val message = SubjectTerminated(userID, subjectID)
         context.parent ! message
       } else {
         log.debug(s"Macro terminated $macroId")
         killMacro(macroId)
+        if (macroBehaviorActors.isEmpty) {
+          log.debug("Subject Terminated")
+          val message = SubjectTerminated(userID, subjectID)
+          context.parent ! message
+        }
       }
     }
 
