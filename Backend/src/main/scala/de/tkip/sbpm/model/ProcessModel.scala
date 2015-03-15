@@ -13,6 +13,7 @@
 
 package de.tkip.sbpm.model
 
+import java.util.UUID
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.behavior.Transition
 import StateType.StateType
@@ -118,7 +119,7 @@ case class ExternalSubject(
   inputPool: Int,
   multi: Boolean,
   relatedSubjectId: Option[SubjectID],
-  relatedProcessId: Option[Int],
+  relatedProcessId: Option[UUID],
   relatedInterfaceId: Option[Int],
   isImplementation: Option[Boolean],
   externalType: Option[String],

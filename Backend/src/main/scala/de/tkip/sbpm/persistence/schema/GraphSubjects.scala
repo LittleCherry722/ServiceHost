@@ -36,7 +36,7 @@ trait GraphSubjectsSchema extends GraphsSchema with RolesSchema {
     def isStartSubject = column[Boolean]("start_subject")
     def inputPool = column[Short]("input_pool", DbType.smallint)
     def blackboxname = column[Option[String]]("blackboxname")
-    def relatedProcessId = column[Option[Int]]("related_process_id")
+    def relatedProcessId = column[Option[String]]("related_process_id", DbType.uuid)
     def relatedSubjectId = column[Option[String]]("related_subject_id")
     def relatedInterfaceId = column[Option[Int]]("related_interface_id")
     def isImplementation = column[Option[Boolean]]("is_implementation")

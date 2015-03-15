@@ -13,6 +13,7 @@
 
 package de.tkip.sbpm.application.miscellaneous
 
+import java.util.UUID
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.{ Map => MutableMap }
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
@@ -97,7 +98,14 @@ object parseGraph {
       else {
         // FIXME GraphId != processId
         // TODO check ob vorhanden!
-        ExternalSubject(id, subject.inputPool, multi, subject.relatedSubjectId, subject.relatedProcessId, subject.relatedInterfaceId, subject.isImplementation, subject.externalType, varMap)
+        ExternalSubject(id,
+            subject.inputPool,
+            multi,
+            subject.relatedSubjectId,
+            subject.relatedProcessId.map(s => UUID.fromString(s)),
+            subject.relatedInterfaceId,
+            subject.isImplementation,
+            subject.externalType, varMap)
       }
     }
 

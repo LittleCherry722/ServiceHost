@@ -20,7 +20,7 @@ import java.util.UUID
 import akka.pattern.ask
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 import de.tkip.sbpm.application.{ SubjectCreated, RegisterSingleSubjectInstance }
-import de.tkip.sbpm.application.ProcessInstanceActor.{Agent}
+import de.tkip.sbpm.application.ProcessInstanceActor.Agent
 import akka.event.LoggingAdapter
 import akka.actor.ActorRef
 import de.tkip.sbpm.ActorLocator

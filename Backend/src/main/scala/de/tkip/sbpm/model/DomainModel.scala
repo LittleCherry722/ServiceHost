@@ -14,6 +14,7 @@
 package de.tkip.sbpm.model
 
 import java.sql.Timestamp
+import java.util.UUID
 import spray.json.{
 DefaultJsonProtocol,
 JsObject,
@@ -218,7 +219,7 @@ case class GraphSubject(id: String,
                         isStartSubject: Option[Boolean],
                         inputPool: Short,
                         blackboxname: Option[String],
-                        relatedProcessId: Option[Int],
+                        relatedProcessId: Option[String],
                         relatedSubjectId: Option[String],
                         relatedInterfaceId: Option[Int],
                         isImplementation: Option[Boolean],

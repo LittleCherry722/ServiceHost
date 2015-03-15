@@ -19,7 +19,7 @@ import de.tkip.sbpm.application.ProcessInstanceActor.{ AgentsMap, Agent }
 import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject.misc.AvailableAction
-import java.util.Date
+import java.util.{Date,UUID}
 import de.tkip.sbpm.application.subject.behavior.Transition
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 
@@ -87,7 +87,7 @@ case class ReadProcessInstance(userID: UserID,
 case class ReadProcessInstanceAnswer(request: ReadProcessInstance,
                                      answer: ProcessInstanceData) extends AnswerControlMessage
 
-case class GetAgentsList (processId: ProcessID, url: String)
+case class GetAgentsList (processId: Int, url: String)
 case class GetAgentsListResponse(agentsMap:  AgentsMap)
 
 case class CreateProcessInstance(userID: UserID,
