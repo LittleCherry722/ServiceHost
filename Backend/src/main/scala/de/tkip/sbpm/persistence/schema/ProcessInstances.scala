@@ -15,6 +15,7 @@ package de.tkip.sbpm.persistence.schema
 
 import de.tkip.sbpm.persistence.mapping._
 import scala.slick.model.ForeignKeyAction._
+import java.util.UUID
 
 /**
  * Defines the database schema of ProcessInstances.
@@ -30,6 +31,7 @@ trait ProcessInstancesSchema extends ProcessesSchema with GraphsSchema {
   class ProcessInstances(tag: Tag) extends SchemaTable[ProcessInstance](tag, "process_instances") {
     def id = autoIncIdCol[Int]
     def processId = column[Int]("process_id")
+    def uuid = column[UUID]("uuid", DbType.uuid)
     def graphId = column[Int]("graph_id")
     def data = column[Option[String]]("data", DbType.blob)
 

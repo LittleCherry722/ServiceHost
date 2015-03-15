@@ -14,7 +14,6 @@
 package de.tkip.sbpm.model
 
 import java.sql.Timestamp
-import java.util.UUID
 import spray.json.{
 DefaultJsonProtocol,
 JsObject,

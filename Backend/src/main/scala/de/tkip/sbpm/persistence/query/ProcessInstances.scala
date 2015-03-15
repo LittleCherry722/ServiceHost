@@ -14,6 +14,7 @@
 package de.tkip.sbpm.persistence.query
 
 import de.tkip.sbpm.model.ProcessInstance
+import java.util.UUID
 
 /**
  * PersistenceActor queries for "ProcessInstances".
@@ -32,6 +33,7 @@ object ProcessInstances {
      * returns process instance by id or None if not found (Option[ProcessInstance])
      */
     case class ById(id: Int) extends Query
+    case class ByUUID(uuid: UUID) extends Query
   }
 
   object Save {
