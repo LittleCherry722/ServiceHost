@@ -14,8 +14,8 @@
 package de.tkip.sbpm.rest
 
 import java.sql.Timestamp
-import java.util.Date
 
+import java.util.{Date,UUID}
 import GraphJsonProtocol.graphJsonFormat
 import akka.actor.{ActorContext, ActorRef}
 import de.tkip.sbpm.application.history._
@@ -64,6 +64,14 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit object RefFormat extends RootJsonFormat[ActorRef] {
     def write(obj: ActorRef) = obj.toJson
     def read(json: JsValue) = json.convertTo[ActorRef]
+  }
+
+  implicit object UuidJsonFormat extends RootJsonFormat[UUID] {
+    def write(uuid: UUID) = JsString(uuid.toString)
+    def read(value: JsValue) = value match {
+      case JsString(s) => UUID.fromString(s)
+      case s           => throw new DeserializationException("Expected UUID as JsString, but got " + s)
+    }
   }
 
   implicit object ValueFormat extends RootJsonFormat[de.tkip.sbpm.model.StateType.StateType] {
