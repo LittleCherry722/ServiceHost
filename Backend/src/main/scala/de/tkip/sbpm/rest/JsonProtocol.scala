@@ -157,7 +157,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val userPassFormat = jsonFormat2(UserPass)
 
   // DomainModel
-  implicit val domainProcessFormat = jsonFormat7(Process)
+  implicit val domainProcessFormat = jsonFormat8(Process)
   //  implicit val actionFormat = jsonFormat2(Action)
 
   implicit val configFormat = jsonFormat4(Configuration)

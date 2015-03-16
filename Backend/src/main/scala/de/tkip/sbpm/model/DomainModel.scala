@@ -14,6 +14,7 @@
 package de.tkip.sbpm.model
 
 import java.sql.Timestamp
+import java.util.UUID
 import spray.json.{
 DefaultJsonProtocol,
 JsObject,
@@ -54,6 +55,7 @@ case class GroupUser(groupId: Int, userId: Int)
 case class ProcessInstance(id: Option[Int], processId: Int, graphId: Int, data: Option[String] = None)
 
 case class Process(id: Option[Int],
+                   uuid: Option[UUID],
                    interfaceId: Option[Int],
                    publishInterface: Boolean,
                    name: String,

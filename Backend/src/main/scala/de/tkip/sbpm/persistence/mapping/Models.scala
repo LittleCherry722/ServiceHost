@@ -14,6 +14,8 @@
 
 package de.tkip.sbpm.persistence.mapping
 
+import java.util.UUID
+
 /*
  * Define all database entities here.
  * These entities are converted to domain model entities
@@ -47,6 +49,7 @@ case class ProcessInstance(id: Option[Int],
   data: Option[String] = None)
 
 case class Process(id: Option[Int],
+  uuid: Option[UUID],
   interfaceId: Option[Int],
   publishInterface: Boolean,
   name: String,

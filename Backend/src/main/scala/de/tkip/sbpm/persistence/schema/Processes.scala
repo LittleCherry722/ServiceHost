@@ -14,6 +14,7 @@
 package de.tkip.sbpm.persistence.schema
 
 import de.tkip.sbpm.persistence.mapping._
+import java.util.UUID
 
 /**
  * Defines the database schema of Processes.
@@ -34,12 +35,13 @@ trait ProcessesSchema extends Schema {
   // using slick's lifted embedding API
   class Processes(tag: Tag) extends SchemaTable[Process](tag, "processes") {
     def id = autoIncIdCol[Int]
+    def uuid = column[Option[UUID]]("uuid", DbType.uuid)
     def interfaceId = column[Option[Int]]("interface_id")
     def publishInterface = column[Boolean]("publish_interface")
     def name = nameCol
     def isCase = column[Boolean]("case")
     def startAble = column[Boolean]("startAble")
-    def * = (id.?, interfaceId, publishInterface, name, isCase, startAble) <> (Process.tupled, Process.unapply)
+    def * = (id.?, uuid, interfaceId, publishInterface, name, isCase, startAble) <> (Process.tupled, Process.unapply)
     // def autoInc = * returning id
     def uniqueName = unique(name)
   }

@@ -26,6 +26,7 @@ object ProcessMappings {
    */
   def convert(p: (Process, Option[Int])): domainModel.Process =
     domainModel.Process(p._1.id,
+      p._1.uuid,
       p._1.interfaceId,
       p._1.publishInterface,
       p._1.name,
@@ -45,5 +46,5 @@ object ProcessMappings {
    * extracts optional active graph id.
    */
   def convert(p: domainModel.Process): (Process, Option[Int]) =
-    (Process(p.id, p.interfaceId, p.publishInterface, p.name, p.isCase, p.startAble.getOrElse(false)), p.activeGraphId)
+    (Process(p.id, p.uuid, p.interfaceId, p.publishInterface, p.name, p.isCase, p.startAble.getOrElse(false)), p.activeGraphId)
 }

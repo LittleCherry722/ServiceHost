@@ -140,9 +140,9 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
       // process all entities
       ps.map {
         // insert if id is None
-        case p @ Process(None, _, _, _, _, _, _) => Some(insert(p))
+        case p @ Process(None, _, _, _, _, _, _, _) => Some(insert(p))
         // update otherwise
-        case p @ Process(id, _, _, _, _, _, _)   => update(id, p)
+        case p @ Process(id, _, _, _, _, _, _, _)   => update(id, p)
       } match {
         // only one process was given, return it's id
 //        case ids if (ids.size == 1) => ids.head

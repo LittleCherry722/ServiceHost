@@ -233,7 +233,8 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
    * Saves the given process without its graph.
    */
   private def saveWithoutGraph(id: Option[Int], json: GraphHeader): Route = {
-    val process = Process(id, json.interfaceId, json.publishInterface, json.name, json.isCase)
+    // TODO obtain the UUID
+    val process = Process(id, None, json.interfaceId, json.publishInterface, json.name, json.isCase)
     val future = (persistanceActor ?? Processes.Save(process)).mapTo[Option[Int]]
     val result = future.map(resultId => JsObject("id" -> resultId.getOrElse(id.getOrElse(-1)).toJson))
     complete(result)
@@ -260,7 +261,8 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
     }
     val result = for {
       interfaceId <- interfaceIdFuture
-      process = Process(id, interfaceId, json.publishInterface, json.name, json.isCase)
+      // TODO obtain the UUID
+      process = Process(id, None, interfaceId, json.publishInterface, json.name, json.isCase)
       graph = json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)
       (processId, graphId) <- (persistanceActor ?? Processes.Save.WithGraph(process, graph)).mapTo[(Option[Int], Option[Int])]
       result = JsObject("id" -> processId.getOrElse(id.getOrElse(-1)).toJson, "graphId" -> graphId.toJson)
