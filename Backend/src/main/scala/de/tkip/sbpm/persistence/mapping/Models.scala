@@ -49,7 +49,7 @@ case class ProcessInstance(id: Option[Int],
   data: Option[String] = None)
 
 case class Process(id: Option[Int],
-  uuid: UUID,
+  uuid: Option[UUID],
   interfaceId: Option[Int],
   publishInterface: Boolean,
   name: String,

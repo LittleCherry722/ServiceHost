@@ -255,7 +255,7 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
     // this means we should use Option[(id, uuid)] instead of Option[id], uuid
     if (resultId.isEmpty) {
       // inject uuid into process
-      process = process.copy(uuid = UUID.randomUUID)
+      process = process.copy(uuid = Some(UUID.randomUUID))
       resultId = Some(insert(process))
       // inject id into process
       process = process.copy(id = resultId)
