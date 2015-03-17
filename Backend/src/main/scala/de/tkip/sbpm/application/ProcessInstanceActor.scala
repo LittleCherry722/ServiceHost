@@ -359,15 +359,24 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
     }
   }
 
-  // TODO
-  private def uuid2Int(id: UUID): Int = ???
+  private def uuid2Int(uuid: UUID): Option[Int] = {
+    val persistenceActor = ActorLocator.persistenceActor
+    // get the process
+    val processFuture = (persistenceActor ?? Processes.Read.ByUUID(uuid)).mapTo[Option[Process]]
+    val process = Await.result(processFuture, timeout.duration)
+    process.flatMap(_.id)
+  }
 
   private def addExternalAgent(subject: ExternalSubject) = {
     val ownAddress = AgentAddress(ip = SystemProperties.akkaRemoteHostname
       , port = SystemProperties.akkaRemotePort)
     subject.relatedProcessId match {
       case Some(relProcessId) => {
-        val agent = new Agent(uuid2Int(relProcessId), ownAddress, subject.id)
+        val id = uuid2Int(relProcessId) match {
+          case Some(id) => id
+          case None => throw new Exception(s"Failed to obtain a process with uuid $relProcessId")
+        }
+        val agent = new Agent(id, ownAddress, subject.id)
         agentsMap = agentsMap + (subject.id -> agent)
         log.debug("Added agent for external subject: {}", subject.id)
       }

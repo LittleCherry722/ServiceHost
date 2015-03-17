@@ -15,6 +15,7 @@ package de.tkip.sbpm.persistence.query
 
 import de.tkip.sbpm.model.Process
 import de.tkip.sbpm.model.Graph
+import java.util.UUID
 
 /**
  * PersistenceActor queries for "Processes".
@@ -33,6 +34,10 @@ object Processes {
      * returns process by id or None if not found (Option[Process])
      */
     case class ById(id: Int) extends Query
+    /**
+     * returns process by uuid or None if not found (Option[Process])
+     */
+    case class ByUUID(id: UUID) extends Query
     /**
      * returns process by name or None if not found (Option[Process])
      */

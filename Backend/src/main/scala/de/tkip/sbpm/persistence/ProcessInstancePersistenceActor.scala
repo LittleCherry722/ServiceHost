@@ -49,11 +49,6 @@ private[persistence] class ProcessInstancePersistenceActor extends InstrumentedA
       toDomainModel(processInstances.filter(_.id === id).firstOption)
     }
 
-    // get process instance with given uuid
-    case Read.ByUUID(uuid) => answer { implicit session =>
-      toDomainModel(processInstances.filter(_.uuid === uuid).firstOption)
-    }
-
     // create or update process instance
     case Save.Entity(pis @ _*) => answer { implicit session =>
       pis.map {

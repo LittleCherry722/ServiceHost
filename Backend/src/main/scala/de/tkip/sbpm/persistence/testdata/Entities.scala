@@ -242,7 +242,6 @@ object Entities {
         // parse graph jsons and insert graphs
         g <- (persistenceActor ? Graphs.Save(processes.indices.map { i =>
           // use slicks' json parser to convert graph from string to domain model
-          // TODO conversion fails..
           JsonParser(processes(i)._2).asJsObject.convertTo[Graph](graphJsonFormat(RoleMapper.createRoleMapper(rls))).copy(processId = p(i))
         }: _*)).mapTo[Seq[Option[Int]]]
         // update processes' active graph property with graph ids of

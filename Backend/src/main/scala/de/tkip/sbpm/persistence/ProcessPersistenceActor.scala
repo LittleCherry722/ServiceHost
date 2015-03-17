@@ -131,6 +131,11 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
     case Read.ById(id) => answerOptionProcessed { implicit session: Session =>
       joinQuery(processes.filter(_.id === id)).firstOption
     }(convert)
+
+    // get process with given uuid
+    case Read.ByUUID(uuid) => answerOptionProcessed { implicit session: Session =>
+      joinQuery(processes.filter(_.uuid === uuid)).firstOption
+    }(convert)
     // get process with given name
     case Read.ByName(name) => answerOptionProcessed { implicit session: Session =>
       joinQuery(processes.filter(_.name === name)).firstOption
