@@ -1,1 +1,769 @@
-{"process":[{"id":"Großunternehmen","name":"Großunternehmen","type":"single","subjectType":"single","deactivated":false,"inputPool":100,"relatedInterface":null,"relatedProcess":null,"relatedSubject":"","externalType":"external","role":"Großunternehmen","startSubject":true,"url":null,"comment":"","macros":[{"id":"##main##","name":"internal behavior","nodes":[{"id":0,"text":"","start":false,"end":true,"type":"end","manualPositionOffsetX":0,"manualPositionOffsetY":0,"nodeType":"end","options":{"message":"*","subject":"*","correlationId":"*","conversation":"*","state":null},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"createSubjects":{"subject":null,"storevar":"","min":-1,"max":-1},"macro":"","comment":""},{"id":1,"text":"Versandart","start":false,"end":false,"type":"action","manualPositionOffsetX":0,"manualPositionOffsetY":0,"nodeType":"action","options":{"message":"*","subject":"*","correlationId":"","conversation":"","state":null},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"createSubjects":{"subject":null,"storevar":"","min":-1,"max":-1},"macro":"","comment":""},{"id":2,"text":"Prüfe Bestellung","start":false,"end":false,"type":"action","manualPositionOffsetX":0,"manualPositionOffsetY":0,"nodeType":"action","options":{"message":"*","subject":"*","correlationId":"","conversation":"","state":null},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"createSubjects":{"subject":null,"storevar":"","min":-1,"max":-1},"macro":"","comment":""},{"id":3,"text":"","start":false,"end":false,"type":"send","manualPositionOffsetX":0,"manualPositionOffsetY":0,"nodeType":"send","options":{"message":"*","subject":"*","correlationId":"*","conversation":"*","state":null},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"createSubjects":{"subject":null,"storevar":"","min":-1,"max":-1},"macro":"","comment":""},{"id":4,"text":"Bestellformular ausfüllen","start":true,"end":false,"type":"action","manualPositionOffsetX":0,"manualPositionOffsetY":0,"nodeType":"action","options":{"message":"*","subject":"*","correlationId":"","conversation":"","state":null},"deactivated":false,"majorStartNode":true,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"createSubjects":{"subject":null,"storevar":"","min":-1,"max":-1},"macro":"","comment":""},{"id":5,"text":"","start":false,"end":false,"type":"send","manualPositionOffsetX":0,"manualPositionOffsetY":0,"nodeType":"send","options":{"message":"*","subject":"*","correlationId":"*","conversation":"*","state":null},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"createSubjects":{"subject":null,"storevar":"","min":-1,"max":-1},"macro":"","comment":""},{"id":6,"text":"","start":false,"end":false,"type":"receive","manualPositionOffsetX":0,"manualPositionOffsetY":0,"nodeType":"receive","options":{"message":"*","subject":"*","correlationId":"*","conversation":"*","state":null},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"createSubjects":{"subject":null,"storevar":"","min":-1,"max":-1},"macro":"","comment":""}],"edges":[{"start":6,"end":0,"text":"m2","type":"exitcondition","manualPositionOffsetLabelX":0,"manualPositionOffsetLabelY":0,"edgeType":"exitcondition","target":{"id":"Staples","min":-1,"max":-1,"createNew":false,"variable":""},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":"","correlationId":"","comment":"","transportMethod":["internal"]},{"start":5,"end":6,"text":"m1","type":"exitcondition","manualPositionOffsetLabelX":0,"manualPositionOffsetLabelY":0,"edgeType":"exitcondition","target":{"id":"Staples","min":-1,"max":-1,"createNew":false,"variable":""},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":"","correlationId":"","comment":"","transportMethod":["internal"]},{"start":4,"end":2,"text":"Erledigt","type":"exitcondition","manualPositionOffsetLabelX":0,"manualPositionOffsetLabelY":0,"edgeType":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":"","correlationId":"","comment":"","transportMethod":["internal"]},{"start":2,"end":1,"text":"Akzeptiert","type":"exitcondition","manualPositionOffsetLabelX":0,"manualPositionOffsetLabelY":0,"edgeType":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":"","correlationId":"","comment":"","transportMethod":["internal"]},{"start":1,"end":3,"text":"Express","type":"exitcondition","manualPositionOffsetLabelX":0,"manualPositionOffsetLabelY":0,"edgeType":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":"","correlationId":"","comment":"","transportMethod":["internal"]},{"start":3,"end":6,"text":"m3","type":"exitcondition","manualPositionOffsetLabelX":0,"manualPositionOffsetLabelY":0,"edgeType":"exitcondition","target":{"id":"Staples","min":-1,"max":-1,"createNew":false,"variable":""},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":"","correlationId":"","comment":"","transportMethod":["internal"]},{"start":1,"end":5,"text":"Standard","type":"exitcondition","manualPositionOffsetLabelX":0,"manualPositionOffsetLabelY":0,"edgeType":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":"","correlationId":"","comment":"","transportMethod":["internal"]}],"nodeCounter":7}],"macroCounter":1,"variables":{},"variableCounter":1},{"id":"Staples","name":"Staples","type":"external","subjectType":"external","deactivated":false,"inputPool":100,"relatedInterface":"Großunternehmen","relatedProcess":2,"relatedSubject":"Staples","externalType":"interface","role":"Staples","startSubject":false,"url":"@127.0.0.1:2553","comment":"","macros":[{"id":"##main##","name":"internal behavior","nodes":[{"id":0,"text":"","start":true,"end":false,"type":"receive","manualPositionOffsetX":0,"manualPositionOffsetY":0,"nodeType":"receive","options":{"message":"*","subject":"*","correlationId":"","conversation":"","state":null},"deactivated":false,"majorStartNode":true,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"createSubjects":{"subject":null,"storevar":"","min":-1,"max":-1},"macro":"","comment":""},{"id":1,"text":"Bestellung erhalten","start":false,"end":false,"type":"action","manualPositionOffsetX":0,"manualPositionOffsetY":0,"nodeType":"action","options":{"message":"*","subject":"*","correlationId":"","conversation":"","state":null},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"createSubjects":{"subject":null,"storevar":"","min":-1,"max":-1},"macro":"","comment":""},{"id":2,"text":"","start":false,"end":false,"type":"send","manualPositionOffsetX":0,"manualPositionOffsetY":0,"nodeType":"send","options":{"message":"*","subject":"*","correlationId":"*","conversation":"*","state":null},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"createSubjects":{"subject":null,"storevar":"","min":-1,"max":-1},"macro":"","comment":""},{"id":3,"text":"","start":false,"end":true,"type":"end","manualPositionOffsetX":0,"manualPositionOffsetY":0,"nodeType":"end","options":{"message":"*","subject":"*","correlationId":"*","conversation":"*","state":null},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"createSubjects":{"subject":null,"storevar":"","min":-1,"max":-1},"macro":"","comment":""},{"id":4,"text":"Expressbestellung erhalten","start":false,"end":false,"type":"action","manualPositionOffsetX":0,"manualPositionOffsetY":0,"nodeType":"action","options":{"message":"*","subject":"*","correlationId":"","conversation":"","state":null},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"createSubjects":{"subject":null,"storevar":"","min":-1,"max":-1},"macro":"","comment":""}],"edges":[{"start":2,"end":3,"text":"m2","type":"exitcondition","manualPositionOffsetLabelX":0,"manualPositionOffsetLabelY":0,"edgeType":"exitcondition","target":{"id":"Großunternehmen","min":-1,"max":-1,"createNew":false,"variable":""},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":"","correlationId":"","comment":"","transportMethod":["internal"]},{"start":0,"end":4,"text":"m3","type":"exitcondition","manualPositionOffsetLabelX":0,"manualPositionOffsetLabelY":0,"edgeType":"exitcondition","target":{"id":"Großunternehmen","min":-1,"max":-1,"createNew":false,"variable":""},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":"","correlationId":"","comment":"","transportMethod":["internal"]},{"start":4,"end":2,"text":"","type":"exitcondition","manualPositionOffsetLabelX":0,"manualPositionOffsetLabelY":0,"edgeType":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":"","transportMethod":["internal"]},{"start":0,"end":1,"text":"m1","type":"exitcondition","manualPositionOffsetLabelX":0,"manualPositionOffsetLabelY":0,"edgeType":"exitcondition","target":{"id":"Großunternehmen","min":-1,"max":-1,"createNew":false,"variable":""},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":"","correlationId":"","comment":"","transportMethod":["internal"]},{"start":1,"end":2,"text":"","type":"exitcondition","manualPositionOffsetLabelX":0,"manualPositionOffsetLabelY":0,"edgeType":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":"","transportMethod":["internal"]}],"nodeCounter":6}],"macroCounter":1,"variables":{},"variableCounter":1}],"messages":{"m1":"Bestellung","m2":"Lieferdatum","m3":"ExpressBestellung"},"messageCounter":4,"nodeCounter":1,"conversations":{},"conversationCounter":1}
+{
+    "conversationCounter": 1,
+    "conversations": {},
+    "messageCounter": 4,
+    "messages": {
+        "m1": "Bestellung",
+        "m2": "Lieferdatum",
+        "m3": "ExpressBestellung"
+    },
+    "nodeCounter": 1,
+    "process": [
+        {
+            "comment": "",
+            "deactivated": false,
+            "externalType": "external",
+            "id": "Gro\u00dfunternehmen",
+            "inputPool": 100,
+            "macroCounter": 1,
+            "macros": [
+                {
+                    "edges": [
+                        {
+                            "comment": "",
+                            "correlationId": "",
+                            "deactivated": false,
+                            "edgeType": "exitcondition",
+                            "end": 0,
+                            "manualPositionOffsetLabelX": 0,
+                            "manualPositionOffsetLabelY": 0,
+                            "manualTimeout": false,
+                            "optional": false,
+                            "priority": 1,
+                            "start": 6,
+                            "target": {
+                                "createNew": false,
+                                "id": "Staples",
+                                "max": -1,
+                                "min": -1,
+                                "variable": ""
+                            },
+                            "text": "m2",
+                            "transportMethod": [
+                                "internal"
+                            ],
+                            "type": "exitcondition",
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "correlationId": "",
+                            "deactivated": false,
+                            "edgeType": "exitcondition",
+                            "end": 6,
+                            "manualPositionOffsetLabelX": 0,
+                            "manualPositionOffsetLabelY": 0,
+                            "manualTimeout": false,
+                            "optional": false,
+                            "priority": 1,
+                            "start": 5,
+                            "target": {
+                                "createNew": false,
+                                "id": "Staples",
+                                "max": -1,
+                                "min": -1,
+                                "variable": ""
+                            },
+                            "text": "m1",
+                            "transportMethod": [
+                                "internal"
+                            ],
+                            "type": "exitcondition",
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "correlationId": "",
+                            "deactivated": false,
+                            "edgeType": "exitcondition",
+                            "end": 2,
+                            "manualPositionOffsetLabelX": 0,
+                            "manualPositionOffsetLabelY": 0,
+                            "manualTimeout": false,
+                            "optional": false,
+                            "priority": 1,
+                            "start": 4,
+                            "target": "",
+                            "text": "Erledigt",
+                            "transportMethod": [
+                                "internal"
+                            ],
+                            "type": "exitcondition",
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "correlationId": "",
+                            "deactivated": false,
+                            "edgeType": "exitcondition",
+                            "end": 1,
+                            "manualPositionOffsetLabelX": 0,
+                            "manualPositionOffsetLabelY": 0,
+                            "manualTimeout": false,
+                            "optional": false,
+                            "priority": 1,
+                            "start": 2,
+                            "target": "",
+                            "text": "Akzeptiert",
+                            "transportMethod": [
+                                "internal"
+                            ],
+                            "type": "exitcondition",
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "correlationId": "",
+                            "deactivated": false,
+                            "edgeType": "exitcondition",
+                            "end": 3,
+                            "manualPositionOffsetLabelX": 0,
+                            "manualPositionOffsetLabelY": 0,
+                            "manualTimeout": false,
+                            "optional": false,
+                            "priority": 1,
+                            "start": 1,
+                            "target": "",
+                            "text": "Express",
+                            "transportMethod": [
+                                "internal"
+                            ],
+                            "type": "exitcondition",
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "correlationId": "",
+                            "deactivated": false,
+                            "edgeType": "exitcondition",
+                            "end": 6,
+                            "manualPositionOffsetLabelX": 0,
+                            "manualPositionOffsetLabelY": 0,
+                            "manualTimeout": false,
+                            "optional": false,
+                            "priority": 1,
+                            "start": 3,
+                            "target": {
+                                "createNew": false,
+                                "id": "Staples",
+                                "max": -1,
+                                "min": -1,
+                                "variable": ""
+                            },
+                            "text": "m3",
+                            "transportMethod": [
+                                "internal"
+                            ],
+                            "type": "exitcondition",
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "correlationId": "",
+                            "deactivated": false,
+                            "edgeType": "exitcondition",
+                            "end": 5,
+                            "manualPositionOffsetLabelX": 0,
+                            "manualPositionOffsetLabelY": 0,
+                            "manualTimeout": false,
+                            "optional": false,
+                            "priority": 1,
+                            "start": 1,
+                            "target": "",
+                            "text": "Standard",
+                            "transportMethod": [
+                                "internal"
+                            ],
+                            "type": "exitcondition",
+                            "variable": ""
+                        }
+                    ],
+                    "id": "##main##",
+                    "name": "internal behavior",
+                    "nodeCounter": 7,
+                    "nodes": [
+                        {
+                            "comment": "",
+                            "conversation": "",
+                            "createSubjects": {
+                                "max": -1,
+                                "min": -1,
+                                "storevar": "",
+                                "subject": null
+                            },
+                            "deactivated": false,
+                            "end": true,
+                            "id": 0,
+                            "macro": "",
+                            "majorStartNode": false,
+                            "manualPositionOffsetX": 0,
+                            "manualPositionOffsetY": 0,
+                            "nodeType": "end",
+                            "options": {
+                                "conversation": "*",
+                                "correlationId": "*",
+                                "message": "*",
+                                "state": null,
+                                "subject": "*"
+                            },
+                            "start": false,
+                            "text": "",
+                            "type": "end",
+                            "varMan": {
+                                "operation": "and",
+                                "storevar": "",
+                                "var1": "",
+                                "var2": ""
+                            },
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "conversation": "",
+                            "createSubjects": {
+                                "max": -1,
+                                "min": -1,
+                                "storevar": "",
+                                "subject": null
+                            },
+                            "deactivated": false,
+                            "end": false,
+                            "id": 1,
+                            "macro": "",
+                            "majorStartNode": false,
+                            "manualPositionOffsetX": 0,
+                            "manualPositionOffsetY": 0,
+                            "nodeType": "action",
+                            "options": {
+                                "conversation": "",
+                                "correlationId": "",
+                                "message": "*",
+                                "state": null,
+                                "subject": "*"
+                            },
+                            "start": false,
+                            "text": "Versandart",
+                            "type": "action",
+                            "varMan": {
+                                "operation": "and",
+                                "storevar": "",
+                                "var1": "",
+                                "var2": ""
+                            },
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "conversation": "",
+                            "createSubjects": {
+                                "max": -1,
+                                "min": -1,
+                                "storevar": "",
+                                "subject": null
+                            },
+                            "deactivated": false,
+                            "end": false,
+                            "id": 2,
+                            "macro": "",
+                            "majorStartNode": false,
+                            "manualPositionOffsetX": 0,
+                            "manualPositionOffsetY": 0,
+                            "nodeType": "action",
+                            "options": {
+                                "conversation": "",
+                                "correlationId": "",
+                                "message": "*",
+                                "state": null,
+                                "subject": "*"
+                            },
+                            "start": false,
+                            "text": "Pr\u00fcfe Bestellung",
+                            "type": "action",
+                            "varMan": {
+                                "operation": "and",
+                                "storevar": "",
+                                "var1": "",
+                                "var2": ""
+                            },
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "conversation": "",
+                            "createSubjects": {
+                                "max": -1,
+                                "min": -1,
+                                "storevar": "",
+                                "subject": null
+                            },
+                            "deactivated": false,
+                            "end": false,
+                            "id": 3,
+                            "macro": "",
+                            "majorStartNode": false,
+                            "manualPositionOffsetX": 0,
+                            "manualPositionOffsetY": 0,
+                            "nodeType": "send",
+                            "options": {
+                                "conversation": "*",
+                                "correlationId": "*",
+                                "message": "*",
+                                "state": null,
+                                "subject": "*"
+                            },
+                            "start": false,
+                            "text": "",
+                            "type": "send",
+                            "varMan": {
+                                "operation": "and",
+                                "storevar": "",
+                                "var1": "",
+                                "var2": ""
+                            },
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "conversation": "",
+                            "createSubjects": {
+                                "max": -1,
+                                "min": -1,
+                                "storevar": "",
+                                "subject": null
+                            },
+                            "deactivated": false,
+                            "end": false,
+                            "id": 4,
+                            "macro": "",
+                            "majorStartNode": true,
+                            "manualPositionOffsetX": 0,
+                            "manualPositionOffsetY": 0,
+                            "nodeType": "action",
+                            "options": {
+                                "conversation": "",
+                                "correlationId": "",
+                                "message": "*",
+                                "state": null,
+                                "subject": "*"
+                            },
+                            "start": true,
+                            "text": "Bestellformular ausf\u00fcllen",
+                            "type": "action",
+                            "varMan": {
+                                "operation": "and",
+                                "storevar": "",
+                                "var1": "",
+                                "var2": ""
+                            },
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "conversation": "",
+                            "createSubjects": {
+                                "max": -1,
+                                "min": -1,
+                                "storevar": "",
+                                "subject": null
+                            },
+                            "deactivated": false,
+                            "end": false,
+                            "id": 5,
+                            "macro": "",
+                            "majorStartNode": false,
+                            "manualPositionOffsetX": 0,
+                            "manualPositionOffsetY": 0,
+                            "nodeType": "send",
+                            "options": {
+                                "conversation": "*",
+                                "correlationId": "*",
+                                "message": "*",
+                                "state": null,
+                                "subject": "*"
+                            },
+                            "start": false,
+                            "text": "",
+                            "type": "send",
+                            "varMan": {
+                                "operation": "and",
+                                "storevar": "",
+                                "var1": "",
+                                "var2": ""
+                            },
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "conversation": "",
+                            "createSubjects": {
+                                "max": -1,
+                                "min": -1,
+                                "storevar": "",
+                                "subject": null
+                            },
+                            "deactivated": false,
+                            "end": false,
+                            "id": 6,
+                            "macro": "",
+                            "majorStartNode": false,
+                            "manualPositionOffsetX": 0,
+                            "manualPositionOffsetY": 0,
+                            "nodeType": "receive",
+                            "options": {
+                                "conversation": "*",
+                                "correlationId": "*",
+                                "message": "*",
+                                "state": null,
+                                "subject": "*"
+                            },
+                            "start": false,
+                            "text": "",
+                            "type": "receive",
+                            "varMan": {
+                                "operation": "and",
+                                "storevar": "",
+                                "var1": "",
+                                "var2": ""
+                            },
+                            "variable": ""
+                        }
+                    ]
+                }
+            ],
+            "name": "Gro\u00dfunternehmen",
+            "relatedInterface": null,
+            "relatedProcess": null,
+            "relatedSubject": "",
+            "role": "Gro\u00dfunternehmen",
+            "startSubject": true,
+            "subjectType": "single",
+            "type": "single",
+            "url": null,
+            "variableCounter": 1,
+            "variables": {}
+        },
+        {
+            "comment": "",
+            "deactivated": false,
+            "externalType": "interface",
+            "id": "Staples",
+            "inputPool": 100,
+            "macroCounter": 1,
+            "macros": [
+                {
+                    "edges": [
+                        {
+                            "comment": "",
+                            "correlationId": "",
+                            "deactivated": false,
+                            "edgeType": "exitcondition",
+                            "end": 3,
+                            "manualPositionOffsetLabelX": 0,
+                            "manualPositionOffsetLabelY": 0,
+                            "manualTimeout": false,
+                            "optional": false,
+                            "priority": 1,
+                            "start": 2,
+                            "target": {
+                                "createNew": false,
+                                "id": "Gro\u00dfunternehmen",
+                                "max": -1,
+                                "min": -1,
+                                "variable": ""
+                            },
+                            "text": "m2",
+                            "transportMethod": [
+                                "internal"
+                            ],
+                            "type": "exitcondition",
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "correlationId": "",
+                            "deactivated": false,
+                            "edgeType": "exitcondition",
+                            "end": 4,
+                            "manualPositionOffsetLabelX": 0,
+                            "manualPositionOffsetLabelY": 0,
+                            "manualTimeout": false,
+                            "optional": false,
+                            "priority": 1,
+                            "start": 0,
+                            "target": {
+                                "createNew": false,
+                                "id": "Gro\u00dfunternehmen",
+                                "max": -1,
+                                "min": -1,
+                                "variable": ""
+                            },
+                            "text": "m3",
+                            "transportMethod": [
+                                "internal"
+                            ],
+                            "type": "exitcondition",
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "correlationId": "",
+                            "deactivated": false,
+                            "edgeType": "exitcondition",
+                            "end": 2,
+                            "manualPositionOffsetLabelX": 0,
+                            "manualPositionOffsetLabelY": 0,
+                            "manualTimeout": false,
+                            "optional": false,
+                            "priority": 1,
+                            "start": 4,
+                            "target": "",
+                            "text": "",
+                            "transportMethod": [
+                                "internal"
+                            ],
+                            "type": "exitcondition",
+                            "variable": null
+                        },
+                        {
+                            "comment": "",
+                            "correlationId": "",
+                            "deactivated": false,
+                            "edgeType": "exitcondition",
+                            "end": 1,
+                            "manualPositionOffsetLabelX": 0,
+                            "manualPositionOffsetLabelY": 0,
+                            "manualTimeout": false,
+                            "optional": false,
+                            "priority": 1,
+                            "start": 0,
+                            "target": {
+                                "createNew": false,
+                                "id": "Gro\u00dfunternehmen",
+                                "max": -1,
+                                "min": -1,
+                                "variable": ""
+                            },
+                            "text": "m1",
+                            "transportMethod": [
+                                "internal"
+                            ],
+                            "type": "exitcondition",
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "correlationId": "",
+                            "deactivated": false,
+                            "edgeType": "exitcondition",
+                            "end": 2,
+                            "manualPositionOffsetLabelX": 0,
+                            "manualPositionOffsetLabelY": 0,
+                            "manualTimeout": false,
+                            "optional": false,
+                            "priority": 1,
+                            "start": 1,
+                            "target": "",
+                            "text": "",
+                            "transportMethod": [
+                                "internal"
+                            ],
+                            "type": "exitcondition",
+                            "variable": null
+                        }
+                    ],
+                    "id": "##main##",
+                    "name": "internal behavior",
+                    "nodeCounter": 6,
+                    "nodes": [
+                        {
+                            "comment": "",
+                            "conversation": "",
+                            "createSubjects": {
+                                "max": -1,
+                                "min": -1,
+                                "storevar": "",
+                                "subject": null
+                            },
+                            "deactivated": false,
+                            "end": false,
+                            "id": 0,
+                            "macro": "",
+                            "majorStartNode": true,
+                            "manualPositionOffsetX": 0,
+                            "manualPositionOffsetY": 0,
+                            "nodeType": "receive",
+                            "options": {
+                                "conversation": "",
+                                "correlationId": "",
+                                "message": "*",
+                                "state": null,
+                                "subject": "*"
+                            },
+                            "start": true,
+                            "text": "",
+                            "type": "receive",
+                            "varMan": {
+                                "operation": "and",
+                                "storevar": "",
+                                "var1": "",
+                                "var2": ""
+                            },
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "conversation": "",
+                            "createSubjects": {
+                                "max": -1,
+                                "min": -1,
+                                "storevar": "",
+                                "subject": null
+                            },
+                            "deactivated": false,
+                            "end": false,
+                            "id": 1,
+                            "macro": "",
+                            "majorStartNode": false,
+                            "manualPositionOffsetX": 0,
+                            "manualPositionOffsetY": 0,
+                            "nodeType": "action",
+                            "options": {
+                                "conversation": "",
+                                "correlationId": "",
+                                "message": "*",
+                                "state": null,
+                                "subject": "*"
+                            },
+                            "start": false,
+                            "text": "Bestellung erhalten",
+                            "type": "action",
+                            "varMan": {
+                                "operation": "and",
+                                "storevar": "",
+                                "var1": "",
+                                "var2": ""
+                            },
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "conversation": "",
+                            "createSubjects": {
+                                "max": -1,
+                                "min": -1,
+                                "storevar": "",
+                                "subject": null
+                            },
+                            "deactivated": false,
+                            "end": false,
+                            "id": 2,
+                            "macro": "",
+                            "majorStartNode": false,
+                            "manualPositionOffsetX": 0,
+                            "manualPositionOffsetY": 0,
+                            "nodeType": "send",
+                            "options": {
+                                "conversation": "*",
+                                "correlationId": "*",
+                                "message": "*",
+                                "state": null,
+                                "subject": "*"
+                            },
+                            "start": false,
+                            "text": "",
+                            "type": "send",
+                            "varMan": {
+                                "operation": "and",
+                                "storevar": "",
+                                "var1": "",
+                                "var2": ""
+                            },
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "conversation": "",
+                            "createSubjects": {
+                                "max": -1,
+                                "min": -1,
+                                "storevar": "",
+                                "subject": null
+                            },
+                            "deactivated": false,
+                            "end": true,
+                            "id": 3,
+                            "macro": "",
+                            "majorStartNode": false,
+                            "manualPositionOffsetX": 0,
+                            "manualPositionOffsetY": 0,
+                            "nodeType": "end",
+                            "options": {
+                                "conversation": "*",
+                                "correlationId": "*",
+                                "message": "*",
+                                "state": null,
+                                "subject": "*"
+                            },
+                            "start": false,
+                            "text": "",
+                            "type": "end",
+                            "varMan": {
+                                "operation": "and",
+                                "storevar": "",
+                                "var1": "",
+                                "var2": ""
+                            },
+                            "variable": ""
+                        },
+                        {
+                            "comment": "",
+                            "conversation": "",
+                            "createSubjects": {
+                                "max": -1,
+                                "min": -1,
+                                "storevar": "",
+                                "subject": null
+                            },
+                            "deactivated": false,
+                            "end": false,
+                            "id": 4,
+                            "macro": "",
+                            "majorStartNode": false,
+                            "manualPositionOffsetX": 0,
+                            "manualPositionOffsetY": 0,
+                            "nodeType": "action",
+                            "options": {
+                                "conversation": "",
+                                "correlationId": "",
+                                "message": "*",
+                                "state": null,
+                                "subject": "*"
+                            },
+                            "start": false,
+                            "text": "Expressbestellung erhalten",
+                            "type": "action",
+                            "varMan": {
+                                "operation": "and",
+                                "storevar": "",
+                                "var1": "",
+                                "var2": ""
+                            },
+                            "variable": ""
+                        }
+                    ]
+                }
+            ],
+            "name": "Staples",
+            "relatedInterface": "Gro\u00dfunternehmen",
+            "relatedProcess": 2,
+            "relatedSubject": "Staples",
+            "role": "Staples",
+            "startSubject": false,
+            "subjectType": "external",
+            "type": "external",
+            "url": "@127.0.0.1:2553",
+            "variableCounter": 1,
+            "variables": {}
+        }
+    ]
+}
