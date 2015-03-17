@@ -55,7 +55,7 @@ case class GroupUser(groupId: Int, userId: Int)
 case class ProcessInstance(id: Option[Int], processId: Int, graphId: Int, data: Option[String] = None)
 
 case class Process(id: Option[Int],
-                   uuid: Option[UUID],
+                   uuid: UUID,
                    interfaceId: Option[Int],
                    publishInterface: Boolean,
                    name: String,
