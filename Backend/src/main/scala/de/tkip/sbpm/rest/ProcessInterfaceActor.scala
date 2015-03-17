@@ -98,8 +98,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
         pathEnd {
           parseGraphHeader {
             json =>
-              // TODO obtain the correct UUID
-              save(None, UUID.randomUUID, json)
+              save(None, json)
           }
         }
       } ~
@@ -116,7 +115,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
             sendDeleteInterfaceForProcessId(processID)
             completeWithDelete(
               Processes.Delete.ById(processID),
-              "Process could not be deleted. Entitiy with id %d not found.",
+              "Process could not be deleted. Entity with id %d not found.",
               processID)
           }
         }
@@ -132,8 +131,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
           id =>
             parseGraphHeader {
               json =>
-                // TODO obtain the correct UUID
-                save(Some(id), UUID.randomUUID, json)
+                save(Some(id), json)
             }
         }
       }
@@ -216,16 +214,16 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
    * process name contains three or more letters.
    *
    */
-  private def save(id: Option[Int], uuid: UUID, json: GraphHeader): Route = {
+  private def save(id: Option[Int], json: GraphHeader): Route = {
     val processFuture = (persistanceActor ?? Processes.Read.ByName(json.name)).mapTo[Option[Process]]
     onSuccess(processFuture) {
       processResult =>
         validate(!processResult.isDefined || processResult.get.id == id, "The process names have to be unique.") {
           validate(json.name.length() >= 3, "The name has to contain three or more letters.") {
             if (json.graph.isDefined) {
-              saveWithGraph(id, uuid, json)
+              saveWithGraph(id, json)
             } else {
-              saveWithoutGraph(id, uuid, json)
+              saveWithoutGraph(id, json)
             }
           }
         }
@@ -235,9 +233,11 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
   /**
    * Saves the given process without its graph.
    */
-  private def saveWithoutGraph(id: Option[Int], uuid: UUID, json: GraphHeader): Route = {
-    // TODO obtain the UUID
-    val process = Process(id, uuid, json.interfaceId, json.publishInterface, json.name, json.isCase)
+  private def saveWithoutGraph(id: Option[Int], json: GraphHeader): Route = {
+    // TODO not sure if the following assumption is true:
+    // saveWithoutGraph is used only for not previously existing processes, so we need to create a new UUID
+    // TODO use None instead of randomUUID as soon as type of id/uuid has changed appropriately
+    val process = Process(id, UUID.randomUUID, json.interfaceId, json.publishInterface, json.name, json.isCase)
     val future = (persistanceActor ?? Processes.Save(process)).mapTo[Option[Int]]
     val result = future.map(resultId => JsObject("id" -> resultId.getOrElse(id.getOrElse(-1)).toJson))
     complete(result)
@@ -246,7 +246,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
   /**
    * Saves the given process with its graph.
    */
-  private def saveWithGraph(id: Option[Int], uuid: UUID, json: GraphHeader): Route = {
+  private def saveWithGraph(id: Option[Int], json: GraphHeader): Route = {
     val currentInterfaceId : Option[Int] = json.interfaceId
     log.info(s"CURRENT INTERFACEID DEFINED: ${currentInterfaceId.isDefined}")
     val interfaceIdFuture : Future[Option[Int]] = if (json.publishInterface) {
@@ -264,8 +264,8 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
     }
     val result = for {
       interfaceId <- interfaceIdFuture
-      // TODO obtain the UUID
-      process = Process(id, uuid, interfaceId, json.publishInterface, json.name, json.isCase)
+      // TODO obtain the correct UUID
+      process = Process(id, UUID.randomUUID, interfaceId, json.publishInterface, json.name, json.isCase)
       graph = json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)
       (processId, graphId) <- (persistanceActor ?? Processes.Save.WithGraph(process, graph)).mapTo[(Option[Int], Option[Int])]
       result = JsObject("id" -> processId.getOrElse(id.getOrElse(-1)).toJson, "graphId" -> graphId.toJson)

@@ -250,8 +250,12 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
     var process = p.copy(activeGraphId = None)
     var resultId = process.id
 
-    // if id not defined -> save new process
+    // if id and uuid not defined -> save new process
+    // TODO currently we assume that no uuid is defined if no id is defined.
+    // this means we should use Option[(id, uuid)] instead of Option[id], uuid
     if (resultId.isEmpty) {
+      // inject uuid into process
+      process = process.copy(uuid = UUID.randomUUID)
       resultId = Some(insert(process))
       // inject id into process
       process = process.copy(id = resultId)
