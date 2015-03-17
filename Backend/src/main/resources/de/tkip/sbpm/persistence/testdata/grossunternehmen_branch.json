@@ -755,7 +755,7 @@
             ],
             "name": "Staples",
             "relatedInterface": "Gro\u00dfunternehmen",
-            "relatedProcess": 2,
+            "relatedProcess": "024e3686-1cb0-465c-8d5f-ba11c632c917",
             "relatedSubject": "Staples",
             "role": "Staples",
             "startSubject": false,

@@ -12,7 +12,7 @@
 			"startSubject" : false,
 			"inputPool" : 100,
 			"blackboxname" : null,
-			"relatedProcess" : 37,
+			"relatedProcess" : "2385bb87-a17e-42e9-8de6-52db68cd4b95",
 			"relatedSubject" : "Subj2:45e164c0-7451-4f64-9049-2ab4b81ebc28",
 			"relatedInterface" : null,
 			"isImplementation" : false,

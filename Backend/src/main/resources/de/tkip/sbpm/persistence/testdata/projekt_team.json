@@ -31,7 +31,7 @@
                 ],
                 "name": "Projektleiter",
                 "relatedInterface": null,
-                "relatedProcess": 15,
+                "relatedProcess": "08ad3c10-d0c2-481c-9ff2-a645f8ef0bd5",
                 "relatedSubject": "",
                 "role": "",
                 "startSubject": false,

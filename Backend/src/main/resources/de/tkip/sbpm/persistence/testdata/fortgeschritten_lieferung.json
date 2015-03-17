@@ -27,7 +27,7 @@
                     }
                 ],
                 "name": "Lager",
-                "relatedProcess": 12,
+                "relatedProcess": "f1a2b02f-c887-4cb2-8c40-e5890bb86853",
                 "relatedSubject": "",
                 "role": "default",
                 "startSubject": false,
@@ -387,7 +387,7 @@
                     }
                 ],
                 "name": "Rechnungspr\u00fcfung",
-                "relatedProcess": 14,
+                "relatedProcess": "b8a5e218-39cb-4dfc-945e-0531201904d2",
                 "relatedSubject": "",
                 "role": "default",
                 "startSubject": false,

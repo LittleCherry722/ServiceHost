@@ -26,7 +26,7 @@
                     }
                 ],
                 "name": "Lieferant",
-                "relatedProcess": 13,
+                "relatedProcess": "263fbea9-9983-4225-b011-e69f6d668702",
                 "relatedSubject": "",
                 "role": "default",
                 "startSubject": false,
