@@ -1062,7 +1062,7 @@ function gf_loadGraph (jsonString, state)
  *
  * @returns {void}
  */
-function gf_paperDragEnd ()
+function gf_paperDragEnd (event)
 {
     // drag operation is only executed when the shift-key is pressed
     if (event.shiftKey)
@@ -1088,7 +1088,7 @@ function gf_paperDragEnd ()
  *
  * @returns {void}
  */
-function gf_paperDragMove ()
+function gf_paperDragMove (a, b, c, d, event)
 {
     // drag operation is only executed when the shift-key is pressed
     if (event.shiftKey)
@@ -1114,7 +1114,7 @@ function gf_paperDragMove ()
  *
  * @returns {void}
  */
-function gf_paperDragStart ()
+function gf_paperDragStart (a, b, event)
 {
     // drag operation is only executed when the shift-key is pressed
     if (event.shiftKey)
