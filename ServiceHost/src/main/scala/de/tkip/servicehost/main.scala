@@ -13,8 +13,11 @@ import scala.concurrent._
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global;
 import scala.util.{Success, Failure}
-import scalaj.http.{ Http, HttpOptions }
 
+import akka.io.IO
+import spray.can.Http
+
+import de.tkip.servicehost.rest._
 import de.tkip.sbpm.{ ActorLocator => BackendActorLocator }
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.rest.GraphJsonProtocol._
@@ -33,7 +36,7 @@ import Messages._
 import de.tkip.servicehost.Messages._
 
 object main extends App with ClassTraceLogger {
-  val system = ActorSystem("sbpm")
+  implicit val system = ActorSystem("sbpm")
   val log = system.log
 
   log.info("main starting..")
@@ -98,6 +101,9 @@ object main extends App with ClassTraceLogger {
 
       system.shutdown();
     }
+    val serviceHostFrontendInterfaceActor = system.actorOf(Props[FrontendInterfaceActor], "servicehost-frontend-interface")
+
+    IO(Http) ! Http.Bind(serviceHostFrontendInterfaceActor, interface = "localhost", port = 8282)
   }
 
   def deregisterInterfaces(): Unit = {

@@ -17,6 +17,7 @@ libraryDependencies ++= Seq(
     "com.typesafe.slick" %% "slick" % "2.1.0-M2",
     "org.scalaj" %% "scalaj-http" % "0.3.15",
     "io.spray" %% "spray-routing" % "1.3.1",
+    "io.spray" %% "spray-can" % "1.3.1",
     "io.spray" %% "spray-json" % "1.2.6"
 )
 
