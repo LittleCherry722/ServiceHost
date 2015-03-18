@@ -18,7 +18,7 @@ import de.tkip.servicehost.ActorLocator
 import de.tkip.servicehost.ServiceAttributes._
 import scala.collection.immutable.Map
 import scala.collection.mutable.Queue
-import de.tkip.sbpm.application.subject.misc.Rejected
+import de.tkip.sbpm.application.subject.misc._
 
 class $TemplateServiceActor extends ServiceActor {
   override protected val INPUT_POOL_SIZE: Int = 20
@@ -92,40 +92,6 @@ def processMsg() {
       case _ =>
         log.info("unable to handle message now, needs to be in ReceiveState. Current state is: " + state)
     }
-    
-    
-    //old code:
-    /*
-    state match {
-      case rs: ReceiveState => {
-        var message: SubjectToSubjectMessage = null
-
-        for ((branch, target) <- state.targets) {
-          val messageType: MessageType = branch
-          val fromSubjectID: SubjectID = target.target.subjectID
-          val key = (messageType, fromSubjectID)
-          log.debug("processMsg: key = " + key)
-
-          if (inputPool.contains(key) && inputPool(key).length > 0) {
-            message = inputPool(key).dequeue;
-          }
-        }
-
-        log.debug("processMsg: message = " + message)
-
-        if (message != null) {
-          this.messageContent = message.messageContent
-
-          this.branchCondition = message.messageType
-
-          rs.handle(message) // calls changeState
-        }
-        else log.info("ReceiveState could not find any matching message. ReceiveState will wait until it arrivies")
-      }
-      case _ =>
-        log.info("unable to handle message now, needs to be in ReceiveState. Current state is: " + state)
-    }
-     */
   }
 
  def stateReceive = {
@@ -154,7 +120,7 @@ def processMsg() {
       if(enableMessage(message)){
     	  //send enabled notification back to sender
     	  sender !! Enabled(message.messageID)
-    	  log.debug("Message enabled" + getMessageArray(message.from, message.messageType).mkString("{", ", ", "}"))
+    	  log.debug("Message enabled; id ("+message.messageID+")")
     	  
 	      // inform the states about this change
 	      //broadcastChangeFor((message.from, message.messageType))
@@ -186,24 +152,6 @@ def processMsg() {
       //put message into the overflowQueue
       enqueueOverflowMessage(message)
     }
-    
-    
-    
-    //old code:
-    /*
-    case message: SubjectToSubjectMessage => {
-      // TODO forward /set variables?
-      log.debug("receive message: " + message)
-      storeMsg(message, sender)
-
-      state match {
-        case rs: ReceiveState =>
-          processMsg()
-        case _ =>
-          log.info("message will be handled when state changes to ReceiveState. Current state is: " + state)
-      }
-    }
-     */
   }
 
   def changeState() {
@@ -299,7 +247,7 @@ def processMsg() {
         log.debug("Limit: " + INPUT_POOL_SIZE + "; current size: " + messageQueue.size)
         
     // check the queue size
-    if (messageQueue.size < INPUT_POOL_SIZE || messageLimit == -1) {
+    if (messageQueue.size < INPUT_POOL_SIZE || INPUT_POOL_SIZE == -1) {
       true
     } else {
       false
@@ -382,7 +330,11 @@ def processMsg() {
         //copy message from the overflow to the main queue which has space again
         if(spaceAvailableInMessageQueue(key._1, key._2)){
           log.debug("Dequeueing message from overflow queue!")
-          enqueueMessage(messageOverflowQueueMap(key).dequeue());
+		    var msg_from_overflow = messageOverflowQueueMap(key).dequeue()
+		    enqueueMessage(msg_from_overflow._2);
+		    
+		    //inform sender, that his message has been moved from overflow to the normal queue and is whaiting for enabed message
+		    msg_from_overflow._1 !! Stored(msg_from_overflow._2.messageID)
         }
         
         return msg
@@ -390,8 +342,6 @@ def processMsg() {
     }
     
     null
-
-    //messageQueueMap(key).dequeue()
   }
   
   //$ACTIONSTATESIMPLEMENTATION$//
