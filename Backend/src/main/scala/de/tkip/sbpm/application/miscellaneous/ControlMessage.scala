@@ -87,7 +87,7 @@ case class ReadProcessInstance(userID: UserID,
 case class ReadProcessInstanceAnswer(request: ReadProcessInstance,
                                      answer: ProcessInstanceData) extends AnswerControlMessage
 
-case class GetAgentsList (processId: Int, url: String)
+case class GetAgentsList (processId: ProcessID, url: String)
 case class GetAgentsListResponse(agentsMap:  AgentsMap)
 
 case class CreateProcessInstance(userID: UserID,

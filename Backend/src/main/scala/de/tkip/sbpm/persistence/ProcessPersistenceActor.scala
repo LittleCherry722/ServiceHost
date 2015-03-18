@@ -183,6 +183,7 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
    */
   private def insert(p: Process)(implicit session: Session) = {
     // extract process and active graph id from domain model
+
     val entities = convert(p)
     val id = (processes returning processes.map(_.id)) += entities._1
     log.debug("Save Process: " + p)
@@ -250,12 +251,13 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
     var process = p.copy(activeGraphId = None)
     var resultId = process.id
 
-    // if id and uuid not defined -> save new process
-    // TODO currently we assume that no uuid is defined if no id is defined.
-    // this means we should use Option[(id, uuid)] instead of Option[id], uuid
-    if (resultId.isEmpty) {
-      // inject uuid into process
+    // inject uuid into process, if necessary
+    if (!p.uuid.isDefined) {
       process = process.copy(uuid = Some(UUID.randomUUID))
+    }
+
+    // if id and uuid not defined -> save new process
+    if (resultId.isEmpty) {
       resultId = Some(insert(process))
       // inject id into process
       process = process.copy(id = resultId)

@@ -234,9 +234,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
    * Saves the given process without its graph.
    */
   private def saveWithoutGraph(id: Option[Int], json: GraphHeader): Route = {
-    // TODO not sure if the following assumption is true:
-    // saveWithoutGraph is used only for not previously existing processes, so we need to create a new UUID
-    // TODO use None instead of randomUUID as soon as type of id/uuid has changed appropriately
+    // TODO not sure which UUID to use here
     val process = Process(id, Some(UUID.randomUUID), json.interfaceId, json.publishInterface, json.name, json.isCase)
     val future = (persistanceActor ?? Processes.Save(process)).mapTo[Option[Int]]
     val result = future.map(resultId => JsObject("id" -> resultId.getOrElse(id.getOrElse(-1)).toJson))
@@ -264,8 +262,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
     }
     val result = for {
       interfaceId <- interfaceIdFuture
-      // TODO obtain the correct UUID
-      process = Process(id, Some(UUID.randomUUID), interfaceId, json.publishInterface, json.name, json.isCase)
+      process = Process(id, None, interfaceId, json.publishInterface, json.name, json.isCase)
       graph = json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)
       (processId, graphId) <- (persistanceActor ?? Processes.Save.WithGraph(process, graph)).mapTo[(Option[Int], Option[Int])]
       result = JsObject("id" -> processId.getOrElse(id.getOrElse(-1)).toJson, "graphId" -> graphId.toJson)
