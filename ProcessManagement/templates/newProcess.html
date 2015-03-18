@@ -6,7 +6,7 @@
 			<label for="new_process">Name</label>
 			<input id="new_process" type="text" class="form-control" data-bind="value : processName, valueUpdate:'afterkeydown', css: { 'has-error': showErrors }" data-intro="Please specify a process name." data-position="right" />
 			<div class="control-group">
-				<ul data-bind="foreach: processErrors" class="list-unstyled">
+				<ul data-bind="foreach: processErrors, visible: showErrors" class="list-unstyled">
 					<li data-bind="text: $data" ></li>
 				</ul>
 				<script type="text/javascript" charset="utf-8">

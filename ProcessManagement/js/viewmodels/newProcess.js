@@ -62,14 +62,14 @@ define([
 
 		// is this a valid process?
 		this.processValid = ko.computed(function() {
-			return currentProcess().isValid;
+			return self.processName().length !== 0 && self.showErrors() == false;
 		});
 
 		// Should error messages be displayed?
 		// We choose to not display error messages if the name text field is empty,
 		// but there should be a better way to do it...
 		this.showErrors = ko.computed(function() {
-			return self.processName() && !currentProcess().isValid();
+			return self.processName().length !== 0 && currentProcess().errors().length !== 0;
 		});
 
 		// Every error
