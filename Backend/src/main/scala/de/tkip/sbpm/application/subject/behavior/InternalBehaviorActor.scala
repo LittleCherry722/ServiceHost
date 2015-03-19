@@ -174,6 +174,7 @@ class InternalBehaviorActor(
         macroStartState.get ! terminated
       }
       context.parent ! terminated
+      context.stop(self)
     }
 
     case m: CallMacro => {

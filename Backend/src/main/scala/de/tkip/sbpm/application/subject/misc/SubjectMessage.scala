@@ -59,7 +59,13 @@ case class Stored(messageID: MessageID) extends MessageObject
 case class Rejected(messageID: MessageID) extends MessageObject
 
 // TODO richtig einordnern
-case class SubjectTerminated(userID: UserID, subjectID: SubjectID)
+case class SubjectTerminated(userID: UserID, subjectID: SubjectID, proper: Boolean)
+
+// message to ask the input pool whether it is empty for the given channel ID
+case class IsIPEmpty(channelId: ChannelID)
+
+// message to tell the receive state whether the input pool is empty
+case class IPEmpty(empty: Boolean)
 
 protected[subject] case class MacroTerminated(macroID: String)
 protected[subject] case object KillNonObserverStates

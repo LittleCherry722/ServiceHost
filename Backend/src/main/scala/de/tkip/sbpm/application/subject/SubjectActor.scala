@@ -169,17 +169,24 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
       if (macroId.contains(subject.mainMacroName)) {
         log.debug("Subject Terminated")
         killAll()
-        if(inputPoolActor.)
-        val message = SubjectTerminated(userID, subjectID)
-        context.parent ! message
+        //if(inputPoolActor.)
+        val isIPEmpty = IsIPEmpty((subjectID, ProcessAttributes.AllMessages))
+        inputPoolActor ! isIPEmpty
       } else {
         log.debug(s"Macro terminated $macroId")
         killMacro(macroId)
-        if (macroBehaviorActors.isEmpty) {
-          log.debug("Subject Terminated")
-          val message = SubjectTerminated(userID, subjectID)
-          context.parent ! message
-        }
+      }
+    }
+
+    case IPEmpty(empty) => {
+      if (empty) {
+        val message = SubjectTerminated(userID, subjectID, true)
+        context.parent ! message
+      } else {
+        val message = SubjectTerminated(userID, subjectID, false)
+        context.parent ! message
+        context.stop(inputPoolActor)
+        context.stop(self)
       }
     }
 

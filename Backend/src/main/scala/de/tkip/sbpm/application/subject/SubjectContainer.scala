@@ -128,12 +128,17 @@ class SubjectContainer(
   def handleSubjectTerminated(message: SubjectTerminated) {
 
     log.debug("Processinstance [" + processInstanceID + "] Subject " + subject.id + "[" +
-      message.userID + "] terminated")
+      message.userID + "] terminated proper [" + message.proper.toString + "]")
 
     // decrease the subject counter
     decreaseSubjectCounter()
 
-    subjects(message.userID).running = false
+    if (message.proper) {
+      subjects(message.userID).running = false
+    } else {
+      subjects -= message.subjectID
+    }
+
   }
 
   /**
