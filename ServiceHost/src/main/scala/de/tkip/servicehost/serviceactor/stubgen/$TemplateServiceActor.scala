@@ -21,7 +21,7 @@ import scala.collection.mutable.Queue
 import de.tkip.sbpm.application.subject.misc._
 
 class $TemplateServiceActor extends ServiceActor {
-  override protected val INPUT_POOL_SIZE: Int = 20
+  override protected val INPUT_POOL_SIZE: Int = 2
   
   override protected val serviceID: ServiceID = "$SERVICEID"
   override protected val subjectID: SubjectID = "$SERVICEID"
@@ -73,9 +73,9 @@ def processMsg() {
           log.debug("processMsg: key = " + key)
           
 
-          if (inputPool.contains(key) && inputPool(key).length > 0) {
+          //if (inputPool.contains(key) && inputPool(key).length > 0) {
             message = dequeueMessage(key);
-          }
+          //}
         }
 
         log.debug("processMsg: message = " + message)
@@ -311,10 +311,10 @@ def processMsg() {
     }
   }
   
-    private def dequeueMessage(key: (SubjectID, MessageType)): SubjectToSubjectMessage = {
+private def dequeueMessage(key: (SubjectID, MessageType)): SubjectToSubjectMessage = {
    
     
-    log.debug("Dequeueing message from normal queue!")
+    log.debug("Dequeueing message from normal queue! key: "+key)
     
     val tempQueue = Queue[SubjectToSubjectMessage]()
     
@@ -328,13 +328,18 @@ def processMsg() {
         
         //enabled message has been found and removed from the queue
         //copy message from the overflow to the main queue which has space again
+        //m contains "two"
         if(spaceAvailableInMessageQueue(key._1, key._2)){
-          log.debug("Dequeueing message from overflow queue!")
-		    var msg_from_overflow = messageOverflowQueueMap(key).dequeue()
-		    enqueueMessage(msg_from_overflow._2);
-		    
-		    //inform sender, that his message has been moved from overflow to the normal queue and is whaiting for enabed message
-		    msg_from_overflow._1 !! Stored(msg_from_overflow._2.messageID)
+	        if((messageOverflowQueueMap contains key) && messageOverflowQueueMap(key).size > 0){
+	            log.debug("Dequeueing message from overflow queue! size: "+messageOverflowQueueMap(key).size)
+	        	var msg_from_overflow = messageOverflowQueueMap(key).dequeue()
+	        	enqueueMessage(msg_from_overflow._2);
+	            
+				//inform sender, that his message has been moved from overflow to the normal queue and is whaiting for enabed message
+				msg_from_overflow._1 !! Stored(msg_from_overflow._2.messageID)
+	        }else{
+	        	log.debug("No message in overflow queue!")
+	        }
         }
         
         return msg
