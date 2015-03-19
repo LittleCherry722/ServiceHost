@@ -137,7 +137,9 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     
     //this case will be executed, if the inputpoo receives a disabled message and the input pool is not full.
     //the incomming message will be stored and a reply (stored message) will be sent back to the sender
-    case message: SubjectToSubjectMessage if (spaceAvailableInMessageQueue(message.from, message.messageType) && !message.enabled) => {
+    case message: SubjectToSubjectMessage if (!closedChannels.isChannelClosedAndNotReOpened((message.from, message.messageType))
+    												&& spaceAvailableInMessageQueue(message.from, message.messageType)
+    												&& !message.enabled) => {
       //store reservation message
       log.debug("InputPool received disabled message from " + sender + " which message.messageID = " +message.messageID)
       //send stored notification back to sender
@@ -150,7 +152,8 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     //this case will be executed, if a reable-request is received
     //of so, the message which has to be enabled will be searched in the qeueu and will be enabled responding with a enabled-message
     //if there is no message to enable, the response will be a rejected message
-    case message: SubjectToSubjectMessage if (message.enabled) => {
+    case message: SubjectToSubjectMessage if (!closedChannels.isChannelClosedAndNotReOpened((message.from, message.messageType))
+    												&& (message.enabled)) => {
       log.debug("InputPool received enable request from " + sender)
       //replace reservation with real message
       
@@ -163,6 +166,12 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
 	      broadcastChangeFor((message.from, message.messageType))
 	      // unblock this user
 	      blockingHandlerActor ! UnBlockUser(userID)
+	      
+	      /* test
+	      log.debug("close channel")
+	      closedChannels.close((message.from, message.messageType))
+	      log.debug("channel closed")
+	       */
       
       }else{
         //no reservation found for thei message! Send reject message
@@ -173,7 +182,9 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     
     //this case will be executed, if a disabled message was received and the input queue is full
     //the message will be stored in the overflow queue and a oferflow-message will be sent to the sender
-    case message: SubjectToSubjectMessage if (!spaceAvailableInMessageQueue(message.from, message.messageType) && !message.enabled) => {
+    case message: SubjectToSubjectMessage if (!closedChannels.isChannelClosedAndNotReOpened((message.from, message.messageType))
+    													&& (!spaceAvailableInMessageQueue(message.from, message.messageType)
+    													&& !message.enabled)) => {
       //store reservation message
       log.debug("InputPool received reservation from " + sender + " -> but message queue is full! Save sender id and reject reservation")
       //send stored notification back to sender
@@ -189,27 +200,12 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
       sender !! Rejected(message.messageID)
       val channelID = new ChannelID(message.from, message.messageType)
       blockedSendStatesMap(channelID) = sender
+      log.debug("inputpool is closed!")
 
       log.warning("message rejected: {}", message)
       // unblock this user
       blockingHandlerActor ! UnBlockUser(userID)
     }
-
-    /*
-    case message: SubjectToSubjectMessage => {
-      log.debug("InputPool received: " + message + " from " + sender)
-      // Unlock the sender
-      sender !! Stored(message.messageID)
-      // store the message
-      enqueueMessage(message)
-      log.debug("Inputpool has: " +
-        getMessageArray(message.from, message.messageType).mkString("{", ", ", "}"))
-      // inform the states about this change
-      broadcastChangeFor((message.from, message.messageType))
-      // unblock this user
-      blockingHandlerActor ! UnBlockUser(userID)
-    }
-    */
 
     case DeleteInputPoolMessages(fromSubject, messageType, messages) => {
       val result =
