@@ -72,10 +72,10 @@ protected case class OpenInputPool(channelId: ChannelID)
 protected case object InputPoolOpened
 
 // message to ask the input pool whether it is empty for the given channel ID
-protected case class IsIPEmpty(channelId: ChannelID)
+case class IsIPEmpty(channelId: ChannelID)
 
 // message to tell the receive state whether the input pool is empty
-protected case class IPEmpty(empty: Boolean)
+case class IPEmpty(empty: Boolean)
 
 // message to tell the blocked send state that the state is reopened
 protected case object Reopen
