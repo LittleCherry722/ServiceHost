@@ -145,6 +145,8 @@ class SubjectContainer(
     if (target.toVariable) {
       // TODO why not targetUsers = var subjects?
       sendTo(target.varSubjects.map(_._2), message)
+      //count number of subjects
+	  log.info("Target Subjects:" +target.varSubjects)
     } else if (target.toExternal && target.toUnknownUsers) {
       sendToExternal(message)
     } else {
@@ -164,6 +166,8 @@ class SubjectContainer(
   private def sendTo(targetSubjects: Array[UserID], message: SubjectToSubjectMessage) {
     for (userID <- targetSubjects) {
       log.info("Sending message to user: {}", userID)
+      //count number of targets
+      log.info("Targets:" +targetSubjects)
       if (!subjects.contains(userID)) {
         log.info("Subject Container creating new subject for user ID: {}", userID)
         createSubject(userID)
