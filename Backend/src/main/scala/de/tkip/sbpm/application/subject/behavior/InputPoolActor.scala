@@ -296,7 +296,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
         Queue[SubjectToSubjectMessage]())
 
     // if the queue is not to big, enqueue the message
-    if (messageQueue.size < messageLimit) {
+    if (messageQueue.size < messageLimit || messageLimit < 0) {
       messageQueue.enqueue(message)
     } else {
       // TODO log error?

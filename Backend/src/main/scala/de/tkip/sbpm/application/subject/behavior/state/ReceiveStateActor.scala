@@ -18,7 +18,8 @@ import scala.collection.mutable.ArrayBuffer
 import akka.actor.actorRef2Scala
 import de.tkip.sbpm.application.history.{ Message => HistoryMessage }
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes.exitCondLabel
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageContent
+//import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageContent
+import de.tkip.sbpm.application.ProcessInstanceActor.MessageContent
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageID
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageType
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.StateID
@@ -84,7 +85,7 @@ case class ReceiveStateActor(data: StateData)
 
       // create the Historymessage
       val message =
-        HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, transition.messageContent.get)
+        HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, messageMatch(transition.messageContent))
 
       // TODO check if possible
       val msg = DeleteInputPoolMessages(transition.from, transition.messageType, transition.receiveMessages)
@@ -155,7 +156,7 @@ case class ReceiveStateActor(data: StateData)
         }
         if (isAutoReceive) {
           val message =
-            HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, transition.messageContent.get)
+            HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, messageMatch(transition.messageContent))
 
           // TODO check if possible
           val msg = DeleteInputPoolMessages(transition.from, transition.messageType, transition.receiveMessages)
@@ -245,7 +246,7 @@ case class ReceiveStateActor(data: StateData)
         t.ready,
         exitCondLabel,
         relatedSubject = Some(t.from),
-        messageContent = t.messageContent, // TODO delete
+        messageContent = Some(messageMatch(t.messageContent)), // TODO delete
         messages = Some(t.messages))
     }).toArray
 
@@ -317,7 +318,12 @@ case class ReceiveStateActor(data: StateData)
         case Some(GDriveFileInfo(title, url, iconLink)) => (Some(title), Some(url), Some(iconLink))
         case None                                       => (None, None, None)
       }
-      messageData += MessageData(message.messageID, message.userID, message.messageContent, title, url, iconLink)
+      messageData += MessageData(message.messageID, message.userID, messageMatch(message.messageContent), title, url, iconLink)
     }
+  }
+
+  def messageMatch (msg: Any) = msg match {
+    case text: String => text
+    case _ => msg.toString // other type will be processed in future.
   }
 }

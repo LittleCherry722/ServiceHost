@@ -46,7 +46,7 @@ case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) 
     for((key,variable) <- variables) {
       for(value <- variable.messages) {
         value match {
-          case SubjectToSubjectMessage(_,_,_,_,_,"Travel Application",msg,_,_) => {ret = msg; log.debug("DecisionStateActor extractVariable: found with key '"+key+"': " + value)}
+          case SubjectToSubjectMessage(_,_,_,_,_,"Travel Application",msg,_,_,_) => {ret = messageMatch(msg); log.debug("DecisionStateActor extractVariable: found with key '"+key+"': " + value)}
           case x => {log.debug("DecisionStateActor extractVariable: it is not '"+key+"' with value: " + x)}
         }
       }
@@ -83,5 +83,10 @@ case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) 
   protected def stateReceive = {
     // execute an action
     case _ @ x=> log.warning("DecisionStateActor -> unexpected stateReceive: " + x)
+  }
+
+  def messageMatch (msg: Any) = msg match {
+    case text: String => text
+    case _ => msg.toString // other type will be processed in future.
   }
 }

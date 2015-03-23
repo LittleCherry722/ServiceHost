@@ -30,7 +30,7 @@ object ProcessAttributes {
   type StateAction = String
 
   type MessageType = String; val AllMessages = ""
-  type MessageContent = String
+  //type MessageContent = String
   type MessageID = Int
   type ActionID = Int
 

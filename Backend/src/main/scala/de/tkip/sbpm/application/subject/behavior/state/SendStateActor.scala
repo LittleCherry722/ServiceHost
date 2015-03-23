@@ -43,6 +43,8 @@ import de.tkip.sbpm.logging.DefaultLogging
 import com.google.api.services.drive.model.Permission
 import de.tkip.sbpm.model.ChangeDataMode._
 import java.util.UUID
+//import de.tkip.sbpm.application.ProcessInstanceActor.MessageContent
+import de.tkip.sbpm.application.ProcessInstanceActor._
 
 private class GoogleSendProxyActor(
   processInstanceActor: ActorRef,
@@ -76,7 +78,8 @@ case class SendStateActor(data: StateData)
   import scala.collection.mutable.{ Map => MutableMap }
 
   private var remainingStored = 0
-  private var messageContent: Option[String] = None
+  //private var messageContent: Option[String] = None
+  private var messageContent: Option[MessageContent] = None
   private val unsentMessageIDs: MutableMap[MessageID, Transition] =
     MutableMap[MessageID, Transition]()
 
@@ -123,7 +126,9 @@ case class SendStateActor(data: StateData)
         // send subjectInternalMessage before sending executionAnswer to make sure that the executionAnswer
         // can be blocked until a potentially new subject is created to ensure all available actions will
         // be returned when asking
-        messageContent = action.actionData.messageContent
+        var msgContent = TextContent(action.actionData.messageContent.get)
+        messageContent = Some(msgContent)
+        //messageContent = action.actionData.messageContent
 
         for (transition <- exitTransitions if transition.target.isDefined) {
           blockingHandlerActor ! BlockUser(userID) // TODO handle several targetusers
@@ -199,7 +204,7 @@ case class SendStateActor(data: StateData)
       val transition = unsentMessageIDs(messageID)
       // Create the history message
       val message =
-        HistoryMessage(messageID, transition.messageType, subjectID, transition.subjectID, messageContent.get)
+        HistoryMessage(messageID, transition.messageType, subjectID, transition.subjectID, messageMatch(messageContent.get))
       // Change the state and enter the History entry
       remainingStored -= 1
 
@@ -246,4 +251,9 @@ case class SendStateActor(data: StateData)
    * Generates a new message ID
    */
   private def nextMessageID: Int = MessageIDProvider.nextMessageID()
+
+  def messageMatch (msg: Any) = msg match {
+    case text: String => text
+    case _ => msg.toString // other type will be processed
+  }
 }

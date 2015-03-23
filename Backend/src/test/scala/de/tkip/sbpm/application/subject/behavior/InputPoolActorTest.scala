@@ -8,6 +8,7 @@ import de.tkip.sbpm.application.subject.SubjectData
 import de.tkip.sbpm.model.Subject
 import de.tkip.sbpm.application.subject.misc.{ Rejected, Stored, SubjectToSubjectMessage }
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.application.ProcessInstanceActor._
 
 private class DummyBlockingActor extends Actor {
   def receive = FSM.NullFunction
@@ -35,7 +36,8 @@ class InputPoolActorTest extends TestKit(ActorSystem("TestSystem")) with FunSuit
   test("message receiving after registration") {
     val actor = TestActorRef(new InputPoolActor(subjectData))
     implicit val i = inbox()
-    val msg = SubjectToSubjectMessage(1, 1, 1, "other", null, "test", "test msg!")
+    val messageContent = TextContent("test msg!")
+    val msg = SubjectToSubjectMessage(1, 1, 1, "other", null, "test", messageContent)
 
     actor ! SubscribeIncomingMessages(2, "other", "test")
     actor ! msg
@@ -59,7 +61,8 @@ class InputPoolActorTest extends TestKit(ActorSystem("TestSystem")) with FunSuit
   test("close input pool") {
     val actor = TestActorRef(new InputPoolActor(subjectData))
     implicit val i = inbox()
-    val msg = SubjectToSubjectMessage(1, 1, 1, "other", null, "test", "test msg!")
+    val msgContent = TextContent("test msg!")
+    val msg = SubjectToSubjectMessage(1, 1, 1, "other", null, "test", msgContent)
 
     actor ! SubscribeIncomingMessages(2, "other", "test")
     actor ! CloseInputPool(("other", "test"))

@@ -101,6 +101,19 @@ case class ProcessInstanceCreated(request: CreateProcessInstance,
                                   answer: ProcessInstanceData) extends AnswerControlMessage {
   def processInstanceID: ProcessInstanceID = answer.id
 }
+case class CreateServiceInstance(userID: UserID,
+                                 processID: ProcessID,
+                                 name: String,
+                                 target: List[SubjectID],
+                                 processInstanceidentical: String,
+                                 //TODO: get the whole agents.
+                                 agentsMap: AgentsMap,
+                                 manager: Option[ActorRef] = None,
+                                 managerUrl: String) extends AnswerAbleControlMessage
+
+case class ServiceInstanceCreated(request: CreateServiceInstance,
+                                  ServiceInstanceActorMap: Map[SubjectID, SubjectRef],
+                                  answer: Map[SubjectID, ProcessInstanceData]) extends AnswerControlMessage
 
 case class KillAllProcessInstances() extends AnswerAbleControlMessage
 case class KillProcessInstance(processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage
