@@ -95,7 +95,7 @@ private[persistence] class ProcessInspectActor extends InstrumentedActor with Ac
   private def isStartAbleProcessGraph(graph: Graph): Boolean = {
     // TODO correct check
     val correct =
-      graph.subjects.exists(s => s._2.isStartSubject.getOrElse(false))
+      graph.subjects.exists(s => s._2.isStartSubject.getOrElse(false) && s._2.subjectType != "external")
     log.debug(s"Result for graph ${graph.id} is $correct")
     correct
   }
