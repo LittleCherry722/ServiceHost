@@ -536,16 +536,16 @@ function GCsubject (id, text, type, inputPool)
 	};
 
 	/**
-	 * Returns the ID of the related process (only for external subjects).
+	 * Sets the UUID of the related process (only for external subjects).
 	 *
-	 * @param {Int} relatedProcess The ID of the related process.
+	 * @param {String} relatedProcess The UUID of the related process.
 	 * @returns {void}
 	 */
 	this.setRelatedProcess = function (relatedProcess)
 	{
 		if (gf_isset(relatedProcess))
 		{
-			this.relatedProcess = parseInt(relatedProcess, 10);
+			this.relatedProcess = relatedProcess;
 		}
 	};
 

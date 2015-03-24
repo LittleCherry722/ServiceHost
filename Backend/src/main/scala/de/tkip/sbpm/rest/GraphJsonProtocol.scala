@@ -312,7 +312,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       "startSubject" -> s.isStartSubject.toJson,
       "inputPool" -> s.inputPool.toJson,
       "blackboxname" -> s.blackboxname.toJson,
-      "relatedProcess" -> s.relatedProcessId.toString().toJson,
+      "relatedProcess" -> (s.relatedProcessId getOrElse "").toJson,
       "relatedSubject" -> s.relatedSubjectId.toJson,
       "relatedInterface" -> s.relatedInterfaceId.toJson,
       "isImplementation" -> s.isImplementation.toJson,

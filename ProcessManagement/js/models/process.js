@@ -26,6 +26,7 @@ define([
     window.Process = Process;
 
     Process.attrs({
+        uuid: "string",
         name: "string",
         isCase: "boolean",
         processInstanceId: "integer",
