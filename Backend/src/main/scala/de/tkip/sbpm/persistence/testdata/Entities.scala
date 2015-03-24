@@ -125,7 +125,10 @@ object Entities {
 
 //  distributed processes
     (Process(None, None, false, """test8080""", false) -> loadJson("test8080")),
-    (Process(None, None, false, """RatioDrink""", false) -> loadJson("ratiodrink"))
+    (Process(None, None, false, """RatioDrink""", false) -> loadJson("ratiodrink")),
+
+// subject termination
+    (Process(None, None, false, """Subject Termination simple""", false) -> loadJson("subject_termination_simple"))
    )
 
 
