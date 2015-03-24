@@ -136,7 +136,11 @@ class SubjectContainer(
     if (message.proper) {
       subjects(message.userID).running = false
     } else {
-      subjects -= message.subjectID
+      /* TODO:
+        This line did not compile: subjects -= message.subjectID
+        I guess it should be the userID @Jan: please have a look at this
+      */
+      subjects -= message.userID
     }
 
   }
