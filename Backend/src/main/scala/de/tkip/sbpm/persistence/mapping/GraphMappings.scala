@@ -32,7 +32,7 @@ object GraphMappings {
    * id must be known for converting sub entities.
    */
   def convert(g: domainModel.Graph): Either[Graph, (Graph, Seq[GraphMergedSubject], Seq[GraphConversation], Seq[GraphMessage], Seq[GraphRouting], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge])] = {
-    val graph = Graph(g.id, g.processId.get, g.date)
+    val graph = Graph(g.id, g.processId.get, g.processUUID.get, g.date)
     if (!g.id.isDefined) {
       Left(graph)
     } else {
@@ -240,6 +240,7 @@ object GraphMappings {
     domainModel.Graph(
       graph.id,
       Some(graph.processId),
+      Some(graph.processUUID),
       graph.date,
       conversations.map(convert).toMap,
       messages.map(convert).toMap,

@@ -29,6 +29,7 @@ case class Configuration(key: String,
 
 case class Graph(id: Option[Int],
   processId: Int,
+  processUUID: String,
   date: java.sql.Timestamp)
 
 case class Group(id: Option[Int],

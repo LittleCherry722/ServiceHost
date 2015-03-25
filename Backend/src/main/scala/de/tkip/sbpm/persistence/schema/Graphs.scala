@@ -30,9 +30,10 @@ trait GraphsSchema extends ProcessesSchema {
   class Graphs(tag: Tag) extends SchemaTable[Graph](tag, "graphs") {
     def id = autoIncIdCol[Int]
     def processId = column[Int]("process_id")
+    def processUUID = column[String]("process_uuid")
     def date = column[java.sql.Timestamp]("date")
     
-    def * = (id.?, processId, date) <> (Graph.tupled, Graph.unapply)
+    def * = (id.?, processId, processUUID, date) <> (Graph.tupled, Graph.unapply)
     // def autoInc = * returning id
 
     def process =

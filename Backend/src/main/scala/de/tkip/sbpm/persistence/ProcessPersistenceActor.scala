@@ -194,18 +194,6 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
   }
 
   /**
-   *  Insert new row for graphs to mark delete time
-   */
-  private def insertForDelete(id: Int)(implicit session: Session) = {
-    val date = new java.util.Date()
-    val time = new java.sql.Timestamp(date.getTime())
-    val gid = (graphs returning graphs.map(_.id)) += mapping.Graph(Some(16), id, time)
-    println("gid is: " + gid + " and id is: " + id)
-    println("time is: " + time.getTime())
-    val res = graphs += mapping.Graph(Some(gid), id, time)
-  }
-
-  /**
    * Update entity or throw exception if it does not exist.
    */
   private def update(id: Option[Int], p: Process)(implicit session: Session) = {

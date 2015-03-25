@@ -191,6 +191,7 @@ case class InterfaceImplementation(processId: Int,
 
 case class Graph(id: Option[Int],
                  processId: Option[Int],
+                 processUUID: Option[String],
                  date: java.sql.Timestamp,
                  conversations: Map[String, GraphConversation],
                  messages: Map[String, GraphMessage],
