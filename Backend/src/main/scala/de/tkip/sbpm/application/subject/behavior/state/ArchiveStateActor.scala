@@ -21,7 +21,7 @@ import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes.exitCondLabel
 import de.tkip.sbpm.application.subject.behavior.Transition
 import de.tkip.sbpm.application.subject.misc.ActionData
-import de.tkip.sbpm.application.ProcessInstanceActor.MessageContent
+import de.tkip.sbpm.application.ProcessInstanceActor.{FileContent,TextContent, MessageContent}
 import de.tkip.sbpm.application.subject.misc.ActionExecuted
 import de.tkip.sbpm.application.subject.misc.ExecuteAction
 import de.tkip.sbpm.application.miscellaneous.AutoArchive
@@ -54,7 +54,7 @@ case class ArchiveStateActor(data: StateData)
      
       println(f.getAbsolutePath())
       val writer = new PrintWriter(f)
-      writer.write(messageMatch(msg))
+      writer.write(msg.toString)
       writer.close()
       
     }
@@ -62,10 +62,5 @@ case class ArchiveStateActor(data: StateData)
   private def exitTransition = exitTransitions(0)
   override protected def getAvailableAction: Array[ActionData] =
     exitTransitions.map((t: Transition) => ActionData(t.messageType, true, exitCondLabel))
-
-  def messageMatch (msg: Any) = msg match {
-    case text: String => text
-    case _ => msg.toString // other type will be processed in future.
-  }
 
 }

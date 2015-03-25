@@ -71,10 +71,18 @@ object ProcessInstanceActor {
   }
   case class MessageSet(messages: Set[Message]) extends MessageContent {
     override def channels : Set[Channel] = messages.map(_.channel)
+    override def toString : String = messages.toString()
   }
-  case class TextContent(content: String) extends MessageContent
-  case class FileContent(content: Array[Byte]) extends MessageContent
-  case object EmptyContent extends MessageContent
+  case class TextContent(content: String) extends MessageContent{
+    override def toString : String = content
+  }
+
+  case class FileContent(content: Array[Byte]) extends MessageContent{
+    override def toString : String = "It is a file"
+  }
+  case object EmptyContent extends MessageContent{
+    override def toString : String = ""
+  }
 
   case class Channel(subjectId: SubjectID, agent: Agent)
 

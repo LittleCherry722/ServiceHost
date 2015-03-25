@@ -19,7 +19,7 @@ import akka.actor.actorRef2Scala
 import de.tkip.sbpm.application.history.{ Message => HistoryMessage }
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes.exitCondLabel
 //import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageContent
-import de.tkip.sbpm.application.ProcessInstanceActor.MessageContent
+import de.tkip.sbpm.application.ProcessInstanceActor.{FileContent, TextContent, MessageContent}
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageID
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageType
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.StateID
@@ -85,7 +85,7 @@ case class ReceiveStateActor(data: StateData)
 
       // create the Historymessage
       val message =
-        HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, messageMatch(transition.messageContent))
+        HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, transition.messageContent.get)
 
       // TODO check if possible
       val msg = DeleteInputPoolMessages(transition.from, transition.messageType, transition.receiveMessages)
@@ -125,6 +125,7 @@ case class ReceiveStateActor(data: StateData)
       actionChanged(Updated)
 
       var transition = exitTransitionsMap(fromSubject, messageType)
+      println("999999999999999999999999999" + transition.messageContent)
       var isAutoReceive = false
       if (messages.length != 0 && data.stateModel.autoExecute) {
         //Check if only one ExitCond
@@ -156,7 +157,7 @@ case class ReceiveStateActor(data: StateData)
         }
         if (isAutoReceive) {
           val message =
-            HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, messageMatch(transition.messageContent))
+            HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, transition.messageContent.toString)
 
           // TODO check if possible
           val msg = DeleteInputPoolMessages(transition.from, transition.messageType, transition.receiveMessages)
@@ -238,7 +239,6 @@ case class ReceiveStateActor(data: StateData)
       super.executeTimeout()
     }
   }
-
   override protected def getAvailableAction: Array[ActionData] =
     (for ((k, t) <- exitTransitionsMap) yield {
       ActionData(
@@ -246,7 +246,7 @@ case class ReceiveStateActor(data: StateData)
         t.ready,
         exitCondLabel,
         relatedSubject = Some(t.from),
-        messageContent = Some(messageMatch(t.messageContent)), // TODO delete
+        messageContent = t.messageContent, // TODO delete
         messages = Some(t.messages))
     }).toArray
 
@@ -272,7 +272,7 @@ case class ReceiveStateActor(data: StateData)
 
     var ready = false
     var messageID: MessageID = -1
-    var messageContent: Option[MessageContent] = None
+    var messageContent: Option[String] = None
     private var remaining = transition.target.get.min
 
     val messageData: ArrayBuffer[MessageData] = ArrayBuffer[MessageData]()
@@ -301,6 +301,9 @@ case class ReceiveStateActor(data: StateData)
     }
 
     private def addMessage(message: SubjectToSubjectMessage) {
+      println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+      println(message)
+      println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
       // validate
       if (!(message.messageType == messageType && message.from == from)) {
         log.error("Transportmessage is invalid to transition: " + message +
@@ -313,17 +316,13 @@ case class ReceiveStateActor(data: StateData)
 
       // TODO auf mehrere messages umbauen, anstatt immer nur die letzte
       messageID = message.messageID
-      messageContent = Some(message.messageContent)
+      messageContent = Some(message.messageContent.toString)
       val (title, url, iconLink) = message.fileInfo match {
         case Some(GDriveFileInfo(title, url, iconLink)) => (Some(title), Some(url), Some(iconLink))
         case None                                       => (None, None, None)
       }
-      messageData += MessageData(message.messageID, message.userID, messageMatch(message.messageContent), title, url, iconLink)
+      messageData += MessageData(message.messageID, message.userID, message.messageContent.toString, title, url, iconLink)
     }
   }
 
-  def messageMatch (msg: Any) = msg match {
-    case text: String => text
-    case _ => msg.toString // other type will be processed in future.
-  }
 }

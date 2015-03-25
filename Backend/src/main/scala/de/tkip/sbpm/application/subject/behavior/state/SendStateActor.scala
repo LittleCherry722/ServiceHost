@@ -204,7 +204,7 @@ case class SendStateActor(data: StateData)
       val transition = unsentMessageIDs(messageID)
       // Create the history message
       val message =
-        HistoryMessage(messageID, transition.messageType, subjectID, transition.subjectID, messageMatch(messageContent.get))
+        HistoryMessage(messageID, transition.messageType, subjectID, transition.subjectID, messageContent.toString)
       // Change the state and enter the History entry
       remainingStored -= 1
 
@@ -251,9 +251,4 @@ case class SendStateActor(data: StateData)
    * Generates a new message ID
    */
   private def nextMessageID: Int = MessageIDProvider.nextMessageID()
-
-  def messageMatch (msg: Any) = msg match {
-    case text: String => text
-    case _ => msg.toString // other type will be processed
-  }
 }
