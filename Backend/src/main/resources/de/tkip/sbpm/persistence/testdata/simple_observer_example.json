@@ -3,6 +3,7 @@
     "id": null,
     "processId": null,
     "definition": {
+        "uuid": "aca4463d-4973-477a-890e-85101d0daecc",
         "process": [
             {
                 "startSubject": false,

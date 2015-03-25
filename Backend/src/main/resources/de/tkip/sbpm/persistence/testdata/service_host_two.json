@@ -1,5 +1,6 @@
 {
     "definition": {
+        "uuid": "ce54421f-17d7-4e00-8899-36b5a7cb61db",
         "messages": {
             "m0": "Request",
             "m1": "Response"

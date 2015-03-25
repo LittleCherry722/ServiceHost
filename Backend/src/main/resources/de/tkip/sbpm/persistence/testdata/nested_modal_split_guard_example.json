@@ -4,6 +4,7 @@
     "processId": null,
     "routings": [],
     "definition": {
+        "uuid": "c01e6be8-6a88-4738-ac80-e90bcc73d829",
         "process": [
             {
                 "id": "Subj1",

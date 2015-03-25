@@ -1,5 +1,6 @@
 {
     "definition": {
+        "uuid": "d348adca-f031-4926-bce8-3b3b6b8cd699",
         "messages": {
             "m0": "input",
             "m1": "output"

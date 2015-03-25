@@ -3,6 +3,7 @@
   "processId":null,
   "date":123456789,
   "definition":{
+    "uuid": "7dbd31ba-1d77-4fc7-9b2c-9e85ffdde851",
     "process":[
       {
         "id":"Employee",
