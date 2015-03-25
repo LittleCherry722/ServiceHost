@@ -604,11 +604,23 @@ define([
     currentProcess.subscribe(function( process ) {
         var graph, isNewRecord;
 
+        // see if process data and the graph definition agree: If not this is a process
+        // recently created for which we might have a special way of creating the graph
+        var validGraph = !(!process.graph() || !process.graph().definition);
+        // new processes have these as arrays, 'old' database loaded ones are observed objects
+        if (validGraph === true && $.isArray(process.subjects) && $.isArray(process.messages)) {
+            // process and graph have same amount of subjects and …
+            validGraph = process.graph().definition.process.length === process.subjects.length;
+            // … messages. In the graph messages are stored in an object, but there is a counter
+            if (validGraph === true)
+                validGraph = process.graph().definition.messageCounter === process.messages.length;
+        }
+
         // If there is no graph associated to the process so far, it is probably a new
         // process that has not yet been loaded. In this case create a new Graph
         // and act on it dependant on whether it is a process, case or has been
         // created from a table input.
-        if ( !process.graph() ) {
+        if ( validGraph === false) {
 
             // If it has been created from a table input, let the graph library do
             // the heavy lifting and create the graph.
