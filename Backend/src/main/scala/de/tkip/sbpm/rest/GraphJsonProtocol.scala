@@ -380,7 +380,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
           routings: JsArray) =>
           Graph(id.convertTo[Option[Int]],
             processId.convertTo[Option[Int]],
-            None,
+            definition.fields("uuid").convertTo[Option[String]],
             date.convertTo[java.sql.Timestamp],
             definition.fields("conversations").convertTo[Map[String, GraphConversation]],
             definition.fields("messages").convertTo[Map[String, GraphMessage]],
@@ -389,7 +389,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
         case Seq(definition: JsObject,
           routings: JsArray) => Graph(None,
           None,
-          None,
+          definition.fields("uuid").convertTo[Option[String]],
           new java.sql.Timestamp(System.currentTimeMillis()),
           definition.fields("conversations").convertTo[Map[String, GraphConversation]],
           definition.fields("messages").convertTo[Map[String, GraphMessage]],
