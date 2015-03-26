@@ -28,20 +28,20 @@ import ExecutionContext.Implicits.global
 
 import scala.concurrent.Await
 
-class $TemplateServiceActor extends ServiceActor {
-  override protected val INPUT_POOL_SIZE: Int = "$INPUTPOOL".toInt
-  override protected val serviceID: ServiceID = "$SERVICEID"
-  override protected val subjectID: SubjectID = "$SERVICEID"
+class ExpressServiceActor extends ServiceActor {
+  override protected val INPUT_POOL_SIZE: Int = "100".toInt
+  override protected val serviceID: ServiceID = "Subj4:6375cf53-7fde-48ab-b704-f8b923b58947"
+  override protected val subjectID: SubjectID = "Subj4:6375cf53-7fde-48ab-b704-f8b923b58947"
   protected val serviceInstanceMap = Map[SubjectID, ServiceActorRef]()
   val tempAgentsMap = collection.mutable.Map[String, ProcessInstanceActor.Agent]()
   var from: SubjectID = null
   var processInstanceIdentical: String = ""
   var managerURL: String = ""
-  val startNodeIndex: String = "$STARTNODEINDEX"
+  val startNodeIndex: String = "0"
   var receivedMessageType: String = ""
 
   override protected def states: List[State] = List(
-    //$EMPTYSTATE$//
+    ReceiveState(0,"exitcondition",Map("m3" -> Target("Subj3:60a4539d-488b-4666-a4a5-1d8960a2c21c",-1,-1,false,"")),Map("m3" -> 1),"receive",""),SendState(1,"exitcondition",Map("m2" -> Target("Subj2:da478917-09c7-44db-b0b2-87d90af509fc",-1,-1,false,"")),Map("m2" -> 2),"",""),ExitState(2,null,Map(),Map(),null,null)
   )
 
   // different received messageType -> different outgoing messageType like: m1 -> m2, m3 -> m4
@@ -51,14 +51,14 @@ class $TemplateServiceActor extends ServiceActor {
 
   // start with first state
   def getStartState(): State = {
-    getState("$STARTNODEINDEX".toInt)
+    getState("0".toInt)
   }
 
   private val messages: Map[MessageType, MessageText] = Map(
-    //$EMPTYMESSAGE$//
+    "sendBooking" -> "m1","receiveGoods" -> "m2","Goods" -> "m3"
   )
   private val variablesOfSubject: Map[String, String] = Map(
-    //$EMPTYVARIABLES$//
+    
   )
 
   private val inputPool: scala.collection.mutable.Map[Tuple2[MessageType, SubjectID], Queue[SubjectToSubjectMessage]] = scala.collection.mutable.Map()
@@ -162,7 +162,7 @@ class $TemplateServiceActor extends ServiceActor {
       msgContent,
       None,
       fileInfo,
-    Some(processInstanceIdentical)
+      Some(processInstanceIdentical)
     )
     if (state.variableId == "") {
       // send normal SubjectToSubjectMessage
@@ -568,6 +568,4 @@ encapsulate variable,increase variableDepth, m : 1
     })
   }
 
-
-  //$ACTIONSTATESIMPLEMENTATION$//
 }

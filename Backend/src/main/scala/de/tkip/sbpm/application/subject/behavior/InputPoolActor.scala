@@ -13,6 +13,8 @@
 
 package de.tkip.sbpm.application.subject.behavior
 
+import de.tkip.sbpm.application.ProcessInstanceActor.{FileContent, TextContent, MessageContent}
+
 import scala.collection.mutable.{ Map => MutableMap, Set => MutableSet, MutableList, Queue }
 import akka.actor._
 import de.tkip.sbpm.application.miscellaneous._
@@ -151,6 +153,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
       log.debug("Inputpool has: " +
         getMessageArray(message.from, message.messageType).mkString("{", ", ", "}"))
       // inform the states about this change
+
       broadcastChangeFor((message.from, message.messageType))
       // unblock this user
       blockingHandlerActor ! UnBlockUser(userID)
@@ -398,4 +401,6 @@ private[behavior] class ClosedChannels {
     val rule = rules.find(channelFilter)
     !rule.map(_.ruleType == Open).getOrElse(!rule.map(_.ruleType == Close).getOrElse(false))
   }
+
+
 }

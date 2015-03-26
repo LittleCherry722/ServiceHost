@@ -1,0 +1,9 @@
+<references>
+        <reference processid="1" subjectid="Subj3:60a4539d-488b-4666-a4a5-1d8960a2c21c" path="de.tkip.servicehost.serviceactor.stubgen.MyShoppingServiceActor" json=".\src\main\resources\service_JSONs\MyShoppingServiceActor.json"/>
+<reference processid="2" subjectid="Subj4:6375cf53-7fde-48ab-b704-f8b923b58947" path="de.tkip.servicehost.serviceactor.stubgen.ExpressServiceActor" json=".\src\main\resources\service_JSONs\ExpressServiceActor.json"/>
+<reference processid="3" subjectid="Subj4:d293d490-cc59-420f-87f7-d5e2d5871f53" path="de.tkip.servicehost.serviceactor.stubgen.S3ServiceActor" json=".\src\main\resources\service_JSONs\S3ServiceActor.json"/>
+<reference processid="4" subjectid="Subj4:f7bd3a8d-b2da-44d4-bfa2-47b86d6a4f12" path="de.tkip.servicehost.serviceactor.stubgen.ServiceOneServiceActor" json=".\src\main\resources\service_JSONs\ServiceOneServiceActor.json"/>
+<reference processid="5" subjectid="Subj5:c8abff60-b775-41e2-bd50-8a81b2d7d896" path="de.tkip.servicehost.serviceactor.stubgen.ServiceTwoServiceActor" json=".\src\main\resources\service_JSONs\ServiceTwoServiceActor.json"/>
+<reference processid="6" subjectid="Subj6:58fea0e9-0b01-415d-b47f-1e9cda04db83" path="de.tkip.servicehost.serviceactor.stubgen.ServiceThreeServiceActor" json=".\src\main\resources\service_JSONs\ServiceThreeServiceActor.json"/>
+
+      </references>
