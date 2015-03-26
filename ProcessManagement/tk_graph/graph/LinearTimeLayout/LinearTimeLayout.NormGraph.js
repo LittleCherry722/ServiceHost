@@ -19,24 +19,77 @@
 /*
  * NormGraph (normalized graph)
  */
+
+/**
+ * The normalized version of the original graph.
+ * 
+ * @class NormGraph
+ * @param {Object} parent - Reference to LinearTimeLayout
+ */
 LinearTimeLayout.prototype.NormGraph = function (parent)
 {
+	/**
+	 * ID of last added edge.
+	 * @memberof! NormGraph
+	 * @type {int}
+	 */
 	this.edgeID		= 0;
+	
+	/**
+	 * Edges of the normalized graph.
+	 * @memberof! NormGraph
+	 * @type {Array}
+	 */
 	this.edges		= {};
+	
+	/**
+	 * Incoming edges.
+	 * @memberof! NormGraph
+	 * @type {Array}
+	 */
 	this.inEdges	= {};
+	
+	/**
+	 * ID of node added last.
+	 * @memberof! NormGraph
+	 * @type {Object}
+	 */
 	this.nodeID		= 0;
+	
+	/**
+	 * Nodes of the normalized graph.
+	 * @memberof! NormGraph
+	 * @type {Object}
+	 */
 	this.nodes		= {};
+	
+	/**
+	 * LinearTimeLayout
+	 * @memberof! NormGraph
+	 * @type {Object}
+	 */
 	this.parent		= parent;
 };
 
 /*
  * NormGraph Methods
  */
+
+/**
+ * Add edge to normalized graph.
+ * 
+ * @memberof! NormGraph
+ * @param {String} v1 - ID of start node of the edge.
+ * @param {String} v2 - ID of end node of the edge.
+ * @param {boolean} isVirtual - Virtual marker for edge.
+ * @returns {String} ID of the added edge.
+ */
 LinearTimeLayout.prototype.NormGraph.prototype.addEdge = function (v1, v2, isVirtual)
 {
 	if (!gf_isset(isVirtual) || isVirtual !== true)
 		isVirtual = false;
 	
+	// create new BasicEdge object and add to the normalized graph
 	var id		= "e" + this.edgeID++;
 	var edge	= new this.parent.BasicEdge(id, this.nodes[v1], this.nodes[v2]);
 		edge.setVirtual(isVirtual);
@@ -51,21 +104,45 @@ LinearTimeLayout.prototype.NormGraph.prototype.addEdge = function (v1, v2, isVir
 	return id;
 };
 
+/**
+ * Add node to normalized graph.
+ * 
+ * @memberof! NormGraph
+ * @param {String} name - Name of the node.
+ * @param {boolean} virtual - Virtual marker.
+ * @returns {String} ID of the added node.
+ */
 LinearTimeLayout.prototype.NormGraph.prototype.addNode = function (name, virtual)
 {
 	if (!gf_isset(virtual) || virtual !== true)
 		virtual	= false;
 	
+	// create a new basic node
 	var id	= "n" + this.nodeID++;
 	this.nodes[id]	= {name: name, virtual: virtual, id: id};
+	
 	return id;
 };
 
+/**
+ * Remove edge from normalized graph.
+ * 
+ * @memberof! NormGraph
+ * @param {String} edge - ID of the edge to remove.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.NormGraph.prototype.removeEdge = function (edge)
 {
 	delete this.edges[edge];
 };
 
+/**
+ * Get ID of source node of edge.
+ *  
+ * @memberof! NormGraph
+ * @param {String} edge - ID of the edge.
+ * @returns {String} ID of the edge's start node.
+ */
 LinearTimeLayout.prototype.NormGraph.prototype.source = function (edge)
 {
 	if (gf_isset(this.edges[edge]))
@@ -74,6 +151,13 @@ LinearTimeLayout.prototype.NormGraph.prototype.source = function (edge)
 	return null;
 };
 
+/**
+ * Get ID of target node of edge.
+ *  
+ * @memberof! NormGraph
+ * @param {String} edge - ID of the edge.
+ * @returns {String} ID of the edge's end node.
+ */
 LinearTimeLayout.prototype.NormGraph.prototype.target = function (edge)
 {
 	if (gf_isset(this.edges[edge]))

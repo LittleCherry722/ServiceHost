@@ -19,8 +19,29 @@
 /*
  * PST (process structure tree)
  */
+
+/**
+ * Process Structure Tree.
+ * Based on "Simplified Computation and Generalization of the Refined Process Structure Tree" by Polyvyanyy et al.
+ * and on org.jbpt.algo.tree.rpst.RPST.constructRPST().
+ * 
+ * @class PST
+ * @param {Object} parent - LinearTimeLayout instance
+ */
 LinearTimeLayout.prototype.PST = function(parent) {
+	
+	/**
+	 * LinearTimeLayout
+	 * @memberof! PST
+	 * @type {Object}
+	 */
 	this.parent = parent;
+	
+	/**
+	 * ID of last virtual edge.
+	 * @memberof! PST
+	 * @type {int}
+	 */
 	this.virtualEdgeID = 0;
 };
 
@@ -28,6 +49,12 @@ LinearTimeLayout.prototype.PST = function(parent) {
  * PST Methods
  */
 
+/**
+ * Decompose PST.
+ * 
+ * @memberof! PST
+ * @returns {Object} RPST
+ */
 LinearTimeLayout.prototype.PST.prototype.decompose = function() {
 
 	// Step 1. Compute the tree of the triconnected components of the TTG.
@@ -135,11 +162,6 @@ LinearTimeLayout.prototype.PST.prototype.decompose = function() {
 			if (rTarget == null) {
 				var rTarget = new this.parent.RPSTNode(this.parent, rpst, target);
 				rpst.addNode(rTarget);
-
-				// TODO
-				if (rTarget.type == "trivial") {
-					//					rTarget.name	= rTarget.getFragment().toString();
-				}
 
 				t2r[targetID] = rTarget;
 			}

@@ -19,25 +19,119 @@
 /*
  * TCTreeSkeleton
  */
+
+/**
+ * Skeleton of TCTree
+ * 
+ * @class TCTreeSkeleton
+ * @see org.jbpt.algo.tree.tctree.TCSkeleton
+ * @param {Object} parent - Instance of LinearTimeLayout
+ */
 LinearTimeLayout.prototype.TCTreeSkeleton = function (parent)
 {
+	/**
+	 * Edges removed from the graph.
+	 * @memberof! TCTreeSkeleton
+	 * @type {Array}
+	 */
 	this.deletedEdges	= {};
+	
+	/**
+	 * Maps original edges to edges of the TCTree.
+	 * @memberof! TCTreeSkeleton
+	 * @type {Array}
+	 */
 	this.e2o			= {};
+	
+	/**
+	 * ID of last inserted edge.
+	 * @memberof! TCTreeSkeleton
+	 * @type {int}
+	 */
 	this.edgeID			= 0;
+	
+	/**
+	 * Edges of the TCTree.
+	 * @memberof! TCTreeSkeleton
+	 * @type {Array}
+	 */
 	this.edges			= {};
+	
+	/**
+	 * Incidence list for nodes.
+	 * @memberof! TCTreeSkeleton
+	 * @type {Array}
+	 */
 	this.incidentEdges	= {};
+	
+	/**
+	 * Count of nodes of the TCTree.
+	 * @memberof! TCTreeSkeleton
+	 * @type {int}
+	 */
 	this.nodeCount		= 0;
+	
+	/**
+	 * Nodes of the TCTree.
+	 * @memberof! TCTreeSkeleton
+	 * @type {Array}
+	 */
 	this.nodes			= {};
+	
+	/**
+	 * Maps edges of the TCTree to edges of the original graph.
+	 * @memberof! TCTreeSkeleton
+	 * @type {Array}
+	 */
 	this.o2e			= {};
+	
+	/**
+	 * Array of edges of the original graph.
+	 * @memberof! TCTreeSkeleton
+	 * @type {Array}
+	 */
 	this.originalEdges	= {};
+	
+	/**
+	 * Array of nodes of the original graph.
+	 * @memberof! TCTreeSkeleton
+	 * @type {Array}
+	 */
 	this.originalNodes	= {};
+	
+	/**
+	 * Instance of LinearTimeLayout.
+	 * @memberof! TCTreeSkeleton
+	 * @type {Object}
+	 */
 	this.parent			= parent;
+	
+	/**
+	 * Virtual Edges.
+	 * @memberof! TCTreeSkeleton
+	 * @type {Array}
+	 */
 	this.virtualEdges	= {};
+	
+	/**
+	 * ID of last virtual edge.
+	 * @memberof! TCTreeSkeleton
+	 * @type {int}
+	 */
 	this.virtualEdgeID	= 0;
 };
 
 /*
  * TCTreeSkeleton Methods
+ */
+
+/**
+ * Add all edges of the original graph to the skeleton.
+ * Maps edges of the skeleton to the edges of the original graph and vice versa.
+ *  
+ * @memberof! TCTreeSkeleton
+ * @param {Object} graph - The original graph.
+ * @returns {void}
  */
 LinearTimeLayout.prototype.TCTreeSkeleton.prototype.addAll = function (graph)
 {
@@ -51,8 +145,15 @@ LinearTimeLayout.prototype.TCTreeSkeleton.prototype.addAll = function (graph)
 		
 		this.addEdge(edge);
 	}
-}
+};
 
+/**
+ * Add edge to TCTree.
+ * 
+ * @memberof! TCTreeSkeleton
+ * @param {String|Object} edge - Either edge ID or actual instance.
+ * @returns {void} 
+ */
 LinearTimeLayout.prototype.TCTreeSkeleton.prototype.addEdge = function (edge)
 {
 	if (edge instanceof LinearTimeLayout.prototype.BasicEdge)
@@ -63,7 +164,6 @@ LinearTimeLayout.prototype.TCTreeSkeleton.prototype.addEdge = function (edge)
 	if (edge instanceof LinearTimeLayout.prototype.BasicEdge)
 	{
 		this.o2e[edge.orgId]	= edge;
-		// this.addOriginalNodes(edge.orgId);
 	}
 	
 	// edge: edgeID
@@ -73,6 +173,15 @@ LinearTimeLayout.prototype.TCTreeSkeleton.prototype.addEdge = function (edge)
 	this.addNodes(edge);
 };
 
+/**
+ * Add a single node to the TCTree if not already added.
+ * Adds the given edge to the incidence list for the node.
+ * 
+ * @memberof! TCTreeSkeleton
+ * @param {String} node - ID of the node to add.
+ * @param {String|Object} edge - Either edge ID or actual edge object.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.TCTreeSkeleton.prototype.addNode = function (node, edge)
 {
 	if (!gf_isset(this.nodes[node]))
@@ -88,6 +197,14 @@ LinearTimeLayout.prototype.TCTreeSkeleton.prototype.addNode = function (node, ed
 	this.incidentEdges[node].unshift(edge);
 };
 
+/**
+ * Add the start and end node of an edge to the TCTree.
+ * The edge itself will be stored as incident edge for both nodes.
+ * 
+ * @memberof! TCTreeSkeleton
+ * @param {String|Object} edge - The edge (ID or instance) for which both nodes will be added.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.TCTreeSkeleton.prototype.addNodes = function (edge)
 {
 	// edge: edgeID
@@ -109,6 +226,13 @@ LinearTimeLayout.prototype.TCTreeSkeleton.prototype.addNodes = function (edge)
 	this.addNode(v2, edge);
 };
 
+/**
+ * Add start and end node for an edge of the original graph.
+ * 
+ * @memberof! TCTreeSkeleton
+ * @param {String} edge - ID of the edge for which both nodes should be added.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.TCTreeSkeleton.prototype.addOriginalNodes = function (edge)
 {
 	if (!gf_isset(this.parent.extraEdges[edge]))
@@ -122,8 +246,15 @@ LinearTimeLayout.prototype.TCTreeSkeleton.prototype.addOriginalNodes = function 
 			this.originalNodes[tgt]	= tgt;
 		}
 	}
-}
+};
 
+/**
+ * Add a virtual edge to the TCTree.
+ * 
+ * @memberof! TCTreeSkeleton
+ * @param {String|Object} edge - ID or actual object.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.TCTreeSkeleton.prototype.addVirtualEdge = function (edge)
 {
 	if (edge instanceof LinearTimeLayout.prototype.BasicEdge)
@@ -138,6 +269,14 @@ LinearTimeLayout.prototype.TCTreeSkeleton.prototype.addVirtualEdge = function (e
 	this.addNodes(edge);
 };
 
+/**
+ * Create a new virtual edge and add it to the TCTree.
+ * 
+ * @memberof! TCTreeSkeleton
+ * @param {String} v1 - ID of the start node of the virtual edge.
+ * @param {String} v2 - ID of the end node of the virtual edge.
+ * @returns {Object} The virtual edge.
+ */
 LinearTimeLayout.prototype.TCTreeSkeleton.prototype.createVirtualEdge = function (v1, v2)
 {
 	if (gf_isset(this.parent.normGraph.nodes[v1]))
@@ -155,6 +294,13 @@ LinearTimeLayout.prototype.TCTreeSkeleton.prototype.createVirtualEdge = function
 	return edge;
 };
 
+/**
+ * Checks if the given edge is a virtual edge.
+ * 
+ * @memberof! TCTreeSkeleton
+ * @param {String|Object} edge - ID or actual object.
+ * @returns {boolean} True if the given edge is virtual, false otherwise.
+ */
 LinearTimeLayout.prototype.TCTreeSkeleton.prototype.isVirtual = function (edge)
 {
 	if (edge instanceof LinearTimeLayout.prototype.BasicEdge)
@@ -163,6 +309,12 @@ LinearTimeLayout.prototype.TCTreeSkeleton.prototype.isVirtual = function (edge)
 	return gf_isset(this.virtualEdges[edge]);
 };
 
+/**
+ * Get count of edges of original graph.
+ * 
+ * @memberof! TCTreeSkeleton
+ * @returns {int} Returns number of edges of the original graph (if there are 2 or more edges, 2 is returned).
+ */
 LinearTimeLayout.prototype.TCTreeSkeleton.prototype.originalEdgesCount = function ()
 {
 	var count	= 0;
@@ -177,10 +329,15 @@ LinearTimeLayout.prototype.TCTreeSkeleton.prototype.originalEdgesCount = functio
 	return count;
 };
 
+/**
+ * Remove an edge from skeleton and add to deletedEdges array.
+ *  
+ * @memberof! TCTreeSkeleton
+ * @param {String|Object} edge - ID or actual object.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.TCTreeSkeleton.prototype.removeEdge = function (edge)
-{
-	// TODO: also remove nodes? update incidentEdges?
-	
+{	
 	if (edge instanceof LinearTimeLayout.prototype.BasicEdge)
 		edge	= edge.id;
 		
@@ -193,6 +350,13 @@ LinearTimeLayout.prototype.TCTreeSkeleton.prototype.removeEdge = function (edge)
 	delete this.virtualEdges[edge];
 };
 
+/**
+ * Removes an edge of the original graph from the skeleton.
+ * 
+ * @memberof! TCTreeSkeleton
+ * @param {String} edge - ID of edge of original graph.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.TCTreeSkeleton.prototype.removeOriginalEdge = function (edge)
 {
 	delete this.removeEdge[this.o2e[edge]];

@@ -39,7 +39,7 @@ object Boot extends App with SimpleRoutingApp {
   val interfaceActor = system.actorOf(Props[InterfaceActor])
   val intermediateInterfaceActor = system.actorOf(Props[IntermediateInterfaceActor])
 
-//  DatabaseAccess.recreateDatabase()
+  DatabaseAccess.init()
 
   startServer(interface = "localhost", port = 8181) {
     logRequest("MARK 1") {

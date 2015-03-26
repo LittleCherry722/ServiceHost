@@ -14,105 +14,198 @@
 /*
  * Node
  */
+
+/**
+ * A generic node.
+ * 
+ * @class Node
+ * @param {String} id - ID of the node.
+ * @param {Object} nodeData - Additional data like assigned text, type of node, etc.
+ */
 LinearTimeLayout.prototype.Node = function (id, nodeData)
 {
+	
+	/**
+	 * Information needed for the rendering library to determine what click event has to be assigned to the node.
+	 * @memberof! Node
+	 * @type {String}
+	 */
 	this.clickType		= "bv";
+	
+	/**
+	 * Deactivation flag (for drawing reasons).
+	 * @memberof! Node
+	 * @type {boolean}
+	 */
 	this.deactivated	= false;
+	
+	/**
+	 * Height of the node's label.
+	 * @memberof! Node
+	 * @type {int}
+	 */
 	this.height			= 0;
+	
+	/**
+	 * ID of the node.
+	 * @memberof! Node
+	 * @type {String}
+	 */
 	this.id				= id;
+	
+	/**
+	 * Information about the assigned image.
+	 * @memberof! Node
+	 * @type {Object}
+	 */
 	this.img			= null;
+	
+	/**
+	 * Additional node information (e.g. style information, assigned text, ...)
+	 * @memberof! Node
+	 * @type {Object}
+	 */
 	this.node			= null;
+	
+	/**
+	 * Original ID of the node (for normalized nodes).
+	 * @memberof! Node
+	 * @type {String}
+	 */
 	this.orgId			= id;
+	
+	/**
+	 * Flag if node is selected (for drawing reasons).
+	 * @memberof! Node
+	 * @type {boolean}
+	 */
 	this.selected		= false;
+	
+	/**
+	 * Shape of the node (for drawing reasons).
+	 * @memberof! Node
+	 * @type {String}
+	 */
 	this.shape			= "roundedrectangle";
+	
+	/**
+	 * Style information.
+	 * @memberof! Node
+	 * @type {Object}
+	 */
 	this.style			= null;
+	
+	/**
+	 * Additional text for node label. Default: id of node.
+	 * @memberof! Node
+	 * @type {String}
+	 */
 	this.text			= id;
+	
+	/**
+	 * Flag if node is virtual.
+	 * @memberof! Node
+	 * @type {boolean}
+	 */
 	this.virtual		= false;
+	
+	/**
+	 * Width of the node's label.
+	 * @memberof! Node
+	 * @type {int}
+	 */
 	this.width			= 0;
-	// this.id			= 0;
 	
-	// position
-	this.x				= 0;
-	this.y				= 0;
 	
-	// dimensions for calculation
-	this.dimensions	= {width: 0, height: 0};
-	
-	// branching
-	this.branchingSplit	= false;
-	this.branchingJoin	= false;
-	
-	this.init(nodeData)
+	/*
+	 * initialize node
+	 */
+	this.init(nodeData);
 };
 
 /*
  * Node Methods
  */
+
+/**
+ * Calculate height of the node's label.
+ * 
+ * @memberof! Node
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.Node.prototype.calculateHeight = function ()
 {
-	// TODO
-	// calc height by number-of-lines * (font-size + some space) + padding + border
-	// function calcHeight (text, style)
 	if (this.style != null)
 	{
+		// if an image is assigned to the element the element's height is the height of the image 
 		if (this.img != null)
 		{
 			this.height	= this.img.height;
 		}
+		
+		// for text elements the element's height is estimated based on the text
 		else if (this.text != "")
-		{
-			/*
-			var split	= this.text.split(/<br>|<br \/>|<br\/>|\\r\\n|\\r|\\n|\n/gi);
-			
-			// estimation: number of lines * (fontSize + someSpace)
-			this.height	= Math.ceil(split.length * (this.style.fontSize + 3));
-			*/
-			
+		{			
+			// accesses the gf_estimateTextHeight function provided in the tk_graph library
 			this.height	= gf_estimateTextHeight(this.text, this.style);
 		}
-		
-		// TODO: add borders, padding, minHeight, ... to height
 	}
 };
 
+/**
+ * Calculate width of the node's label.
+ * 
+ * @memberof! Node
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.Node.prototype.calculateWidth = function ()
 {
-	// TODO
-	// calc width by max-width of text + padding + border
-	// function calcWidth (text, style)
 	if (this.style != null)
 	{
+		// if an image is assigned to the element the element's width is the width of the image 
 		if (this.img != null)
 		{
 			this.width	= this.img.width;
 		}
+		
+		// for text elements the element's width is estimated based on the text
 		else if (this.text != "")
 		{
-			/*
-			var split	= this.text.split(/<br>|<br \/>|<br\/>|\\r\\n|\\r|\\n|\n/gi);
-			for (var s in split)
-			{
-				// estimation: max of length of each line
-				this.width	= Math.ceil(Math.max(split[s].length * (this.style.fontSize / 2.434), this.width));
-			}
-			*/
+			// accesses the gf_estimateTextWidth function provided in the tk_graph library
 			this.width	= gf_estimateTextWidth(this.text, this.style);
 		}
-		
-		// TODO: add borders, padding, minWidth, ... to width
 	}
 };
 
+/**
+ * Get height of node's label.
+ * 
+ * @memberof! Node
+ * @returns {int} Height of label.
+ */
 LinearTimeLayout.prototype.Node.prototype.getHeight = function ()
 {
 	return this.height;
 };
 
+/**
+ * Get width of node's label.
+ * 
+ * @memberof! Node
+ * @returns {int} Width of label.
+ */
 LinearTimeLayout.prototype.Node.prototype.getWidth = function ()
 {
 	return this.width;
 };
 
+/**
+ * Initialize the node.
+ * 
+ * @memberof! Node
+ * @param {Object} nodeData - Additional information (e.g. style information, assigned text, ...)
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.Node.prototype.init = function (nodeData)
 {
 	if (nodeData == "virtual")
@@ -192,11 +285,23 @@ LinearTimeLayout.prototype.Node.prototype.init = function (nodeData)
 	this.calculateWidth();
 };
 
+/**
+ * Check if end marker is set to node.
+ * 
+ * @memberof! Node
+ * @returns {boolean} True if end marker is set, false otherwise.
+ */
 LinearTimeLayout.prototype.Node.prototype.isEnd = function ()
 {
 	return this.node != null && gf_isset(this.node.isEnd) && this.node.isEnd();
 };
 
+/**
+ * Check if start marker is set to node.
+ * 
+ * @memberof! Node
+ * @returns {boolean} True if start marker is set, false otherwise.
+ */
 LinearTimeLayout.prototype.Node.prototype.isStart = function ()
 {
 	return this.node != null && gf_isset(this.node.isStart) && this.node.isStart();

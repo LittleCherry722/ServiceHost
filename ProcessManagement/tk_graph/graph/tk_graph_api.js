@@ -155,13 +155,13 @@ function gf_resetManualPositionOffsets(view, id)
 
         case 'subjects':
             for(subjectKey in subjects) {
-                objectsToReset.push(subjects[subjectKey])
+                objectsToReset.push(subjects[subjectKey]);
             }
             break;
 
         case 'all':
             for(subjectKey in subjects) {
-                objectsToReset.push(subjects[subjectKey])
+                objectsToReset.push(subjects[subjectKey]);
                 nodes = gv_graph.getBehavior(subjects[subjectKey]).getNodes();
                 for (nodeKey in nodes) {
                     objectsToReset.push(nodes[nodeKey]);

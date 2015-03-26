@@ -326,7 +326,7 @@ function GCcommunication ()
 			if (gf_isset(deactivated) && deactivated === true)
 				gt_subject.deactivate();
 
-			// ad the subject to the subjects array
+			// add the subject to the subjects array
 			this.subjects[id] = gt_subject;
 		}
 	};
@@ -1065,6 +1065,38 @@ function GCcommunication ()
 		return [];
 	};
 
+    /**
+     * Finds an object by id and type, based on the current selected subject
+     *
+     * @param {int|string} id the id of the subject or node
+     * @param {string} type 'node' or 'edgeLabel'
+     */
+    this.getObjectById = function(id, type)
+    {
+        if(null === this.selectedSubject)
+        {
+            if(type === 'node')
+            {
+                return this.getSubjects()[id];
+            }
+        }
+        else
+        {
+            var behavior = this.getBehavior(this.selectedSubject);
+            if(behavior)
+            {
+                if(type === 'node')
+                {
+                    return behavior.getNode(id);
+                }
+                else if (type === 'edgeLabel')
+                {
+                    return behavior.getEdge(id);
+                }
+            }
+        }
+    };
+
 	/**
 	 * Returns a proper string depending on the processFlag.
 	 *
@@ -1127,6 +1159,18 @@ function GCcommunication ()
 		return null;
 	};
 
+    /**
+     * @returns the id of the edge currently selected depending on the current view
+     */
+    this.getSelectedEdge = function ()
+    {
+        if (gf_isset(this.subjects[this.selectedSubject]))
+        {
+            return this.getBehavior(this.selectedSubject).getMacro().selectedEdge;
+        }
+        return null;
+    };
+
 	/**
 	 * Returns the id of the node currently selected depending on the current view.
 	 *
@@ -1147,18 +1191,6 @@ function GCcommunication ()
 		}
 		return null;
 	};
-
-    /**
-     * @returns the id of the edge currently selected depending on the current view
-     */
-    this.getSelectedEdge = function ()
-    {
-        if (gf_isset(this.subjects[this.selectedSubject]))
-        {
-            return this.getBehavior(this.selectedSubject).getMacro().selectedEdge;
-        }
-        return null;
-    };
 
 	/**
 	 * Returns the IDs of all subjects of the graph.
@@ -1510,13 +1542,14 @@ function GCcommunication ()
 								if (gf_isset(gt_node.comment))
 									gt_createdNode.setComment(gt_node.comment);
 							}
-
 						}
 
 						// 2.1 a) fix those state ids to match the new generated id values
-						for(var someId in gt_macro.nodes) {
+						for(var someId in gt_macro.nodes)
+						{
 							var gcNode = gt_macro.nodes[someId];
-							if(gcNode.getOptions() && 'state' in gcNode.getOptions() && gcNode.getOptions().state) {
+							if(gcNode.getOptions() && 'state' in gcNode.getOptions() && gcNode.getOptions().state)
+							{
 								var oldStateId = gcNode.getOptions().state;
 								var newStateId = gt_macro.nodeIDs["loadedNode" + gcNode.getOptions().state];
 								gcNode.options.state = newStateId;
@@ -1920,7 +1953,7 @@ function GCcommunication ()
 				this.getBehavior(this.selectedSubject).selectMacro(id);
 			}
 		}
-	}
+	};
 
 	/**
 	 * When a subject is selected the id will be passed to the GCbehavior.selectNode(id) method of the current behavior.
@@ -1992,21 +2025,21 @@ function GCcommunication ()
 		}
 	};
 
-  this.updateEdgeStartNode = function()
-  {
-		if (this.selectedSubject && gf_isset(this.subjects[this.selectedSubject]))
-		{
-			this.getBehavior(this.selectedSubject).setStartEdge();
-		}
-  };
-
-  this.updateEdgeEndNode = function()
-  {
+	this.updateEdgeEndNode = function()
+	{
 		if (this.selectedSubject && gf_isset(this.subjects[this.selectedSubject]))
 		{
 			this.getBehavior(this.selectedSubject).setEndEdge();
 		}
-  };
+ 	};
+
+	this.updateEdgeStartNode = function()
+	{
+		if (this.selectedSubject && gf_isset(this.subjects[this.selectedSubject]))
+		{
+			this.getBehavior(this.selectedSubject).setStartEdge();
+		}
+	};
 
 	/**
 	 * When selectedSubject is set the input fields are read and the information is passed to the GCbehavior.updateNode() method of the current behavior.
@@ -2048,27 +2081,4 @@ function GCcommunication ()
 			}
 		}
 	};
-
-    /**
-     * Finds an object by id and type, based on the current selected subject
-     *
-     * @param {int|string} id the id of the subject or node
-     * @param {string} type 'node' or 'edgeLabel'
-     */
-    this.getObjectById = function(id, type) {
-        if(null === this.selectedSubject) {
-            if(type === 'node') {
-                return this.getSubjects()[id];
-            }
-        } else {
-            var behavior = this.getBehavior(this.selectedSubject);
-            if(behavior) {
-                if(type === 'node') {
-                    return behavior.getNode(id);
-                } else if (type === 'edgeLabel') {
-                    return behavior.getEdge(id);
-                }
-            }
-        }
-    }
 }

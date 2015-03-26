@@ -97,8 +97,7 @@ object parseGraph {
       else {
         // FIXME GraphId != processId
         // TODO check ob vorhanden!
-
-        ExternalSubject(id, subject.inputPool, multi, subject.relatedSubjectId, None, subject.relatedInterfaceId, subject.isImplementation, varMap)
+        ExternalSubject(id, subject.inputPool, multi, subject.relatedSubjectId, subject.relatedProcessId, subject.relatedInterfaceId, subject.isImplementation, subject.externalType, varMap)
       }
     }
 

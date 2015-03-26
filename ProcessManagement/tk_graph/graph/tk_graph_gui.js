@@ -414,10 +414,11 @@ function gf_guiDisplayEdge (edge, startType)
 		else
 			gf_guiElementShow(gv_elements.inputEdgeTypeCondO);
 	}
-
-  if (startType == "$chooseagent") {
-    gf_showVariableSelect(edge);
-  }
+	
+	if (startType == "$chooseagent")
+	{
+		gf_showVariableSelect(edge);
+	}
 
 	// select type
 	gf_guiElementWrite(gv_elements.inputEdgeTypeBooleanFalse, "bool", edge.getType() == "boolfalse");
@@ -441,7 +442,7 @@ function gf_guiDisplayEdge (edge, startType)
 	// handle fields that are only available for startNodes == send | receive | action
 	if (startType == "send" || startType == "receive" || startType == "action")
 	{
-    gf_showVariableSelect(edge);
+    	gf_showVariableSelect(edge);
 
 		// fields that are only available for startNode == send | receive
 		if (startType == "send" || startType == "receive")
@@ -456,14 +457,18 @@ function gf_guiDisplayEdge (edge, startType)
 			gf_guiLoadDropDownMessageTypes(gv_elements.inputEdgeMessage, true, false);
 			gf_guiLoadDropDownSubjects(gv_elements.inputEdgeTarget, gv_graph.selectedSubject, false, true);
 
-			if(gf_guiLoadDropDownMergedSubjects(gv_elements.inputEdgeExchangeTarget, edge.getRelatedSubject())) {
-			  gf_guiElementShow(gv_elements.inputEdgeExchangeTargetO);
-      }
-			if (gf_guiLoadDropDownMergedSubjects(gv_elements.inputEdgeExchangeOrigin, gv_graph.selectedSubject)) {
-        if (startType === "send") {
-			    gf_guiElementShow(gv_elements.inputEdgeExchangeOriginO);
-        }
-      }
+			if (gf_guiLoadDropDownMergedSubjects(gv_elements.inputEdgeExchangeTarget, edge.getRelatedSubject()))
+			{
+				gf_guiElementShow(gv_elements.inputEdgeExchangeTargetO);
+			}
+			
+			if (gf_guiLoadDropDownMergedSubjects(gv_elements.inputEdgeExchangeOrigin, gv_graph.selectedSubject))
+			{
+				if (startType === "send")
+				{
+					gf_guiElementShow(gv_elements.inputEdgeExchangeOriginO);
+				}
+			}
 
 			gf_guiLoadDropDownTransportMethods(gv_elements.inputEdgeTransportMethod, edge.getTransportMethod());
 			gf_guiLoadDropDownNewSubject(gv_elements.inputEdgeTargetNewRole, gv_elements.inputSubjectRole);
@@ -1307,11 +1312,11 @@ function gf_guiLoadDropDownInterfaceSubjects (elementSubject, excludeSubject)
 
 		// read the subjects that can be related
 		var gt_subjectArray = [];
-    var gt_sid = null;
+    	var gt_sid = null;
 
 		for (gt_sid in gv_graph.subjects)
 		{
-      var subj = gv_graph.subjects[gt_sid]
+      		var subj = gv_graph.subjects[gt_sid];
 			if (gt_sid != excludeSubject && subj.type === "external" && subj.externalType === "interface")
 			{
 				gt_subjectArray[gt_subjectArray.length] = subj.getText() + " (" + subj.getRole() + ")##;##" + gt_sid;

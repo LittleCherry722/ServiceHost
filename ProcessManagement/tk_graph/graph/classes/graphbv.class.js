@@ -21,6 +21,11 @@
 function GCgraphbv ()
 {
 	/**
+	 * @type GCdragDropManager
+	 */
+    this.dragDropManager = new GCdragDropManager();
+    
+	/**
 	 * Contains the information about the graph.
 	 * The indexes are the ids of the subjects.
 	 * Each entry consist of
@@ -106,9 +111,6 @@ function GCgraphbv ()
 	 * @type Object
 	 */
 	this.renderObjects	= {"nodes": {}, "edges": {}};
-
-
-    this.dragDropManager = new GCdragDropManager();
 
 	/**
 	 * Time measuring: time used for intersection checks
@@ -999,7 +1001,8 @@ function GCgraphbv ()
 		gt_bv_rect.setStyle(gt_bv_style);
 		gf_timeCalc("drawing nodes - drawNode() - apply III");
 		gt_bv_rect.click(gt_clickType);
-        if(gv_interactionsEnabled) {
+        if(gv_interactionsEnabled)
+        {
             this.dragDropManager.addActionLabel(gt_bv_rect);
         }
 		gf_timeCalc("drawing nodes - drawNode() - apply");

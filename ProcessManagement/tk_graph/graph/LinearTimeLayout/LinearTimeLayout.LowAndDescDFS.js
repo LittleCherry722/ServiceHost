@@ -19,21 +19,73 @@
 /*
  * LowAndDescDFS
  */
+
+/**
+ * A DFS computing different numbers for each node.
+ * 
+ * @class LowAndDescDFS
+ * @see org.jbpt.algo.tree.tctree.LowAndDescDFS
+ * @param {Object} graph - The graph to run the DFS on.
+ * @param {Object} meta - Meta data containing DFS numbers, etc.
+ */
 LinearTimeLayout.prototype.LowAndDescDFS = function (graph, meta)
 {
 	
+	/**
+	 * Number of completed paths.
+	 * @memberof! LowAndDescDFS
+	 * @type {int}
+	 */
 	this.complNum	= 0;
+	
+	/**
+	 * DFS number.
+	 * @memberof! LowAndDescDFS
+	 * @type {int}
+	 */
 	this.dfsNum		= 0;
+	
+	/**
+	 * The graph to run the DFS on.
+	 * @memberof! LowAndDescDFS
+	 * @type {Object}
+	 */
 	this.graph		= graph;
+	
+	/**
+	 * New path switch.
+	 * @memberof! LowAndDescDFS
+	 * @type {boolean}
+	 */
 	this.isNewPath	= false;
+	
+	/**
+	 * Meta data.
+	 * @memberof! LowAndDescDFS
+	 * @type{Object}
+	 */
 	this.meta		= meta;
+	
+	/**
+	 * Number of current path.
+	 * @memberof! LowAndDescDFS
+	 * @type {int}
+	 */
 	this.pathNumber	= 1;
 	
+	// initialize the DFS
 	this.init();
 };
 
 /*
  * LowAndDescDFS Methods
+ */
+/**
+ * Create empty edge map to store visited state of edges, path numbers, etc.
+ * 
+ * @memberof! LowAndDescDFS
+ * @param {Object} graph - The graph for which to create the map.
+ * @returns {Array} Array of edge IDs, each entry set to null.
  */
 LinearTimeLayout.prototype.LowAndDescDFS.prototype.createEdgeMap = function (graph)
 {
@@ -47,6 +99,13 @@ LinearTimeLayout.prototype.LowAndDescDFS.prototype.createEdgeMap = function (gra
 	return map;
 };
 
+/**
+ * Create empty node map to store visited state of nodes, dfs numbers, etc.
+ * 
+ * @memberof! LowAndDescDFS
+ * @param {Object} graph - The graph for which to create the map.
+ * @returns {Array} Array of node IDs, each entry set to null.
+ */
 LinearTimeLayout.prototype.LowAndDescDFS.prototype.createNodeMap = function (graph)
 {
 	var map	= {};
@@ -57,16 +116,25 @@ LinearTimeLayout.prototype.LowAndDescDFS.prototype.createNodeMap = function (gra
 	return map;
 };
 
+/**
+ * The actual DFS.
+ * 
+ * @memberof! LowAndDescDFS
+ * @param {String} node - ID of current node.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.LowAndDescDFS.prototype.dfs = function (node)
 {
 	this.dfsNum++;
 	this.meta.dfsNum[node]			= this.dfsNum;
 	this.meta.dfsNodeState[node]	= "gray";
 	
+	// load adjacency list of this node
 	var adjV	= this.meta.dfsAdjLists[node];
 	
 	this.preVisit(node, this.meta.dfsNum[node]);
 	
+	// cycle through all incident edges
 	for (var e in adjV)
 	{
 		var edge	= adjV[e];
@@ -103,11 +171,24 @@ LinearTimeLayout.prototype.LowAndDescDFS.prototype.dfs = function (node)
 	this.postVisit(node, this.meta.dfsNum[node], this.meta.dfsComplNum[node]);
 };
 
+/**
+ * Auxiliary function to resolve edgeID to edge of original graph.
+ * 
+ * @memberof! LowAndDescDFS
+ * @param {String} edge - ID of edge to resolve.
+ * @returns {Object} The actual edge.
+ */
 LinearTimeLayout.prototype.LowAndDescDFS.prototype.e = function (edge)
 {
 	return this.graph.edges[edge];
 };
 
+/**
+ * Initialize the DFS and the meta object.
+ * 
+ * @memberof! LowAndDescDFS
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.LowAndDescDFS.prototype.init = function ()
 {
 	// AbstractDFS
@@ -165,6 +246,14 @@ LinearTimeLayout.prototype.LowAndDescDFS.prototype.init = function ()
 	}
 };
 
+/**
+ * Post traverse step.
+ * 
+ * @memberof! LowAndDescDFS
+ * @param {Object} edge - ID of followed edge.
+ * @param {Object} w - Current node of DFS.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.LowAndDescDFS.prototype.postTraverse = function (edge, w)
 {
 	var v	= this.e(edge).getOtherVertex(w);
@@ -207,12 +296,29 @@ LinearTimeLayout.prototype.LowAndDescDFS.prototype.postTraverse = function (edge
 	this.meta.dfsNumDesc[v]		= this.meta.dfsNumDesc[v] + this.meta.dfsNumDesc[w];
 };
 
+/**
+ * Post visit step. No actual function, just implemented to follow Interface structure of jBPT.
+ * 
+ * @memberof! LowAndDescDFS
+ * @param {Object} node
+ * @param {Object} dfsNumber
+ * @param {Object} complNumber
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.LowAndDescDFS.prototype.postVisit = function (node, dfsNumber, complNumber)
 {
 	
 };
 
-// treeEdge: boolean
+/**
+ * Pre traverse step.
+ * 
+ * @memberof! LowAndDescDFS
+ * @param {String} edge - ID of edge to traverse.
+ * @param {String} w - ID of target node.
+ * @param {boolean} treeEdge - Is edge of type "treeedge"?
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.LowAndDescDFS.prototype.preTraverse = function (edge, w, treeEdge)
 {
 	// ParentAndPathDFS
@@ -265,6 +371,14 @@ LinearTimeLayout.prototype.LowAndDescDFS.prototype.preTraverse = function (edge,
 	}
 };
 
+/**
+ * Pre Visit step.
+ * 
+ * @memberof! LowAndDescDFS
+ * @param {String} node - ID of current node.
+ * @param {int} dfsNumber - Current dfs number.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.LowAndDescDFS.prototype.preVisit = function (node, dfsNumber)
 {
 	// LowAndDescDFS
@@ -275,6 +389,13 @@ LinearTimeLayout.prototype.LowAndDescDFS.prototype.preVisit = function (node, df
 	this.meta.dfsNumDesc[node]			= 1;
 };
 
+/**
+ * Start DFS by calling dfs() with the root node.
+ * 
+ * @memberof! LowAndDescDFS
+ * @param {String} root - ID of the root of the DFS.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.LowAndDescDFS.prototype.start = function (root)
 {
 	this.dfs(root);

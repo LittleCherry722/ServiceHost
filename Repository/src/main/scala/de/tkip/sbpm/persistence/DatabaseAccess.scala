@@ -4,6 +4,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource
 import com.mchange.v2.c3p0.DataSources
 import com.typesafe.config.{ ConfigFactory }
 import scala.slick.driver.JdbcDriver.simple._
+import scala.slick.jdbc.meta.MTable
 
 object DatabaseAccess {
   import schema.Schema.driver.simple._
@@ -57,14 +58,35 @@ object DatabaseAccess {
       ddl.create(session)
     }
   }
+
   def dropDatabase() : Unit = {
-    db.withSession { implicit session =>
-      executeIgnoreErrors(ddl.dropStatements)
+    db.withSession { implicit session => {
+        println("dropping all tables.. if a table doesn't exist that will fail for it, but the error will be ignored")
+        executeIgnoreErrors(ddl.dropStatements)
+      }
     }
   }
+
   def recreateDatabase() : Unit = {
     dropDatabase()
     createDatabase()
+  }
+
+  def optionalCreateDatabase() : Unit = {
+    db.withSession { implicit session: Session =>
+      if (MTable.getTables.list(session).isEmpty) {
+        createDatabase()
+      }
+    }
+  }
+
+  def init() : Unit = {
+    DatabaseConnection.configString("startupAction") match {
+      case "create" => createDatabase()
+      case "optional-create" => optionalCreateDatabase()
+      case "recreate" => recreateDatabase()
+      case x => println("DatabaseAccess.init: startupAction is '" + x + "', doing nothing")
+    }
   }
 
   /**
@@ -76,7 +98,7 @@ object DatabaseAccess {
       try {
         session.withPreparedStatement(s)(_.execute)
       } catch {
-        case e: Throwable => println(e.getMessage)
+        case e: Throwable => println("ignoring error: " + e.getMessage)
       }
     }
 }
@@ -92,12 +114,12 @@ private object DatabaseConnection {
   private val configPath = "sbpm.repo.db."
 
   // read string from akka config
-  private def configString(key: String) = {
+  def configString(key: String) = {
     config.getString(configPath + key)
   }
 
   // read number from akka config
-  private def configInt(key: String) = {
+  def configInt(key: String) = {
     config.getInt(configPath + key)
   }
 
@@ -115,6 +137,7 @@ private object DatabaseConnection {
       // read pool properties from akka config
       ds.setDriverClass(configString("jdbcDriver"))
       ds.setJdbcUrl(url)
+      ds.setInitialPoolSize(configInt("initialPoolSize"))
       ds.setMinPoolSize(configInt("minPoolSize"))
       ds.setAcquireIncrement(configInt("poolAcquireIncrement"))
       ds.setMaxPoolSize(configInt("maxPoolSize"))

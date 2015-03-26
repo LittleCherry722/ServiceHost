@@ -16,44 +16,357 @@
  */
 
 /**
- * LinearTimeLayout Constructor
+ * Main class of the linear time layouting algorithm.
+ * 
+ * @class LinearTimeLayout
+ * @param {String} orientation - Orientation of the graph which. Either "ltr" (left-to-right) or "ttb" (top-to-bottom).
  */
-function LinearTimeLayout (direction)
+function LinearTimeLayout (orientation)
 {
-	if (!gf_isset(direction) || direction != "ltr")
-		direction	= "ttb";
+	if (!gf_isset(orientation) || orientation != "ltr")
+		orientation	= "ttb";
 	
-	// TODO: configuration (like renderer, spaces.aesthetics)
-	// spaces (calc with max-node-height / 2 + arrow-space, max-node-width / 2 + arrow-space)
-	// increase arrow-space when max-edge-label is too wide / too high
-	this.backedge		= null;
-	this.branchHeight	= {};
-	this.branchWidth	= {};
-	this.direction		= direction;
-	this.drawnNodes		= {};
-	this.edgeMap		= {};
-	this.edges			= {};
-	this.edgeTypes		= {"tree": "Treeedge", "back": "Backedge", "forward": "Forwardedge", "cross": "Crossedge"};
-	this.edgex			= {};
-	this.extraEdges		= {};
-	this.inEdges		= {};
-	this.loopEdges		= new Array();
-	this.mostLeft		= null;
-	this.ne2oe			= {};
-	this.nn2on			= {};
-	this.nodes			= {};
-	this.nodex			= {};
-	this.nodey			= {};
-	this.normGraph		= null;
-	this.on2nn			= {};
-	this.outEdges		= {};
-	this.renderObjects	= {"nodes": {}, "edges": {}};
-	this.rpst			= null;
-	this.spaces			= {x: 0, y: 0, aesthetics: 0};
+	/**
+	 * Store atomic fragments to avoid duplicate computation.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.atomic					= {};
+	
+	/**
+	 * Backedge between sink and source of graph.
+	 * @memberof! LinearTimeLayout
+	 * @type {Object}
+	 */
+	this.backedge				= null;
+	
+	/**
+	 * Array containing converging gateways.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.branchingJoin			= {};
+	
+	/**
+	 * Array containing diverging gateways.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.branchingSplit			= {};
+	
+	/**
+	 * Array containing heights of fragments.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.branchHeight			= {};
+	
+	/**
+	 * Array containing widths of fragments.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.branchWidth			= {};
+	
+	/**
+	 * Cache for results of fragments(), getEdges() and getNodes()
+	 * @memberof! LinearTimeLayout
+	 * @type {Object}
+	 */
+	this.cache					= {"fragments": {}, "edges": {}, "nodes": {}};
+	
+	/**
+	 * Counter for statistically purposes only
+	 * @memberof! LinearTimeLayout
+	 * @type {Object}
+	 */
+	this.count					= {"nodes": 0, "edges": 0, "freeNodes": 0};
+	
+	/**
+	 * Dimensions of drawing area.
+	 * Can be set via the setAreaSize() method.
+	 * @memberof! LinearTimeLayout
+	 * @type {Object}
+	 */
+	this.drawingArea			= {"width": 0, "height": 0};
+	
+	/**
+	 * Array containing already rendered nodes.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.drawnNodes				= {};
+	
+	/**
+	 * Array containing the edges of the graph.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.edges					= {};
+	
+	/**
+	 * Enumeration of available edge types.
+	 * @memberof! LinearTimeLayout
+	 * @type {Object}
+	 * @const
+	 */
+	this.edgeTypes				= {"tree": "Treeedge", "back": "Backedge", "forward": "Forwardedge", "cross": "Crossedge"};
+	
+	/**
+	 * X ordinates of edge bends.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.edgex					= {};
+	
+	/**
+	 * Y ordinates of edge bends.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.edgey					= {};
+	
+	/**
+	 * Array mapping entry nodes to fragments.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.entryMap				= {};
+	
+	/**
+	 * Array mapping exit nodes to fragments.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.exitMap				= {};
+	
+	/**
+	 * Additional edges introduced during the preprocessing step.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.extraEdges				= {};
+	
+	/**
+	 * Incidence list containing edges incoming to nodes, stored per node.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.incidenceIn			= {};
+	
+	/**
+	 * Incidence list containing edges outgoing of nodes, stored per node.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.incidenceOut			= {};
+	
+	/**
+	 * Original incoming edges, stored per node.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.inEdges				= {};
+	
+	/**
+	 * Position of left most node within the graph. Starting point for drawing free nodes.
+	 * @memberof! LinearTimeLayout
+	 * @type {int}
+	 */
+	this.leftMost				= null;
+	
+	/**
+	 * manual position changes (can be set via the setManualChanges() method)
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.manualx				= {};
+	
+	/**
+	 * manual position changes (can be set via the setManualChanges() method)
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.manualy				= {};
+	
+	/**
+	 * Array mapping normalized edges to original edges.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.ne2oe					= {};
+	
+	/**
+	 * Array mapping normalized nodes to original nodes.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.nn2on					= {};
+	
+	/**
+	 * Nodes of the graph.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.nodes					= {};
+	
+	/**
+	 * X ordinates of nodes.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.nodex					= {};
+	
+	/**
+	 * Y ordinates of nodes.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.nodey					= {};
+	
+	/**
+	 * Normalized graph.
+	 * @memberof! LinearTimeLayout
+	 * @type {Object}
+	 */
+	this.normGraph				= null;
+	
+	/**
+	 * Array mapping original nodes to normalized nodes.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.on2nn					= {};
+	
+	/**
+	 * Graph orientation: ltr (left-to-right) or ttb (top-to-bottom)
+	 * @memberof! LinearTimeLayout
+	 * @type {String}
+	 */
+	this.orientation			= orientation;
+	
+	/**
+	 * Original outgoing edges, stored per node.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.outEdges				= {};
+	
+	/**
+	 * Planarity checker: block stack
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.planB					= null;
+	
+	/**
+	 * Planarity checker: points to last vertex on path
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.planF					= null;
+	
+	/**
+	 * Planarity checker: first unused location in planStack
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.planFree				= null;
+	
+	/**
+	 * Planarity checker: pointer to stack
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.planNext				= null;
+	
+	/**
+	 * Planarity checker: number of current path
+	 * @memberof! LinearTimeLayout
+	 * @type {int}
+	 */
+	this.planP					= null;
+	
+	/**
+	 * Planarity checker: maps nodes to paths
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.planPath				= null;
+	
+	/**
+	 * Planarity checker: switching variable
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.planS					= null;
+	
+	/**
+	 * Planarity checker: stack
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.planStack				= null;
+	
+	/**
+	 * Switch to turn the rendering (@drawNode / drawEdges) on or off.
+	 * Set to true when computed layout should also be drawn.
+	 *  
+	 * @memberof! LinearTimeLayout
+	 * @type {boolean}
+	 */
+	this.renderElements			= true;
+	
+	/**
+	 * Arrays containing the rendered elements.
+	 * @memberof! LinearTimeLayout
+	 * @type {Object}
+	 */
+	this.renderObjects			= {"nodes": {}, "edges": {}};
+	
+	/**
+	 * decomposed RPST
+	 * @memberof! LinearTimeLayout
+	 * @type {Object}
+	 */
+	this.rpst					= null;
+	
+	/**
+	 * Grid distances (x and y) and aesthetical space.
+	 * Can be set via the setSpaces() method.
+	 * @memberof! LinearTimeLayout
+	 * @type {Object}
+	 */
+	this.spaces					= {x: 0, y: 0, a: 0};
+	
+	/**
+	 * Temporary list containing edges incoming to nodes (limited to current fragment).
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.temporaryIncidenceIn	= {};
+	
+	/**
+	 * Temporary list containing edges outgoing of nodes (limited to current fragment).
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.temporaryIncidenceOut	= {};
 }
 
 /*
  * LinearTimeLayout Methods
+ */
+
+/**
+ * Add an edge to the graph.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {String} id - ID of the edge.
+ * @param {String} source - ID of the start node.
+ * @param {String} target - ID of end node.
+ * @param {Object} edgeData - Additional data (style information, text information, ...) which is set via the S-BPM Groupware.
+ * @returns {void}
  */
 LinearTimeLayout.prototype.addEdge = function (id, source, target, edgeData)
 {
@@ -74,6 +387,14 @@ LinearTimeLayout.prototype.addEdge = function (id, source, target, edgeData)
 	this.inEdges[target][this.inEdges[target].length]	= id;
 };
 
+/**
+ * Add a node to the graph.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {String} id - ID of the node.
+ * @param {Object} nodeData - Additional information (assigned text, style information, type of the node, ...).
+ * @returns {String} ID of the node.
+ */
 LinearTimeLayout.prototype.addNode = function (id, nodeData)
 {
 	this.inEdges[id]	= [];
@@ -83,968 +404,1279 @@ LinearTimeLayout.prototype.addNode = function (id, nodeData)
 	return id;
 };
 
+/**
+ * Calculate the x and y distances of the grid based on the heights and widths of node elements and labels assigned to edges.
+ * An additional aesthetic space is added to both distances.
+ * The calculated distances are stored in the spaces.x and spaces.y attributes.
+ * 
+ * @memberof! LinearTimeLayout
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.calculateSpaces = function ()
 {
-	this.spaces.x	= gv_bv_nodeSettings.distanceX - 100;
-	this.spaces.y	= gv_bv_nodeSettings.distanceY - 100;
+	// spaces.x and spaces.y can be preset by calling the setSpaces() method
 	
-	// cycle through all nodes
+	// Read width, height of all node labels and increase spaces.x and spaces.y accordingly
 	for (var n in this.nodes)
 	{
-		this.spaces.x	= Math.max(this.nodes[n].getWidth(), this.spaces.x);
-		this.spaces.y	= Math.max(this.nodes[n].getHeight(), this.spaces.y);
+		var node		= this.nodes[n];
+		this.spaces.x	= Math.max(node.getWidth(), this.spaces.x);
+		this.spaces.y	= Math.max(node.getHeight(), this.spaces.y);
+		
+		node			= node.id;
+		
+		// Set branchingSplit if node has at least two outgoing edges
+		var outEdges	= this.getOutEdges(node);
+		if (outEdges.length > 1)
+		{
+			this.branchingSplit[node]	= true;
+		}
+		
+		// Set branchingJoin if node has at least two incoming edges
+		var inEdges		= this.getInEdges(node);
+		if (inEdges.length > 1)
+		{
+			this.branchingJoin[node]	= true;
+		}
 	}
 	
-	// cycle through all edges
+	// Read width and height of all edge labels and increase spacex and spacey accordingly
 	for (var e in this.edges)
 	{
 		this.spaces.x	= Math.max(this.edges[e].getWidth(), this.spaces.x);
 		this.spaces.y	= Math.max(this.edges[e].getHeight(), this.spaces.y);
 	}
 	
-	this.spaces.x	+= 100;
-	this.spaces.y	+= 100;
+	// add some aesthetical space
+	this.spaces.x	+= this.spaces.a;
+	this.spaces.y	+= this.spaces.a;
 };
 
-LinearTimeLayout.prototype.compactLayout = function (rpstnode)
+/**
+ * Compacts the resulting layout.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - A fragment.
+ * @returns {void}
+ */
+LinearTimeLayout.prototype.compactLayout = function (f)
 {
-	
-	// TODO
-	/*
-In the fourth phase, we compute how much closer a given branch might
-be moved to the branch drawn directly above it, ensuring constraint C6 (i.e.,
-minimality should be applied). Second, the tree is compacted to ensure con-
-straint C6 (i.e., minimality should be applied). In Figure 9, this stage would
-shift nodes e and f closer to nodes a to c since the lower branch ends before the
-upper branch requires more space to fit in the final nodes.
-
-These arrows form a planar graph
-and a planar graph is know to have a maximum of 3v − 6 edges, where v is the
-number of vertices for graphs with three or more vertices [13] (v < |f |). During
-the compaction phase we iterate over this graph twice, assessing how much each
-element may be moved (once to compute the minimum for moving the entire
-branch, and once for the actual compaction).
-
-	 */
-	
-	// TODO
-	
-	var fragments	= this.fragments(rpstnode);
-	var exitNodes	= new Array();
-		exitNodes.push(this.nodes[rpstnode.getEntry()]);
-		
-	for (var f in fragments)
-	{
-		var fragment	= fragments[f];
-		
-		if (fragment instanceof this.RPSTNode)
-		{
-			var entry	= fragment.getEntry();
-			if (gf_isset(this.nodes[entry]))
-				exitNodes.push(this.nodes[entry]);
-		}
-	}
-	
-	// 1) sort by x position	// this.sortByY
-	exitNodes.sort(this.sortByX);
-	
-	var lastX	= 0;
-	var diffX	= 0;
-	for (var en in exitNodes)
-	{
-		var node	= exitNodes[en];
-		if (node.x > (lastX + this.spaces.x))
-		{
-			diffX	= Math.floor((node.x - lastX - this.spaces.x) / 2);
-		}
-		lastX	= node.x;
-	}
-	
-	// TODO: temp hack
-	/*
-	this.nodes["n3"].x	= 225;
-	this.nodes["n4"].x	= 75;
-	this.nodes["n5"].x	= 225;
-	this.nodes["n6"].x	= 150;
-	this.branchWidth["n1"]	= 300;
-	*/
+	// TODO: left open for further research
 };
 
+/**
+ * Computes the dimensions of an unstructured fragment.
+ * The dimensions are stored in the global arrays branchHeight and branchWidth.
+ * Implementation based on ComputeBranchDimensions function of Gschwind et al.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {String} nodeID - ID of a node or fragment.
+ * @param {Array} parent - Array with IDs of parent node (calculated by lpstree method)
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.computeBranchDimensions = function (nodeID, parent)
 {
-	/*
-	 * TODO:
-	 * - Anpassungen für Layout von oben nach unten + Label-Width (Knoten / Kanten-Label) -> max(kanten-label, knoten-label)
-	 * - globaler space Parameter -> spaces.aesthetics
-	 * - globales Array height, width -> getHeight / getWidth -> accessing height / width of node / edge
-	 * - h, w umbenennen in width / height? -> done
-	 * - add width / height of edge
-	 */
-	
-	// TODO: add switch for direction (ttb vs. ltr)
-	
 	var height	= 0;
 	var width	= 0;
-	var k		= 0;
+	
 	var outEdges	= this.getOutEdges(nodeID);
 	for (var edgeID in outEdges)
 	{
-		edgeID	= outEdges[edgeID].edge;
+		edgeID	= outEdges[edgeID];
 		
 		var newHeight	= 0;
 		var newWidth	= 0;
 		
+		// recursively calculate dimenions of child fragments / nodes
 		var targetNode	= this.target(edgeID);
-		
-		if (gf_isset(parent[targetNode]) && parent[targetNode] == nodeID)
+		if (gf_isset(parent[targetNode]) && parent[targetNode] == this.source(edgeID))
 		{
-			// fixed recursive call -> changed order of parameters
 			this.computeBranchDimensions(targetNode, parent);
 			
 			newHeight	= this.branchHeight[targetNode];
 			newWidth	= this.branchWidth[targetNode];
 		}
 		
-		// TODO: ignore spaces.aesthetics?
 		if (this.dirLtr())
 		{
-			height	= height + k * this.spaces.aesthetics + newHeight;
+			height	= height + newHeight;
 			width	= Math.max(width, newWidth);
 		}
 		else
 		{
 			height	= Math.max(height, newHeight);
-			width	= width + k * this.spaces.aesthetics + newWidth;
+			width	= width + newWidth;
 		}
-		k		= 1;
 	}
 	
-	// TODO: ignore spaces.aesthetics?
+	// calculate dimension based on dimenions of children and on graph orientation
 	if (this.dirLtr())
 	{
-		height	= Math.max(this.getHeight(nodeID, "node"), height);
-		width	= this.getWidth(nodeID, "node") + k * this.spaces.aesthetics + width;
+		height	= Math.max(this.spaces.y, height);
+		width	= this.spaces.x + width;
 	}
 	else
 	{
-		height	= this.getHeight(nodeID, "node") + k * this.spaces.aesthetics + height;	// TODO: Math.max(this.getHeight(node), this.getHeight(edge))?
-		width	= Math.max(this.getWidth(nodeID, "node"), width);						// TODO: add space? Width of edge label?	/ Math.max(this.getWidth(nodeID, "node"), this.getWidth(edgeID, "edge"))?
+		height	= this.spaces.y + height;
+		width	= Math.max(this.spaces.x, width);
+	}
+	
+	// for structured fragments (sequences, branches, loops) the dimensions have already be calculated in the corresponding function
+	var isStructured	= this.getF(nodeID).hasOwnProperty("type") && this.getF(nodeID).type != "trivial" && this.getF(nodeID).type != "rigid";
+	if (gf_isset(this.branchHeight[nodeID]) && isStructured)
+	{
+		height	= Math.max(height, this.branchHeight[nodeID]);
+	}
+	
+	if (gf_isset(this.branchWidth[nodeID]) && isStructured)
+	{
+		width	= Math.max(width, this.branchWidth[nodeID]);
 	}
 	
 	this.branchHeight[nodeID]	= height;
 	this.branchWidth[nodeID]	= width;
 };
 
-LinearTimeLayout.prototype.createEdgeMap = function (rpstnode)
+/**
+ * Recursively creates maps for fragmentEntry -> fragment and fragmentExit -> fragment.
+ * fragmentEntry, fragmentExit and fragment are IDs
+ * fragment IDs are prefixed with f:
+ * Maps are stored in global entryMap and exitMap arrays
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - Fragment to process.
+ * @returns {void}
+ */
+LinearTimeLayout.prototype.createBoundaryNodesMap = function (f)
 {
-	this.edgeMap		= {};
-	
-	var children	= this.rpst.getChildren2(rpstnode);
-	var outEdges	= {};
-	var inEdges		= {};
-	
-	for (var e in this.edges)
+	var children	= this.rpst.getChildren2(f).children;
+	for (var cf in children)
 	{
-		var src		= this.source(e);
-		var tgt		= this.target(e);
-		
-		if (!gf_isset(outEdges[src]))
-		{
-			outEdges[src]	= new Array();
-		}
-		
-		if (!gf_isset(inEdges[tgt]))
-		{
-			inEdges[tgt]	= new Array();
-		}
-		
-		outEdges[src].push(e);
-		inEdges[tgt].push(e);
+		var child	= children[cf];
+		this.createBoundaryNodesMap(child);
 	}
 	
-	// add entry's edges
-	var entry	= rpstnode.getEntry();
-	if (gf_isset(outEdges[entry]))
+	if (f.type != "trivial" && f.type != "polygon")
 	{
-		this.edgeMap[entry]	= new Array();
-		for (var o in outEdges[entry])
-		{
-			var edge	= outEdges[entry][o];
-			var tgt		= this.target(edge);
-			
-			if (gf_isset(this.nodes[entry], children.entry[tgt]))
-			{
-				this.edgeMap[entry].push({"type": "out", "edge": edge, "v1": entry, "v2": tgt, "v1node": this.nodes[entry], "v2node": children.entry[tgt]});
-				
-				if (!gf_isset(this.edgeMap[tgt]))
-					this.edgeMap[tgt]	= new Array();
-					
-				this.edgeMap[tgt].push({"type": "in", "edge": edge, "v1": entry, "v2": tgt, "v1node": this.nodes[entry], "v2node": children.entry[tgt]});
-			}
-		}
-	}
-	
-	// add exit's edges
-	var exit	= rpstnode.getExit();
-	if (gf_isset(inEdges[exit]))
-	{
-		this.edgeMap[exit]	= new Array();
-		for (var i in inEdges[exit])
-		{
-			var edge	= inEdges[exit][i];
-			var src		= this.source(edge);
-			
-			if (gf_isset(this.nodes[exit], children.exit[src]))
-			{
-				this.edgeMap[exit].push({"type": "in", "edge": edge, "v1": src, "v2": exit, "v1node": children.exit[src], "v2node": this.nodes[exit]});
-				
-				if (!gf_isset(this.edgeMap[src]))
-					this.edgeMap[src]	= new Array();
-					
-				this.edgeMap[src].push({"type": "out", "edge": edge, "v1": src, "v2": exit, "v1node": children.exit[src], "v2node": this.nodes[exit]});
-			}
-		}
-	}
-	// add the edges of each child's entry / exit
-	for (var c in children.children)
-	{
-		var child	= children.children[c];
-		var entry	= child.getEntry();
-		var exit	= child.getExit();
+		var entry	= this.entryNode(f);
+		var exit	= this.exitNode(f);
 		
-		if (gf_isset(inEdges[entry]))
-		{
-			
-			if (!gf_isset(this.edgeMap[entry]))
-				this.edgeMap[entry]	= new Array();
-				
-			for (var i in inEdges[entry])
-			{
-				var edge	= inEdges[entry][i];
-				var src		= this.source(edge);
-				
-				if (gf_isset(this.nodes[entry], children.exit[src]))
-				{
-					this.edgeMap[entry].push({"type": "in", "edge": edge, "v1": src, "v2": entry, "v1node": children.exit[src], "v2node": this.nodes[entry]});
-				}
-			}
-		}
-		
-		if (gf_isset(outEdges[exit]))
-		{
-		
-			if (!gf_isset(this.edgeMap[exit]))
-				this.edgeMap[exit]	= new Array();
-			
-			for (var o in outEdges[exit])
-			{
-				var edge	= outEdges[exit][o];
-				var tgt		= this.target(edge);
-				
-				if (gf_isset(this.nodes[exit], children.entry[tgt]))
-				{
-					this.edgeMap[exit].push({"type": "out", "edge": edge, "v1": exit, "v2": tgt, "v1node": this.nodes[exit], "v2node": children.entry[tgt]});
-				}
-			}
-		}
+		this.entryMap[entry]	= f.id;
+		this.exitMap[exit]		= f.id;
 	}
-	
-	return this.edgeMap;
 };
 
-// process structure tree (refined process structure tree -> RPST)
-LinearTimeLayout.prototype.decomposePST = function (graph)
+/**
+ * Computes the PST / RPST (Refined Process Structure Tree).
+ * 
+ * @memberof! LinearTimeLayout
+ * @see LinearTimeLayout.PST
+ * @returns {Object} PST
+ */
+LinearTimeLayout.prototype.decomposePST = function ()
 {
 	// decompose the resulting process model into SESE fragments (Single-Entry Single-Exit)
 	var pst	= new this.PST(this);	
 	return pst.decompose();
 };
 
-// Purpose of this function: saving some typing
+/**
+ * Returns true if graph is oriented left-to-right; false otherwise.
+ * 
+ * @memberof! LinearTimeLayout
+ * @returns {boolean} True if graph is oriented left-to-right.
+ */
 LinearTimeLayout.prototype.dirLtr = function ()
 {
-	return this.direction == "ltr";
+	return this.orientation == "ltr";
 };
 
-LinearTimeLayout.prototype.draw = function (rpstnode, x, y)
-{	
-	var entry	= rpstnode.getEntry();
-	var exit	= rpstnode.getExit();
-	
-	this.drawNode(entry, rpstnode, x, y);
-	this.drawNode(exit, rpstnode, x, y);
-	
-	x	+= rpstnode.x;
-	y	+= rpstnode.y;
-
-	if (this.isAtomic(rpstnode))
-	{
-		// already done by drawing entry and exit of atomic fragment
-	}
-	else if (this.isSequence(rpstnode))
-	{
-		var children		= this.rpst.getChildren2(rpstnode).entry;
-		
-		while (gf_isset(children[entry]))
-		{
-			var child	= children[entry];
-			this.draw(child, x, y);
-			
-			entry	= child.getExit();
-		}
-	}
-	else if (this.isBranching(rpstnode))
-	{
-		// update entry and exit
-		this.nodes[entry].branchingSplit	= true;
-		this.nodes[exit].branchingJoin		= true;
-		
-		var children		= this.rpst.getChildren2(rpstnode).children;
-		for (var c in children)
-		{
-			var child	= children[c];
-			this.draw(child, x, y);
-		}
-	}
-	else if (this.isLoop(rpstnode))
-	{
-		var children		= this.rpst.getChildren2(rpstnode).entry;
-		var visited			= {};
-		var loopSpace		= this.dirLtr() ? (rpstnode.dimensions.height - Math.round(this.spaces.y / 2)) : (rpstnode.dimensions.width - Math.round(this.spaces.x / 2));
-		
-		while (gf_isset(children[entry]))
-		{
-			var child	= children[entry];
-			this.draw(child, x, y);
-			
-			visited[entry]	= true;
-			
-			entry	= child.getExit();
-			
-			if (gf_isset(visited[entry]))
-			{
-				console.log("it loops");
-				this.loopEdges.push({start: child.getEntry(), end: child.getExit(), space: loopSpace});
-				break;
-			}
-		}
-		
-		// this.loopEdges.push({start: rpstnode.getExit(), end: rpstnode.getEntry(), width: loopWidth});
-	}
-	// unstructured fragments
-	else
-	{		
-		var fragments	= this.fragments(rpstnode);
-		for (var f in fragments)
-		{
-			var fragment	= fragments[f];
-			if (fragment instanceof this.RPSTNode)
-			{
-				this.draw(fragment, x, y);
-			}
-		}
-	}
-};
-
-LinearTimeLayout.prototype.drawEdges = function (rpstnode)
+/**
+ * Main drawing function which calls all other functions to render edges or nodes.
+ * 
+ * @memberof! LinearTimeLayout
+ * @returns {void}
+ */
+LinearTimeLayout.prototype.draw = function ()
 {
-	var edges	= rpstnode.getFragment().edges;
-			
+	// Set start position of graph
+	var x	= this.dirLtr()	? 50	: Math.round(this.drawingArea.width / 2);
+	var y	= this.dirLtr()	? Math.round(this.drawingArea.height / 2)	: 50;
+	
+	// main case when a RPST has been computed
+	if (this.rpst != null)
+	{
+		// Set root fragment of calculated RPST as starting point
+		var root	= this.rpst.getRoot();
+		
+		this.drawFragment(root, x, y);
+		this.drawEdges();
+		this.drawFreeNodes(y);
+	}
+	
+	// when no RPST was computed only free nodes exist
+	else
+	{
+		this.leftMost	= x;
+		this.drawFreeNodes(y);
+	}
+};
+
+/**
+ * Renders all edges of the graph.
+ * During the routing of the edges the actual positions and dimensions of the nodes is taken into account.
+ * 
+ * @memberof! LinearTimeLayout
+ * @returns {void}
+ */
+LinearTimeLayout.prototype.drawEdges = function ()
+{
 	if (!gf_isset(this.renderObjects.edges))
 		this.renderObjects.edges	= {};
-	
-	for (var e in edges)
+		
+	for (var e in this.edges)
 	{
+		var edge	= this.edges[e];
+		var source	= this.source(edge);
+		var target	= this.target(edge);
 		
-		var edge	= edges[e];
-		var e		= this.edges[edge];
-		
-		if (!e.virtual)
+		if (source == "##uSRC##" || target == "##uSNK##")
 		{
-			// if reversed: re-reverse before drawing
-			if (gf_isset(this.edges[edge]) && this.edges[edge].reversed)
+			// Ignore edges that are inserted during the PreProcess phase
+		}
+		else
+		{
+			var bend1	= null;
+			var bend2	= null;
+			var label	= null;
+			
+			var src		= this.source(e);
+			var tgt		= this.target(e);
+			
+			// Re-reverse edges
+			if (edge.reversed)
 			{
-				this.reverse(edge);
+				var bak	= src;
+					src	= tgt;
+					tgt	= bak;
 			}
 			
-			var srcID	= this.source(edge);
-			var tgtID	= this.target(edge);
-			var src		= this.nodes[srcID];
-			var tgt		= this.nodes[tgtID];
-			var shape	= "straight";
-			
-			var loopSpace	= 0;
-			
-			// check loop edges
-			for (var l in this.loopEdges)
-			{
-				var lEdge	= this.loopEdges[l];
-				if (lEdge.start == srcID && lEdge.end == tgtID)
-				{
-					loopSpace	= lEdge.space;
-				}
-			}
-			
-			if (srcID.substr(0, 1) == "n")
-				srcID	= srcID.substr(1);
-			
-			if (tgtID.substr(0, 1) == "n")
-				tgtID	= tgtID.substr(1);
-			
-			
-			var x1	= src.x;
-			var x2	= tgt.x;
-			var y1	= src.y;
-			var y2	= tgt.y;
+			var xs		= this.nodex[src];
+			var ys		= this.nodey[src];
+			var xt		= this.nodex[tgt];
+			var yt		= this.nodey[tgt];
 			
 			var startH			= "center";
 			var startV			= "center";
 			var endH			= "center";
 			var endV			= "center";
-			var loopPosition	= "right";
 			
-			// loop edges
-			// take care of loops (ttb): x1: src.right, x2: tgt.right + loopSpace, y1: src.y, y2: tgt.y
-			// take care of loops (ltr): x1: src.x, x2: tgt.x, y1: src.top, y2: tgt.top - loopSpace
-			if (loopSpace != 0)
+			if (ys == yt && gf_isset(this.edgey[edge.id]) && this.edgey[edge.id] != 0)
 			{
-				if (this.dirLtr())
+				// Loop edge - LTR case
+				var yb	= ys + this.edgey[edge.id];
+				bend1	= {x: xs, y: yb};
+				bend2	= {x: xt, y: yb};
+				
+				if (this.edgey[edge.id] > 0)
 				{
-					shape			= "loopltr";
-					startV			= "bottom";
-					endV			= "bottom";
-					loopPosition	= "bottom";
+					// Update start and end of edge (bottom of src and tgt)
+					ys	+= Math.ceil(this.getHeight(src) / 2);
+					yt	+= Math.ceil(this.getHeight(tgt) / 2);
+					startV	= "bottom";
+					endV	= "bottom";
 				}
 				else
 				{
-					shape			= "loop";
-					startH			= "right";
-					endH			= "right";
-					loopPosition	= "right";
+					// Update start and end of edge (top of src and tgt)
+					ys	-= Math.ceil(this.getHeight(src) / 2);
+					yt	-= Math.ceil(this.getHeight(tgt) / 2);
+					startV	= "top";
+					endV	= "top";	
 				}
-			}
 				
-			// straight
-			else if (x1 == x2)
-			{
-				startV	= y2 > y1	? "bottom"			: "top";
-				endV	= y2 > y1	? "top"				: "bottom";
+				// Position label in the center of the edge
+				var xl	= xs + Math.ceil((xt - xs) / 2);
+				label	= {x: xl, y: yb};
 			}
 			
-			// straight
-			else if (y1 == y2)
+			else if (xs == xt && gf_isset(this.edgex[edge.id]) && this.edgex[edge.id] != 0)
 			{
-				startH	= x2 > x1	? "right"			: "left";
-				endH	= x2 > x1	? "left"			: "right";
-			}
+				// Loop edge - TTB case
+				var xb	= xs + this.edgex[edge.id];
+				bend1	= {x: xb, y: ys};
+				bend2	= {x: xb, y: yt};
 				
-			// diag: change y1 to src.y and y2 to tgt.y
-			else if (tgt.branchingJoin && src.branchingSplit)
-			{
-				shape	= "diag";
-				startH	= x2 > x1	? "right"			: "left";
-				endH	= x2 > x1	? "left"			: "right";
-			}
-			
-			// diagvert / diaghor
-			else if (src.branchingSplit)
-			{
-				if (this.dirLtr())
+				if (this.edgex[edge.id] > 0)
 				{
-					shape	= "diaghor";
-					
-					endH	= x2 > x1	? "left"			: "right";
-					startV	= y2 > y1	? "bottom"			: "top";
+					// Update start and end of edge (right of src and tgt)
+					xs	+= Math.ceil(this.getWidth(src) / 2);
+					xt	+= Math.ceil(this.getWidth(tgt) / 2);
+					startH	= "right";
+					endH	= "right";
 				}
 				else
 				{
-					shape	= "diagvert";
-					
-					startH	= x2 > x1	? "right"			: "left";
-					endV	= y2 > y1	? "top"				: "bottom";
+					// Update start and end of edge (left of src and tgt)
+					xs	-= Math.ceil(this.getWidth(src) / 2);
+					xt	-= Math.ceil(this.getWidth(tgt) / 2);
+					startH	= "left";
+					endH	= "left";
 				}
-			}
 				
-			// vertdiag / hordiag
-			else if (tgt.branchingJoin)
+				// Position label in the center of the edge
+				var yl	= ys + Math.ceil((yt - ys) / 2);
+				label	= {x: xb, y: yl};
+			}
+			
+			else if (ys == yt)
 			{
-				if (this.dirLtr())
+				// Straight edge - LTR case
+				if (xs < xt)
 				{
-					shape	= "hordiag";
-					
-					startH	= x2 > x1	? "right"			: "left";
-					endV	= y2 > y1	? "top"				: "bottom";
+					xs	+= Math.ceil(this.getWidth(src) / 2);	// right of src
+					xt	-= Math.ceil(this.getWidth(tgt) / 2);	// left of tgt
+					startH	= "right";
+					endH	= "left";
 				}
 				else
 				{
-					shape	= "vertdiag";
-					
-					endH	= x2 > x1	? "left"			: "right";
-					startV	= y2 > y1	? "bottom"			: "top";
-				}	
+					xs	-= Math.ceil(this.getWidth(src) / 2);	// left of src
+					xt	+= Math.ceil(this.getWidth(tgt) / 2);	// right of tgt	
+					startH	= "left";
+					endH	= "right";
+				}
+				
+				// Position label in the center of the edge
+				var xl	= xs + Math.ceil((xt - xs) / 2);
+				label	= {x: xl, y: ys};
 			}
-						
-			if (!gf_isset(this.renderObjects.edges[e.orgId]))
-				this.renderObjects.edges[e.orgId]	= new GCrenderEdge(e.orgId, e.edgeData);
+			
+			else if (xs == xt)
+			{
+				// Straight edge - TTB case
+				if (ys < yt)
+				{
+					ys	+= Math.ceil(this.getHeight(src) / 2);	// bottom of src
+					yt	-= Math.ceil(this.getHeight(tgt) / 2);	// top of tgt
+					startV	= "bottom";
+					endV	= "top";
+				}
+				else
+				{
+					ys	-= Math.ceil(this.getHeight(src) / 2);	// top of src
+					yt	+= Math.ceil(this.getHeight(tgt) / 2);	// bottom of tgt
+					startV	= "top";
+					endV	= "bottom";	
+				}
+				
+				// Position label in the center of the edge
+				var yl	= ys + Math.ceil((yt - ys) / 2);
+				label	= {x: xs, y: yl};
+			}
+			
+			else if (this.dirLtr() && gf_isset(this.branchingSplit[src]) && gf_isset(this.branchingJoin[tgt]))
+			{
+				// Special case crossing edge - LTR case
+				if (xs < xt)
+				{
+					xs	+= Math.ceil(this.getWidth(src) / 2);	// right of src
+					xt	-= Math.ceil(this.getWidth(tgt) / 2);	// left of tgt
+					startH	= "right";
+					endH	= "left";
+				}
+				else
+				{
+					xs	-= Math.ceil(this.getWidth(src) / 2);	// left of src
+					xt	+= Math.ceil(this.getWidth(tgt) / 2);	// right of tgt	
+					startH	= "left";
+					endH	= "right";
+				}
+				
+				// Add two bends to give more room for labels
+				var xb	= xs + Math.ceil((xt - xs) * 0.4);
+				var yb	= ys + Math.ceil((yt - ys) * 0.3);
+				bend1	= {x: xb, y: yb};
+				
+					xb	= xt - Math.ceil((xt - xs) * 0.4);
+					yb	= yt - Math.ceil((yt - ys) * 0.3);
+				bend2	= {x: xb, y: yb};
+				
+				// Place label
+				if (ys < yt)
+				{
+					label	= bend1;
+				}
+				else
+				{
+					label	= bend2;
+				}
+			}
+			
+			else if (!this.dirLtr() && gf_isset(this.branchingSplit[src]) && gf_isset(this.branchingJoin[tgt]))
+			{
+				// Special case crossing edge - TTB case
+				if (ys < yt)
+				{
+					ys	+= Math.ceil(this.getHeight(src) / 2);	// bottom of src
+					yt	-= Math.ceil(this.getHeight(tgt) / 2);	// top of tgt
+					startV	= "bottom";
+					endV	= "top";
+				}
+				else
+				{
+					ys	-= Math.ceil(this.getHeight(src) / 2);	// top of src
+					yt	+= Math.ceil(this.getHeight(tgt) / 2);	// bottom of tgt	
+					startV	= "top";
+					endV	= "bottom";
+				}
+				
+				// Add two bends to give more room for labels
+				var xb	= xs + Math.ceil((xt - xs) * 0.3);
+				var yb	= ys + Math.ceil((yt - ys) * 0.4);
+				bend1	= {x: xb, y: yb};
+				
+					xb	= xt - Math.ceil((xt - xs) * 0.3);
+					yb	= yt - Math.ceil((yt - ys) * 0.4);
+				bend2	= {x: xb, y: yb};
+				
+				// Place label
+				if (xs < xt)
+				{
+					label	= bend1;
+				}
+				else
+				{
+					label	= bend2;
+				}
+			}
+			
+			else if (this.dirLtr() && gf_isset(this.branchingSplit[src]))
+			{
+				// First segment diagonal, edge starts at diverging node - LTR case
+				if (xs < xt)
+				{
+					xs	+= Math.ceil(this.getWidth(src) / 2);	// right of src
+					xt	-= Math.ceil(this.getWidth(tgt) / 2);	// left of tgt
+					startH	= "right";
+					endH	= "left";
+				}
+				else
+				{
+					xs	-= Math.ceil(this.getWidth(src) / 2);	// left of src
+					xt	+= Math.ceil(this.getWidth(tgt) / 2);	// right of tgt	
+					startH	= "left";
+					endH	= "right";
+				}
+				
+				var xb	= xs + Math.ceil((xt - xs) / 2);
+				bend1	= {x: xb, y: yt};
+				
+				// Position label at the bend
+				label	= bend1;
+			}
+			
+			else if (!this.dirLtr() && gf_isset(this.branchingSplit[src]))
+			{
+				// First segment diagonal, edge starts at diverging node - TTB case
+				if (ys < yt)
+				{
+					ys	+= Math.ceil(this.getHeight(src) / 2);	// bottom of src
+					yt	-= Math.ceil(this.getHeight(tgt) / 2);	// top of tgt
+					startV	= "bottom";
+					endV	= "top";
+				}
+				else
+				{
+					ys	-= Math.ceil(this.getHeight(src) / 2);	// top of src
+					yt	+= Math.ceil(this.getHeight(tgt) / 2);	// bottom of tgt
+					startV	= "top";
+					endV	= "bottom";	
+				}
 
-			this.renderObjects.edges[e.orgId].setEndPoints(srcID, tgtID);
-			this.renderObjects.edges[e.orgId].setLoopSpace(loopSpace, loopPosition);
-			this.renderObjects.edges[e.orgId].setShape(shape);
-			this.renderObjects.edges[e.orgId].setPosStart(startH, startV);
-			this.renderObjects.edges[e.orgId].setPosEnd(endH, endV);
+				var yb	= ys + Math.ceil((yt - ys) / 2);
+				bend1	= {x: xt, y: yb};
+				
+				// Position label at the bend
+				label	= bend1;
+			}
+			
+			else if (this.dirLtr() && gf_isset(this.branchingJoin[tgt]))
+			{
+				// Last segment diagonal, edge ends at converging node - LTR case
+				if (xs < xt)
+				{
+					xs	+= Math.ceil(this.getWidth(src) / 2);	// right of src
+					xt	-= Math.ceil(this.getWidth(tgt) / 2);	// left of tgt
+					startH	= "right";
+					endH	= "left";
+				}
+				else
+				{
+					xs	-= Math.ceil(this.getWidth(src) / 2);	// left of src
+					xt	+= Math.ceil(this.getWidth(tgt) / 2);	// right of tgt	
+					startH	= "left";
+					endH	= "right";
+				}
+				
+				var xb	= xs + Math.ceil((xt - xs) / 2);
+				bend1	= {x: xb, y: ys};
+				
+				// Position label at the bend
+				label	= bend1;
+			}
+			
+			else if (!this.dirLtr() && gf_isset(this.branchingJoin[tgt]))
+			{
+				// Last segment diagonal, edge ends at converging node - TTB case
+				if (ys < yt)
+				{
+					ys	+= Math.ceil(this.getHeight(src) / 2);	// bottom of src
+					yt	-= Math.ceil(this.getHeight(tgt) / 2);	// top of tgt
+					startV	= "bottom";
+					endV	= "top";
+				}
+				else
+				{
+					ys	-= Math.ceil(this.getHeight(src) / 2);	// top of src
+					yt	+= Math.ceil(this.getHeight(tgt) / 2);	// bottom of tgt
+					startV	= "top";
+					endV	= "bottom";	
+				}
+
+				var yb	= ys + Math.ceil((yt - ys) / 2);
+				bend1	= {x: xs, y: yb};
+				
+				// Position label at the bend
+				label	= bend1;
+			}
+			
+			else
+			{
+				// default case when no other criteria is met
+				if (ys < yt)
+				{
+					ys	+= Math.ceil(this.getHeight(src) / 2);	// bottom of src
+					yt	-= Math.ceil(this.getHeight(tgt) / 2);	// top of tgt
+					startV	= "bottom";
+					endV	= "top";
+				}
+				else
+				{
+					ys	-= Math.ceil(this.getHeight(src) / 2);	// top of src
+					yt	+= Math.ceil(this.getHeight(tgt) / 2);	// bottom of tgt
+					startV	= "top";
+					endV	= "bottom";	
+				}
+
+				var yb	= ys + Math.ceil((yt - ys) / 2);
+				bend1	= {x: xs, y: yb};
+				
+				// Position label at the bend
+				label	= bend1;
+			}
+			
+			var edgeStart	= {x: xs, y: ys};
+			var edgeEnd		= {x: xt, y: yt};
+			
+			// Draw the actual edge by applying edgeStart, edgeEnd, bend1, bend2, label (the GCrenderEdgee is part of the tk_graph library)
+			if (this.renderElements == true)
+			{
+				if (!gf_isset(this.renderObjects.edges[edge.orgId]))
+					this.renderObjects.edges[edge.orgId]	= new GCrenderEdge(edge.orgId, edge.edgeData);
+					
+				this.renderObjects.edges[edge.orgId].setEndPoints(this.idToGW(src), this.idToGW(tgt));
+				this.renderObjects.edges[edge.orgId].setPosStart(startH, startV);
+				this.renderObjects.edges[edge.orgId].setPosEnd(endH, endV);
+				this.renderObjects.edges[edge.orgId].setLTL(label, bend1, bend2);
+			}
+			
+			this.count.edges++;
 		}
 	}
-}
+};
 
-LinearTimeLayout.prototype.drawNode = function (id, rpstnode, paperOffsetX, paperOffsetY)
+/**
+ * Fragments are drawn recursively by rendering each fragment's entry and exit node.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - The fragment to draw.
+ * @param {int} x - The x ordinate of the parent fragment.
+ * @param {int} y - The y ordinate of the parent fragment.
+ * @returns {void}
+ */
+LinearTimeLayout.prototype.drawFragment = function (f, x, y)
 {
-	if (!gf_isset(this.drawnNodes[id]))
+	var entry	= this.entryNode(f);
+	var exit	= this.exitNode(f);
+	
+	// correct offset if artificial source node was added during the preprocessing phase
+	if (f.id == this.rpst.getRoot().id && entry == "##uSRC##")
 	{
-		var node	= this.nodes[id];
-		if (!gf_isset(node))
+		if (this.dirLtr())
 		{
-			console.log("not set");
-			console.log(rpstnode);
-		}
-		else if (node.virtual == true)
-		{
-			// correct position as virtual nodes are not drawn
-			if (gf_isset(rpstnode) && rpstnode != null && rpstnode.getEntry() == id)
-			{
-				if (this.dirLtr())
-				{
-					rpstnode.x	-= this.spaces.x;
-				}
-				else
-				{
-					rpstnode.y	-= this.spaces.y;
-				}
-			}
+			x	-= this.spaces.x;
 		}
 		else
 		{
-			var rpstX	= rpstnode == null ? 0 : rpstnode.x;
-			var rpstY	= rpstnode == null ? 0 : rpstnode.y;
-			var x		= paperOffsetX + node.x + rpstX;
-			var y		= paperOffsetY + node.y + rpstY;
-			this.drawnNodes[id]	= true;
+			y	-= this.spaces.y;
+		}
+	}
+	
+	// JS optimization
+	if (!gf_isset(this.drawnNodes[entry]) && f.hasOwnProperty("type") && f.type != "rigid")
+	{
+		this.nodex[entry]	= 0;
+		this.nodey[entry]	= 0;
+	}
+
+	// Add position of this fragment relative to its parent
+	x	+= this.nodex[f.id];
+	y	+= this.nodey[f.id];
+		
+	// draw entry and exit node
+	this.drawNode(entry, x, y);
+	this.drawNode(exit, x, y);
+	
+	if (this.isAtomic(f))
+	{
+		// Ignore as entry and exit already drawn	
+	}
+	else
+	{
+		// Draw child fragments
+		var children	= this.rpst.getChildren2(f).children;
+		for (var cf in children)
+		{
+			var child	= children[cf];
 			
-			// update node's x and y to have a reference for edges
-			node.x		= x;
-			node.y		= y;
-			
-			// console.log("... drawing " + id + " @ " + x + " / " + y);
-			
-			
-			// TODO: prepare for ltr layout
-			if (this.mostLeft == null || x < this.mostLeft)
+			if (child.type == "trivial")
 			{
-				this.mostLeft	= x;
+				entry	= this.entryNode(child);
+				exit	= this.exitNode(child);
+				
+				this.drawNode(entry, x, y);
+				this.drawNode(exit, x, y);
+			}
+			else
+			{
+				this.drawFragment(child, x, y);
+			}
+		}
+	}
+};
+
+/**
+ * Draws free nodes which are not part of the actual graph.
+ * Only called for top-to-bottom oriented graphs.
+ * Nodes are placed at the leftMost position of the graph (computed in the drawNode() method).
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {int} y - y offset for the free nodes
+ * @returns {void}
+ */
+LinearTimeLayout.prototype.drawFreeNodes = function (y)
+{
+	if (!this.dirLtr())
+	{
+		// if no leftMost position has been computed (for graphs with only free nodes): start at the center of the drawing area
+		if (this.leftMost == null)
+		{
+			this.leftMost	= 0;
+		}
+		
+		// when a leftMost position is given, move to the left by 3*spaces.x of the leftMost position
+		else
+		{
+			this.leftMost	-= 3 * this.spaces.x;
+		}
+		
+		// draw all free nodes
+		for (var n in this.nodes)
+		{
+			var node	= this.nodes[n];
+			
+			if (!gf_isset(this.drawnNodes[n]) && n != "##uSRC##" && n != "##uSNK##")
+			{
+				this.nodex[n]	= 0;
+				this.nodey[n]	= 0;
+				
+				this.drawNode(n, this.leftMost, y);
+				
+				// add some space below each node
+				y	+= this.spaces.y;
+			
+				this.count.freeNodes++;
+			}
+		}
+	}
+};
+
+/**
+ * Draws a single node based on the position of the corresponding fragment, the position determined during the layout computation (nodex, nodey) and the manual repositioning (manualx, manualy).
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {String} n - ID of the node to draw.
+ * @param {int} x - x ordinate of the corresponding fragment
+ * @param {int} y - y ordinate of the corresponding fragment
+ * @returns {void}
+ */
+LinearTimeLayout.prototype.drawNode = function (n, x, y)
+{
+	// To avoid duplicate calls
+	if (!gf_isset(this.drawnNodes[n]))
+	{	
+		this.drawnNodes[n]	= true;
+			
+		// Ignore virtual nodes that are inserted during the PreProcess phase
+		if (n == "##uSRC##" || n == "##uSNK##")
+		{
+			
+		}
+		else
+		{
+			if (!gf_isset(this.manualx[n]))
+			{
+				this.manualx[n]	= 0;
 			}
 			
-			if (!gf_isset(this.renderObjects.nodes))
-				this.renderObjects.nodes	= {};
+			if (!gf_isset(this.manualy[n]))
+			{
+				this.manualy[n]	= 0;
+			}
+			
+			// Calculate absolute position of node depending on given offset and on offset relative to framgent as well as manual change
+			this.nodex[n]	= x + this.nodex[n] + this.manualx[n];
+			this.nodey[n]	= y + this.nodey[n] + this.manualy[n];
+			
+			// Get position of left most node for drawing free nodes
+			if (!this.dirLtr() && (this.nodex[n] < this.leftMost || this.leftMost == null))
+			{
+				this.leftMost	= this.nodex[n];
+			}
+			
+			// At this point the node and its position is passed to the renderer (the GCrenderNode is part of the tk_graph library)
+			if (this.renderElements == true)
+			{
+				var nid	= this.idToGW(n);
 				
-			if (!gf_isset(this.renderObjects.nodes[node.node.id]))
-				this.renderObjects.nodes[node.node.id]	= new GCrenderNode(node.node.id, node.node);
-
-			this.renderObjects.nodes[node.node.id].setPosition(node.x, node.y);
-		}
-	}	
-};
-
-LinearTimeLayout.prototype.entryNode = function (rpstnode)
-{
-	// returns the entry node of a given SESE fragment. That is the node to which the single input of the SESE fragment is connected to.
-	return rpstnode.getEntry();
-};
-
-// currently returns array of RPSTNodes
-LinearTimeLayout.prototype.fragments = function (node)
-{
-	/*
-		The fragments function returns the fragments of a given process or fragment
-		as well as the nodes that are not part of a another fragment.
-	 */
-	
-	var fragments	= [];
-	if (node instanceof this.RPSTNode)
-	{
-		// fragments = children ....
-		fragments	= this.rpst.getChildren2(node).children;
+				if (!gf_isset(this.renderObjects.nodes))
+					this.renderObjects.nodes	= {};
+					
+				if (!gf_isset(this.renderObjects.nodes[nid]))
+					this.renderObjects.nodes[nid]	= new GCrenderNode(nid, this.nodes[n].node);
 		
-		// + free nodes
-		var freeNodes	= node.getFragment().getNodes();
-		for (var fn in freeNodes)
+				this.renderObjects.nodes[nid].setPosition(Math.floor(this.nodex[n]), Math.floor(this.nodey[n]));
+			}
+			
+			this.count.nodes++;
+		}
+		
+	}
+};
+
+/**
+ * Get the entry node of the given fragment.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - A fragment or the ID of a fragment.
+ * @returns {String} ID of the entry node.
+ */
+LinearTimeLayout.prototype.entryNode = function (f)
+{
+	// if only ID is given
+	if (typeof f == "string")
+	{
+		// f is node and no fragment -> return the ID of the node itself
+		if (f.substr(0,3) != "f:n")
 		{
-			fragments.push(this.nodes[fn]);
+			return f;
+		}
+		
+		// get fragment corresponding to ID
+		f	= this.getF(f);
+	}
+	
+	// if given f is a node and no fragment -> return the ID of the node
+	else if (f instanceof this.Node)
+	{
+		return f.id;
+	}
+	
+	// get the entry node of the fragment from the PST
+	return f.getEntry();
+};
+
+/**
+ * Get the exit node of the given fragment.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - A fragment or the ID of a fragment.
+ * @returns {String} ID of the exit node.
+ */
+LinearTimeLayout.prototype.exitNode = function (f)
+{
+	// if only ID is given
+	if (typeof f == "string")
+	{
+		// f is node and no fragment -> return the ID of the node itself
+		if (f.substr(0,3) != "f:n")
+		{
+			return f;
+		}
+		
+		// get fragment corresponding to ID
+		f	= this.getF(f);
+	}
+	
+	// if given f is a node and no fragment -> return the ID of the node
+	else if (f instanceof this.Node)
+	{
+		return f.id;
+	}
+	
+	// get the exit node of the fragment from the PST
+	return f.getExit();
+};
+
+/**
+ * Get the fragments and nodes contained in a fragment.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - A fragment.
+ * @returns {Array} All fragments and nodes of the fragment.
+ */
+LinearTimeLayout.prototype.fragments = function (f)
+{
+	var fragments	= [];
+	if (f instanceof this.RPSTNode)
+	{
+		// if fragments list not cached for this fragment
+		if (!gf_isset(this.cache.fragments[f.id]))
+		{
+			// fragments = children from RPST ....
+			fragments	= this.rpst.getChildren2(f).children;
+			
+			// + free nodes
+			var freeNodes	= f.getFragment().getNodes();
+			for (var fn in freeNodes)
+			{
+				fragments.push(this.nodes[fn]);
+			}
+			
+			// cache the fragments list for this fragment
+			this.cache.fragments[f.id]	= fragments;
+		}
+		
+		// load cached version for this fragment
+		else
+		{
+			fragments	= this.cache.fragments[f.id];
 		}
 	}
 	return fragments;
 };
 
-LinearTimeLayout.prototype.getEdges = function (node)
+/**
+ * Get edges within a fragment.
+ * Also computes temporary incidence lists limiting the edges in the incidence lists to the edges of the fragment.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - A fragment.
+ * @returns {Array} Array of edges within the fragment.
+ */
+LinearTimeLayout.prototype.getEdges = function (f)
 {
-	// returns the edges within a given fragment.
+	// get nodes contained within the fragment in order to correctly load the edges of the fragment
+	var nodes			= this.getNodes(f);
+	var fragmentNodes	= {};
+	
+	// create temporary incidence lists
+	this.temporaryIncidenceIn		= {};
+	this.temporaryIncidenceOut		= {};
+	for (var n in nodes)
+	{
+		var node	= nodes[n];
+		if (node instanceof this.RPSTNode)
+		{
+			node	= node.id;
+		}
+		fragmentNodes[node]	= true;
+		this.temporaryIncidenceIn[node]		= new Array();
+		this.temporaryIncidenceOut[node]	= new Array();
+	}
+	
 	
 	var edges	= new Array();
+	var visited	= {};
+	var queue	= new Array();
 	
-	if (node instanceof this.RPSTNode)
+	var entry	= this.entryNode(f);
+	var exit	= this.exitNode(f);
+	
+	visited[entry]	= true;
+	queue.push(entry);
+	
+	// cycle through the queue and collect all edges
+	while (queue.length > 0)
 	{
-		var entry	= node.getEntry();
-		var exit	= node.getExit();
+		var node		= queue.pop();
+		visited[node]	= true;
+		var outEdges	= this.getOutEdges(node, true);
 		
-		if (gf_isset(this.edgeMap[entry]))
+		for (var e in outEdges)
 		{
-			for (var e in this.edgeMap[entry])
+			var edge	= outEdges[e];
+			var tgt		= this.target(edge);
+			
+			// JS workaround
+			if (exit == this.entryNode(tgt) && tgt != this.entryNode(tgt))
 			{
-				edges.push(this.edgeMap[entry][e]);
+				tgt		= this.entryNode(tgt);
+				edge	= {"src": node, "tgt": tgt, "temporary": true, "orgId": edge.orgId};
 			}
-		}
-		
-		if (gf_isset(this.edgeMap[exit]))
-		{
-			for (var e in this.edgeMap[exit])
+			// end JS workaround
+			
+			if (gf_isset(fragmentNodes[tgt]))
 			{
-				edges.push(this.edgeMap[exit][e]);
-			}
-		}
-	}
-	else
-	{
-		if (gf_isset(this.edgeMap[node]))
-		{
-			for (var e in this.edgeMap[node])
-			{
-				edges.push(this.edgeMap[node][e]);
-			}
-		}
-	}
-	
-	return edges;
-};
-
-// by Matthias Schrammek
-LinearTimeLayout.prototype.getFragmentEdges = function ()
-{
-	var edges	= {};
-	
-	for (var em in this.edgeMap)
-	{
-		var edgeMap	= this.edgeMap[em];
-		for (var e in edgeMap)
-		{
-			var edge	= edgeMap[e].edge;
-			edges[edge]	= edge;
-		}
-	}
-	
-	return edges;
-};
-
-// elementID: either edgeID or nodeID
-// elementType: either "node" or "edge"
-LinearTimeLayout.prototype.getHeight = function (elementID, elementType)
-{
-	if (!gf_isset(elementType) || elementType != "edge")
-		elementType	= "node";
-		
-	if (elementType == "edge")
-	{
-		// TODO
-		/*
-		if (gf_isset(this.edges[elementID]))
-			return this.edges[elementID].getHeight();
-		*/
-		return this.spaces.y;
-	}
-	else
-	{
-		// TODO
-		/*
-		if (gf_isset(this.nodes[elementID]))
-			return this.nodes[elementID].getHeight();
-		*/
-		return this.spaces.y;
-	}
-		
-	return 0;
-};
-
-LinearTimeLayout.prototype.getInEdges = function (node)
-{	
-	var edges	= new Array();
-	
-	if (node instanceof this.RPSTNode)
-	{
-		node	= node.getEntry();
-	}
-	
-	if (gf_isset(this.edgeMap[node]))
-	{
-		for (var e in this.edgeMap[node])
-		{
-			var edge	= this.edgeMap[node][e];
-			if (edge.type == "in")
 				edges.push(edge);
+					
+				this.temporaryIncidenceIn[tgt].push(edge);
+				this.temporaryIncidenceOut[node].push(edge);
+				
+				if (!gf_isset(visited[tgt]))
+				{
+					queue.push(tgt);
+					visited[tgt]	= true;
+				}
+			}
 		}
 	}
-	
+
 	return edges;
 };
 
-LinearTimeLayout.prototype.getNodes = function (rpstnode)
+/**
+ * Auxiliary function to retrieve fragment from RPST.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {String} f - ID of a fragment.
+ * @returns {Object} The fragment with the given ID.
+ */
+LinearTimeLayout.prototype.getF = function (f)
 {
-	/*
-	 * returns the nodes within a given fragment.
-	 * NODES(B) = {g, C, D, h} == fragments(B)??
-	 */
-	// TODO: return as array; [.length] = nodeID
-	// return rpstnode.getFragment().getNodes();
+	if (gf_isset(this.rpst.nodes[f]))
+		return this.rpst.nodes[f];
 	
-	/*
-	var resultingNodes	= new Array();
-	var fragmentNodes	= rpstnode.getFragment().getNodes();
-	for (var n in fragmentNodes)
-	{
-		resultingNodes.push(n);
-	}
-	
-	return resultingNodes;
-	*/
-	return this.fragments(rpstnode);
+	return f;
 };
 
-LinearTimeLayout.prototype.getOutEdges = function (node)
+/**
+ * Get height of a node.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {String} nodeID - ID of a node.
+ * @returns {int} Height of the node.
+ */
+LinearTimeLayout.prototype.getHeight = function (nodeID)
 {
-	var edges	= new Array();
-	
-	if (node instanceof this.RPSTNode)
+	if (gf_isset(this.nodes[nodeID]))
+		return this.nodes[nodeID].getHeight();
+		
+	// fallback: return spaces.y
+	return this.spaces.y;
+};
+
+/**
+ * Get edges that are incoming to a node.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {String} nodeID - ID of a node.
+ * @returns {Array} List of incoming edges.
+ */
+LinearTimeLayout.prototype.getInEdges = function (nodeID)
+{
+	// use temporary incidence list if available (limites edges to the current fragment)
+	if (gf_isset(this.temporaryIncidenceIn[nodeID]))
 	{
-		node	= node.getExit();
+		return this.temporaryIncidenceIn[nodeID];
 	}
 	
-	if (gf_isset(this.edgeMap[node]))
+	if (!gf_isset(this.incidenceIn[nodeID]))
+		this.incidenceIn[nodeID]	= new Array();
+	
+	// use precomputed incidency list	
+	return this.incidenceIn[nodeID];
+};
+
+/**
+ * Get nodes within fragment.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - A fragment.
+ * @returns {Array} List of nodes.
+ */
+LinearTimeLayout.prototype.getNodes = function (f)
+{
+	// if list not cached	
+	if (!gf_isset(this.cache.nodes[f.id]))
 	{
-		for (var e in this.edgeMap[node])
+		var children	= this.rpst.getChildren2(f);
+		var entry		= f.getEntry();
+		var exit		= f.getExit();
+		var freeNodes	= {};
+		var nodes		= new Array();
+		
+		// cycle through all child fragments and push entry and exit nodes of fragment to list as well as all non trivial fragments
+		for (var c in children.children)
 		{
-			var edge	= this.edgeMap[node][e];
-			if (edge.type == "out")
-				edges.push(edge);
+			var child	= children.children[c];
+			var cEntry	= child.getEntry();
+			var cExit	= child.getExit();		
+			
+			if (!gf_isset(freeNodes[cEntry]))
+				freeNodes[cEntry]	= true;
+				
+			if (!gf_isset(freeNodes[cExit]))
+				freeNodes[cExit]	= true;
+			
+			if (child.type != "trivial")
+			{
+				nodes.push(child);
+			}
 		}
+		
+		freeNodes[entry]	= true;
+		freeNodes[exit]		= true;
+		
+		for (var f in freeNodes)
+		{
+			if (freeNodes[f] == true)
+				nodes.push(f);
+		}
+		
+		// add to cache
+		this.cache.nodes[f.id]	= nodes;
 	}
 	
-	return edges;
+	return this.cache.nodes[f.id];
 };
 
-// elementID: either edgeID or nodeID
-// elementType: either "node" or "edge
-LinearTimeLayout.prototype.getWidth = function (elementID, elementType)
+/**
+ * Get edges outgoing of a node.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {String} nodeID - ID of a node.
+ * @param {boolean} [org] - If set the original incidence list is used even if a temporary incidence list exists. Only used in getEdges().  
+ * @returns {Array} List of incoming edges.
+ */
+LinearTimeLayout.prototype.getOutEdges = function (nodeID, org)
 {
-	if (!gf_isset(elementType) || elementType != "edge")
-		elementType	= "node";
-		
-	if (elementType == "edge")
+	// use temporary incidence list if available (limites edges to the current fragment)
+	if (!gf_isset(org) && gf_isset(this.temporaryIncidenceOut[nodeID]))
 	{
-		// TODO
-		/*
-		if (gf_isset(this.edges[elementID]))
-			return this.edges[elementID].width;
-		*/
-		return this.spaces.x;
+		return this.temporaryIncidenceOut[nodeID];
 	}
-	else
-	{
-		// TODO
-		/*
-		if (gf_isset(this.nodes[elementID]))
-			return this.nodes[elementID].width;
-		*/
-		return this.spaces.x;	
-	}
+	
+	if (!gf_isset(this.incidenceOut[nodeID]))
+		this.incidenceOut[nodeID]	= new Array();
 		
-	return 0;
+	// use precomputed incidency list	
+	return this.incidenceOut[nodeID];
 };
 
-LinearTimeLayout.prototype.identifyEdgeTypes = function (node, type, discovered, finished, t)
+/**
+ * Get width of a node.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {String} nodeID - ID of a node.
+ * @returns {int} Width of the node.
+ */
+LinearTimeLayout.prototype.getWidth = function (nodeID)
 {
-	// DFS implementation!
+	if (gf_isset(this.nodes[nodeID]))
+		return this.nodes[nodeID].getWidth();
 		
+	// fallback: return spaces.x
+	return this.spaces.x;
+};
+
+/**
+ * Identifies edge types (Backward, Forward, Cross, Tree edges) in unstructured fragments.
+ * A DFS implementation.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {String} nodeID - ID of the node to start the DFS.
+ * @param {Array} type - Array storing the edge types.
+ * @param {Array} discovered - Array containing already visited nodes.
+ * @param {Array} finished - Array containing finished nodes.
+ * @param {int} t - Counter
+ * @returns {int} t
+ */
+LinearTimeLayout.prototype.identifyEdgeTypes = function (nodeID, type, discovered, finished, t)
+{		
 	t++;
-	discovered[node]	= t;
+	discovered[nodeID]	= t;
 	
-	var outEdges	= this.getOutEdges(node);
+	var outEdges	= this.getOutEdges(nodeID);
 	
+	// cycle through all outgoing edges of current node
 	for (var edgeID in outEdges)
 	{		
 		var edge	= outEdges[edgeID];
-		var newNode	= edge.v2;
+		var newNode	= this.target(edge);
 		
+		// DFS: follow edge to next node; edge is tree edge
 		if (!gf_isset(discovered[newNode]))
 		{
-			type[edge.edge]	= this.edgeTypes.tree;
-			t				= this.identifyEdgeTypes(newNode, type, discovered, finished, t);		// TODO: check, if type, discovered and finished are filled correctly
+			type[edge.orgId]	= this.edgeTypes.tree;
+			t					= this.identifyEdgeTypes(newNode, type, discovered, finished, t);
 		}
+		
+		// backedges
 		else if (!gf_isset(finished[newNode]))
 		{
-			type[edge.edge]	= this.edgeTypes.back;
+			type[edge.orgId]	= this.edgeTypes.back;
 		}
-		else if (discovered[newNode] > discovered[node])
+		
+		// forward edges
+		else if (discovered[newNode] > discovered[nodeID])
 		{
-			type[edge.edge]	= this.edgeTypes.forward;
+			type[edge.orgId]	= this.edgeTypes.forward;
 		}
+		
+		// crossing edges
 		else
 		{
-			type[edge.edge]	= this.edgeTypes.cross;
+			type[edge.orgId]	= this.edgeTypes.cross;
 		}
 	}
 	
 	t++;
-	finished[node]	= t;
+	finished[nodeID]	= t;
 	return t;
 };
 
-LinearTimeLayout.prototype.isAtomic = function (node)
+/**
+ * Convert node ID to groupware conform ID.
+ * @param {String} n - ID of a node.
+ * @returns {String} Modified ID.
+ */
+LinearTimeLayout.prototype.idToGW = function (n)
 {
-	// TODO
-	// Atomic fragments are individual nodes that cannot be split up any further.
+	if (n.substr(0,1) == "n")
+	{
+		n	= n.substr(1);
+	}
 	
-	return (node instanceof this.Node);
+	return n;
 };
 
-LinearTimeLayout.prototype.isBranching = function (rpstnode)
+/**
+ * Checks if a fragment is atomic, i.e. a single node.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - A fragment.
+ * @returns {boolean} True if the fragment is a single node, false otherwise.
+ */
+LinearTimeLayout.prototype.isAtomic = function (f)
 {
-	// TODO
-	/*
-Branching fragments, in turn, are laid out by
-first arranging the individual branches vertically. Then, the diverging node is
-put to the left of the branches and the converging node is put to the right, as
-shown in Figure 5. When laying out the branches, they can be optimized by
-using the actual shape of the branches and pushing them vertically together as
-shown in Figure 5 to minimize the fragment’s area.
-	 */
-	
-	if (rpstnode.type == "rigid")
-	{
-		return false;
-	}
-	
-	var children	= this.rpst.getChildren2(rpstnode);
-	var entry		= rpstnode.getEntry();
-	var exit		= rpstnode.getExit();
-	
-	if (children.entryCount[entry] < 2)
-	{
-		return false;
-	}
-	
-	if (children.exitCount[exit] < 2)
-	{
-		return false;
-	}
-	
-	return true;
+	return (f instanceof this.Node);
 };
 
-LinearTimeLayout.prototype.isLoop = function (rpstnode)
+/**
+ * Checks if a fragment is a branching.
+ * Branching fragments are bonds within the RPST without loop edges.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - A fragment.
+ * @returns {boolean} True if the fragment is a branching, false otherwise.
+ */
+LinearTimeLayout.prototype.isBranching = function (f)
 {
-	
-	// TODO
-	/*
-Since Structured loops and sequences are almost identical from a structural
-perspective, we use a similar strategy for computing the layout. In particular, we
-lay out the converging gateway, the optional body and the diverging gateway like
-a sequence. In addition, the loop-back branches are laid out like the branches of
-a branching fragment.
-	 */
-	
-	// walk through all edges, note visited nodes, if one edge ends at an already visited node and all other edges have outEdges <= 1 --> loop
-	if (rpstnode.type == "rigid")
+	// branchings are bond fragments within the RPST
+	if (f.type == "bond")
 	{
-		return false;
-	}
-	
-	var children	= this.rpst.getChildren2(rpstnode);
-	var entry		= rpstnode.getEntry();
-	var exit		= rpstnode.getExit();
-	var visited		= {};
-	
-	while (gf_isset(children.entry[entry]) && !gf_isset(visited[entry]))
-	{
-		var child	= children.entry[entry];
-			exit	= child.getExit();
-			
-		visited[entry]	= true;
-			
-		if (children.entryCount[entry] > 1 || children.exitCount[entry] > 1)
+		// check outgoing edges for loop edges (-> structured loop)
+		var outEdges	= this.getOutEdges(this.exitNode(f));
+		for (var e in outEdges)
 		{
-			return false;
+			var edge	= outEdges[e];
+			if (this.target(edge) == f.id)
+			{
+				return false;
+			}
 		}
 		
-		if (children.entryCount[exit] > 1 || children.exitCount[exit] > 1)
-		{	
-			return false;
-		}
-		
-		entry	= exit;
+		return true;
 	}
 	
-	return true;
+	return false;
 };
 
-LinearTimeLayout.prototype.isSequence = function (rpstnode)
+/**
+ * Checks if a fragment is a structured loop.
+ * Structured loop fragments are bonds within the RPST with loop edges.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - A fragment.
+ * @returns {boolean} True if the fragment is a structured loop, false otherwise.
+ */
+LinearTimeLayout.prototype.isLoop = function (f)
 {
-	// TODO
-	/*
-Sequences are laid out as
-straight lines, ensuring that the exit of one fragment is on the same height as
-the entry of the next fragment.
-	 */
-	
-	// TODO: check for cases when no children are available (only free nodes)
-	
-	if (rpstnode.type == "rigid")
-	{
-		return false;
+	// structured loops are bond fragments within the RPST
+	if (f.type == "bond")
+	{		
+		return true;
 	}
 	
-	var children	= this.rpst.getChildren2(rpstnode);
-	var entry		= rpstnode.getEntry();
-	var exit		= rpstnode.getExit();
-	var visited		= {};
-	
-	while (gf_isset(children.entry[entry]))
-	{
-		var child	= children.entry[entry];
-			exit	= child.getExit();
-			
-		// avoid loops
-		visited[entry]	= true;
-		if (gf_isset(visited[exit]))
-		{
-			return false;
-		}
-			
-		if (children.entryCount[entry] > 1 || children.exitCount[entry] > 1)
-		{
-			return false;
-		}
-		
-		if (children.entryCount[exit] > 1 || children.exitCount[exit] > 1)
-		{
-			return false;
-		}
-		
-		entry	= exit;
-	}
-	
-	return true;
+	return false;
 };
 
+/**
+ * Auxiliary function checking a given fragment ID results in a sequence fragment.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {String} f - ID of a fragment or node.
+ * @returns {boolean} True if the given ID belongs to a fragment and the corresponding fragment is a sequence fragment.
+ */
+LinearTimeLayout.prototype.isS = function (f)
+{
+	f	= this.getF(f);
+	
+	if (typeof f != "string" && f.hasOwnProperty("type") && f.type == "polygon")
+		return true;
+	
+	return false;
+};
+
+/**
+ * Checks if a fragment is a structured sequence.
+ * Sequence fragments are polygons within the RPST.
+ * A second type are trivial fragments within the RPST which are single edges, i.e. a sequence of two nodes.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - A fragment.
+ * @returns {boolean} True if the fragment is a sequence, false otherwise.
+ */
+LinearTimeLayout.prototype.isSequence = function (f)
+{
+	// sequences are polygon fragments or trivial fragments within the RPST
+	if (f.type == "polygon" || f.type == "trivial")
+	{
+		return true;
+	}
+	return false;
+};
+
+/**
+ * Computes the layout of the given graph in linear time.
+ * 
+ * @memberof! LinearTimeLayout
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.layout = function ()
 {
-	// 1) calculate spaces.y and spaces.x, width and height of objects
-	this.calculateSpaces();
 	
 	// additional step: count edges
 	var edgeCount	= 0;
@@ -1055,450 +1687,675 @@ LinearTimeLayout.prototype.layout = function ()
 			break;
 	}
 	
-	// additional step: draw elements
-	var x	= this.dirLtr()	? 50			: Math.round(gv_paperSizes.bv_width/2);		// TODO
-	var y	= this.dirLtr()	? Math.round(gv_paperSizes.bv_height/2)			: 50;		// TODO
-	
 	// addition: ignore single nodes
 	if (edgeCount > 0)
 	{
+		// preprocess and normalize graph
 		this.normGraph		= this.preprocess();
+		
+		// compute RPST
 		this.rpst			= this.decomposePST();
 		
-		for (var n in this.rpst.nodes)
-		{
-			var node	= this.rpst.nodes[n];
-			// console.log(node.name + " " + node.type + " " + node.getEntry() + " " + node.getExit());
-		}
+		// update incidence lists in order to cope fragments
+		this.updateIncidenceLists(this.rpst.getRoot());
 		
+		// compute layout starting with root of RPST
 		this.layoutFragment(this.rpst.getRoot());
-	
-		gf_timeCalc("draw nodes");
-		this.draw(this.rpst.getRoot(), x, y);				// TODO: MTG, restart with every node
-		gf_timeCalc("draw nodes");
-		gf_timeCalc("draw edges");
-		this.drawEdges(this.rpst.getRoot());
-		gf_timeCalc("draw edges");
 	}
 	
-	// additional step: draw all free nodes (only in ttb direction)
-	if (!this.dirLtr())
-	{
-		/*
-		 * TODO:
-		 * 1) calc most left spot of tree; move next node by 2x this.spaces.x to the left; increase space between all nodes by this.spaces.y
-		 */
-		if (this.mostLeft == null)
-		{
-			this.mostLeft	= x;
-		}
-		else
-		{
-			this.mostLeft	-= 2 * this.spaces.x;
-		}
-		
-		for (var n in this.nodes)
-		{
-			if (!gf_isset(this.drawnNodes[n]))
-			{
-				this.drawNode(n, null, this.mostLeft, y);
-				y	+= this.spaces.y;
-			}
-		}
-	}
+	// render computed layout
+	this.draw();
 };
 
-LinearTimeLayout.prototype.layoutAtomic = function (node)
+/**
+ * Lays out an atomic fragment.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - The fragment to lay out.
+ * @returns {void}
+ */
+LinearTimeLayout.prototype.layoutAtomic = function (f)
 {
-	// no special layout required
-	node.dimensions.width	= this.spaces.x;
-	node.dimensions.height	= this.spaces.y;
+	// no special layout required: only set branchHeight and branchWidth
+	if (!gf_isset(this.atomic[f.id]))
+	{
+		this.branchHeight[f.id]	= this.spaces.y;
+		this.branchWidth[f.id]	= this.spaces.x;
+		this.nodex[f.id]		= 0;
+		this.nodey[f.id]		= 0;
+		
+		this.atomic[f.id]		= true;
+	}
 };
 
-LinearTimeLayout.prototype.layoutBranching = function (rpstnode)
-{	
+/**
+ * Lays out a branching fragment.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - The fragment to lay out.
+ * @returns {void}
+ */
+LinearTimeLayout.prototype.layoutBranching = function (f)
+{
 	var sumHeight	= 0;
 	var sumWidth	= 0;
-	var maxHeight	= 0 - this.spaces.y;
-	var maxWidth	= 0 - this.spaces.x;
+	var maxHeight	= 0;
+	var maxWidth	= 0;
+	var x			= 0;
+	var y			= 0;
 	
-	// precalc sumWidth, sumHeight
-	var children	= this.rpst.getChildren2(rpstnode).children;
+	var entry		= this.entryNode(f);
+	var exit		= this.exitNode(f);
+	
+	// Calculate width and height of the fragment
+	var children	= this.fragments(f);
 	for (var c in children)
 	{
 		var child	= children[c];
-		sumHeight	= sumHeight + child.dimensions.height;
-		sumWidth	= sumWidth + child.dimensions.width;
-		maxHeight	= Math.max(maxHeight, child.dimensions.height);
-		maxWidth	= Math.max(maxWidth, child.dimensions.width);
+		var cf		= child.id;
+		if (this.isAtomic(child))
+		{
+			continue;
+		}
+		
+		var height	= this.spaces.y;
+		var width	= this.spaces.x;
+		if (!child.hasOwnProperty("type") || child.type != "trivial")
+		{
+			height	= this.branchHeight[cf];
+			width	= this.branchWidth[cf];
+		}
+		sumHeight	+= height;
+		sumWidth	+= width;
+		maxHeight	= Math.max(maxHeight, height);
+		maxWidth	= Math.max(maxWidth, width);
 	}
 	
-	var offset		= this.dirLtr()	? (0 - Math.ceil(sumHeight / 2)) : (0 - Math.ceil(sumWidth / 2));
-	var prevChild	= null;
+	// Calculate the left most / top most position of the branching fragments
+	if (this.dirLtr())
+	{
+		x	= 0;
+		y	= 0 - Math.ceil(sumHeight / 2);
+	}
+	else
+	{
+		x	= 0 - Math.ceil(sumWidth / 2);
+		y	= 0;
+	}
 	
+	// Update positions of child fragments
 	for (var c in children)
 	{
-		var child		= children[c];
-		
-		var prevSize	= 0;
-		var prevPos		= offset;
-		
-		// update child's position (except if child == entry of this node)
-		if (prevChild != null)
+		var child	= children[c];
+		var cf		= child.id;
+		if (this.isAtomic(child))
 		{
-			prevSize	= this.dirLtr() ? prevChild.dimensions.height : prevChild.dimensions.width;
-			prevPos		= this.dirLtr() ? prevChild.y : prevChild.x;
+			continue;
 		}
+		
+		var height	= this.spaces.y;
+		var width	= this.spaces.x;
+		if (!child.hasOwnProperty("type") || child.type != "trivial")
+		{
+			height	= this.branchHeight[cf];
+			width	= this.branchWidth[cf];
+		}
+		
+		height	= Math.ceil(height / 2);
+		width	= Math.ceil(width / 2);
 		
 		if (this.dirLtr())
 		{
-			child.x		= 0;
-			child.y		= prevPos + Math.ceil(child.dimensions.height / 2) + Math.ceil(prevSize / 2);
+			y	+= height;
 		}
 		else
 		{
-			child.x		= prevPos + Math.ceil(child.dimensions.width / 2) + Math.ceil(prevSize / 2);
-			child.y		= 0;
+			x	+= width;
 		}
 		
-		// update data for next loop run
-		prevChild	= child;
+		this.nodex[cf]	= x;
+		this.nodey[cf]	= y;
+		
+		var cEntry	= this.entryNode(cf);
+		var cExit	= this.exitNode(cf);
+		
+		// Set position of bends of edges and update x / y for the next fragment
+		if (this.dirLtr())
+		{
+			y	+= height;
+		}
+		else
+		{
+			x	+= width;	
+		}
 	}
 	
-	// update exit
-	var exit			= rpstnode.getExit();
+	// Update position of entry and exit node and update fragment's size
+	this.nodex[entry]	= 0;
+	this.nodey[entry]	= 0;
 	
-	if (this.dirLtr())
-		this.nodes[exit].x	= maxWidth	+ this.spaces.x;
-	else
-		this.nodes[exit].y	= maxHeight + this.spaces.y;
-	
-	// update size
 	if (this.dirLtr())
 	{
-		rpstnode.dimensions.height	= sumHeight;
-		rpstnode.dimensions.width	= maxWidth + this.spaces.x;
+		this.nodex[exit]		= x + maxWidth;
+		this.nodey[exit]		= 0;
+		
+		// JS workaround
+		if (!gf_isset(this.entryMap[exit]))
+		{
+			maxWidth	+= this.spaces.x;
+		}
+		this.branchHeight[f.id]	= sumHeight;
+		this.branchWidth[f.id]	= maxWidth;
 	}
 	else
 	{
-		rpstnode.dimensions.height	= maxHeight + this.spaces.y;
-		rpstnode.dimensions.width	= sumWidth;
+		this.nodex[exit]		= 0;
+		this.nodey[exit]		= y + maxHeight;
+		
+		// JS workaround
+		if (!gf_isset(this.entryMap[exit]))
+		{
+			maxHeight	+= this.spaces.y;
+		}
+		this.branchHeight[f.id]	= maxHeight;
+		this.branchWidth[f.id]	= sumWidth;
 	}
 };
 
-LinearTimeLayout.prototype.layoutFragment = function (rpstnode)
+/**
+ * Compute layout of each fragment in a bottp-up manner by starting at the inner most fragments.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - The fragment to process.
+ * @returns {void}
+ */
+LinearTimeLayout.prototype.layoutFragment = function (f)
 {
-	var nodes	= this.fragments(rpstnode);
+	if (!gf_isset(this.nodex[f.id]))
+	{
+		this.nodex[f.id]	= 0;
+	}
+	
+	if (!gf_isset(this.nodey[f.id]))
+	{
+		this.nodey[f.id]	= 0;
+	}
+	
+	// recursive call (bottom-up)
+	var nodes	= this.fragments(f);
 	for (var n in nodes)
 	{
 		var node	= nodes[n];
 		this.layoutFragment(node);
 	}
 	
-	if (this.isAtomic(rpstnode))
+	// workaround for temporary incidence list: reset incidence list
+	this.temporaryIncidenceIn	= {};
+	this.temporaryIncidenceOut	= {};
+	// end workaround
+	
+	if (this.isAtomic(f))
 	{
-		this.layoutAtomic(rpstnode);
+		this.layoutAtomic(f);
 	}
-	else if (this.isSequence(rpstnode))
+	else if (this.isSequence(f))
 	{
-		this.layoutSequence(rpstnode);
+		this.layoutSequence(f);
 	}
-	else if (this.isBranching(rpstnode))
+	else if (this.isBranching(f))
 	{
-		this.layoutBranching(rpstnode);
+		this.layoutBranching(f);
 	}
-	else if (this.isLoop(rpstnode))
+	else if (this.isLoop(f))
 	{
-		this.layoutLoop(rpstnode);
+		this.layoutLoop(f);
 	}
 	else
 	{
-		this.layoutUnstructured(rpstnode);
+		this.layoutUnstructured(f);
 	}
 };
 
-LinearTimeLayout.prototype.layoutLoop = function (rpstnode)
+/**
+ * Lays out a structured loop fragment.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - The fragment to lay out.
+ * @returns {void}
+ */
+LinearTimeLayout.prototype.layoutLoop = function (f)
 {
-	var entry		= rpstnode.getEntry();
+	var node		= this.entryNode(f);
 	var maxHeight	= 0;
 	var maxWidth	= 0;
-	var sumHeight	= 0 - this.spaces.y;
-	var sumWidth	= 0 - this.spaces.x;
-	var visited		= {};
+	var sumHeight	= 0;
+	var sumWidth	= 0;
 	
-	var prevChild	= null;
+	var x			= 0;
+	var y			= 0;
 	
-	// TODO: 1) identify backedges?
-	// TODO: how to calc width of edge? (where to lead it back) -> x offset (left | right; times x-space)
-	
-// get fragments??
-// always layout entry + exit?
-// start at entry point: follow edges to either child RPSTNodes or free nodes (from fragments)
-	
-	var children		= this.rpst.getChildren2(rpstnode).entry;
-	while (gf_isset(children[entry]))
+	// cycle through all sequence elements
+	while (node != null)
 	{
-		var child	= children[entry];
+		var cf	= this.getF(node);
 		
-		visited[entry]	= true;
+		// compute dimensions
+		maxHeight	= Math.max(maxHeight, this.branchHeight[node]);
+		maxWidth	= Math.max(maxWidth, this.branchWidth[node]);
+		sumHeight	+= this.branchHeight[node];
+		sumWidth	+= this.branchWidth[node];
 		
-		// update size of this node
-		maxHeight	= Math.max(maxHeight, child.dimensions.height);
-		maxWidth	= Math.max(maxWidth, child.dimensions.width);
-		sumHeight	= sumHeight + child.dimensions.height;
-		sumWidth	= sumWidth + child.dimensions.width;
-		
-		// update child's position (except if child == entry of this node)
-		if (prevChild != null)
+		if (!cf.hasOwnProperty("type") || cf.type != "polygon")		// exclude sequence children
 		{
+			// Update position of child fragment relative to given fragment
 			if (this.dirLtr())
 			{
-				child.x	= prevChild.x + prevChild.dimensions.width;
+				this.nodex[node]	= x;
 			}
 			else
 			{
-				child.y	= prevChild.y + prevChild.dimensions.height;
+				this.nodey[node]	= y;
 			}
+		
 		}
 		
-		// update data for next loop run
-		entry		= child.getExit();
-		prevChild	= child;
-		
-		if (gf_isset(visited[entry]))
+		// correction for sequence fragments
+		else
 		{
-			break;
+			sumHeight	-= this.spaces.y;
+			sumWidth	-= this.spaces.x;
+			x			-= this.spaces.x;
+			y			-= this.spaces.y;
+		}
+		
+		x	+= this.branchWidth[node];
+		y	+= this.branchHeight[node];
+		
+		// Get the next node in line in a DFS manner
+		var outEdges	= this.getOutEdges(node);
+		if (outEdges.length == 1)
+		{
+			node	= this.target(this.top(outEdges));
+		}
+		else
+		{
+			node	= null;
+			
+			// Set loop edge
+			for (var e in outEdges)
+			{
+				var edge	= outEdges[e];
+				if (this.target(edge) == this.entryNode(f) || this.target(edge) == f.id)
+				{
+					if (this.dirLtr())
+					{
+						this.edgey[edge.orgId]	= this.spaces.y;
+					}
+					else
+					{
+						this.edgex[edge.orgId]	= this.spaces.x;
+					}
+				}
+			}
 		}
 	}
 	
-	// update size
+	// update branchingSplit / branchingJoin
+	delete this.branchingJoin[this.entryNode(f)];
+	delete this.branchingSplit[this.exitNode(f)];
+	
+	// Update size of fragment
 	if (this.dirLtr())
 	{
-		rpstnode.dimensions.height	= maxHeight + this.spaces.y;
-		rpstnode.dimensions.width	= sumWidth;
+		this.branchHeight[f.id]	= maxHeight + this.spaces.y;
+		this.branchWidth[f.id]	= sumWidth;
 	}
 	else
 	{
-		rpstnode.dimensions.height	= sumHeight;
-		rpstnode.dimensions.width	= maxWidth + this.spaces.x;
+		this.branchHeight[f.id]	= sumHeight;
+		this.branchWidth[f.id]	= maxWidth + this.spaces.x;
 	}
 };
 
-LinearTimeLayout.prototype.layoutSequence = function (rpstnode)
+/**
+ * Lays out a sequence fragment.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - The fragment to lay out.
+ * @returns {void}
+ */
+LinearTimeLayout.prototype.layoutSequence = function (f)
 {
-	if (rpstnode.type == "trivial")
+	// trivial fragments: single edges, simplest form of sequences
+	if (f.type == "trivial")
 	{
-		// update size
-		rpstnode.dimensions.height	= this.spaces.y;
-		rpstnode.dimensions.width	= this.spaces.x;
-		
-		// update position of exit
-		var exit	= rpstnode.getExit();
-		var node	= this.nodes[exit];
-		
-		if (this.dirLtr())
-			node.x	= this.spaces.x;
-		else
-			node.y	= this.spaces.y;
+		// only when whole graph consists of only one trivial fragment the fragment has to be laid out
+		if (this.rpst.getRoot().id == f.id)
+		{			
+			// Update position of fragment's exit node
+			var exit	= this.exitNode(f);
+			if (this.dirLtr())
+			{
+				this.nodex[exit]	= this.spaces.x;
+			}
+			else
+			{
+				this.nodey[exit]	= this.spaces.y;
+			}
+		}
 	}
+	
+	// all other sequences
 	else
 	{
-	
-		var entry		= rpstnode.getEntry();
+		var exit		= this.exitNode(f);
+		var entry		= this.entryNode(f);
+		
+		var node		= entry;
 		var maxHeight	= 0;
 		var maxWidth	= 0;
-		var sumHeight	= 0 - this.spaces.y;
-		var sumWidth	= 0 - this.spaces.x;
+		var sumHeight	= 0;
+		var sumWidth	= 0;
 		
-		var prevChild	= null;
-		
-	// get fragments??
-	// always layout entry + exit?
-	// start at entry point: follow edges to either child RPSTNodes or free nodes (from fragments)
-		
-		var children		= this.rpst.getChildren2(rpstnode).entry;
-		while (gf_isset(children[entry]))
+		/*
+		 * workaround for JS
+		 */
+		var children	= this.fragments(f);
+		var cfEntryMap	= new Array();
+		var cfExitMap	= new Array();
+		for (var c in children)
 		{
-			var child	= children[entry];
-			
-			// update size of this node
-			maxHeight	= Math.max(maxHeight, child.dimensions.height);
-			maxWidth	= Math.max(maxWidth, child.dimensions.width);
-			sumHeight	= sumHeight + child.dimensions.height;
-			sumWidth	= sumWidth + child.dimensions.width;
-			
-			// update child's position (except if child == entry of this node)
-			if (prevChild != null)
+			var cf	= children[c];
+			if (cf.id != this.entryNode(cf) || !gf_isset(cfEntryMap[this.entryNode(cf)]))
 			{
-				if (this.dirLtr())
+				cfEntryMap[this.entryNode(cf)]	= cf;
+				cfEntryMap[cf.id]				= cf;
+			}
+			
+			if (cf.id != this.exitNode(cf) || !gf_isset(cfExitMap[this.exitNode(cf)]))
+			{
+				cfExitMap[this.exitNode(cf)]	= cf;
+				cfExitMap[cf.id]				= cf;
+			}
+		}
+		
+		/**
+		 * update incidency lists since entry of sequence fragment connects to the fragment itself
+		 */
+		var outEdges	= this.getOutEdges(entry);
+		var inEdges		= this.getInEdges(exit);
+		var nextNode	= null;
+		var penuNode	= null;
+		for (var e in outEdges)
+		{
+			if (gf_isset(cfEntryMap[this.target(outEdges[e])]))
+			{
+				nextNode	= this.target(outEdges[e]);
+				this.incidenceOut[entry][e].tgt	= f.id;
+				
+				if (!gf_isset(this.incidenceIn[f.id]))
+					this.incidenceIn[f.id]	= new Array();
+					
+				this.incidenceIn[f.id].push({"src": entry, "tgt": f.id, "temporary": true, "orgId": outEdges[e].orgId});
+				
+				break;
+			}
+		}
+		for (var e in inEdges)
+		{
+			if (gf_isset(cfExitMap[this.source(inEdges[e])]))
+			{
+				penuNode	= this.source(inEdges[e]);
+				this.incidenceIn[exit][e].src	= f.id;
+				
+				if (!gf_isset(this.incidenceOut[f.id]))
+					this.incidenceOut[f.id]	= new Array();
+					
+				this.incidenceOut[f.id].push({"src": f.id, "tgt": exit, "temporary": true, "orgId": inEdges[e].orgId});
+				
+				break;
+			}
+		}
+		// end workaround
+		
+		var x			= 0;
+		var y			= 0;
+		
+		this.nodex[entry]	= x;
+		this.nodey[entry]	= y;
+		
+		/*
+		 * JS workaround:
+		 * - no entry for fragment's entry in entryMap -> if entry is in entryMap the entry node must be removed from the calculation as it is also the entry of another fragment
+		 * - current fragment must be parent of fragment stored in entryMap -> simply check for fragment's id
+		 */
+		if (gf_isset(this.entryMap[entry]) && f.id < this.entryMap[entry])
+		{
+			this.branchHeight[entry]	= this.spaces.y;
+			this.branchWidth[entry]		= this.spaces.x;
+			
+			if (this.dirLtr())
+			{
+				x	-= this.spaces.x;
+			}
+			else
+			{
+				y	-= this.spaces.y;
+			}
+		}
+		// end workaround
+		
+		// cycle through the sequence elements
+		while (node != null)
+		{
+			// compute fragment's dimensions
+			maxHeight	= Math.max(maxHeight, this.branchHeight[node]);
+			maxWidth	= Math.max(maxWidth, this.branchWidth[node]);
+			sumHeight	+= this.branchHeight[node];
+			sumWidth	+= this.branchWidth[node];
+			
+			// Update position of child fragment relative to given fragment
+			if (this.dirLtr())
+			{
+				this.nodex[node]	= x;
+				this.nodey[node]	= 0;
+			}
+			else
+			{
+				this.nodex[node]	= 0;
+				this.nodey[node]	= y;
+			}
+			
+			x	+= this.branchWidth[node];
+			y	+= this.branchHeight[node];
+			
+			// Get the next node in line in a Depth-First Search (DFS) manner
+			if (node == exit)
+			{
+				// leave loop if exit is hit
+				node	= null;
+			}
+			else if (nextNode != null)
+			{
+				// workaround for JS
+				node		= nextNode;
+				nextNode	= null;
+			}
+			else if (gf_isset(cfEntryMap[this.exitNode(node)]) && cfEntryMap[this.exitNode(node)].type != "trivial")
+			{
+				node		= cfEntryMap[this.exitNode(node)].id;
+			}
+			else
+			{
+				outEdges	= this.getOutEdges(node);
+				if (outEdges.length > 0 && node != exit)
 				{
-					child.x	= prevChild.x + prevChild.dimensions.width;
+					if (node == penuNode)
+					{
+						// workaround for JS
+						node	= exit;
+					}
+					else
+					{
+						node	= this.target(this.top(outEdges));
+					}
 				}
 				else
 				{
-					child.y	= prevChild.y + prevChild.dimensions.height;
+					node	= null;
 				}
 			}
-			
-			// update data for next loop run
-			entry		= child.getExit();
-			prevChild	= child;
 		}
 		
-		// update size
+		/*
+		 * JS workaround:
+		 * - no entry for fragment's exit in exitMap -> if exit is in exitMap the exit node must be repositioned and the fragment's size must be reduced
+		 * - current fragment must be parent of fragment stored in exitMap -> simply check for fragment's id
+		 */
+		if (gf_isset(this.exitMap[exit]) && f.id < this.exitMap[exit])
+		{
+			if (this.dirLtr())
+			{
+				this.nodex[exit]	-= this.spaces.x;
+				sumWidth			-= this.spaces.x;
+			}
+			else
+			{
+				this.nodey[exit]	-= this.spaces.y;
+				sumHeight			-= this.spaces.y;
+			}
+		}
+		// end workaround
+		
+		// Update size of fragment
 		if (this.dirLtr())
 		{
-			rpstnode.dimensions.height	= maxHeight;
-			rpstnode.dimensions.width	= sumWidth;
+			this.branchHeight[f.id]	= maxHeight;
+			this.branchWidth[f.id]	= sumWidth - this.spaces.x;		// correction is needed as sequence's entry node is also contained in another fragment
 		}
 		else
 		{
-			rpstnode.dimensions.height	= sumHeight;
-			rpstnode.dimensions.width	= maxWidth;
-		}
-		
-		
-		console.log(rpstnode.type + " " + rpstnode.name + " " + rpstnode.getEntry() + " " + rpstnode.getExit());
-		
-		// update exit
-		var exit		= rpstnode.getExit();
-		var exitNode	= this.nodes[exit];
-		
-		if (this.dirLtr())
-		{
-			exitNode.x	= sumWidth + this.spaces.x;
-		}
-		else
-		{			
-			exitNode.y	= sumHeight + this.spaces.y;
+			this.branchHeight[f.id]	= sumHeight - this.spaces.y;	// correction is needed as sequence's entry node is also contained in another fragment
+			this.branchWidth[f.id]	= maxWidth;
 		}
 	}
 };
 
-LinearTimeLayout.prototype.layoutUnstructured = function (rpstnode)
-{
-	console.log("laying out unstructured: " + rpstnode.name + " " + rpstnode.type);
-	
-	// by Matthias Schrammek
-	this.createEdgeMap(rpstnode);
-	
-	// by Matthias Schrammek
-	// cycle through all nodes and mark nodes with >1 incoming as "branchingJoin" and nodes with >1 outgoing as "branchingSplit" (for edge drawing)
-	for (var n in this.edgeMap)
-	{		
-		var edgeMap		= this.edgeMap[n];
-		var inCount		= 0;
-		var outCount	= 0;
-		for (var e in edgeMap)
-		{
-			var edge	= edgeMap[e];
-			
-			if (edge.type == "out")
-			{
-				outCount++;
-			}
-			
-			if (edge.type == "in")
-			{
-				inCount++;
-			}
-		}
-		
-		this.nodes[n].branchingSplit	= outCount > 1;
-		this.nodes[n].branchingJoin		= inCount > 1;
-	}
+/**
+ * Lays out an unstructured fragment.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - The fragment to lay out.
+ * @returns {void}
+ */
+LinearTimeLayout.prototype.layoutUnstructured = function (f)
+{	
+	// JS workaround: moved this line from step 3 up (because of temporaryIncidenceLists)
+	var fragmentEdges	= this.getEdges(f);
 	
 	// 1) identify back edges and compute the node order
 	var type	= {};
-	// TODO: var nodeID	= this.entryNode(fragment);
-	var nodeID	= rpstnode.getEntry();
+	var nodeID	= this.entryNode(f);
 	
 	this.identifyEdgeTypes(nodeID, type, {}, {}, 0);
 	
-	var topology	= this.topologySort(rpstnode, nodeID, type);
+	var topology	= this.topologySort(f, nodeID, type);
 	var parent		= {};
 	var length		= {};
-	
 	this.lpstree(topology, type, parent, length);
 	
 	// 2) order edges to reduce number of crossings
-	var newFragment	= this.orderEdges(rpstnode, nodeID);
-	
+	var newFragment	= this.orderEdges(f, nodeID);
 	// TODO: use newFragment and implement orderEdges
 	
-	// 3) internally reverse back edges and compute layout
-	// var fragmentEdges	= this.getEdges(rpstnode);	// TODO: newFragment?
-	var fragmentEdges	= this.getFragmentEdges();
-	
+	// 3) internally reverse back edges and compute layout	
 	for (var eID in fragmentEdges)
 	{
-		var edgeID	= fragmentEdges[eID];
+		var edge	= fragmentEdges[eID];
+		var edgeID	= edge.orgId;
 		if (type[edgeID] == this.edgeTypes.back)
 		{
-			this.reverse(edgeID);
+			this.reverse(edge);
 		}
 	}
 	this.computeBranchDimensions(nodeID, parent);
-	this.preliminaryLayout(nodeID, parent, 0, 0);
-	this.compactLayout(rpstnode);
 	
 	// by Matthias Schrammek
+	this.branchHeight[f.id]	= this.branchHeight[nodeID];
+	this.branchWidth[f.id]	= this.branchWidth[nodeID];
+	
+	var x	= 0;
+	var y	= 0;
 	if (this.dirLtr())
 	{
-		rpstnode.dimensions.width	= this.branchWidth[nodeID] - this.spaces.x;
-		rpstnode.dimensions.height	= this.branchHeight[nodeID];
-		rpstnode.y					= 0;
+		y			= 0 - Math.ceil((this.branchHeight[f.id] - this.spaces.y) / 2);
 	}
 	else
 	{
-		rpstnode.dimensions.width	= this.branchWidth[nodeID];
-		rpstnode.dimensions.height	= this.branchHeight[nodeID] - this.spaces.y;
-		rpstnode.x					= 0;
+		x			= 0 - Math.ceil((this.branchWidth[f.id] - this.spaces.x) / 2);
 	}
+	// end by Matthias Schrammek
 	
-	for (var n in this.edgeMap)
+	// JS workaround: if fragment's exit node is also entry of another node it belongs to the other fragment and thus the size of this fragment has to be reduced
+	if (gf_isset(this.entryMap[this.exitNode(f)]))
 	{
 		if (this.dirLtr())
 		{
-			this.nodes[n].y	-= Math.floor(this.branchHeight[nodeID] / 2);
+			this.branchWidth[f.id]	-= this.spaces.x;
 		}
 		else
 		{
-			this.nodes[n].x	-= Math.floor(this.branchWidth[nodeID] / 2);
+			this.branchHeight[f.id]	-= this.spaces.y;
 		}
 	}
+	// end workaround
 	
-	// TODO: hack? keep it?
-	if (this.dirLtr())
-	{
-		this.nodes[nodeID].y		= 0;
-	}
-	else
-	{
-		this.nodes[nodeID].x		= 0;
-	}
+	this.preliminaryLayout(nodeID, parent, x, y);
+	this.compactLayout(f);
 };
 
+/**
+ * Computes a longest path spanning tree.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Array} topology - The computed topology.
+ * @param {Array} type - Edge types.
+ * @param {Array} parent - Parents of each node.
+ * @param {Array} length - Length of path to each node.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.lpstree = function (topology, type, parent, length)
 {
+	// follow the topology
 	for (var nID in topology)
 	{
 		var nodeID	= topology[nID];
 		
-		// TODO: change width to height (from top to bottom instead of left to right)
-		// var width		= this.getWidth(nodeID, "node") + this.spaces.aesthetics;
-		var space	= this.dirLtr() ? this.getWidth(nodeID, "node") : this.getHeight(nodeID, "node");	// TODO: spaces.aesthetics?, add Math.max(width of node, width of edge)?
-			space += this.spaces.aesthetics;
+		var space	= 0;
+		if (this.dirLtr())
+		{
+			space	= this.spaces.x;
+		}
+		else
+		{
+			space	= this.spaces.y;
+		}
 		
+		if (!gf_isset(length[nodeID]))
+		{
+			length[nodeID]	= 0;
+		}
+		
+		// compute longest path to each node
 		var outEdges	= this.getOutEdges(nodeID);
 		for (var edgeID in outEdges)
 		{
-			edgeID	= outEdges[edgeID].edge;
+			var edge	= outEdges[edgeID];
+				edgeID	= edge.orgId;
 			if (type[edgeID] != this.edgeTypes.back)
 			{
-				var targetID	= this.target(edgeID);
+				var targetID	= this.target(edge);
 				
-				// TODO: replace width by height
 				if (!gf_isset(length[targetID]) || length[targetID] < length[nodeID] + space)
 				{
 					length[targetID]	= length[nodeID] + space;
@@ -1509,135 +2366,275 @@ LinearTimeLayout.prototype.lpstree = function (topology, type, parent, length)
 	}
 };
 
-LinearTimeLayout.prototype.orderEdges = function (fragment, nodeID)
+/**
+ * Order edges to minimize crossings by using a modified planarity checker.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - The fragment for which the edges are ordered.
+ * @param {String} nodeID - Start node for planarity checker.
+ * @returns {Array} Ordered edges.
+ */
+LinearTimeLayout.prototype.orderEdges = function (f, nodeID)
 {
 	// TODO:
 	
-	/*
-Order Edges. In the second step, our layout algorithm computes the order
-in which the edges have to be drawn to fulfill constraint C3 (i.e., edge crossings
-should be minimized). A planar order for the edges of the graph is computed
-using a left-right planarity checker [13]. This checker computes a spanning
-13
-tree of the business process’s underlying undirected graph and partitions the
-remaining edges into left and right partitions such that they do not generate
-conflicts (i.e., edge-crossings).
-Figure 8: Artificial Edge Added to Each Fragment
+	/* From "A linear time layout algorithm for business process models" by Gschwind et al.:
 Before passing a fragment to the planarity checker, it is pre-processed such
-that edges are no longer permitted to be drawn around the entire process (cf.
-Figure 2(a)). We accomplish this by adding an artificial edge from a fragment’s
-entry node to the fragment’s exit node (cf. Figure 8) which prohibits an edge on
+that edges are no longer permitted to be drawn around the entire process. We accomplish this by adding an artificial edge from a fragment's
+entry node to the fragment's exit node which prohibits an edge on
 either the upper or the lower side of a fragment to be drawn around the entry
 or exit nodes since it would need to cross the artificial edge.
+
 The planarity checker returns a planar order for edges indicating how to draw
 them in order to avoid edge crossing. In this stage all edges (i.e., including back
 edges that were omitted previously) are considered. The planar order will be
 used in subsequent stages. If a graph is non-planar we perform some extra
 processing to find an optimal edge order. This modification will be discussed in
 Section 4.4.
-For the details of this algorithm, we refer the interested reader to [13] where
-Hopcroft et al. show that the algorithm runs with a complexity of O(|f |).
-
 	 */
 	
+	// TODO: add artificial edge from exit to entry
+	// TODO: what does f contain? getEdges(f)?
+	// TODO: this.planarityEmbed(f, nodeID);
+	
 	var newFragment	= null;
-	return fragment;	// TODO
+	return f;	// TODO
 };
 
+/**
+ * Implementation of planarity checker.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} G - The Fragment.
+ * @param {Object} n - Start node.
+ * @returns {void}
+ */
+LinearTimeLayout.prototype.planarityEmbed = function (G, n)
+{
+	// G: fragment
+	// n: start node (entry node of fragment);
+	// A(v): kind of incidenceOut[v]
+	
+	// TODO: underlying undirected graph 
+	
+	/*
+	 * - G represented by set of properly ordered adjacency lists A(v)
+	 * - L and R stacks, stored as linked lists; using arrays STACK, NEXT
+	 * - STACK(i) gives a stack entry
+	 * - NEXT(i) points to next entry on same stack
+	 *    - NEXT(0) points to first entry on L
+	 *    - NEXT(-1) points to first entry on R
+	 * - FREE: first unused location in STACK
+	 * - p: number of current path
+	 * - v is vertex -> PATH(v) is number of first path containing v
+	 * - i is number of path -> f(i) is last vertex on path i
+	 * - blocks: ordered pairs on stack B
+	 *    - pairs: (x,y) -> x is last entry on L, y is last entry on R of block
+	 *    - x=0: block has no entries on L
+	 *    - y=0: block has no entries on R
+	 * - SAVE is temporary variable used for switching
+	 */
+	
+	this.planStack	= [];		// STACK(0::E)
+	this.planNext	= [];		// NEXT(-1::E)
+	this.planF		= [];		// f(1::E-V+1)
+	this.planPath	= {};		// PATH(1::V)
+	this.planB		= [];		// B(1::E)
+	this.planFree	= 0;
+	
+	// init
+	this.planNext[-1]	= 0;
+	this.planNext[0]	= 0;
+	this.planFree		= 1;
+	this.planStack[0]	= 0;
+	this.planP			= 0;
+	this.planS			= 0;
+	this.planPath[n]	= 1;
+	
+	this.planarityPathfinder(n);
+};
+
+/**
+ * DFS implementation. Find paths.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {String} n - Start node for current DFS run.
+ * @returns {void}
+ */
+LinearTimeLayout.prototype.planarityPathfinder = function (v)
+{
+	// v: node
+	
+	// TODO: does v->w indicate a directed edge? - remember: underlying undirected graph
+			// edge of directed, rooted tree
+	// TODO: where to get the integer values from?
+			// some kind of ordering by path (0->v_i->v_j->|V| in cycle where v_i = 1, v_j = 2 ...)
+	
+	var outEdges	= this.getOutEdges(v);
+	for (var e in outEdges)		// for w in A(v) do
+	{
+		var edge	= outEdges[e];
+		var w		= this.target(edge);		// if v -> w then begin
+		
+		if (this.planS == 0)
+		{
+			this.planS	= v;
+			this.planP++;
+		}
+		
+		this.planPath[w]	= p;
+		this.planarityPathfinder(w);
+		
+		// paper: delete stack entries and blocks corresponding to vertices no smaller than v
+		// TODO: follow up: first while loop
+	}
+};
+
+/**
+ * Computes preliminary layout of an unstructured fragment.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {String} nodeID - Fragment or node to compute the layout for.
+ * @param {Array} parent - Parents array.
+ * @param {int} x - X offset.
+ * @param {int} y - Y offset.
+ * @returns {void}
+ */
 // nodeID: id, parent: array, x: int, y: int
 LinearTimeLayout.prototype.preliminaryLayout = function (nodeID, parent, x, y)
 {
-	/*
-	 * TODO:
-	 * - branchheight, height, width, space als globale Variablen
-	 */
-	
-	if (this.dirLtr())
+	// JS workaround
+	if (this.isS(nodeID))
 	{
-		this.nodex[nodeID]	= x;
-		this.nodey[nodeID]	= y + Math.floor((this.branchHeight[nodeID] - this.getHeight(nodeID, "node")) / 2);	// TODO: add Math.max(getHeight(node), getHeight(edge))?
-	}
-	else
-	{
-		this.nodex[nodeID]	= x + Math.floor((this.branchWidth[nodeID] - this.getWidth(nodeID, "node")) / 2);	// TODO: add Math.max(getWidth(node), getWidth(edge))?
-		this.nodey[nodeID]	= y;
-	}
-	
-	// TODO: calculate a better position
-	this.nodes[nodeID].x	= this.nodex[nodeID];
-	this.nodes[nodeID].y	= this.nodey[nodeID];
-	
-	var height	= 0;
-	var width	= 0;
-	var k		= 0;
-	var outEdges	= this.getOutEdges(nodeID);
-	for (var edgeID in outEdges)
-	{
-		edgeID	= outEdges[edgeID].edge;
-		if (parent[this.target(edgeID)] == this.source(edgeID))
+		if (this.dirLtr())
 		{
-			height	= height + k * this.spaces.aesthetics + this.branchHeight[this.target(edgeID)];
-			width	= width + k * this.spaces.aesthetics + this.branchWidth[this.target(edgeID)];
+			x	-= this.spaces.x;
 		}
 		else
 		{
-			height	= height + k * this.spaces.aesthetics;
-			width	= width + k * this.spaces.aesthetics;
+			y	-= this.spaces.y;
 		}
-		k	= 1;
+	}
+	// end workaround
+	
+	// position node based on the x and y offset
+	if (this.dirLtr())
+	{
+		this.nodex[nodeID]	= x;
+		this.nodey[nodeID]	= y + Math.floor((this.branchHeight[nodeID] - this.spaces.y) / 2);
+	}
+	else
+	{
+		this.nodex[nodeID]	= x + Math.floor((this.branchWidth[nodeID] - this.spaces.x) / 2);
+		this.nodey[nodeID]	= y;
+	}
+	
+	// compute max space to next node from dimensions of all adjacent nodes / fragments
+	var height	= 0;
+	var width	= 0;
+	var outEdges	= this.getOutEdges(nodeID);
+	for (var e in outEdges)
+	{
+		var edge	= outEdges[e];
+		var src		= this.source(edge);
+		var tgt		= this.target(edge);
+		if (parent[tgt] == src)
+		{
+			height	= height + this.branchHeight[tgt];
+			width	= width + this.branchWidth[tgt];
+		}
+		else
+		{
+			height	= height;
+			width	= width;
+		}
 	}
 	
 	if (this.dirLtr())
 	{
-		x	= x + this.getWidth(nodeID, "node") + this.spaces.aesthetics;
+		x	= x + this.spaces.x;
 		y	= y + Math.max(0, (this.branchHeight[nodeID] - height) / 2);
 	}
 	else
 	{
 		x	= x + Math.max(0, (this.branchWidth[nodeID] - width) / 2);
-		// y	= y + this.height[nodeID] + this.spaces.aesthetics;
-		y	= y + this.getHeight(nodeID, "node") + this.spaces.aesthetics;
+		y	= y + this.spaces.y;
 	}
 	
-	for (var edgeID in outEdges)
+	// follow up with adjacent nodes / fragments
+	for (var e in outEdges)
 	{
-		edgeID	= outEdges[edgeID].edge;
-		if (parent[this.target(edgeID)] == this.source(edgeID))
+		var edge	= outEdges[e];
+		var src		= this.source(edge);
+		var tgt		= this.target(edge);
+		if (parent[tgt] == src)
 		{
-			this.preliminaryLayout(this.target(edgeID), parent, x, y);
+			// JS workaround for sequence fragments
+			if (this.isS(src))
+			{
+				if (this.dirLtr())
+				{
+					x	+= this.spaces.x;
+				}
+				else
+				{
+					y	+= this.spaces.y;
+				}
+			}
+			// end workaround
+			
+			this.preliminaryLayout(tgt, parent, x, y);
+			
+			// JS workaround for sequence fragments
+			if (this.isS(src))
+			{
+				if (this.dirLtr())
+				{
+					this.nodey[tgt]	= 0;
+				}
+				else
+				{
+					this.nodex[tgt]	= 0;
+				}
+			}
+			// end workaround
 			
 			if (this.dirLtr())
 			{
-				y	= y + this.branchHeight[this.target(edgeID)] + this.spaces.aesthetics;
+				y	= y + this.branchHeight[tgt];
 			}
 			else
 			{				
-				x	= x + this.branchWidth[this.target(edgeID)] + this.spaces.aesthetics;
+				x	= x + this.branchWidth[tgt];
 			}
 		}
 		else
 		{
-			this.edgex[edgeID]	= x;
-			
 			if (this.dirLtr())
 			{
-				y	= y + this.spaces.aesthetics;
+				this.edgey[edge.orgId]	= y;
 			}
 			else
 			{
-				x	= x + this.spaces.aesthetics;
+				this.edgex[edge.orgId]	= x;
 			}
 		}
 	}
 };
 
+/**
+ * Preprocessing. Splits gateways with multiple incoming and outgoing edges.
+ * Normalizes graph. Handles MTGs. Adds unique sink and source nodes.
+ * Creates incidence lists.
+ * 
+ * @memberof! LinearTimeLayout
+ * @returns {Object} normalized graph
+ */
 LinearTimeLayout.prototype.preprocess = function ()
 {
-	// by Matthias Schrammek
 	
 	var sources			= new Array();
 	var sinks			= new Array();
-	var mixed			= new Array();
 	
 	for (var n in this.nodes)
 	{
@@ -1660,7 +2657,7 @@ LinearTimeLayout.prototype.preprocess = function ()
 	}
 	
 	// create new source
-	var uniqueSource	= this.addNode("##SRC##", "virtual");
+	var uniqueSource	= this.addNode("##uSRC##", "virtual");
 	for (var s in sources)
 	{
 		var sourceID	= sources[s];
@@ -1668,13 +2665,37 @@ LinearTimeLayout.prototype.preprocess = function ()
 	}
 	
 	// create new sink
-	var uniqueSink	= this.addNode("##SNK##", "virtual");
+	var uniqueSink	= this.addNode("##uSNK##", "virtual");
 	for (var s in sinks)
 	{
 		var sinkID	= sinks[s];
 		this.addEdge("virtSNK" + sinkID, sinkID, uniqueSink, "virtual");
 	}
 	
+	// Create the incidence lists
+	this.incidenceIn	= {};
+	this.incidenceOut	= {};
+	
+	// Create incidence lists
+	for (var e in this.edges)
+	{
+		var edge	= this.edges[e];
+		var src		= this.source(edge);
+		var tgt		= this.target(edge);
+		
+		if (!gf_isset(this.incidenceIn[tgt]))
+			this.incidenceIn[tgt]	= new Array();
+			
+		if (!gf_isset(this.incidenceOut[src]))
+			this.incidenceOut[src]	= new Array();
+		
+		edge	= {"src": src, "tgt": tgt, "temporary": true, "orgId": edge.id};
+		this.incidenceOut[src].push(edge);
+		this.incidenceIn[tgt].push(edge);
+	}
+	
+	// Calculate sizes of labels and thus the spaces between nodes
+	this.calculateSpaces();
 	
 	// jBPT preprocess (MTG)
 	var normalizedGraph	= new this.NormGraph(this);
@@ -1687,28 +2708,27 @@ LinearTimeLayout.prototype.preprocess = function ()
 	for (var n in this.nodes)
 	{
 		// by Matthias Schrammek: added check for start nodes
-		var node	= this.nodes[n];
-		if (this.inEdges[n].length == 0 && this.outEdges[n].length == 0)
+		if (this.getInEdges(n).length == 0 && this.getOutEdges(n).length == 0)
 		{
 			continue;
 		}
 		
-		if (this.inEdges[n].length == 0)
+		if (this.getInEdges(n).length == 0)
 		{
 			sources.push(n);
 		}
 		
-		if (this.outEdges[n].length == 0)
+		if (this.getOutEdges(n).length == 0)
 		{
 			sinks.push(n);
 		}
 		
-		if (this.inEdges[n].length > 1 && this.outEdges[n].length > 1)
+		if (this.getInEdges(n).length > 1 && this.getOutEdges(n).length > 1)
 		{
 			mixed.push(n);
 		}
 		
-		var newId			= normalizedGraph.addNode(n)
+		var newId			= normalizedGraph.addNode(n);
 		
 		this.on2nn[n]		= newId;
 		this.nn2on[newId]	= n;
@@ -1758,7 +2778,6 @@ LinearTimeLayout.prototype.preprocess = function ()
 			var newEdge	= normalizedGraph.addEdge(this.on2nn[this.source(oEdge)], newNode);
 			this.ne2oe[newEdge]	= oEdge;
 		}
-		
 		delete normalizedGraph.inEdges[mixedID];
 		var newEdge2	= normalizedGraph.addEdge(newNode, mixedID);
 		this.extraEdges[newEdge2]	= newEdge;
@@ -1769,44 +2788,61 @@ LinearTimeLayout.prototype.preprocess = function ()
 	this.backedge				= backedge;
 	
 	return normalizedGraph;
-	
-	/*
-	 * Overall, the proposed algorithm follows three phases, as shown in Algo-
-rithm 1. First, the process model to be laid out is pre-processed.
-	 * The Preprocess function of the algorithm pre-processes gateways with
-multiple incoming and outgoing edges to facilitate the model’s decomposition
-into SESE fragments. Respective gateways are split into two gateways: one
-having all the originally incoming edges and the other covering all the originally
-outgoing edges. Similarly, multiple incoming and multiple outgoing edges of
-non-gateways (e.g., activities) are separated into an additional gateway. To
-illustrate the pre-processing step, Figure 4 shows two exemplary pre-processing
-transformations. In Figure 4 (a) an additional gateway is introduced to have
-either multiple incoming or multiple outgoing edges. Similarly, in Figure 4 (b),
-two gateways are introduced to make the join gateways and split gateways
-explicit.
-
-By applying these transformations, the business process model remains se-
-mantically equivalent to the original model but ensures constraint C2 (i.e., in-
-coming and outgoing edges must be separated). The gateways introduced during
-this pre-processing step are used for the computation of the edge ordering only;
-they can be removed from the final layout of the business process model, i.e.,
-the algorithm does not change the structure of the model.
-
-Due to the pre-processing, each node has either multiple incoming edges or
-multiple outgoing edges. The only correct edge orderings for the left gateway
-are all permutations of {1, 2, x} and for the right {x, 3, 4}. This constrains the
-permutations allowed for edges 1 to 4. to the permutations of {1, 2, {3, 4}} which
-makes sure that edges 1 and 2 and edges 3 and 4 stay together. Since edges are
-drawn in a clock-wise order, orderings {1, 2, 3, 4} and {2, 3, 4, 1} are the same.
-
-
-		 */
 };
 
+/**
+ * Reverse edge.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {mixed} edgeID - ID of edge to reverse or edge object.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.reverse = function (edgeID)
 {
+	if (typeof edgeID == "object" && edgeID.hasOwnProperty("temporary"))
+	{
+		var src		= edgeID.src;
+		var tgt		= edgeID.tgt;
+		var edge	= {"src": tgt, "tgt": src, "temporary": true, "orgId": edgeID.orgId, "reversed": true};
+		
+		// remove old edge from inedges of tgt
+		var newInEdges		= new Array();
+		var inEdges			= this.getInEdges(tgt);
+		for (var e in inEdges)
+		{
+			e	= inEdges[e];
+			if (this.source(e) != src || this.target(e) != tgt)
+			{
+				newInEdges.push(e);
+			}
+		}
+		this.incidenceIn[tgt]	= newInEdges;
+		
+		// remove old edge from outedges of src
+		var newOutEdges		= new Array();
+		var outEdges		= this.getOutEdges(src);
+		for (var e in outEdges)
+		{
+			e	= outEdges[e];
+			if (this.source(e) != src || this.target(e) != tgt)
+			{
+				newOutEdges.push(e);
+			}
+		}
+		this.incidenceOut[src]	= newOutEdges;
+		
+		// add reversed edge to inedges of src
+		if (!gf_isset(this.incidenceIn[src]))
+			this.incidenceIn[src]	= new Array();
+		this.incidenceIn[src].push(edge);
+		
+		// add reversed edge to outedges of tgt
+		if (!gf_isset(this.incidenceOut[tgt]))
+			this.incidenceOut[tgt]	= new Array();
+		this.incidenceOut[tgt].push(edge);
+	}
 	
-	if (gf_isset(this.edges[edgeID]))
+	else if (gf_isset(this.edges[edgeID]))
 	{
 		// Update outEdges
 		var source	= this.source(edgeID);
@@ -1859,182 +2895,208 @@ LinearTimeLayout.prototype.reverse = function (edgeID)
 		this.edges[edgeID].inEdgesCurID	= curID;
 	
 		this.edges[edgeID].reverse();
-		
-		// update edgeMap (if set)
-		// TODO: check for necessaty
-		if (gf_isset(this.edgeMap[source]))
-		{
-			for (var e in this.edgeMap[source])
-			{
-				if (this.edgeMap[source][e].edge == edgeID)
-				{
-					this.edgeMap[source][e].type	= this.edgeMap[source][e].type == "out" ? "in" : "out";
-				}
-			}
-		}
-		
-		if (gf_isset(this.edgeMap[target]))
-		{
-			for (var e in this.edgeMap[target])
-			{
-				if (this.edgeMap[target][e].edge == edgeID)
-				{
-					this.edgeMap[target][e].type	= this.edgeMap[target][e].type == "out" ? "in" : "out";
-				}
-			}
-		}
 	}
 };
 
-LinearTimeLayout.prototype.setPos = function (id, x, y)
+/**
+ * Set size of drawing area in order to start the drawing at the right position.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {int} width - Width of the drawing area.
+ * @param {int} height - Height of the drawing area.
+ */
+LinearTimeLayout.prototype.setAreaSize = function (width, height)
 {
-	var node	= this.nodes[id];
-	if (node.x == 0 && node.y == 0)
-	{
-		this.nodes[id].x	= x;
-		this.nodes[id].y	= y;
-	}
+	this.drawingArea.width	= width;
+	this.drawingArea.height	= height;
 };
 
+/**
+ * Sets the manual position changes applied via the hybrid layouting method.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} changes - Relative position changes of nodes.
+ * @returns {void}
+ */
+LinearTimeLayout.prototype.setManualChanges = function (changes)
+{
+	// TODO: implementation needed that suits the actual hybrid implementation in te S-BPM Groupware
+};
+
+/**
+ * Set objects that contain the actual rendered elements.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Array} nodes - Pointer to empty nodes list.
+ * @param {Array} edges - Pointer to empty edges list.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.setRenderObjects = function (nodes, edges)
 {
 	this.renderObjects	= {"nodes": nodes, "edges": edges};
 };
 
-LinearTimeLayout.prototype.sortByX = function (elem1, elem2)
+/**
+ * Preset x and y grid distances. Set aesthetical space.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} spaces - x and y distances (preset grid distances) and aesthetical space (a); attributes: x,y,a
+ * @returns {void}
+ */
+LinearTimeLayout.prototype.setSpaces = function (spaces)
 {
-	if (gf_isset(elem1.x, elem2.x))
+	if (gf_isset(spaces) && typeof spaces === "object")
 	{
-		if (elem1.x < elem2.x)
+		if (spaces.hasOwnProperty("x"))
 		{
-			return -1;
+			this.spaces.x	= spaces.x;
 		}
-		else if (elem1.x > elem2.x)
+		
+		if (spaces.hasOwnProperty("y"))
 		{
-			return 1;
+			this.spaces.y	= spaces.y;
+		}
+		
+		if (spaces.hasOwnProperty("a"))
+		{
+			this.spaces.a	= spaces.a;
 		}
 	}
-	
-	return 0;
 };
 
-LinearTimeLayout.prototype.sortByY = function (elem1, elem2)
+/**
+ * Returns source node of edge.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {mixed} edgeID - ID of edge or edge object.
+ * @returns {String} ID of source node.
+ */
+LinearTimeLayout.prototype.source = function (edgeID)
 {
-	if (gf_isset(elem1.y, elem2.y))
+	// temporary edges from incidence lists
+	if (typeof edgeID == "object" && edgeID.hasOwnProperty("temporary"))
 	{
-		if (elem1.y < elem2.y)
-		{
-			return -1;
-		}
-		else if (elem1.y > elem2.y)
-		{
-			return 1;
-		}
+		return edgeID.src;
 	}
 	
-	return 0;
-};
-
-LinearTimeLayout.prototype.source = function (edgeID, asNode)
-{
-	if (gf_isset(asNode) && asNode == true)
+	// original graph edges
+	if (typeof edgeID == "object")
 	{
-		if (gf_isset(this.edges[edgeID]))
-			return this.nodes[this.edges[edgeID].source];
-			
-		return null;		
+		edgeID	= edgeID.id;
 	}
 	
 	if (gf_isset(this.edges[edgeID]))
+	{
 		return this.edges[edgeID].source;
+	}
 		
 	return 0;
 };
 
-LinearTimeLayout.prototype.target = function (edgeID, asNode)
+/**
+ * Returns target node of edge.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {mixed} edgeID - ID of edge or edge object.
+ * @returns {String} ID of target node.
+ */
+LinearTimeLayout.prototype.target = function (edgeID)
 {
-	if (gf_isset(asNode) && asNode == true)
+	// temporary edges from incidence lists
+	if (typeof edgeID == "object" && edgeID.hasOwnProperty("temporary"))
 	{
-		if (gf_isset(this.edges[edgeID]))
-			return this.nodes[this.edges[edgeID].target];
-			
-		return null;		
+		return edgeID.tgt;
+	}
+	
+	// original graph edges
+	if (typeof edgeID == "object")
+	{
+		edgeID	= edgeID.id;
 	}
 	
 	if (gf_isset(this.edges[edgeID]))
+	{
 		return this.edges[edgeID].target;
+	}
 		
 	return 0;
 };
 
-// added param type
-LinearTimeLayout.prototype.topologySort = function (fragment, nodeID, type)
+/**
+ * Returns the top element of the given array without removing it from the array.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Array} arr - An array.
+ * @returns {mixed} Top element of array.
+ */
+LinearTimeLayout.prototype.top = function (arr)
+{
+	var elem	= arr.pop();
+	arr.push(elem);
+	return elem;
+};
+
+/**
+ * Computes a topological order of the given fragment.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - Fragment for which the topological node order should be computed.
+ * @param {Object} nodeID - ID of start node.
+ * @param {Array} type - Contains edge types.
+ * @return {Array} Topological order.
+ */
+LinearTimeLayout.prototype.topologySort = function (f, nodeID, type)
 {
 	// 1) Setup
 	var inedges	= {};
-	var fragmentNodes	= this.getNodes(fragment);
+	var fragmentNodes	= this.getNodes(f);
 	
-	console.log("topo1");
-	console.log(fragmentNodes);
-	
-	var visited	= {};
 	for (var nID in fragmentNodes)
 	{
 		var newNode	= fragmentNodes[nID];
 		
 		if (newNode instanceof this.RPSTNode)
-			newNode	= newNode.getExit();
-		
-		if (gf_isset(visited[newNode]))
-			continue;
+		{
+			newNode	= newNode.id;
+		}
 			
-		visited[newNode]	= true;
-			
-		if (!gf_isset(inedges[newNode]))
-			inedges[newNode]	= 0;
-
-		var outEdges	= this.getInEdges(newNode);
-		
-		console.log("topo2");
-		console.log(outEdges);
-		
+		var outEdges	= this.getOutEdges(newNode);
 		for (var edgeID in outEdges)
 		{
-			edgeID	= outEdges[edgeID].edge;
+			
+			var edge	= outEdges[edgeID];
+				edgeID	= edge.orgId;
+				
+			var tgt	= this.target(edge);
+			
+			if (!gf_isset(inedges[tgt]))
+				inedges[tgt]	= 0;
+				
 			if (type[edgeID] != this.edgeTypes.back)
 			{	
-				inedges[newNode]++;
+				inedges[tgt]++;
 			}
 		}
 	}
 	
-					
 	// 2) Topology Sort
 	var topology	= [];
 	var i			= 0;
 	var length		= fragmentNodes.length;
 	topology[topology.length]		= nodeID;
 	
-	// TODO: check for termination
 	while (i < length)
 	{		
 		var newNode	= topology[i];
 		i++;
-		
-		if (!gf_isset(newNode))
-			continue;
-		
 		var outEdges	= this.getOutEdges(newNode);
 		for (var edgeID in outEdges)
 		{
-			edgeID	= outEdges[edgeID].edge;
+			var edge	= outEdges[edgeID];
+			edgeID		= edge.orgId;
 			if (type[edgeID] != this.edgeTypes.back)
 			{
-				var target		= this.target(edgeID);
-				
-				if(!gf_isset(inedges[target]))
-					inedges[target]	= 0;
-				
+				var target		= this.target(edge);
 				inedges[target]--;
 				if (inedges[target] == 0)
 				{
@@ -2044,8 +3106,91 @@ LinearTimeLayout.prototype.topologySort = function (fragment, nodeID, type)
 		}
 	}
 	
-	console.log("topo");
-	console.log(topology);
-	
 	return topology;
+};
+
+/**
+ * Recursively pdate incidence lists to link fragments instead of single nodes based on computed RPST.
+ * 
+ * @memberof! LinearTimeLayout
+ * @param {Object} f - Current fragment
+ * @returns {void}
+ */
+LinearTimeLayout.prototype.updateIncidenceLists = function (f)
+{
+	this.createBoundaryNodesMap(f);
+	
+	// Reset incidenceIn and incidenceOut
+	this.incidenceIn	= {};
+	this.incidenceOut	= {};
+	
+	// Update incidence lists
+	for (var e in this.edges)
+	{
+		var edge	= this.edges[e];
+		var edgeId	= edge.id;
+		var src		= this.source(edge);
+		var tgt		= this.target(edge);
+			edge	= {"src": src, "tgt": tgt, "temporary": true, "orgId": edgeId};
+		
+		if (!gf_isset(this.incidenceIn[tgt]))
+			this.incidenceIn[tgt]	= new Array();
+			
+		if (!gf_isset(this.incidenceOut[src]))
+			this.incidenceOut[src]	= new Array();		
+		
+		if (gf_isset(this.entryMap[tgt]) && gf_isset(this.exitMap[src]))
+		{
+			// Edge ends at entry node of fragment and starts at exit of fragment
+			var src2	= this.exitMap[src];	// Get corresponding fragment
+			var tgt2	= this.entryMap[tgt];	// Get corresponding fragment
+			var edge2	= {"src": src2, "tgt": tgt2, "temporary": true, "orgId": edgeId};
+				
+			if (!gf_isset(this.incidenceIn[tgt2]))
+				this.incidenceIn[tgt2]	= new Array();
+				
+			if (!gf_isset(this.incidenceOut[src2]))
+				this.incidenceOut[src2]	= new Array();
+			
+			this.incidenceIn[tgt].push(edge2);
+			this.incidenceIn[tgt2].push(edge2);
+			this.incidenceOut[src].push(edge2);
+			this.incidenceOut[src2].push(edge2);
+		}
+		
+		if (gf_isset(this.entryMap[tgt]))
+		{
+			// Edge ends at entry node of fragment
+			var tgt2	= this.entryMap[tgt];	// Get corresponding fragment
+			var edge2	= {"src": src, "tgt": tgt2, "temporary": true, "orgId": edgeId};
+				
+			if (!gf_isset(this.incidenceIn[tgt2]))
+				this.incidenceIn[tgt2]	= new Array();
+			
+			this.incidenceIn[tgt].push(edge);
+			this.incidenceIn[tgt2].push(edge2);
+			this.incidenceOut[src].push(edge2);
+		}
+		
+		else if (gf_isset(this.exitMap[src]))
+		{
+			// Edge starts at exit node of fragment
+			var src2	= this.exitMap[src];	// Get corresponding fragment
+			var edge2	= {"src": src2, "tgt": tgt, "temporary": true, "orgId": edgeId};
+				
+			if (!gf_isset(this.incidenceOut[src2]))
+				this.incidenceOut[src2]	= new Array();
+			
+			this.incidenceIn[tgt].push(edge2);
+			this.incidenceOut[src].push(edge);
+			this.incidenceOut[src2].push(edge2);
+		}
+		
+		else
+		{
+			// All other edges				
+			this.incidenceIn[tgt].push(edge);
+			this.incidenceOut[src].push(edge);
+		}
+	}
 };

@@ -28,8 +28,8 @@ gf_includeJS("thirdparty/pubsub.js");
 // include classes
 gf_includeJS("graph/classes/behavior.class.js");
 gf_includeJS("graph/classes/communication.class.js");
-gf_includeJS("graph/classes/edge.class.js");
 gf_includeJS("graph/classes/dragdropmanager.class.js");
+gf_includeJS("graph/classes/edge.class.js");
 gf_includeJS("graph/classes/graphbv.class.js");
 gf_includeJS("graph/classes/graphcv.class.js");
 gf_includeJS("graph/classes/label.class.js");

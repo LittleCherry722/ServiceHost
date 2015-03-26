@@ -127,8 +127,19 @@ object Entities {
     (Process(None, None, false, """test8080""", false) -> loadJson("test8080")),
     (Process(None, None, false, """RatioDrink""", false) -> loadJson("ratiodrink")),
 
+//  external subject processes
+    (Process(None, None, false, """ExternalSubject Simple - Sender""", false) -> loadJson("externalsubject_simple_sender")),           // 37
+    (Process(None, None, false, """ExternalSubject Simple - Receiver""", false) -> loadJson("externalsubject_simple_receiver")),       // 38
+    (Process(None, None, false, """ExternalSubject Dreieck - Kunde""", false) -> loadJson("externalsubject_dreieck_kunde")),           // 39
+    (Process(None, None, false, """ExternalSubject Dreieck - Hersteller""", false) -> loadJson("externalsubject_dreieck_hersteller")), // 40
+    (Process(None, None, false, """ExternalSubject Dreieck - Lieferant""", false) -> loadJson("externalsubject_dreieck_lieferant")),   // 41
+
 // subject termination
-    (Process(None, None, false, """Subject Termination simple""", false) -> loadJson("subject_termination_simple"))
+    (Process(None, None, false, """Subject Termination simple""", false) -> loadJson("subject_termination_simple")),
+    (Process(None, None, false, """Subject Termination External Subject - Client""", false) -> loadJson("subject_termination_external_subject_client")),
+    (Process(None, None, false, """Subject Termination External Subject - Server""", false) -> loadJson("subject_termination_external_subject_server")),
+    (Process(None, None, false, """Subject Termination Interface Subject - Client""", false) -> loadJson("subject_termination_interface_subject_client")),
+    (Process(None, None, false, """Subject Termination Interface Subject - Server""", false) -> loadJson("subject_termination_interface_subject_server"))
    )
 
 

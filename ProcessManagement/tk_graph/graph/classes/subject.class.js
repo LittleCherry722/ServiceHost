@@ -44,6 +44,13 @@ function GCsubject (id, text, type, inputPool)
 	this.behavior	= new GCbehavior(id);
 
 	/**
+	 * For blackbox subjects: the referenced blackboxname.
+	 *
+	 * @type String
+	 */
+	this.blackboxname		= null;
+
+	/**
 	 * Comment for this subject.
 	 *
 	 * @type String
@@ -74,6 +81,13 @@ function GCsubject (id, text, type, inputPool)
 	this.id			= id;
 
 	/**
+	 * TODO
+	 *
+	 * @type String
+	 */
+	this.implementations = [];
+
+	/**
 	 * The size of the subject's input pool
 	 *
 	 * @type int
@@ -81,11 +95,25 @@ function GCsubject (id, text, type, inputPool)
 	this.inputPool	= -1;
 
 	/**
+	 * For external subjects: is this subjuect an implementation or offer?
+	 *
+	 * @type String
+	 */
+	this.isImplementation	= false;
+
+	/**
+	 * The user-defined manual offset for the subject position
+	 *
+	 * @type {?{dx: int, dy: int}}
+	 */
+	this.manualPositionOffset = null;
+
+	/**
 	 * The subjectIds of merged subjects
 	 *
 	 * @type Object
 	 */
-  this.mergedSubjects = [{id: id, name: text}];
+	this.mergedSubjects = [{id: id, name: text}];
 
 	/**
 	 * TODO
@@ -93,13 +121,6 @@ function GCsubject (id, text, type, inputPool)
 	 * @type String
 	 */
 	this.relatedInterface	= null;
-
-	/**
-	 * For blackbox subjects: the referenced blackboxname.
-	 *
-	 * @type String
-	 */
-	this.blackboxname		= null;
 
 	/**
 	 * For external subjects: the referenced process.
@@ -114,13 +135,6 @@ function GCsubject (id, text, type, inputPool)
 	 * @type String
 	 */
 	this.relatedSubject		= null;
-
-	/**
-	 * For external subjects: is this subjuect an implementation or offer?
-	 *
-	 * @type String
-	 */
-	this.isImplementation	= false;
 
 	/**
 	 * The ID of the role that is assigned to this subject.
@@ -151,20 +165,6 @@ function GCsubject (id, text, type, inputPool)
 	 */
 	this.type		= type;
 
-  /**
-   * The user-defined manual offset for the subject position
-   *
-   * @type {?{dx: int, dy: int}}
-   */
-  this.manualPositionOffset = null;
-
-	/**
-	 * TODO
-	 *
-	 * @type String
-	 */
-	this.implementations = [];
-
 	/**
 	 * Activates a subject.
 	 *
@@ -193,6 +193,16 @@ function GCsubject (id, text, type, inputPool)
 	this.getBehavior = function ()
 	{
 		return this.behavior;
+	};
+
+	/**
+	 * Returns the name of the blackbox (only for blackbox subjects).
+	 *
+	 * @returns {String} The name of the blackbox.
+	 */
+	this.getBlackboxname = function ()
+	{
+		return this.blackboxname;
 	};
 
 	/**
@@ -226,6 +236,16 @@ function GCsubject (id, text, type, inputPool)
 	};
 
 	/**
+	 * Returns the corresponding implementations.
+	 *
+	 * @returns {String} The corresponding implementations.
+	 */
+	this.getImplementations = function ()
+	{
+		return this.implementations;
+	};
+
+	/**
 	 * Returns the size of the subject's input-pool.
 	 *
 	 * @returns {int} The size of the subject's input-pool.
@@ -236,15 +256,24 @@ function GCsubject (id, text, type, inputPool)
 	};
 
 	/**
-	 * TODO
-	 * Returns the related interface.
+	 * Returns wether the external subject in an implementation or an offer (only for external subjects).
 	 *
-	 * @returns {String} The related Interface
+	 * @returns {boolean} Wether this subject is an interface implementation or offer
 	 */
-	this.getRelatedInterface = function ()
+	this.getIsImplementation = function ()
 	{
-		return this.relatedInterface;
+		return this.isImplementation;
 	};
+
+    /**
+     * The user-defined manual offset for the subject position
+     *
+     * @returns {{dx: int, dy: int}}
+     */
+    this.getManualPositionOffset = function ()
+    {
+        return this.manualPositionOffset || {dx: 0, dy: 0};
+    };
 
 	/**
 	 * Returns the related interface.
@@ -257,13 +286,14 @@ function GCsubject (id, text, type, inputPool)
 	};
 
 	/**
-	 * Returns the name of the blackbox (only for blackbox subjects).
+	 * TODO
+	 * Returns the related interface.
 	 *
-	 * @returns {String} The name of the blackbox.
+	 * @returns {String} The related Interface
 	 */
-	this.getBlackboxname = function ()
+	this.getRelatedInterface = function ()
 	{
-		return this.blackboxname;
+		return this.relatedInterface;
 	};
 
 	/**
@@ -284,16 +314,6 @@ function GCsubject (id, text, type, inputPool)
 	this.getRelatedSubject = function ()
 	{
 		return this.relatedSubject;
-	};
-
-	/**
-	 * Returns wether the external subject in an implementation or an offer (only for external subjects).
-	 *
-	 * @returns {boolean} Wether this subject is an interface implementation or offer
-	 */
-	this.getIsImplementation = function ()
-	{
-		return this.isImplementation;
 	};
 
 	/**
@@ -329,34 +349,6 @@ function GCsubject (id, text, type, inputPool)
 		return this.type.toLowerCase();
 	};
 
-    /**
-     * The user-defined manual offset for the subject position
-     *
-     * @returns {{dx: int, dy: int}}
-     */
-    this.getManualPositionOffset = function ()
-    {
-        return this.manualPositionOffset || {dx: 0, dy: 0};
-    };
-
-    /**
-     * @returns {boolean} true if the the subject has a user-defined offset
-     */
-    this.hasManualPositionOffset = function ()
-    {
-        return this.manualPositionOffset !== null && 'dx' in this.manualPositionOffset && 'dy' in this.manualPositionOffset;
-    };
-
-	/**
-	 * Returns the corresponding implementations.
-	 *
-	 * @returns {String} The corresponding implementations.
-	 */
-	this.getImplementations = function ()
-	{
-		return this.implementations;
-	};
-
 	/**
 	 * Returns true when the subject has an internal behavior.
 	 * All non-external subjects have an internal behavior.
@@ -368,6 +360,14 @@ function GCsubject (id, text, type, inputPool)
 	{
 		return !this.isExternal() || this.getExternalType() == "interface" || this.getExternalType() == "blackbox";
 	};
+
+    /**
+     * @returns {boolean} true if the the subject has a user-defined offset
+     */
+    this.hasManualPositionOffset = function ()
+    {
+        return this.manualPositionOffset !== null && 'dx' in this.manualPositionOffset && 'dy' in this.manualPositionOffset;
+    };
 
 	/**
 	 * Returns the deactivate status of this subject.
@@ -407,6 +407,20 @@ function GCsubject (id, text, type, inputPool)
 	this.isStartSubject = function ()
 	{
 		return this.startSubject === true;
+	};
+
+	/**
+	 * Sets the blackbox name.
+	 *
+	 * @param {String} blackboxname The name of the blackbox.
+	 * @returns {void}
+	 */
+	this.setBlackboxname = function (blackboxname)
+	{
+		if (gf_isset(blackboxname))
+		{
+			this.blackboxname	= blackboxname;
+		}
 	};
 
 	/**
@@ -453,6 +467,20 @@ function GCsubject (id, text, type, inputPool)
 	};
 
 	/**
+	 * Sets the corresponding implementations.
+	 *
+	 * @param {[Integer]} implementations The corresponding implementations.
+	 * @returns {void}
+	 */
+	this.setImplementations = function (implementations)
+	{
+		if (gf_isset(implementations))
+		{
+			this.implementations	= implementations;
+		}
+	};
+
+	/**
 	 * Updates the size of the subject's input-pool.
 	 *
 	 * @param {int} inputPool The size of the subject's input-pool.
@@ -469,17 +497,14 @@ function GCsubject (id, text, type, inputPool)
 	};
 
 	/**
-	 * Sets the blackbox name.
+	 * Updates the ID of the corresponding subject in the related process (only for external subjects).
 	 *
-	 * @param {String} blackboxname The name of the blackbox.
+	 * @param {String} relatedSubject The ID of the corresponding subject in the related process.
 	 * @returns {void}
 	 */
-	this.setBlackboxname = function (blackboxname)
+	this.setIsImplementation = function (isImplementation)
 	{
-		if (gf_isset(blackboxname))
-		{
-			this.blackboxname	= blackboxname;
-		}
+		this.isImplementation = !!isImplementation;
 	};
 
 	/**
@@ -539,17 +564,6 @@ function GCsubject (id, text, type, inputPool)
 	};
 
 	/**
-	 * Updates the ID of the corresponding subject in the related process (only for external subjects).
-	 *
-	 * @param {String} relatedSubject The ID of the corresponding subject in the related process.
-	 * @returns {void}
-	 */
-	this.setIsImplementation = function (isImplementation)
-	{
-		this.isImplementation = !!isImplementation;
-	};
-
-	/**
 	 * Updates the role that is assigned to the subject.
 	 *
 	 * @param {String} role The ID of the role assigned to this subject.
@@ -586,9 +600,11 @@ function GCsubject (id, text, type, inputPool)
 		{
 			this.text = text;
 			var mergedSubject = this.mergedSubjects.filter(function(sub) {
-				return sub.id === this.id;
-			}, this);
-			if (mergedSubject && mergedSubject[0]){
+						return sub.id === this.id;
+					}, this);
+			
+			if (mergedSubject && mergedSubject[0])
+			{
 				mergedSubject[0].name = text;
 			}
 		}
@@ -609,20 +625,6 @@ function GCsubject (id, text, type, inputPool)
 			{
 				this.type = type;
 			}
-		}
-	};
-
-	/**
-	 * Sets the corresponding implementations.
-	 *
-	 * @param {[Integer]} implementations The corresponding implementations.
-	 * @returns {void}
-	 */
-	this.setImplementations = function (implementations)
-	{
-		if (gf_isset(implementations))
-		{
-			this.implementations	= implementations;
 		}
 	};
 

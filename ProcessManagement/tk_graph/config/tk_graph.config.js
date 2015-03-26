@@ -283,7 +283,7 @@ var gv_zoomSettings	= {
 
 	// default zoomFactor (mousewheel)
 	wheel: 1.25
-}
+};
 
 /*
  * status dependent styles

@@ -19,29 +19,112 @@
 /*
  * SplitCompDFS
  */
+
+/**
+ * DFS computing split components.
+ * 
+ * @class SplitCompDFS
+ * @see org.jbpt.algo.tree.tctree.SplitCompDFS
+ * @param {Object} graph - The graph to run the DFS on.
+ * @param {Object} meta - Meta data containing DFS numbers, etc.
+ * @param {Array} adjMap - Adjacency list.
+ * @param {Array} components - Components of TCTree.
+ * @param {Array} treeArc - Tree arcs for all nodes.
+ */
 LinearTimeLayout.prototype.SplitCompDFS = function (graph, meta, adjMap, components, treeArc)
 {
+	/**
+	 * Adjacency map.
+	 * @memberof! SplitCompDFS
+	 * @type {Object}
+	 */
 	this.adj					= adjMap;
+	
+	/**
+	 * Number of completed paths.
+	 * @memberof! SplitCompDFS
+	 * @type {int}
+	 */
 	this.complNum				= 0;
+	
+	/**
+	 * Components of TCTree
+	 * @memberof! SplitCompDFS
+	 * @type {Array}
+	 */
 	this.components				= components;
+	
+	/**
+	 * DFS number.
+	 * @memberof! SplitCompDFS
+	 * @type {int}
+	 */
 	this.dfsNum					= 0;
+	
+	/**
+	 * ID of root for DFS.
+	 * @memberof! SplitCompDFS
+	 * @type {String}
+	 */
 	this.dfsRoot				= null;
+	
+	/**
+	 * Edge stack.
+	 * @memberof! SplitCompDFS
+	 * @type {Array}
+	 */
 	this.eStack					= new Array();
+	
+	/**
+	 * The graph to run the DFS on.
+	 * @memberof! SplitCompDFS
+	 * @type {Object}
+	 */
 	this.graph					= graph;
+	
+	/**
+	 * Meta data.
+	 * @memberof! SplitCompDFS
+	 * @type{Object}
+	 */
 	this.meta					= meta;
+	
+	/**
+	 * Map of not yet visited tree edges.
+	 * @memberof! SplitCompDFS
+	 * @type {Array}
+	 */
 	this.numNotVisitedTreeEdges	= null;
+	
+	/**
+	 * List of tree arcs.
+	 * @memberof! SplitCompDFS
+	 * @type {Array}
+	 */
 	this.treeArc				= treeArc;
+	
+	/**
+	 * Stack of edge triples (triconnected components).
+	 * @memberof! SplitCompDFS
+	 * @type {Array}
+	 */
 	this.tStack					= new Array();
 	
+	// initialize the DFS
 	this.init();
 };
 
 /*
- * SplitCompDFS Attributes
+ * SplitCompDFS Methods
  */
 
-/*
- * SplitCompDFS Methods
+/**
+ * Add edges to component.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {Array} el - List of edges to add to the component.
+ * @param {Array} component - Component to which the edges are added.
+ * @returns {Object} Last edge.
  */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.addToComponent = function (el, component)
 {
@@ -63,6 +146,14 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.addToComponent = function (el,
 	return edge;
 };
 
+/**
+ * Map edges of components to the virtual edge that replaces the whole component.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {Array} component - Component to map the edges for.
+ * @param {Object} virtualEdge - Virtual edge that replaces the component
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.assignVirtualEdge = function (component, virtualEdge)
 {
 	for (var c in component)
@@ -76,7 +167,16 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.assignVirtualEdge = function (
 	}
 };
 
-
+/**
+ * Check for type-1 separation pairs.
+ * Corresponding component is split off.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {Object} eBacktrack - unused
+ * @param {String} v - ID of node v.
+ * @param {String} w - ID of node w.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.checkType1 = function (eBacktrack, v, w)
 {
 	if (this.getL2Num(w) >= this.getNum(v) && this.getL1Num(w) < this.getNum(v) && (this.meta.dfsParent[v] != this.dfsRoot || this.numNotVisitedTreeEdges[v] > 0))
@@ -149,12 +249,22 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.checkType1 = function (eBacktr
 	}
 };
 
+/**
+ * Check for type-2 separation pairs.
+ * Corresponding component(s) is / are split off.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {Object} eBacktrack - unused
+ * @param {String} v - ID of node v.
+ * @param {String} w - ID of node w.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.checkType2 = function (eBacktrack, v, w)
 {
 	var topTriple	= null;
 	if (!this.isEmpty(this.tStack))
 	{
-		topTriple	= this.top(this.tStack);
+		topTriple	= this.peek(this.tStack);
 	}
 	
 	var adjOfW			= this.meta.dfsOrderedAdjLists[w];
@@ -162,7 +272,6 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.checkType2 = function (eBacktr
 	if (!this.isEmpty(adjOfW))
 	{
 		firstChildOfW	= this.e(this.peek(adjOfW)).getOtherVertex(w);
-		// firstChildOfW	= this.e(adjOfW[0]).getOtherVertex(w);
 	}
 	var edgeCountOfW	= this.meta.dfsEdgeCount[w];
 	
@@ -176,11 +285,11 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.checkType2 = function (eBacktr
 		var eAB		= new Array();
 		if (topTriple.a == v && this.meta.dfsParent[topTriple.b] == topTriple.a)
 		{
-			this.tStack.pop();
+			this.tStack.shift();
 			
 			if (!this.isEmpty(this.tStack))
 			{
-				topTriple	= this.top(this.tStack);
+				topTriple	= this.peek(this.tStack);
 			}
 			else
 			{
@@ -194,6 +303,7 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.checkType2 = function (eBacktr
 			
 			if (edgeCountOfW == 2 && firstChildOfW != null && this.getNum(firstChildOfW) > this.getNum(w))
 			{
+				
 				var e	= this.eStack.shift();
 				var el	= new Array();
 					el.push(e);
@@ -216,7 +326,7 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.checkType2 = function (eBacktr
 			}
 			else
 			{
-				topTriple	= this.tStack.pop();
+				topTriple	= this.tStack.shift();
 				var e		= null;
 				
 				if (!this.isEmpty(this.eStack))
@@ -254,7 +364,7 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.checkType2 = function (eBacktr
 			if (!this.isEmpty(eAB))
 			{
 				eAB.push(virtEdge);
-				c		= this.newComponent(eAB);
+					c	= this.newComponent(eAB);
 				var b	= null;
 				
 				if (topTriple.b == "invalidNode" || (firstChildOfW != null && this.isSameEdge(this.peek(eAB), v, firstChildOfW)))
@@ -278,7 +388,7 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.checkType2 = function (eBacktr
 			
 			if (!this.isEmpty(this.tStack))
 			{
-				topTriple	= this.top(this.tStack);
+				topTriple	= this.peek(this.tStack);
 			}
 			else
 			{
@@ -296,6 +406,13 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.checkType2 = function (eBacktr
 	}
 };
 
+/**
+ * Create empty edge map to store visited state of edges, path numbers, etc.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {Object} graph - The graph for which to create the map.
+ * @returns {Array} Array of edge IDs, each entry set to null.
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.createEdgeMap = function (graph)
 {
 	var map	= {};
@@ -308,6 +425,13 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.createEdgeMap = function (grap
 	return map;
 };
 
+/**
+ * Create empty node map to store visited state of nodes, dfs numbers, etc.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {Object} graph - The graph for which to create the map.
+ * @returns {Array} Array of node IDs, each entry set to null.
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.createNodeMap = function (graph)
 {
 	var map	= {};
@@ -318,6 +442,15 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.createNodeMap = function (grap
 	return map;
 };
 
+/**
+ * Create new entry on tStack.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {int} h - Highest number of corresponding split component.
+ * @param {Object} a - First node of potential type-2 split pair.
+ * @param {Object} b - Second node of potential type-2 split pair.
+ * @returns {Object} tStack Entry
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.createTStackEntry = function (h, a, b)
 {
 	var numA	= this.getNum(a);
@@ -326,13 +459,21 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.createTStackEntry = function (
 	return {"a": a, "b": b, "numH": h, "numA": numA, "numB": numB};
 };
 
+/**
+ * The actual DFS.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {String} node - ID of current node.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.dfs = function (node)
 {
 	this.dfsNum++;
 	this.meta.dfsNum[node]			= this.dfsNum;
 	this.meta.dfsNodeState[node]	= "gray";
 	
-	var adjV	= this.meta.dfsAdjLists[node];
+	// var adjV	= this.meta.dfsAdjLists[node];
+	var adjV	= this.adj[node];
 	this.preVisit(node, this.meta.dfsNum[node]);
 	
 	for (var e in adjV)
@@ -371,6 +512,13 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.dfs = function (node)
 	this.postVisit(node, this.meta.dfsNum[node], this.meta.dfsComplNum[node]);
 };
 
+/**
+ * Auxiliary function to resolve edgeID to (deleted) edge of graph.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {String} edge - ID of edge to resolve.
+ * @returns {Object} The actual edge.
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.e = function (edge)
 {
 	var e	= edge;
@@ -388,6 +536,13 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.e = function (edge)
 	return e;
 };
 
+/**
+ * Get number of highest split component for certain node.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {String} node - ID of node to get the number for.
+ * @return {int} Number of highest split component.
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.getHNum = function (node)
 {
 	var num	= 0;
@@ -399,26 +554,60 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.getHNum = function (node)
 	return num;
 };
 
+/**
+ * Get number of low-point 1 of a node.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {String} ID of node.
+ * @return {int} Number of low-point 1.
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.getL1Num = function (node)
 {
 	return this.meta.dfsLowpt1Num[node];
 };
 
+/**
+ * Get number of low-point 2 of a node.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {String} ID of node.
+ * @return {int} Number of low-point 2.
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.getL2Num = function (node)
 {
 	return this.meta.dfsLowpt2Num[node];
 };
 
+/**
+ * Get number of a node.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {String} ID of node.
+ * @return {int} DFS number of node.
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.getNum = function (node)
 {
 	return this.meta.dfsNumV[node];
 };
 
+/**
+ * Get number of descendant of a node.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {String} ID of node.
+ * @return {int} DFS number of descendant.
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.getNumDesc = function (node)
 {
 	return this.meta.dfsNumDesc[node];
 };
 
+/**
+ * Initialize the DFS and the meta object.
+ * 
+ * @memberof! SplitCompDFS
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.init = function ()
 {
 	// AbstractDFS
@@ -449,11 +638,25 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.init = function ()
 	}
 };
 
+/**
+ * Checks if edge is BasicEdge.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {Object} edge
+ * @returns {boolean} True if edge is BasicEdge, false otherwise.
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.isBasicEdge = function (edge)
 {
 	return edge instanceof LinearTimeLayout.prototype.BasicEdge;
 };
 
+/**
+ * Check if given array is empty.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {Array} array - Array to check.
+ * @returns {boolean} True if array is empty, false otherwise.
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.isEmpty = function (array)
 {
 	var arrayCount	= 0;
@@ -466,22 +669,45 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.isEmpty = function (array)
 	return arrayCount == 0;
 };
 
+/**
+ * Checks if two edges are the same, i.e. if one edge connects the same two nodes as another edge.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {Object} edge - The edge to check.
+ * @param {String} v - ID of one node of the other edge.
+ * @param {String} w - ID of second node of the other edge.
+ * @returns {boolean} True if both edges connect the same nodes, false otherwise.
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.isSameEdge = function (edge, v, w)
 {
 	var e	= this.e(edge);
 	return (e.v1.id == v && e.v2.id == w || e.v1.id == w && e.v2.id == v);
 };
 
+/**
+ * Turns given edge into tree edge by updating its orientation and storing the edge type.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {String} edge - ID of the edge to update.
+ * @param {String} v - ID of new start node of the edge.
+ * @param {String} w - ID of new end node of the edge.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.makeTreeEdge = function (edge, v, w)
 {
 	this.e(edge).changeOrientation(v, w);
 	this.meta.dfsEdgeType[edge]	= "treeedge";
 };
 
+/**
+ * Create new component from given edge list.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {Array} el - List of edges.
+ * @returns {Array} New component.
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.newComponent = function (el)
-{
-	console.log(el.length);
-	
+{	
 	for (var e in el)
 	{
 		el[e]	= this.e(el[e]);
@@ -492,6 +718,15 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.newComponent = function (el)
 	return el;
 };
 
+/**
+ * Create a new virtual edge replacing a component.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {Array} component - The component to replace.
+ * @param {String} v - ID of start node of virtual edge.
+ * @param {String} w - ID of end node of virtual edge.
+ * @returns {Object} The virtual edge.
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.newVirtualEdge = function (component, v, w)
 {
 	var virtualEdge	= this.graph.createVirtualEdge(v, w);
@@ -511,6 +746,13 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.newVirtualEdge = function (com
 	return virtualEdge;
 };
 
+/**
+ * Get bottom element of given array.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {Array} array - An array.
+ * @returns {mixed} Bottom element of given array.
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.peek = function (array)
 {
 	var temp	= null;
@@ -522,6 +764,14 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.peek = function (array)
 	return temp;
 };
 
+/**
+ * Post traverse step.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {Object} edge - ID of followed edge.
+ * @param {Object} w - Current node of DFS.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.postTraverse = function (edge, w)
 {
 	if (this.isBasicEdge(edge))
@@ -550,36 +800,53 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.postTraverse = function (edge,
 	
 	if (this.meta.dfsStartsNewPath[edge] == true)
 	{
-		while (!this.isEmpty(this.tStack) && this.top(this.tStack) != "eos")
+		while (!this.isEmpty(this.tStack) && this.peek(this.tStack) != "eos")
 		{
-			this.tStack.pop();
+			this.tStack.shift();
 		}
 		
 		if (!this.isEmpty(this.tStack))
 		{
 			// remove "eos"
-			this.tStack.pop();
+			this.tStack.shift();
 		}
 	}
 	
 	if (!this.isEmpty(this.tStack))
 	{
-		var i		= this.top(this.tStack);
+		var i		= this.peek(this.tStack);
 		var highV	= this.getHNum(v);
 		while (i != "eos" && i.a != v && i.b != v && highV > i.numH)
 		{
-			this.tStack.pop();
-			i	= this.top(this.tStack);
+			this.tStack.shift();
+			i	= this.peek(this.tStack);
 		}
 	}
 };
 
+/**
+ * Post visit step. No actual function, just implemented to follow Interface structure of jBPT.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {Object} node
+ * @param {Object} dfsNumber
+ * @param {Object} complNumber
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.postVisit = function (node, dfsNumber, complNumber)
 {
 	
 };
 
-// treeEdge: boolean
+/**
+ * Pre traverse step.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {String} edge - ID of edge to traverse.
+ * @param {String} w - ID of target node.
+ * @param {boolean} treeEdge - Is edge of type "treeedge"?
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.preTraverse = function (edge, w, treeEdge)
 {
 	var v	= this.e(edge).getOtherVertex(w);
@@ -612,11 +879,26 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.preTraverse = function (edge, 
 	}
 };
 
+/**
+ * Pre visit step. No actual function, just implemented to follow Interface structure of jBPT.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {Object} node
+ * @param {Object} dfsNumber
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.preVisit = function (node, dfsNumber)
 {
 	
 };
 
+/**
+ * Remove edges from graph and adjacency lists.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {Array} edges - Edges to remove.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.removeEdges = function (edges)
 {
 	for (var edge in edges)
@@ -637,6 +919,15 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.removeEdges = function (edges)
 	}
 };
 
+/**
+ * Remove all elements from an array except the elements contained in toCheck.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {Array} source - Source array.
+ * @param {Array} toCheck - Elements that have to be kept.
+ * 
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.retainAll = function (source, toCheck)
 {
 	var pos	= 0;
@@ -657,10 +948,17 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.retainAll = function (source, 
 	}
 };
 
+/**
+ * Start DFS by calling dfs() with the root node.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {String} root - ID of the root of the DFS.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.start = function (root)
 {
 	this.dfsRoot	= root;
-	this.tStack.push("eos");	// tStack is stack
+	this.tStack.unshift("eos");	// tStack is stack
 	this.dfs(root);
 	
 	if (!this.isEmpty(this.eStack))
@@ -669,6 +967,13 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.start = function (root)
 	}
 };
 
+/**
+ * Get top element of given array.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {Array} array - An array.
+ * @returns {mixed} Top element of given array.
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.top = function (array)
 {
 	var temp	= null;
@@ -680,11 +985,28 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.top = function (array)
 	return temp;
 };
 
+/**
+ * Increase edge count for a given node by i.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {String} node - ID of node.
+ * @param {int} i - Value to increase the edge count.
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.updateEdgeCount = function (node, i)
 {
 	this.meta.dfsEdgeCount[node] += i;
 };
 
+/**
+ * Update tStack.
+ * 
+ * @memberof! SplitCompDFS
+ * @param {String} v - ID of a node.
+ * @param {String} w - ID of a node.
+ * @param {boolean} isTreeEdge - Is edge of type "treeedge"?
+ * @returns {void}
+ */
 LinearTimeLayout.prototype.SplitCompDFS.prototype.updateTStack = function (v, w, isTreeEdge)
 {
 	var lastRemoved	= null;
@@ -695,11 +1017,9 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.updateTStack = function (v, w,
 	// tree edge
 	if (isTreeEdge == true)
 	{
-		topElement	= this.top(this.tStack);
-		while (!this.isEmpty(this.tStack) && topElement != "eos" && topElement.numA > this.getL1Num(w))
+		while (!this.isEmpty(this.tStack) && this.peek(this.tStack) != "eos" && this.peek(this.tStack).numA > this.getL1Num(w))
 		{
-			lastRemoved	= this.tStack.pop();
-			topElement	= this.top(this.tStack);
+			lastRemoved	= this.tStack.shift();
 			
 			if (lastRemoved.numH > y)
 			{
@@ -718,18 +1038,16 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.updateTStack = function (v, w,
 			itemToPush	= this.createTStackEntry(Math.max(y, h), l1v, lastRemoved.b);
 		}
 		
-		this.tStack.push(itemToPush);
-		this.tStack.push("eos");
+		this.tStack.unshift(itemToPush);
+		this.tStack.unshift("eos");
 	}
 	
 	// back edge
 	else
 	{
-		topElement	= this.top(this.tStack);
-		while (!this.isEmpty(this.tStack) && topElement != "eos" && topElement.numA > this.getNum(w))
+		while (!this.isEmpty(this.tStack) && this.peek(this.tStack) != "eos" && this.peek(this.tStack).numA > this.getNum(w))
 		{
-			lastRemoved	= this.tStack.pop();
-			topElement	= this.top(this.tStack);
+			lastRemoved	= this.tStack.shift();
 			
 			if (lastRemoved.numH > y)
 			{
@@ -746,7 +1064,7 @@ LinearTimeLayout.prototype.SplitCompDFS.prototype.updateTStack = function (v, w,
 			itemToPush	= this.createTStackEntry(y, w, lastRemoved.b);
 		}
 		
-		this.tStack.push(itemToPush);
+		this.tStack.unshift(itemToPush);
 	}
 	
 };
