@@ -12,6 +12,7 @@
  */
 
 package de.tkip.sbpm.application.subject.behavior
+
 import java.util.UUID
 import scala.collection.mutable
 import de.tkip.sbpm.instrumentation.InstrumentedActor
@@ -32,7 +33,7 @@ import de.tkip.sbpm.application.subject.SubjectData
 import de.tkip.sbpm.application.ProcessInstanceActor.RegisterSubjects
 import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.application.history.{
-  Message => HistoryMessage
+Message => HistoryMessage
 }
 import scala.concurrent.Promise
 import akka.util.Timeout
@@ -41,32 +42,35 @@ import akka.pattern.pipe
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
-import de.tkip.sbpm.application.subject.{ CallMacro, CallMacroStates }
+import de.tkip.sbpm.application.subject.{CallMacro, CallMacroStates}
 import scala.collection.mutable.Stack
 import de.tkip.sbpm.application.subject.behavior.state.ArchiveStateActor
 import org.parboiled.support.Var
 
 case object StartMacroExecution
+
 case class ActivateState(id: StateID)
+
 case class DeactivateState(id: StateID)
+
 case class AskForJoinStateID(id: StateID)
 
 // TODO this is for history + statechange
 case class ChangeState(
-  currenState: StateID,
-  nextState: StateID,
-  internalStatus: InternalStatus,
-  prevStateData: StateData,
-  history: HistoryMessage)
+                        currenState: StateID,
+                        nextState: StateID,
+                        internalStatus: InternalStatus,
+                        prevStateData: StateData,
+                        history: HistoryMessage)
 
 /**
  * contains the business logic that will be modeled by the graph
  */
 class InternalBehaviorActor(
-  macroId: String,
-  macroStartState: Option[ActorRef],
-  data: SubjectData,
-  inputPoolActor: ActorRef) extends InstrumentedActor {
+                             macroId: String,
+                             macroStartState: Option[ActorRef],
+                             data: SubjectData,
+                             inputPoolActor: ActorRef) extends InstrumentedActor {
   // extract the data
   implicit val timeout = Timeout(2000)
 
@@ -134,33 +138,33 @@ class InternalBehaviorActor(
         currentStatesMap(change.nextState) ! msg
       }
       // create the History Entry and send it to the subject
-        val msg = current.stateType.toString() match {
-          case "$splitguard" =>
-            NewHistoryTransitionData(
-              NewHistoryState(current.text, current.stateType.toString()),
-              "nein", "nein",
-              NewHistoryState(next.text, next.stateType.toString()),
-              if (change.history != null) Some(NewHistoryMessage(
-                change.history.id,
-                change.history.from,
-                change.history.to,
-                change.history.messageType,
-                change.history.data))
-              else None)
-          case _ => 
-            NewHistoryTransitionData(
-              NewHistoryState(current.text, current.stateType.toString()),
-              current.transitions.filter(_.successorID == next.id)(0).messageType.toString(),
-              current.transitions.filter(_.successorID == next.id)(0).myType.getClass().getSimpleName(),
-              NewHistoryState(next.text, next.stateType.toString()),
-              if (change.history != null) Some(NewHistoryMessage(
-                change.history.id,
-                change.history.from,
-                change.history.to,
-                change.history.messageType,
-                change.history.data))
-              else None)    
-        }
+      val msg = current.stateType.toString() match {
+        case "$splitguard" =>
+          NewHistoryTransitionData(
+            NewHistoryState(current.text, current.stateType.toString()),
+            "nein", "nein",
+            NewHistoryState(next.text, next.stateType.toString()),
+            if (change.history != null) Some(NewHistoryMessage(
+              change.history.id,
+              change.history.from,
+              change.history.to,
+              change.history.messageType,
+              change.history.data))
+            else None)
+        case _ =>
+          NewHistoryTransitionData(
+            NewHistoryState(current.text, current.stateType.toString()),
+            current.transitions.filter(_.successorID == next.id)(0).messageType.toString(),
+            current.transitions.filter(_.successorID == next.id)(0).myType.getClass().getSimpleName(),
+            NewHistoryState(next.text, next.stateType.toString()),
+            if (change.history != null) Some(NewHistoryMessage(
+              change.history.id,
+              change.history.from,
+              change.history.to,
+              change.history.messageType,
+              change.history.data))
+            else None)
+      }
       context.parent ! msg
     }
 
@@ -226,9 +230,13 @@ class InternalBehaviorActor(
           }
         }
         stateBuffer -= current
-        if(!stateBuffer.isEmpty) current = stateBuffer.head
+        if (!stateBuffer.isEmpty) current = stateBuffer.head
       }
       sender ! -1
+    }
+
+    case msg: SubjectToSubjectMessage => {
+      context.parent.forward(msg)
     }
 
     case n => {
@@ -249,6 +257,7 @@ class InternalBehaviorActor(
   }
 
   private val currentStatesMap: mutable.Map[StateID, BehaviorStateRef] = mutable.Map()
+
   private def changeState(from: StateID, to: StateID) = {
     // kill the currentState
     log.debug("kill the current state")

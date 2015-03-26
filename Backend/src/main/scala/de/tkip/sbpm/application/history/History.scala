@@ -18,6 +18,8 @@ import akka.actor.ActorRef
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.Buffer
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.application.ProcessInstanceActor._
+
 
 // represents an entry in the history (a state transition inside a subject)
 //case class Entry(timestamp: Date, // time transition occurred
@@ -61,6 +63,6 @@ case class NewHistoryEntry(
 
 case class NewHistoryProcessData(processName: String, processInstanceId: ProcessInstanceID, processInstanceName: String)
 case class NewHistoryState(text: String, stateType: String)
-case class NewHistoryMessage(messageId: MessageID, fromSubject: SubjectName, toSubject: SubjectName, messageType: MessageType, text: MessageContent)
+case class NewHistoryMessage(messageId: MessageID, fromSubject: SubjectName, toSubject: SubjectName, messageType: MessageType, text: String)
 case class NewHistoryTransitionData(fromState: NewHistoryState, text: String, transitionType: String, toState: NewHistoryState, message: Option[NewHistoryMessage])
 case class GetHistorySince(timeStamp: Long)

@@ -14,6 +14,7 @@
 package de.tkip.sbpm.application.subject.behavior.state
 
 import akka.actor.actorRef2Scala
+import de.tkip.sbpm.application.ProcessInstanceActor.{FileContent, TextContent, MessageContent}
 import de.tkip.sbpm.application.subject.behavior.{Transition, ExitCond, ErrorCond, Variable}
 import de.tkip.sbpm.application.subject.misc.{ActionData, SubjectToSubjectMessage}
 
@@ -46,7 +47,7 @@ case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) 
     for((key,variable) <- variables) {
       for(value <- variable.messages) {
         value match {
-          case SubjectToSubjectMessage(_,_,_,_,_,"Travel Application",msg,_,_) => {ret = msg; log.debug("DecisionStateActor extractVariable: found with key '"+key+"': " + value)}
+          case SubjectToSubjectMessage(_,_,_,_,_,"Travel Application",msg,_,_,_) => {ret = msg.toString; log.debug("DecisionStateActor extractVariable: found with key '"+key+"': " + value)}
           case x => {log.debug("DecisionStateActor extractVariable: it is not '"+key+"' with value: " + x)}
         }
       }
@@ -84,4 +85,5 @@ case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) 
     // execute an action
     case _ @ x=> log.warning("DecisionStateActor -> unexpected stateReceive: " + x)
   }
+
 }

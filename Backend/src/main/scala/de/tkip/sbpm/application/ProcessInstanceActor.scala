@@ -64,17 +64,25 @@ object ProcessInstanceActor {
    */
   type Variable = Set[Message]
 
-  case class Message(channel: Channel, content: MessageContent)
+  case class Message(vName: String, channel: Channel, depth: Int, mType: String, content: MessageContent)
 
   sealed trait MessageContent {
     def channels : Set[Channel] = Set.empty
   }
   case class MessageSet(messages: Set[Message]) extends MessageContent {
     override def channels : Set[Channel] = messages.map(_.channel)
+    override def toString : String = messages.toString()
   }
-  case class TextContent(content: String) extends MessageContent
-  case class FileContent(content: Array[Byte]) extends MessageContent
-  case object EmptyContent extends MessageContent
+  case class TextContent(content: String) extends MessageContent{
+    override def toString : String = content
+  }
+
+  case class FileContent(content: Array[Byte]) extends MessageContent{
+    override def toString : String = "It is a file"
+  }
+  case object EmptyContent extends MessageContent{
+    override def toString : String = ""
+  }
 
   case class Channel(subjectId: SubjectID, agent: Agent)
 
@@ -132,7 +140,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   private val processInstanceManger: ActorRef =
     // TODO not over context
     request.manager.getOrElse(context.actorOf(
-      Props(new ProcessInstanceProxyManagerActor(request.processID, url, self)), "ProcessInstanceProxyManagerActor____" + UUID.randomUUID().toString()))
+      Props(new ProcessInstanceProxyManagerActor(request.processID, url, id, self)), "ProcessInstanceProxyManagerActor____" + UUID.randomUUID().toString()))
 
   // this actor handles the blocking for answer to the user
   private val blockingHandlerActor = context.actorOf(Props[BlockingActor], "BlockingActor____" + UUID.randomUUID().toString)

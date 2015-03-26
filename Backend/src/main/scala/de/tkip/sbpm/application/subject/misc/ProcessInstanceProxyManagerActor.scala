@@ -19,23 +19,30 @@ import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
 import scala.Some
 import de.tkip.sbpm.application.miscellaneous.GetAgentsList
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
-import de.tkip.sbpm.application.ProcessInstanceActor.{ AgentsMap, Agent }
+import de.tkip.sbpm.application.ProcessInstanceActor.{AgentsMap, Agent, AgentAddress}
 import scala.util.{Success, Failure}
+import java.util.UUID
+import scala.collection.mutable.{Map => MutableMap}
 
 case object GetProxyActor
 
 case class GetProcessInstanceProxy(agent: Agent)
 
-class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor: ProcessInstanceRef) extends InstrumentedActor with DefaultLogging {
+case class GetProcessInstanceIdentical(processInstanceId: ProcessInstanceID)
+
+class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, processInstanceId: ProcessInstanceID, actor: ProcessInstanceRef) extends InstrumentedActor with DefaultLogging {
   implicit val timeout = Timeout(30 seconds)
 
   log.debug("register initial process instance proxy for: {}", url)
+  private val processInstanceIDMap = MutableMap[ProcessInstanceID, String]()
 
   private class ProcessInstanceProxy(val instance: ProcessInstanceRef, val proxy: ActorRef)
+
   private var processInstanceMap: Map[(ProcessID, String), Future[ProcessInstanceProxy]] =
     Map((processId, url) -> (for {
       proxy <- (actor ?? GetProxyActor).mapTo[ActorRef]
     } yield new ProcessInstanceProxy(actor, proxy)))
+  private var processInstanceIdentical = ""
 
   def wrappedReceive = {
     // TODO exchange GetSubjectAddr -> GetProcessInstanceAddr
@@ -60,7 +67,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
           }
           case None => {
             log.info("PROCESS INSTANCE PROXY MANAGER: Did not find mapping for {}", (agentProcessId, address))
-            val processInstanceInfo = createProcessInstanceEntry(agentProcessId, address, agentManagerSelection)
+            val processInstanceInfo = createProcessInstanceEntry(agentProcessId, List().::(agent.subjectId), address, agentManagerSelection)
             (processInstanceMap + ((agentProcessId, address) -> processInstanceInfo), processInstanceInfo)
           }
         }
@@ -78,14 +85,16 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
       log.debug("forward SubjectToSubjectMessage to {}", actor)
       actor.forward(message)
     }
-
+    case pid: GetProcessInstanceIdentical => {
+      sender !! processInstanceIDMap(pid.processInstanceId)
+    }
     case s => {
       log.error("got, but cant use {}", s)
     }
   }
 
-  private def createProcessInstanceEntry(targetProcessId: ProcessID, targetAddress: String,
-    targetManagerSelection: ActorSelection): Future[ProcessInstanceProxy] = {
+  private def createProcessInstanceEntry(targetProcessId: ProcessID, targetSubjectIDs: List[SubjectID], targetAddress: String,
+                                         targetManagerSelection: ActorSelection): Future[ProcessInstanceProxy] = {
     // TODO name?
     log.info("Creating new unnamed Process Instance")
     val newProcessInstanceName = "Unnamed"
@@ -101,15 +110,29 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
     log.info("PROCESS INSTANCE PROXY MANAGER: Received Mapping info! {}", mapping)
 
     // create the message which is used to create a process instance
-    val createMessage = CreateProcessInstance(
+    val tempProcessInstanceIdentical = UUID.randomUUID().toString
+    if (processInstanceIDMap.contains(processInstanceId)) {
+      processInstanceIdentical = processInstanceIDMap(processInstanceId)
+    } else {
+      processInstanceIDMap += processInstanceId -> tempProcessInstanceIdentical
+      processInstanceIdentical = tempProcessInstanceIdentical
+    }
+
+    implicit val config = context.system.settings.config
+    val createMessage = CreateServiceInstance(
       userID = ExternalUser,
       processID = targetProcessId,
       name = newProcessInstanceName,
+      target = targetSubjectIDs,
+      //processInstanceidentical = targetProcessId + "_" + UUID.randomUUID().toString(),
+      processInstanceIdentical,
+      agentsMap = mapping,
       manager = Some(self),
-      agentsMap = mapping)
+      managerUrl = SystemProperties.akkaRemoteUrl
+    )
 
     val instanceProxy = for {
-      // createma the processinstance
+    // createma the processinstance
       created <- (targetManagerSelection ?? createMessage).mapTo[ProcessInstanceCreated]
       instanceRef = created.processInstanceActor
       // ask for the proxy actor
@@ -119,6 +142,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
       case Success(proxy) => log.info("PROCESS INSTANCE PROXY MANAGER: Remote Process Instance Successfully created: {}", proxy)
       case Failure(e) => log.error("PROCESS INSTANCE PROXY MANAGER: Error during Remote Process Instance Creation: ", e.getMessage)
     }
+    instanceProxy.map(_._1).map(_.proxy)
     instanceProxy.map(_._1)
   }
 }
