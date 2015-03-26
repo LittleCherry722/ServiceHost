@@ -359,6 +359,13 @@ function LinearTimeLayout (orientation)
 	 * @type {Array}
 	 */
 	this.temporaryIncidenceOut	= {};
+	
+	/**
+	 * List of edges representing trivial fragments which are contained in branchings.
+	 * @memberof! LinearTimeLayout
+	 * @type {Array}
+	 */
+	this.trivialEdge	= {};
 }
 
 /*
@@ -678,7 +685,65 @@ LinearTimeLayout.prototype.drawEdges = function ()
 			var endH			= "center";
 			var endV			= "center";
 			
-			if (ys == yt && gf_isset(this.edgey[edge.id]) && this.edgey[edge.id] != 0)
+			if (this.dirLtr() && gf_isset(this.trivialEdge[edge.id]))
+			{
+				// special case edge of trivial fragment - LTR case
+				var xb1	= xs + Math.ceil(this.spaces.x / 2);
+				var xb2	= xt - Math.ceil(this.spaces.x / 2);
+				var yb	= ys + this.edgey[edge.id];
+				bend1	= {x: xb1, y: yb};
+				bend2	= {x: xb2, y: yb};
+				
+				if (xs < xt)
+				{
+					xs	+= Math.ceil(this.getWidth(src) / 2);	// right of src
+					xt	-= Math.ceil(this.getWidth(tgt) / 2);	// left of tgt
+					startH	= "right";
+					endH	= "left";
+				}
+				else
+				{
+					xs	-= Math.ceil(this.getWidth(src) / 2);	// left of src
+					xt	+= Math.ceil(this.getWidth(tgt) / 2);	// right of tgt	
+					startH	= "left";
+					endH	= "right";
+				}			
+				
+				// Position label in the center of the edge
+				var xl	= xs + Math.ceil((xt - xs) / 2);
+				label	= {x: xl, y: yb};
+			}
+			
+			else if (!this.dirLtr() && gf_isset(this.trivialEdge[edge.id]))
+			{
+				// special case edge of trivial fragment - TTB case
+				var yb1	= ys + Math.ceil(this.spaces.y / 2);
+				var yb2	= yt - Math.ceil(this.spaces.y / 2);
+				var xb	= xs + this.edgex[edge.id];
+				bend1	= {x: xb, y: yb1};
+				bend2	= {x: xb, y: yb2};
+				
+				if (ys < yt)
+				{
+					ys	+= Math.ceil(this.getHeight(src) / 2);	// bottom of src
+					yt	-= Math.ceil(this.getHeight(tgt) / 2);	// top of tgt
+					startV	= "bottom";
+					endV	= "top";
+				}
+				else
+				{
+					ys	-= Math.ceil(this.getHeight(src) / 2);	// top of src
+					yt	+= Math.ceil(this.getHeight(tgt) / 2);	// bottom of tgt
+					startV	= "top";
+					endV	= "bottom";	
+				}				
+				
+				// Position label in the center of the edge
+				var yl	= ys + Math.ceil((yt - ys) / 2);
+				label	= {x: xb, y: yl};
+			}
+			
+			else if (ys == yt && gf_isset(this.edgey[edge.id]) && this.edgey[edge.id] != 0)
 			{
 				// Loop edge - LTR case
 				var yb	= ys + this.edgey[edge.id];
@@ -1822,6 +1887,27 @@ LinearTimeLayout.prototype.layoutBranching = function (f)
 		
 		this.nodex[cf]	= x;
 		this.nodey[cf]	= y;
+		
+		// special case for trivial fragments in branching
+		if (child.hasOwnProperty("type") && child.type == "trivial")
+		{
+			var singleEdge	= null;
+			for (var se in child.fragment.edges)
+			{
+				singleEdge	= se;
+			}
+			
+			if (this.dirLtr())
+			{
+				this.edgey[se]	= y;
+			}
+			else
+			{
+				this.edgex[se]	= x;
+			}
+			
+			this.trivialEdge[se]	= true;
+		}
 		
 		var cEntry	= this.entryNode(cf);
 		var cExit	= this.exitNode(cf);
