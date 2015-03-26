@@ -136,7 +136,7 @@ class SubjectContainer(
     if (message.proper) {
       subjects(message.userID).running = false
     } else {
-      subjects -= message.subjectID
+      subjects -= message.userID
     }
 
   }
