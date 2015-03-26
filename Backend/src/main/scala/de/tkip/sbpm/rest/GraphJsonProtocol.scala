@@ -362,6 +362,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       "date" -> g.date.toJson,
       "definition" -> JsObject(
         "process" -> g.subjects.values.toJson,
+        "uuid" -> g.processUUID.toJson,
         "conversations" -> g.conversations.toJson,
         "conversationCounter" -> counter(g.conversations),
         "messages" -> g.messages.toJson,
