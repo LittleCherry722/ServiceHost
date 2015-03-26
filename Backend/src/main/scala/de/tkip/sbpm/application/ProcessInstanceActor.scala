@@ -217,11 +217,13 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
       log.debug("process instance [" + id + "]: subject terminated " + st.subjectID)
 
       if (isTerminated) {
+        log.debug("process instance [" + id + "] is going to terminate")
         val terminate = ProcessInstanceTerminated(id)
         context.parent ! terminate
+        log.debug("process instance [" + id + "] terminates ")
+        context.stop(self)
       }
-      log.debug("process instance [\" + id + \"] terminates ")
-      context.stop(self)
+
     }
 
     case sm: SubjectToSubjectMessage if (graph.subjects.contains(sm.to) || additionalSubjects.contains(sm.to)) => {

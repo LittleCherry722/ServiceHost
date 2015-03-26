@@ -185,9 +185,9 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
       } else {
         val message = SubjectTerminated(userID, subjectID, false)
         context.parent ! message
-        context.stop(inputPoolActor)
-        context.stop(self)
       }
+      context.stop(inputPoolActor)
+      context.stop(self)
     }
 
     case _: StartSubjectExecution => {

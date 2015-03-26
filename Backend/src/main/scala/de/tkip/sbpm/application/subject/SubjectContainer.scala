@@ -131,11 +131,13 @@ class SubjectContainer(
       message.userID + "] terminated proper [" + message.proper.toString + "]")
 
     // decrease the subject counter
-    decreaseSubjectCounter()
+
 
     if (message.proper) {
-      subjects(message.userID).running = false
+      decreaseSubjectCounter()
+      subjects -= message.userID
     } else {
+      decreaseSubjectCounter()
       subjects -= message.userID
     }
 
@@ -178,6 +180,10 @@ class SubjectContainer(
       }
 
       log.debug("SEND: {}", message)
+      log.debug("Target user: {}", message.target.targetUsers)
+      for (userId <- subjects) {
+        log.debug("userID: {}", userId)
+      }
 
       val newMessage = if (external) {
         // exchange the target subject id
