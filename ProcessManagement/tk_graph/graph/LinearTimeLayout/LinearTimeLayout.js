@@ -48,6 +48,13 @@ function LinearTimeLayout (orientation)
 	this.branchingJoin			= {};
 	
 	/**
+	 * Contains IDs of all nodes that are an entry or an exit to one or more fragments (needed for correct computation within unstructured fragments).
+	 * @memberof! LinearTimeLayout
+	 * @type {Object}
+	 */
+	this.boundaryNodes			= {"entry": {}, "exit": {}};
+	
+	/**
 	 * Array containing diverging gateways.
 	 * @memberof! LinearTimeLayout
 	 * @type {Array}
@@ -1914,6 +1921,13 @@ LinearTimeLayout.prototype.layoutFragment = function (f)
 	{
 		this.layoutUnstructured(f);
 	}
+	
+	// store entry node and exit node of all structured fragments to avoid update during preliminaryLayout computation
+	if (f.hasOwnProperty("type") && (f.type == "bond" || f.type == "polygon"))
+	{
+		this.boundaryNodes.entry[this.entryNode(f)]	= true;
+		this.boundaryNodes.exit[this.exitNode(f)]	= true;
+	}
 };
 
 /**
@@ -2129,8 +2143,9 @@ LinearTimeLayout.prototype.layoutSequence = function (f)
 		 * - no entry for fragment's entry in entryMap -> if entry is in entryMap the entry node must be removed from the calculation as it is also the entry of another fragment
 		 * - current fragment must be parent of fragment stored in entryMap -> simply check for fragment's id
 		 */
-		if (gf_isset(this.entryMap[entry]) && f.id < this.entryMap[entry])
+		if (this.rpst.getRoot().id == f.id && gf_isset(this.entryMap[entry]))
 		{
+			
 			this.branchHeight[entry]	= this.spaces.y;
 			this.branchWidth[entry]		= this.spaces.x;
 			
@@ -2212,7 +2227,7 @@ LinearTimeLayout.prototype.layoutSequence = function (f)
 		 * - no entry for fragment's exit in exitMap -> if exit is in exitMap the exit node must be repositioned and the fragment's size must be reduced
 		 * - current fragment must be parent of fragment stored in exitMap -> simply check for fragment's id
 		 */
-		if (gf_isset(this.exitMap[exit]) && f.id < this.exitMap[exit])
+		if (this.rpst.getRoot().id == f.id && gf_isset(this.exitMap[exit]))
 		{
 			if (this.dirLtr())
 			{
@@ -2517,16 +2532,25 @@ LinearTimeLayout.prototype.preliminaryLayout = function (nodeID, parent, x, y)
 	}
 	// end workaround
 	
-	// position node based on the x and y offset
-	if (this.dirLtr())
+	// avoid updating exit nodes of existing fragments (except if it is also the exit of the unstructured fragment)
+	if (gf_isset(this.boundaryNodes.exit[nodeID]) && !gf_isset(this.exitMap[nodeID]))
 	{
-		this.nodex[nodeID]	= x;
-		this.nodey[nodeID]	= y + Math.floor((this.branchHeight[nodeID] - this.spaces.y) / 2);
+	
 	}
+		
+	// position node based on the x and y offset
 	else
 	{
-		this.nodex[nodeID]	= x + Math.floor((this.branchWidth[nodeID] - this.spaces.x) / 2);
-		this.nodey[nodeID]	= y;
+		if (this.dirLtr())
+		{
+			this.nodex[nodeID]	= x;
+			this.nodey[nodeID]	= y + Math.floor((this.branchHeight[nodeID] - this.spaces.y) / 2);
+		}
+		else
+		{
+			this.nodex[nodeID]	= x + Math.floor((this.branchWidth[nodeID] - this.spaces.x) / 2);
+			this.nodey[nodeID]	= y;
+		}
 	}
 	
 	// compute max space to next node from dimensions of all adjacent nodes / fragments
