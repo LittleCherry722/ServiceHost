@@ -390,7 +390,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
         case Seq(definition: JsObject,
           routings: JsArray) => Graph(None,
           None,
-          definition.fields("uuid").convertTo[Option[String]],
+          Some(UUID.randomUUID.toString),
           new java.sql.Timestamp(System.currentTimeMillis()),
           definition.fields("conversations").convertTo[Map[String, GraphConversation]],
           definition.fields("messages").convertTo[Map[String, GraphMessage]],
