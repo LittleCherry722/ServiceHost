@@ -1,10 +1,15 @@
 package de.tkip.servicehost.serviceactor.stubgen
 
+import de.tkip.sbpm.application.miscellaneous.{CreateServiceInstance, CreateProcessInstance}
+import de.tkip.sbpm.{ActorLocator => BackendActorLocator}
+import de.tkip.sbpm.repository.RepositoryPersistenceActor._
+import scala.concurrent.duration._
 import scala.collection.immutable.List
+import de.tkip.servicehost.ActorLocator
 
-import akka.actor.PoisonPill
+import akka.actor.{Props, ActorRef, PoisonPill}
 import akka.event.LoggingAdapter
-
+import scala.collection.mutable.{Queue, Map}
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.behavior.Transition
 import de.tkip.sbpm.application.subject.behavior.state.StateData
@@ -12,6 +17,9 @@ import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.instrumentation.ClassTraceLogger
 import de.tkip.servicehost.ServiceAttributes._
 import de.tkip.servicehost.serviceactor.ServiceActor
+import de.tkip.servicehost._
+import scala.concurrent.Await
+import de.tkip.sbpm.application.ProcessInstanceActor.MessageContent
 
 class Target(subjectID: SubjectID, min: Int, max: Int, createNew: Boolean, variable: Option[String]) {
   //  def apply(id: Int, min:Int, max:Int, createNew : Boolean, variable: Option[String]){
@@ -27,7 +35,7 @@ object Target {
   }
 }
 
-abstract class State(val stateType: String, val id: Int, val exitType: String, val targets: Map[BranchID, Target], val targetIds: Map[BranchID, Int], val text: String) extends ClassTraceLogger {
+abstract class State(val stateType: String, val id: Int, val exitType: String, val targets: Map[BranchID, Target], val targetIds: Map[BranchID, Int], val text: String, val variableId: String) extends ClassTraceLogger {
 
   //  var id = -1 //, correlationId: Double
   //  var targetId = -1
@@ -43,11 +51,11 @@ abstract class State(val stateType: String, val id: Int, val exitType: String, v
   //    this.stateType = _state
   //  }
 
-  def process()(implicit actor: ServiceActor)  //buuuuug
+  def process()(implicit actor: ServiceActor)
 
 }
 
-case class ReceiveState(override val id: Int,override val exitType: String,override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String)extends State("receive", id, exitType, targets, targetIds, text) {
+case class ReceiveState(override val id: Int,override val exitType: String,override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String, override val variableId: String)extends State("receive", id, exitType, targets, targetIds, text, variableId) {
   
   
   def process()(implicit actor: ServiceActor) {	
@@ -57,42 +65,42 @@ case class ReceiveState(override val id: Int,override val exitType: String,overr
 
   def handle(msg: Any)(implicit actor: ServiceActor) {
 //    actor.storeMsg(msg)
-    actor.changeState()  			///////////////////////////////////////////////////
+    actor.changeState()
   }
 }
-case class SendState(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("send", id, exitType, targets, targetIds, text) {
-  def process()(implicit actor: ServiceActor) {			
-    val msg = actor.getMessage()
-    send(msg)
-    actor.changeState()				
+case class SendState(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String, override val variableId: String) extends State("send", id, exitType, targets, targetIds, text, variableId) {
+  def process()(implicit actor: ServiceActor) {
+//    val msg = actor.getMessage()
+//    send(msg)
+    actor.processSendState()
+    actor.changeState()
   }
 
-  def send(msg: String)(implicit actor: ServiceActor) {
-
-    // TODO: processInstanceID
-    val messageID = 100 //TODO change if needed
-    val messageType = targetIds.head._1 
-    val userID = 1
-    val processID = actor.getProcessID()
-    val subjectID = actor.getSubjectID()
-    val sender = actor.getDestination()
-    val fileInfo = None
-    val target = getTarget(actor.getBranchCondition)
-    target.insertTargetUsers(Array(1))
-
-    val message = SubjectToSubjectMessage(
-        messageID,
-        processID,
-        1,
-        subjectID,
-        target,
-        messageType,      //messageType,
-        msg,
-        fileInfo)
-    
-    //log.debug("sending message: " + message + " to " + sender)
-    sender !! message
-  }
+//  def send(msg: MessageContent)(implicit actor: ServiceActor) {
+//
+//    // TODO: processInstanceID
+//    val messageID = 100 //TODO change if needed
+//    val messageType = targetIds.head._1
+//    val userID = 1
+//    val processID = actor.getProcessID()
+//    val subjectID = actor.getSubjectID()
+//    val sender = actor.getDestination()
+//    val fileInfo = None
+//    val target = getTarget(actor.getBranchCondition)
+//    target.insertTargetUsers(Array(1))
+//
+//    val message = SubjectToSubjectMessage(
+//        messageID,
+//        processID,
+//        1,
+//        subjectID,
+//        target,
+//        messageType,
+//        msg,
+//        fileInfo)
+//
+//    sender !! message
+//  }
   
   def getTarget(branchCondition: String): de.tkip.sbpm.application.subject.behavior.Target = {
     if (targets.size > 1) {
@@ -100,7 +108,7 @@ case class SendState(override val id: Int, override val exitType: String, overri
     } else targets.head._2.target
   }
 }
-case class ExitState(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("exit", id, exitType, targets, targetIds, text) {
+case class ExitState(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String, override val variableId: String) extends State("exit", id, exitType, targets, targetIds, text, variableId) {
 
   def process()(implicit actor: ServiceActor) {		
     actor.reset()

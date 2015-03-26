@@ -22,7 +22,6 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
-import de.tkip.sbpm.eventbus.RemotePublishActor
 import de.tkip.sbpm.instrumentation.ClassTraceLogger
 import de.tkip.sbpm.repository.RepositoryPersistenceActor
 import de.tkip.sbpm.repository.RepositoryPersistenceActor._
@@ -62,7 +61,7 @@ object main extends App with ClassTraceLogger {
   val registeredInterfaces = scala.collection.mutable.Map[Int, Reference]()
 
   val referenceXMLActor = system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
-  val repositoryPersistenceActor = system.actorOf(Props[RepositoryPersistenceActor], BackendActorLocator.repositoryPersistenceActorName)
+  val repositoryPersistenceActor = system.actorOf(Props[RepositoryPersistenceActor], ActorLocator.repositoryPersistenceActorName)
   var serviceHost: ActorRef = null
 
   if (args.contains("service") && args.length >= 2) {

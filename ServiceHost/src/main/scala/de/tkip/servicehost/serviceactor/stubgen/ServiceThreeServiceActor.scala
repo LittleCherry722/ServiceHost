@@ -28,20 +28,20 @@ import ExecutionContext.Implicits.global
 
 import scala.concurrent.Await
 
-class $TemplateServiceActor extends ServiceActor {
-  override protected val INPUT_POOL_SIZE: Int = "$INPUTPOOL".toInt
-  override protected val serviceID: ServiceID = "$SERVICEID"
-  override protected val subjectID: SubjectID = "$SERVICEID"
+class ServiceThreeServiceActor extends ServiceActor {
+  override protected val INPUT_POOL_SIZE: Int = "100".toInt
+  override protected val serviceID: ServiceID = "Subj6:58fea0e9-0b01-415d-b47f-1e9cda04db83"
+  override protected val subjectID: SubjectID = "Subj6:58fea0e9-0b01-415d-b47f-1e9cda04db83"
   protected val serviceInstanceMap = Map[SubjectID, ServiceActorRef]()
   val tempAgentsMap = collection.mutable.Map[String, ProcessInstanceActor.Agent]()
   var from: SubjectID = null
   var processInstanceIdentical: String = ""
   var managerURL: String = ""
-  val startNodeIndex: String = "$STARTNODEINDEX"
+  val startNodeIndex: String = "0"
   var receivedMessageType: String = ""
 
   override protected def states: List[State] = List(
-    //$EMPTYSTATE$//
+    ReceiveState(0,"exitcondition",Map("m5" -> Target("Subj4:f7bd3a8d-b2da-44d4-bfa2-47b86d6a4f12",-1,-1,false,"")),Map("m5" -> 1),"receiveAddress",""),SendState(1,"exitcondition",Map("m3" -> Target("Subj2:505f89b7-0265-42a4-9a4d-9b9d5d024d0d",-1,-1,false,"")),Map("m3" -> 2),"",""),ExitState(2,null,Map(),Map(),null,null)
   )
 
   // different received messageType -> different outgoing messageType like: m1 -> m2, m3 -> m4
@@ -51,14 +51,14 @@ class $TemplateServiceActor extends ServiceActor {
 
   // start with first state
   def getStartState(): State = {
-    getState("$STARTNODEINDEX".toInt)
+    getState("0".toInt)
   }
 
   private val messages: Map[MessageType, MessageText] = Map(
-    //$EMPTYMESSAGE$//
+    "Supplies" -> "m7","OK" -> "m2","Bestellungen" -> "m4","Request" -> "m1","SoldOut" -> "m6","Goods" -> "m3","Address" -> "m5"
   )
   private val variablesOfSubject: Map[String, String] = Map(
-    //$EMPTYVARIABLES$//
+    
   )
 
   private val inputPool: scala.collection.mutable.Map[Tuple2[MessageType, SubjectID], Queue[SubjectToSubjectMessage]] = scala.collection.mutable.Map()
@@ -568,6 +568,4 @@ encapsulate variable,increase variableDepth, m : 1
     })
   }
 
-
-  //$ACTIONSTATESIMPLEMENTATION$//
 }

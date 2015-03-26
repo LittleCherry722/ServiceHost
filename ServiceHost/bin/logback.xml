@@ -1,0 +1,47 @@
+<configuration>
+	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+		<filter class ="de.tkip.sbpm.logging.NoTraceFilter"/>
+		<file>log/app.log</file>
+		<encoder>
+			<pattern>%-5level %date [%thread] [%X{akkaSource}] %logger{36} [%file:%line] %msg%n
+			</pattern>
+		</encoder>
+	</appender>
+	<appender name="TRACE" class="ch.qos.logback.core.FileAppender">
+		<filter class ="de.tkip.sbpm.logging.TraceFilter"/>
+		<file>log/trace.log</file>
+		<encoder>
+			<pattern>%msg%n
+			</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%-5level %d{HH:mm:ss.SSS} [%X{akkaSource}] %logger{36} - %msg%n
+			</pattern>
+		</encoder>
+	</appender>
+
+	<!--
+	<appender name="SLICK" class="de.tkip.sbpm.logging.SlickAppender">
+		<encoder>
+			<pattern>%-5level %d{HH:mm:ss.SSS} [%X{akkaSource}] %logger{36} - %msg
+			</pattern>
+		</encoder>
+	</appender>
+	-->
+
+	<!--
+	<logger name="de.tkip.sbpm" level="DEBUG">
+		<appender-ref ref="SLICK" />
+	</logger>
+	-->
+
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
+<!--         <appender-ref ref = "TRACE"/> -->
+    </root>
+</configuration>
+

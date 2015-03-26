@@ -6,13 +6,13 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 
 object ServiceAttributes {
   type ServiceID = String;
-  type ProcessKey = (ServiceID, ProcessInstanceID)
-
+  type ServiceInstanceKey = (String, ServiceID)
   type BranchID = String;
-
   type ServiceActorRef = ActorRef
-
   type MessageText = String
   type MessageType = String
+
+  type VariableType = String
+  type VariableId = String
 }
 

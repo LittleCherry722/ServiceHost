@@ -20,6 +20,7 @@ object ReferenceXMLActor {
 }
 
 class ReferenceXMLActor extends InstrumentedActor {
+
   import ReferenceXMLActor.Reference
 
   private val xmlFilePath = "./src/main/resources/service_references.xml"
@@ -33,22 +34,25 @@ class ReferenceXMLActor extends InstrumentedActor {
     case GetAllClassReferencesMessage => {
       sender !! getAllReferences
     }
-    case getReference: GetClassReferenceMessage => {
-      println("########################" + getReference.processId )
-      sender !! getReferenceMessage(getReference.processId)
+    case getReference: GetClassReferenceMessageByProcessID => {
+      sender !! getReferenceMessageByProcessID(getReference.processId)
+    }
+
+    case getReference: GetClassReferenceMessageBySubjectID => {
+      sender !! getReferenceMessageBySubjectID(getReference.subjectId)
     }
   }
 
   def getAllReferences(): List[Reference] = {
     var references: List[Reference] = List()
     val xmlFile = new File(xmlFilePath)
-    if(xmlFile.exists()) {
+    if (xmlFile.exists()) {
       val src = Source.fromFile(xmlFile)
       val reader = new XMLEventReader(src)
       reader foreach {
         case EvElemStart(_, _, attrs, _) =>
           val map = attrs.asAttrMap
-          if(map.contains("path"))
+          if (map.contains("path"))
             references = references ::: List(Reference(map("processid").toInt, map("subjectid"), map("path"), map("json")))
         case _ =>
       }
@@ -61,7 +65,9 @@ class ReferenceXMLActor extends InstrumentedActor {
 
     var processId = if (allOldReferences.length > 0) {
       allOldReferences.reduceLeft((r1, r2) => if (r1.processId > r2.processId) r1 else r2).processId + 1
-    } else { 1 }
+    } else {
+      1
+    }
 
     val ref = new Reference(processId, subjectId, classPath, jsonPath)
 
@@ -71,17 +77,24 @@ class ReferenceXMLActor extends InstrumentedActor {
 
     val xmlContent =
       <references>
-        { references.map(_.toXml) }
+        {references.map(_.toXml)}
       </references>
 
     scala.xml.XML.save(xmlFilePath, xmlContent)
 
     ref
   }
-  
-  def getReferenceMessage(processId: Int): ClassReferenceMessage = {
+
+  def getReferenceMessageByProcessID(processId: Int): ClassReferenceMessage = {
     for {ref <- getAllReferences} {
       if (ref.processId == processId) return new ClassReferenceMessage(ref.subjectId, Class.forName(ref.reference).asInstanceOf[Class[ServiceActor]])
+    }
+    null
+  }
+
+  def getReferenceMessageBySubjectID(subjectId: String): ClassReferenceMessage = {
+    for {ref <- getAllReferences} {
+      if (ref.subjectId == subjectId) return new ClassReferenceMessage(ref.subjectId, Class.forName(ref.reference).asInstanceOf[Class[ServiceActor]])
     }
     null
   }

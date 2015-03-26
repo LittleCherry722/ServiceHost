@@ -28,20 +28,20 @@ import ExecutionContext.Implicits.global
 
 import scala.concurrent.Await
 
-class $TemplateServiceActor extends ServiceActor {
-  override protected val INPUT_POOL_SIZE: Int = "$INPUTPOOL".toInt
-  override protected val serviceID: ServiceID = "$SERVICEID"
-  override protected val subjectID: SubjectID = "$SERVICEID"
+class ServiceOneServiceActor extends ServiceActor {
+  override protected val INPUT_POOL_SIZE: Int = "100".toInt
+  override protected val serviceID: ServiceID = "Subj4:f7bd3a8d-b2da-44d4-bfa2-47b86d6a4f12"
+  override protected val subjectID: SubjectID = "Subj4:f7bd3a8d-b2da-44d4-bfa2-47b86d6a4f12"
   protected val serviceInstanceMap = Map[SubjectID, ServiceActorRef]()
   val tempAgentsMap = collection.mutable.Map[String, ProcessInstanceActor.Agent]()
   var from: SubjectID = null
   var processInstanceIdentical: String = ""
   var managerURL: String = ""
-  val startNodeIndex: String = "$STARTNODEINDEX"
+  val startNodeIndex: String = "0"
   var receivedMessageType: String = ""
 
   override protected def states: List[State] = List(
-    //$EMPTYSTATE$//
+    ReceiveState(0,"exitcondition",Map("m4" -> Target("Subj3:4fb7f769-dad6-42d8-9385-daeb38a0305b",-1,-1,false,"")),Map("m4" -> 2),"receiveBestellung",""),ExitState(5,null,Map(),Map(),null,null),ReceiveState(1,"exitcondition",Map("m7" -> Target("Subj5:c8abff60-b775-41e2-bd50-8a81b2d7d896",-1,-1,false,"")),Map("m7" -> 4),"receiveSupplies",""),Process(2,"exitcondition",Map(),Map("YES" -> 4, "NO" -> 3),"Process",""),SendState(3,"exitcondition",Map("m6" -> Target("Subj5:c8abff60-b775-41e2-bd50-8a81b2d7d896",-1,-1,false,"")),Map("m6" -> 1),"findServiceTwo",""),SendState(4,"exitcondition",Map("m5" -> Target("Subj6:58fea0e9-0b01-415d-b47f-1e9cda04db83",-1,-1,false,"")),Map("m5" -> 5),"findServiceThree","")
   )
 
   // different received messageType -> different outgoing messageType like: m1 -> m2, m3 -> m4
@@ -51,14 +51,14 @@ class $TemplateServiceActor extends ServiceActor {
 
   // start with first state
   def getStartState(): State = {
-    getState("$STARTNODEINDEX".toInt)
+    getState("0".toInt)
   }
 
   private val messages: Map[MessageType, MessageText] = Map(
-    //$EMPTYMESSAGE$//
+    "Supplies" -> "m7","OK" -> "m2","Bestellungen" -> "m4","Request" -> "m1","SoldOut" -> "m6","Goods" -> "m3","Address" -> "m5"
   )
   private val variablesOfSubject: Map[String, String] = Map(
-    //$EMPTYVARIABLES$//
+    
   )
 
   private val inputPool: scala.collection.mutable.Map[Tuple2[MessageType, SubjectID], Queue[SubjectToSubjectMessage]] = scala.collection.mutable.Map()
@@ -99,7 +99,7 @@ class $TemplateServiceActor extends ServiceActor {
             log.debug("processMsg: message = " + message)
 
             if (message != null) {
-              this.messageContent = message.messageContent.toString
+              this.messageContent = messageMatch(message.messageContent)
 
               this.branchCondition = message.messageType
               receivedMessageType = message.messageType
@@ -568,6 +568,27 @@ encapsulate variable,increase variableDepth, m : 1
     })
   }
 
+  def messageMatch (msg: Any) = msg match {
+    case text: String => text
+    case _ => msg.toString // other type will be processed in future.
+  }
 
-  //$ACTIONSTATESIMPLEMENTATION$//
+  
+  case class Process(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String, override val variableId: String) extends State("action", id, exitType, targets, targetIds, text, variableId) {
+
+    def process()(implicit actor: ServiceActor) {
+        if(state.variableId != null) {
+             //  create a new Variable and store it into sendingvariable
+         }
+			  if(messageContent.toInt > 4) {// custom condition
+           branchCondition = "YES"
+      }
+			  if(messageContent.toInt < 0) {// custom condition
+           branchCondition = "NO"
+      }
+          actor.setMessage("") //TODO set message
+          actor.changeState()
+
+    	}
+  }
 }
