@@ -61,6 +61,7 @@ class SubjectContainer(
   private val external = subject.external
 
   private val subjects = MutableMap[UserID, SubjectInfo]()
+  private val nonProperSubjects = MutableMap[UserID, SubjectInfo]()
 
   /**
    * Adds a Subject to this multisubject
@@ -138,6 +139,7 @@ class SubjectContainer(
       subjects -= message.userID
     } else {
       decreaseSubjectCounter()
+      nonProperSubjects += message.userID -> subjects(message.userID)
       subjects -= message.userID
     }
 
@@ -172,8 +174,13 @@ class SubjectContainer(
     for (userID <- targetSubjects) {
       log.info("Sending message to user: {}", userID)
       if (!subjects.contains(userID)) {
-        log.info("Subject Container creating new subject for user ID: {}", userID)
-        createSubject(userID)
+        if(nonProperSubjects.contains(userID)) {
+          log.info("Subject is not allowed to restart")
+          return
+        } else {
+          log.info("Subject Container creating new subject for user ID: {}", userID)
+          createSubject(userID)
+        }
       } else if (!subjects(userID).running) {
         log.info("Subject Container restarting subject for user ID: :{}", userID)
         reStartSubject(userID)
