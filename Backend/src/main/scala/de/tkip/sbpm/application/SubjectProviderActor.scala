@@ -39,6 +39,8 @@ protected case class SubjectCreated(userID: UserID,
   ref: SubjectRef)
   extends SubjectProviderMessage
 
+case class SubjectTerminated(userID: UserID, subjectID: SubjectID, processInstanceID: ProcessInstanceID, proper: Boolean)
+
 case class AskSubjectsForAvailableActions(userID: UserID,
   processInstanceID: ProcessInstanceID = AllProcessInstances,
   subjectID: SubjectID = AllSubjects,

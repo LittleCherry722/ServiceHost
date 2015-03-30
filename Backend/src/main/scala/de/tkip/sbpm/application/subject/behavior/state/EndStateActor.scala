@@ -16,7 +16,6 @@ package de.tkip.sbpm.application.subject.behavior.state
 import akka.actor.FSM
 import akka.actor.actorRef2Scala
 import de.tkip.sbpm.application.subject.misc.ActionData
-import de.tkip.sbpm.application.subject.misc.SubjectTerminated
 import de.tkip.sbpm.application.subject.misc.MacroTerminated
 import de.tkip.sbpm.application.subject.misc.MacroTerminated
 

@@ -58,9 +58,6 @@ case class Stored(messageID: MessageID) extends MessageObject
 // acknowledge, that the message was rejected by the input pool
 case class Rejected(messageID: MessageID) extends MessageObject
 
-// TODO richtig einordnern
-case class SubjectTerminated(userID: UserID, subjectID: SubjectID, proper: Boolean)
-
 protected[subject] case class MacroTerminated(macroID: String)
 protected[subject] case object KillNonObserverStates
 protected[subject] case object DisableNonObserverStates

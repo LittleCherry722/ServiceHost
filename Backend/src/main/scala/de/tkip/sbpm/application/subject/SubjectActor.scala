@@ -62,7 +62,10 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
     case _ =>
       throw new IllegalArgumentException("A Subjectactor need a Subject as data")
   }
-  private val userID = data.userID
+
+  private val userID: UserID = data.userID
+
+  private val processInstanceID: ProcessInstanceID = data.processInstanceID
 
   private val subjectID: SubjectID = subject.id
   private val subjectName: String = subject.id
@@ -180,10 +183,10 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
 
     case IPEmpty(empty) => {
       if (empty) {
-        val message = SubjectTerminated(userID, subjectID, true)
+        val message = SubjectTerminated(userID, subjectID, processInstanceID, true)
         context.parent ! message
       } else {
-        val message = SubjectTerminated(userID, subjectID, false)
+        val message = SubjectTerminated(userID, subjectID, processInstanceID, false)
         context.parent ! message
       }
       context.stop(inputPoolActor)

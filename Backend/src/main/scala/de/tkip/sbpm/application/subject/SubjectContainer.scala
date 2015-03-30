@@ -19,7 +19,7 @@ import akka.actor.Props
 import java.util.UUID
 import akka.pattern.ask
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
-import de.tkip.sbpm.application.{ SubjectCreated, RegisterSingleSubjectInstance }
+import de.tkip.sbpm.application.{ SubjectCreated, SubjectTerminated, RegisterSingleSubjectInstance }
 import de.tkip.sbpm.application.ProcessInstanceActor.{Agent}
 import akka.event.LoggingAdapter
 import akka.actor.ActorRef
@@ -131,18 +131,15 @@ class SubjectContainer(
     log.debug("Processinstance [" + processInstanceID + "] Subject " + subject.id + "[" +
       message.userID + "] terminated proper [" + message.proper.toString + "]")
 
-    // decrease the subject counter
+    val userID = message.userID
 
-
-    if (message.proper) {
-      decreaseSubjectCounter()
-      subjects -= message.userID
-    } else {
-      decreaseSubjectCounter()
-      nonProperSubjects += message.userID -> subjects(message.userID)
-      subjects -= message.userID
+    if (!message.proper) {
+      nonProperSubjects += userID -> subjects(userID)
     }
 
+    // decrease the subject counter
+    decreaseSubjectCounter()
+    subjects -= userID
   }
 
   /**
