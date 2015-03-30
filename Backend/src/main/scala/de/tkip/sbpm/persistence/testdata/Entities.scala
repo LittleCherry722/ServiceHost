@@ -130,7 +130,9 @@ object Entities {
     (Process(None, None, false, """ExternalSubject Dreieck - Lieferant""", false) -> loadJson("externalsubject_dreieck_lieferant")),    // 41
     (Process(None, None, false, """OnlineShopping""", false) -> loadJson("OnlineShopping")),
     (Process(None, None, false, """ServiceTest""", false) -> loadJson("ServiceTest")),
-    (Process(None, None, false, """Advance_ServiceTest""", false) -> loadJson("Advance_ServiceTest"))
+    (Process(None, None, false, """Advance_ServiceTest""", false) -> loadJson("Advance_ServiceTest")),
+    (Process(None, None, false, """VariableTest""", false) -> loadJson("VariableTest")),
+    (Process(None, None, false, """AgentMaptest""", false) -> loadJson("AgentMapTest"))
    )
 
 

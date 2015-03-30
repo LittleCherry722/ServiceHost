@@ -50,7 +50,5 @@ object Messages {
   type ServiceClasses = scala.collection.mutable.Map[String, Array[Byte]]
   type ServiceJson = Array[Byte]
 
-  case class Variable(vName: String, depth: Int,from:SubjectID, messagesSet: collection.mutable.ListBuffer[SubjectToSubjectMessage], lastVariable: collection.mutable.ListBuffer[Variable])
-
 }
 

@@ -2,7 +2,7 @@ package de.tkip.servicehost.serviceactor.stubgen
 
 import akka.actor.Actor
 import de.tkip.sbpm.application.ProcessInstanceActor
-import de.tkip.sbpm.application.ProcessInstanceActor.{TextContent, MessageContent}
+import de.tkip.sbpm.application.ProcessInstanceActor._
 import de.tkip.sbpm.{ActorLocator => BackendActorLocator}
 import de.tkip.sbpm.repository.RepositoryPersistenceActor.{AgentsMappingResponse, GetAgentsMapMessage}
 import de.tkip.servicehost.ActorLocator._
@@ -30,8 +30,8 @@ import scala.concurrent.Await
 
 class S3ServiceActor extends ServiceActor {
   override protected val INPUT_POOL_SIZE: Int = "100".toInt
-  override protected val serviceID: ServiceID = "Subj4:d293d490-cc59-420f-87f7-d5e2d5871f53"
-  override protected val subjectID: SubjectID = "Subj4:d293d490-cc59-420f-87f7-d5e2d5871f53"
+  override protected val serviceID: ServiceID = "Subj4:dcffa542-f1e5-493c-b734-c173791122aa"
+  override protected val subjectID: SubjectID = "Subj4:dcffa542-f1e5-493c-b734-c173791122aa"
   protected val serviceInstanceMap = Map[SubjectID, ServiceActorRef]()
   val tempAgentsMap = collection.mutable.Map[String, ProcessInstanceActor.Agent]()
   var from: SubjectID = null
@@ -39,9 +39,11 @@ class S3ServiceActor extends ServiceActor {
   var managerURL: String = ""
   val startNodeIndex: String = "0"
   var receivedMessageType: String = ""
+  var variablesOfService = collection.mutable.Map[String, ListBuffer[SubjectToSubjectMessage]]()
+  var sendingVariables = collection.mutable.Map[String, Variable]()
 
   override protected def states: List[State] = List(
-    ReceiveState(0,"exitcondition",Map("m3" -> Target("Subj3:76a323ac-f5d3-4554-8fd0-0fda207b5495",-1,-1,false,"")),Map("m3" -> 1),"receiveMsg2FromS2",""),SendState(1,"exitcondition",Map("m2" -> Target("Subj2:4dea63c9-4ab3-4ffc-9097-3c150ff7481c",-1,-1,false,"")),Map("m2" -> 2),"",""),ExitState(2,null,Map(),Map(),null,null)
+    ReceiveState(0,"exitcondition",Map("m1" -> Target("Subj3:4234db03-6fea-4de5-ae76-2acc2d710942",-1,-1,false,"")),Map("m1" -> 1),"new",""),SendState(1,"exitcondition",Map("m1" -> Target("Subj5:787528ad-3d4e-4582-b63d-3b3921a100cc",-1,-1,false,"")),Map("m1" -> 2),"",""),ExitState(2,null,Map(),Map(),null,null)
   )
 
   // different received messageType -> different outgoing messageType like: m1 -> m2, m3 -> m4
@@ -55,23 +57,137 @@ class S3ServiceActor extends ServiceActor {
   }
 
   private val messages: Map[MessageType, MessageText] = Map(
-    "msg1ToS2" -> "m1","msg3FromS3" -> "m2","msg2ToS3" -> "m3"
+    "msg1" -> "m1","msg2" -> "m2"
   )
   private val variablesOfSubject: Map[String, String] = Map(
     
   )
 
   private val inputPool: scala.collection.mutable.Map[Tuple2[MessageType, SubjectID], Queue[SubjectToSubjectMessage]] = scala.collection.mutable.Map()
-  // Subject default values
-  // varialbesMap means the current subject collects all variable which from different subjects.
-  private val variablesMap = scala.collection.mutable.Map[String, ListBuffer[Variable]]()
-  private val inputPoolVariable = Map[Tuple2[String, SubjectID], Queue[Variable]]()
-  // if a variable or a varialbeList has been already processed, it should be stored to sendingVariable. It will be sent to another subject.
-  private val sendingVariable = Map[String, Variable]()
-  // vDepthMap means this subject must receive the variables which has the same vName and the same Depth.
-  private val vDepthMap = Map[String, Int]()
   private var target = -1
   private var messageContent: String = "" // will be used in getResult
+
+  def stateReceive = {
+
+    case message: SubjectToSubjectMessage => {
+      log.debug("receive message: " + message)
+      from = message.from
+      storeMsg(message, sender)
+      state match {
+        case rs: ReceiveState => {
+          if (rs.variableId != "") {
+            var variableName = ""
+            for ((vName, vType) <- variablesOfSubject) {
+              if (vType == rs.variableId) {
+                variableName = vName
+              }
+            }
+            addMessage(message, variableName) // collect SubjectToSubjectMessage
+          }
+          processMsg(message)
+        }
+        case _ =>
+          log.info("message will be handled when state changes to ReceiveState. Current state is: " + state)
+      }
+    }
+
+    case msg: UpdateServiceInstanceDate => {
+      for ((subjectId, agents) <- msg.agentsMap) {
+        tempAgentsMap += subjectId -> agents
+      }
+      processInstanceIdentical = msg.processInstanceIdentical
+      managerURL = msg.managerUrl
+    }
+
+    case x: Stored => {
+      log.debug(" message has been stored.  " + x)
+    }
+
+    case x: Rejected => {
+      log.debug("  Receiver's inputPool is full. " + x)
+    }
+
+  }
+
+  def changeState() {
+    log.debug("changeState: old state: " + state)
+    state match {
+      case s: ExitState => {
+        log.warning("already in ExitState, can not change state")
+      }
+      case _ => {
+        if (state.targetIds.size > 1) {
+          if (this.branchCondition != null) {
+            state = getState(state.targetIds(this.branchCondition))
+
+          } else log.warning("no branchcodition defined")
+        } else {
+          state = getState(state.targetIds.head._2)
+          log.debug("changeState: new state: " + state)
+        }
+        state.process()
+      }
+    }
+  }
+
+  def getState(id: Int): State = {
+    states.find(x => x.id == id).getOrElse(null)
+  }
+
+  def storeMsg(message: Any, sender: ActorRef): Unit = {
+    log.debug("storeMsg: " + message + " from " + sender)
+    message match {
+      case message: SubjectToSubjectMessage => {
+        val key = (message.messageType, message.from)
+        log.debug("storeMsg: key = " + key)
+
+        if (inputPool.contains(key)) {
+          if (inputPool(key).size < INPUT_POOL_SIZE) {
+            (inputPool(key)).enqueue(message)
+            log.debug("storeMsg: Stored")
+            sender !! Stored(message.messageID)
+          } else {
+            log.debug("storeMsg: Rejected")
+            sender !! Rejected(message.messageID)
+          }
+        } else {
+          inputPool(key) = Queue(message)
+          log.debug("storeMsg: Stored")
+          sender !! Stored(message.messageID)
+        }
+      }
+      case _ => log.warning("unable to store message: " + message)
+    }
+  }
+
+  def getBranchIDforType(messageType: String): MessageText = {
+    messages(messageType)
+  }
+
+  def getDestination(): ActorRef = {
+    manager
+  }
+
+  def terminate() {
+    ActorLocator.serviceActorManager !! KillProcess(serviceID, processInstanceID)
+  }
+
+  def getProcessID(): ProcessID = {
+    processID
+  }
+
+  def getSubjectID(): String = {
+    serviceID
+  }
+
+  def getProcessInstanceID(): ProcessInstanceID = {
+    processInstanceID
+  }
+
+  def getResult(msg: String): String = {
+    // handle the messageContent
+    msg
+  }
 
   override def reset = {
     // TODO: reset custom properties
@@ -79,7 +195,7 @@ class S3ServiceActor extends ServiceActor {
   }
 
   def processMsg(msg: Any) {
-    log.debug("PROCESS MESSAGE")
+    log.debug("PROCESS RECEIVED MESSAGE")
     state match {
       case rs: ReceiveState => {
         msg match {
@@ -107,19 +223,6 @@ class S3ServiceActor extends ServiceActor {
               rs.handle(message) // calls changeState
             }
             else log.info("ReceiveState could not find any matching message. ReceiveState will wait until it arrivies")
-          }
-
-          case msg: Variable => {
-            val key = (msg.vName, msg.from)
-            var variable: Variable = null
-            if (inputPoolVariable.contains(key)) {
-              variable = inputPoolVariable(key).dequeue()
-            }
-            if (variable != null) {
-              this.branchCondition = rs.targets.keys.head
-              rs.handle(msg)
-            } else
-              log.info("ReceiveState could not find any matching message. ReceiveState will wait until it arrives")
           }
           case _ => log.debug("receive other messageType !!!")
         }
@@ -162,188 +265,19 @@ class S3ServiceActor extends ServiceActor {
       msgContent,
       None,
       fileInfo,
-    Some(processInstanceIdentical)
+      Some(processInstanceIdentical)
     )
-    if (state.variableId == "") {
-      // send normal SubjectToSubjectMessage
-      determineReceiver(targetSubjectID, message)
-
-    } else {
-      var vrName = ""
-      for ((vName, vType) <- variablesOfSubject) {
-        if (vType == state.variableId)
-          vrName = vName
-      }
-      if (!sendingVariable.contains(vrName)) {
-        vEncapsulation(vrName, ListBuffer(message))
-      }
-      determineReceiver(targetSubjectID, sendingVariable(vrName))
+    if (state.variableId != "") {
+      val newMsgContent = MessageSet(sendingVariables(state.variableId))
+      message.copy(messageContent = newMsgContent)
     }
+    determineReceiver(targetSubjectID, message)
   }
 
-  def stateReceive = {
-    case message: SubjectToSubjectMessage => {
-      log.debug("receive message: " + message)
-      from = message.from
-      storeMsg(message, sender)
-
-      state match {
-        case rs: ReceiveState => {
-          if (rs.variableId != "") {
-            // collect all subjectToSubjectMessage and create a new Variable, the depth is 0.
-            var variableName = ""
-            for ((vName, vType) <- variablesOfSubject) {
-              if (vType == rs.variableId) {
-                variableName = vName
-              }
-            }
-            if (sendingVariable.contains(variableName)) {
-              sendingVariable(variableName).messagesSet.append(message)
-            } else {
-              sendingVariable += variableName -> Variable(variableName, 0, getSubjectID(), ListBuffer(message), null)
-            }
-          }
-          processMsg(message)
-        }
-        case _ =>
-          log.info("message will be handled when state changes to ReceiveState. Current state is: " + state)
-      }
-    }
-
-    case subjectToSubjectVariable: Variable => {
-      log.debug("receive Variable:  " + subjectToSubjectVariable)
-      from = subjectToSubjectVariable.from
-      storeMsg(subjectToSubjectVariable, sender())
-
-      state match {
-        case rs: ReceiveState => {
-          if (variablesMap.contains(subjectToSubjectVariable.vName) && vDepthMap(subjectToSubjectVariable.vName) == subjectToSubjectVariable.depth) {
-            variablesMap(subjectToSubjectVariable.vName).append(subjectToSubjectVariable)
-            processMsg(subjectToSubjectVariable)
-          } else if (variablesMap.contains(subjectToSubjectVariable.vName) && vDepthMap(subjectToSubjectVariable.vName) != subjectToSubjectVariable.depth) {
-            log.error("Please check the process. The different depth variables can't be merged!")
-          } else {
-            variablesMap += subjectToSubjectVariable.vName -> ListBuffer(subjectToSubjectVariable)
-            vDepthMap += subjectToSubjectVariable.vName -> subjectToSubjectVariable.depth
-            processMsg(subjectToSubjectVariable)
-          }
-        }
-      }
-    }
-    case msg: UpdateServiceInstanceDate => {
-      for ((subjectId, agents) <- msg.agentsMap) {
-        tempAgentsMap += subjectId -> agents
-      }
-      processInstanceIdentical = msg.processInstanceIdentical
-      managerURL = msg.managerUrl
-    }
-
-    case x: Stored => {
-      log.debug(" message has been stored.  " + x)
-    }
-
-    case x: Rejected => {
-      log.debug("  Receiver's inputPool is full. " + x)
-    }
-
-  }
-
-  def changeState() {
-    log.debug("changeState: old state: " + state)
-    state match {
-      case s: ExitState => {
-        log.warning("already in ExitState, can not change state")
-      }
-
-      case _ => {
-        if (state.targetIds.size > 1) {
-          if (this.branchCondition != null) {
-            state = getState(state.targetIds(this.branchCondition))
-
-          } else log.warning("no branchcodition defined")
-
-        } else {
-          state = getState(state.targetIds.head._2)
-          log.debug("changeState: new state: " + state)
-        }
-        state.process()
-      }
-    }
-  }
-
-
-  def getState(id: Int): State = {
-    states.find(x => x.id == id).getOrElse(null)
-  }
-
-  def storeMsg(message: Any, sender: ActorRef): Unit = {
-    log.debug("storeMsg: " + message + " from " + sender)
-    message match {
-      case message: SubjectToSubjectMessage => {
-        val key = (message.messageType, message.from)
-        log.debug("storeMsg: key = " + key)
-
-        if (inputPool.contains(key)) {
-          if (inputPool(key).size < INPUT_POOL_SIZE) {
-            (inputPool(key)).enqueue(message)
-            log.debug("storeMsg: Stored")
-            sender !! Stored(message.messageID)
-          } else {
-            log.debug("storeMsg: Rejected")
-            sender !! Rejected(message.messageID)
-          }
-        } else {
-          inputPool(key) = Queue(message)
-          log.debug("storeMsg: Stored")
-          sender !! Stored(message.messageID)
-        }
-      }
-      case message: Variable => {
-        log.debug("store variable")
-        val key = (message.vName, message.from)
-        if (inputPoolVariable.contains(key)) {
-          inputPoolVariable(key).enqueue(message)
-        } else {
-          inputPoolVariable(key) = Queue(message)
-        }
-      }
-      case _ => log.warning("unable to store message: " + message)
-    }
-  }
-
-  def getBranchIDforType(messageType: String): MessageText = {
-    messages(messageType)
-  }
-
-  def getDestination(): ActorRef = {
-    manager
-  }
-
-  def terminate() {
-    ActorLocator.serviceActorManager !! KillProcess(serviceID, processInstanceID)
-  }
-
-  def getProcessID(): ProcessID = {
-    processID
-  }
-
-  def getSubjectID(): String = {
-    serviceID
-  }
-
-  def getProcessInstanceID(): ProcessInstanceID = {
-    processInstanceID
-  }
-
-  def getResult(msg: String): String = {
-    // handle the messageContent
-    msg
-  }
-
-  def determineReceiver(targetSubjectID: String, msg: Any): Unit = {
+  def determineReceiver(targetSubjectID: String, msg: SubjectToSubjectMessage): Unit = {
     if (targetSubjectID.contains(from)) {
       if (tempAgentsMap(targetSubjectID).address.toUrl == managerURL) {
-        receiver = manager
+        receiver = manager // directly return to Backend
         receiver !! msg
       }
       else {
@@ -368,7 +302,7 @@ class S3ServiceActor extends ServiceActor {
             receiver !! msg
           }
         } else {
-          // targetSubjectId isn't in tempAgentsMap.The service need to ask repository about targetAgent.
+          // If targetSubjectId isn't in tempAgentsMap, this means the targetServiceInstance is not created. The service need to ask repository about targetAgent.
           lazy val repositoryPersistenceActor = ActorLocator.repositoryPersistenceActor
           val getAgentsMapMessage = GetAgentsMapMessage(Seq(targetSubjectID))
           val newAgentsMapFuture = (repositoryPersistenceActor ?? getAgentsMapMessage).mapTo[AgentsMappingResponse]
@@ -418,154 +352,86 @@ class S3ServiceActor extends ServiceActor {
     }
   }
 
-  /*
-  first, merge different variables with same depth and variableName.
-  second, merge every variable's lastvariable.
-  third, m : 1.
-   */
-  def vMerge(key: String): Variable = {
-    val resultOfMerge = ListBuffer[Variable]()
-    val newMessageList = ListBuffer[SubjectToSubjectMessage]()
-    val vDepth = variablesMap(key).head.depth
-    if (vDepth != 0) {
-      variablesMap(key).foreach(variable => {
-        variable.lastVariable.foreach(v => {
-          resultOfMerge.append(v)
-        })
-      })
-      Variable(key, vDepth, null, null, resultOfMerge) // when the depth isn't 0, the messageSet always is null.
+  def addMessage(msg: SubjectToSubjectMessage, variableName: String): Unit = {
+    if (variablesOfService.contains(variableName)) {
+      variablesOfService(variableName).append(msg)
     } else {
-      variablesMap(key).foreach(variable => {
-        variable.messagesSet.foreach(msg => {
-          newMessageList.append(msg)
-        })
-      })
-      Variable(key, vDepth, null, newMessageList, null) // when the depth is 0, the lastVariable always is null.
+      variablesOfService += variableName -> ListBuffer(msg)
     }
-
-
   }
 
-  // merge all subjectToSubjectMessage which have the same variableName and the same depth.
-  def mergeMessage(variable: Variable): ListBuffer[SubjectToSubjectMessage] = {
-    val resultOfMerge = ListBuffer[SubjectToSubjectMessage]()
-    var vDepth = variable.depth
-    var upperList = ListBuffer[Variable]()
-    var lowerList = ListBuffer[Variable]()
-    lowerList.append(variable)
-    while (vDepth != 0) {
-      upperList = lowerList
-      lowerList.clear()
-      vDepth = upperList.head.depth
-      upperList.foreach(v => {
-        lowerList.++=(v.lastVariable)
+  def vMerge(vName: String): Variable = {
+    var newMsgContent = Set[Message]()
+    var vDepth = 0 //todo
+    if (variablesOfService.contains(vName)) {
+      variablesOfService(vName).foreach(message => message.messageContent match {
+        case msgContent: TextContent => log.debug("TextContent can't be merged!")
+        case msgContent: MessageSet => {
+          newMsgContent = newMsgContent ++ msgContent.messages
+        }
+        case _ => log.debug("Other Types will be processed in future!")
       })
     }
+    newMsgContent
+  }
 
-    lowerList.foreach(v => {
-      resultOfMerge ++= (v.messagesSet)
+  def vSplit(variables: Variable): Array[Message] = {  //  type Variable = Set[Message]
+    variables.toArray
+  }
+
+  def vSelection(variable: Variable): Unit = {
+    // custom condition
+    /*
+    this is a just an example
+     */
+
+    variable.foreach(message => if (message.depth == 1) {
+      message
+    } else {
+      message.depth
     })
-    resultOfMerge
-  }
-
-  /*
-      split variable (1 : m)
-
-   */
-  def vSplit(vr: Variable): List[Variable] = {
-    val splitVariable = ListBuffer[Variable]()
-    if (vr.depth != 0) {
-      vr.lastVariable.foreach(v => {
-        val tempSplitVariable = Variable(vr.vName, vr.depth, vr.from, null, ListBuffer(v))
-        splitVariable.append(tempSplitVariable)
-      })
-    } else {
-      vr.messagesSet.foreach(msg => {
-        val tempSplitVariable = Variable(vr.vName, vr.depth, vr.from, ListBuffer(msg), null)
-        splitVariable.append(tempSplitVariable)
-      })
-    }
-    splitVariable.toList
 
   }
 
-  /*
-  different variables
-  variableA - variableB
-   */
-  def vDifference(variableA: Variable, variableB: Variable): List[String] = {
-    var differentVariable: List[Variable] = Nil
-    var differentMessage: List[SubjectToSubjectMessage] = Nil
-
-    if (variableA.vName == variableB.vName && variableA.depth == variableB.depth) {
-      var messageContentListA: List[String] = Nil
-      var messageContentListB: List[String] = Nil
-//      mergeMessage(variableA).foreach(msg => messageContentListA = msg.messageContent :: messageContentListA)
-//      mergeMessage(variableB).foreach(msg => messageContentListB = msg.messageContent :: messageContentListB)
-      messageContentListA.diff(messageContentListB)
+  def vDifference(variableA: Variable, variableB: Variable): Set[Message] = {
+    if ((variableA.head.vName == variableB.head.vName) && (variableA.head.depth == variableB.head.depth)) {
+      variableA -- variableB
     } else {
-      log.debug("The two variables can not use the manipulation")
       null
     }
-
   }
 
-  /*
-  select subvariables
-   */
-  def vSelection(variables: Variable) = {
-    //custom condition,
-    // this is just an example
-    if (variables.depth != 0) {
-      // select subVariables from lastVariable
-      variables.lastVariable.toList.drop(2)
-    } else {
-      // according to condition select different subMessageSet
-      variables.messagesSet.toList
-    }
-  }
+  def vEncapsulation(variableName: String): Variable = {
+    var newMessageSet = Set[Message]()
+    variablesOfService(variableName).foreach(message => {
+      val currentAgent = Agent(message.processID, tempAgentsMap(message.from).address, message.from)
+      val currentChannel = Channel(subjectID, currentAgent)
 
+      message.messageContent match {
+        case msgContent: TextContent => {
+          val currentMessage = Message(variableName, currentChannel, 1, message.messageType, message.messageContent)
+          newMessageSet = newMessageSet + currentMessage // create a new MessageSet
+        }
 
-  /*
-  extract  variables, reduce variableDepth, 1 : m
-   */
-
-  def vExtraction(variables: Variable) = {
-    if (variables.depth != 0) {
-      // return lastVariables
-      variables.lastVariable.toList
-    } else {
-      variables.messagesSet.toList // return SubjectToSubjectMessage
-    }
-  }
-
-  /*
-encapsulate variable,increase variableDepth, m : 1
-   */
-  def vEncapsulation(variables: List[Variable]): Variable = {
-    val lastVariables = ListBuffer[Variable]()
-    variables.foreach(v => {
-      lastVariables.append(v)
+        case msgContent: MessageSet => {
+          val currentMessage = Message(variableName, currentChannel, msgContent.messages.head.depth + 1, message.messageType, msgContent)
+          newMessageSet = newMessageSet + currentMessage
+        }
+      }
     })
-    sendingVariable += variables.head.vName -> Variable(variables.head.vName, variables.head.depth + 1, getSubjectID(), null, lastVariables)
-    sendingVariable(variables.head.vName)
+    newMessageSet // will be used in SubjectTOSubjectMessage
   }
 
-  /*
-  encapsulate subjectToSubjectMessage, the default depth is 0.
-   */
-  def vEncapsulation(variableName: String, messageSet: ListBuffer[SubjectToSubjectMessage]): Variable = {
-    sendingVariable += variableName -> Variable(variableName, 0, getSubjectID(), messageSet, null)
-    sendingVariable(variableName)
+  def vExtraction(variables: Variable, vDepth: Int): Unit = {
+    if(variables.head.depth > vDepth){
+
+    }else if (variables.head.depth == vDepth){
+      variables
+    }else{
+      log.debug("Messages can't be extracted!")
+    }
+
   }
 
-  def vReplace(variableList: ListBuffer[Variable],newVariable: Variable): Unit ={
-    variableList.foreach(oldVariable => if(oldVariable.vName == newVariable.vName && oldVariable.depth == newVariable.depth && oldVariable.from == newVariable.from){
-      oldVariable.messagesSet.clear()
-      newVariable.messagesSet.foreach(msg => oldVariable.messagesSet.append(msg))
-      oldVariable.lastVariable.clear()
-      newVariable.lastVariable.foreach(v => oldVariable.lastVariable.append(v))
-    })
-  }
-
+  
 }

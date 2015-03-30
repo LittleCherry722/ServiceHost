@@ -28,22 +28,25 @@ import ExecutionContext.Implicits.global
 
 import scala.concurrent.Await
 
-class $TemplateServiceActor extends ServiceActor {
-  override protected val INPUT_POOL_SIZE: Int = "$INPUTPOOL".toInt
-  override protected val serviceID: ServiceID = "$SERVICEID"
-  override protected val subjectID: SubjectID = "$SERVICEID"
+class AdvanceCollectorServiceActor extends ServiceActor {
+  override protected val INPUT_POOL_SIZE: Int = "100".toInt
+  override protected val serviceID: ServiceID = "Subj4:345f2c67-303d-4211-b10b-b04d1a99f46b"
+  override protected val subjectID: SubjectID = "Subj4:345f2c67-303d-4211-b10b-b04d1a99f46b"
   protected val serviceInstanceMap = Map[SubjectID, ServiceActorRef]()
   val tempAgentsMap = collection.mutable.Map[String, ProcessInstanceActor.Agent]()
   var from: SubjectID = null
   var processInstanceIdentical: String = ""
   var managerURL: String = ""
-  val startNodeIndex: String = "$STARTNODEINDEX"
+  val startNodeIndex: String = "0"
   var receivedMessageType: String = ""
   var variablesOfService = collection.mutable.Map[String, ListBuffer[SubjectToSubjectMessage]]()
   var sendingVariables = collection.mutable.Map[String, Variable]()
 
   override protected def states: List[State] = List(
-    //$EMPTYSTATE$//
+    ReceiveState(0,"exitcondition",Map("m5" -> Target("Subj3:bdde19cd-bd13-4467-93b8-ef7daa8c7813",-1,-1,false,"")),Map("m5" -> 1),"receive",""),
+    ProcessMessage(1,"exitcondition",Map(),Map("1" -> 2),"ProcessMessage",""),
+    SendState(2,"exitcondition",Map("m4" -> Target("Subj2:9f3fc7da-f68c-4d68-aae4-154737f12f5f",-1,-1,false,"")),Map("m4" -> 3),"",""),
+    ExitState(3,null,Map(),Map(),null,null)
   )
 
   // different received messageType -> different outgoing messageType like: m1 -> m2, m3 -> m4
@@ -53,14 +56,14 @@ class $TemplateServiceActor extends ServiceActor {
 
   // start with first state
   def getStartState(): State = {
-    getState("$STARTNODEINDEX".toInt)
+    getState("0".toInt)
   }
 
   private val messages: Map[MessageType, MessageText] = Map(
-    //$EMPTYMESSAGE$//
+    "messageTwo" -> "m2","END" -> "m4","messageOne" -> "m1","messageThree" -> "m3","messageFour" -> "m5"
   )
   private val variablesOfSubject: Map[String, String] = Map(
-    //$EMPTYVARIABLES$//
+    
   )
 
   private val inputPool: scala.collection.mutable.Map[Tuple2[MessageType, SubjectID], Queue[SubjectToSubjectMessage]] = scala.collection.mutable.Map()
@@ -71,6 +74,9 @@ class $TemplateServiceActor extends ServiceActor {
 
     case message: SubjectToSubjectMessage => {
       log.debug("receive message: " + message)
+      println("============================================")
+      println(message)
+      println("============================================")
       from = message.from
       storeMsg(message, sender)
       state match {
@@ -274,7 +280,6 @@ class $TemplateServiceActor extends ServiceActor {
     }else{
       determineReceiver(targetSubjectID, message)
     }
-
   }
 
   def determineReceiver(targetSubjectID: String, msg: SubjectToSubjectMessage): Unit = {
@@ -354,14 +359,15 @@ class $TemplateServiceActor extends ServiceActor {
       }
     }
   }
+
   def getVariableName(vType: String): String = {
     var vName = ""
-    for((variableName, variableType) <- variablesOfSubject){
-      if (variableType == vType)
-        vName = variableName
-      else
-        vName
-    }
+   for((variableName, variableType) <- variablesOfSubject){
+     if (variableType == vType)
+       vName = variableName
+     else
+       vName
+   }
     vName
   }
 
@@ -388,8 +394,7 @@ class $TemplateServiceActor extends ServiceActor {
     newMsgContent
   }
 
-  def vSplit(variables: Variable): Array[Message] = {
-    //  type Variable = Set[Message]
+  def vSplit(variables: Variable): Array[Message] = {  //  type Variable = Set[Message]
     variables.toArray
   }
 
@@ -437,15 +442,26 @@ class $TemplateServiceActor extends ServiceActor {
   }
 
   def vExtraction(variables: Variable, vDepth: Int): Unit = {
-    if (variables.head.depth > vDepth) {
+    if(variables.head.depth > vDepth){
 
-    } else if (variables.head.depth == vDepth) {
+    }else if (variables.head.depth == vDepth){
       variables
-    } else {
+    }else{
       log.debug("Messages can't be extracted!")
     }
 
   }
 
-  //$ACTIONSTATESIMPLEMENTATION$//
+  
+  case class ProcessMessage(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String, override val variableId: String) extends State("action", id, exitType, targets, targetIds, text, variableId) {
+
+    def process()(implicit actor: ServiceActor) {
+        if(state.variableId != null) {
+             //  create a new Variable and store it into sendingvariable
+         }
+          actor.setMessage(messageContent) //TODO set message
+          actor.changeState()
+
+    	}
+  }
 }

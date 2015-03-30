@@ -28,22 +28,22 @@ import ExecutionContext.Implicits.global
 
 import scala.concurrent.Await
 
-class $TemplateServiceActor extends ServiceActor {
-  override protected val INPUT_POOL_SIZE: Int = "$INPUTPOOL".toInt
-  override protected val serviceID: ServiceID = "$SERVICEID"
-  override protected val subjectID: SubjectID = "$SERVICEID"
+class CollectorServiceActor extends ServiceActor {
+  override protected val INPUT_POOL_SIZE: Int = "100".toInt
+  override protected val serviceID: ServiceID = "Subj3:bdde19cd-bd13-4467-93b8-ef7daa8c7813"
+  override protected val subjectID: SubjectID = "Subj3:bdde19cd-bd13-4467-93b8-ef7daa8c7813"
   protected val serviceInstanceMap = Map[SubjectID, ServiceActorRef]()
   val tempAgentsMap = collection.mutable.Map[String, ProcessInstanceActor.Agent]()
   var from: SubjectID = null
   var processInstanceIdentical: String = ""
   var managerURL: String = ""
-  val startNodeIndex: String = "$STARTNODEINDEX"
+  val startNodeIndex: String = "0"
   var receivedMessageType: String = ""
   var variablesOfService = collection.mutable.Map[String, ListBuffer[SubjectToSubjectMessage]]()
   var sendingVariables = collection.mutable.Map[String, Variable]()
 
   override protected def states: List[State] = List(
-    //$EMPTYSTATE$//
+    ReceiveState(0, "exitcondition", Map("m1" -> Target("Subj2:9f3fc7da-f68c-4d68-aae4-154737f12f5f", -1, -1, false, "")), Map("m1" -> 1), "collectMsg", "v0"), ExitState(5, null, Map(), Map(), null, null), ReceiveState(1, "exitcondition", Map("m2" -> Target("Subj2:9f3fc7da-f68c-4d68-aae4-154737f12f5f", -1, -1, false, "")), Map("m2" -> 2), "receive", "v0"), ReceiveState(2, "exitcondition", Map("m3" -> Target("Subj2:9f3fc7da-f68c-4d68-aae4-154737f12f5f", -1, -1, false, "")), Map("m3" -> 3), "receive", "v0"), processVariable(3, "exitcondition", Map(), Map("3" -> 4), "processVariable", ""), SendState(4, "exitcondition", Map("m5" -> Target("Subj4:345f2c67-303d-4211-b10b-b04d1a99f46b", -1, -1, false, "")), Map("m5" -> 5), "", "v0")
   )
 
   // different received messageType -> different outgoing messageType like: m1 -> m2, m3 -> m4
@@ -53,14 +53,14 @@ class $TemplateServiceActor extends ServiceActor {
 
   // start with first state
   def getStartState(): State = {
-    getState("$STARTNODEINDEX".toInt)
+    getState("0".toInt)
   }
 
   private val messages: Map[MessageType, MessageText] = Map(
-    //$EMPTYMESSAGE$//
+    "messageTwo" -> "m2", "END" -> "m4", "messageOne" -> "m1", "messageThree" -> "m3", "messageFour" -> "m5"
   )
   private val variablesOfSubject: Map[String, String] = Map(
-    //$EMPTYVARIABLES$//
+    "collection" -> "v0"
   )
 
   private val inputPool: scala.collection.mutable.Map[Tuple2[MessageType, SubjectID], Queue[SubjectToSubjectMessage]] = scala.collection.mutable.Map()
@@ -271,10 +271,9 @@ class $TemplateServiceActor extends ServiceActor {
       val newMsgContent = MessageSet(sendingVariables(getVariableName(state.variableId)))
       val newMessage = message.copy(messageContent = newMsgContent)
       determineReceiver(targetSubjectID, newMessage)
-    }else{
+    } else {
       determineReceiver(targetSubjectID, message)
     }
-
   }
 
   def determineReceiver(targetSubjectID: String, msg: SubjectToSubjectMessage): Unit = {
@@ -354,6 +353,7 @@ class $TemplateServiceActor extends ServiceActor {
       }
     }
   }
+
   def getVariableName(vType: String): String = {
     var vName = ""
     for((variableName, variableType) <- variablesOfSubject){
@@ -447,5 +447,17 @@ class $TemplateServiceActor extends ServiceActor {
 
   }
 
-  //$ACTIONSTATESIMPLEMENTATION$//
+
+  case class processVariable(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String, override val variableId: String) extends State("action", id, exitType, targets, targetIds, text, variableId) {
+
+    def process()(implicit actor: ServiceActor) {
+      if (state.variableId != null) {
+        //  create a new Variable and store it into sendingvariable
+      }
+      sendingVariables += "collection" -> vEncapsulation("collection")
+      actor.setMessage("") //TODO set message
+      actor.changeState()
+    }
+  }
+
 }

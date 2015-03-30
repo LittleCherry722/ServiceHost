@@ -38,7 +38,7 @@ abstract class ServiceActor extends InstrumentedActor {
   var returnMessageContent: String = "received message"
   var serviceInstance: ServiceActorRef = null
   val selectedMessages = collection.mutable.ListBuffer[Tuple2[ActorRef, SubjectToSubjectMessage]]()
-  private val variablesOfSubject = scala.collection.mutable.Map[Tuple2[String, Int], ListBuffer[Variable]]()
+ // private val variablesOfSubject = scala.collection.mutable.Map[Tuple2[String, Int], ListBuffer[Variable]]()
 
   def reset(): Unit = {
     state = getStartState()
