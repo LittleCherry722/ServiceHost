@@ -13,20 +13,11 @@
 
 package de.tkip.sbpm.model
 
-import java.sql.Timestamp
-import spray.json.{
-DefaultJsonProtocol,
-JsObject,
-RootJsonFormat,
-JsValue,
-DeserializationException,
-JsNumber
-}
-import de.tkip.sbpm.application.subject.misc.AvailableAction
-import de.tkip.sbpm.application.subject.misc.ActionData
-import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.application.ProcessInstanceActor.AgentAddress
+import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.UserID
+import de.tkip.sbpm.application.subject.misc.{ActionData, AvailableAction}
+
 
 // Model for Administration
 case class User(id: Option[Int], name: String, isActive: Boolean = true, inputPoolSize: Int = 8, gdriveId: String = "")

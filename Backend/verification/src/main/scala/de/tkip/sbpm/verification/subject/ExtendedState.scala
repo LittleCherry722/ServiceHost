@@ -1,8 +1,7 @@
 package de.tkip.sbpm.verification.subject
 
-import de.tkip.sbpm.newmodel._
-import de.tkip.sbpm.newmodel.StateTypes._
 import de.tkip.sbpm.newmodel.ProcessModelTypes._
+import de.tkip.sbpm.newmodel._
 
 sealed trait StateData
 case class ModulJoinStateData(counter: Int) extends StateData
@@ -43,6 +42,7 @@ case class ExtendedState(state: State,
 
   def breakUpTransitions =
     transitions collect { case t @ Transition(BreakUpParam, _, _) => t }
+
 
   def communicationTransitions =
     transitions collect { case t @ Transition(_: CommunicationParams, _, _) => t }

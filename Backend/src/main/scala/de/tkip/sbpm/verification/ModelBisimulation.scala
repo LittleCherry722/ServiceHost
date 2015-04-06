@@ -1,6 +1,7 @@
 package de.tkip.sbpm.verification
 
 import de.tkip.sbpm.newmodel.Channel
+import de.tkip.sbpm.newmodel.ProcessModelTypes.SubjectId
 import de.tkip.sbpm.verification.lts._
 
 /**
@@ -58,6 +59,7 @@ object ModelBisimulation {
   private var cache = Map[LtsState, Set[LtsState]]()
   private var leftMap = Map[LtsState, Set[LtsTransition]]()
   private var rightMap = Map[LtsState, Set[LtsTransition]]()
+  private var subjectMap = Map[SubjectId, SubjectId]()
 
   def checkStructure(left: Lts, right: Lts) : Option[Seq[(LtsState, Set[LtsState])]] = {
     leftMap = left.fromStatesMap
@@ -82,15 +84,15 @@ object ModelBisimulation {
     val (rNode, rTrans) = right
     if(cache.getOrElse(lNode, Set()).contains(rNode)) {
       true
-    } else if (filterTrans(lTrans).subsetOf(filterTrans(rTrans)) || rTrans.exists(_.label == Tau)) {
+    } else if (transitionSubset(lTrans, rTrans) || rTrans.exists(_.label == Tau)) {
       cache = cache + ((lNode, cache.getOrElse(lNode, Set()) + rNode))
       lTrans.map{ lt =>
         if (lt.label == Tau) {
           val nextLeft = (lt.toState, leftMap(lt.toState))
           val nextRight = right
           checkState(nextLeft, nextRight)
-        } else if (rTrans.exists(_.label.simple == lt.label.simple)) {
-          rTrans.filter(_.label == lt.label).map{ rt =>
+        } else if (rTrans.exists{ rt => compareTransitions(lt, rt)}) {
+          rTrans.filter{ rt => compareTransitions(lt, rt) }.map{ rt =>
             val nextLeft = (lt.toState, leftMap(lt.toState))
             val nextRight = (rt.toState, rightMap(rt.toState))
             checkState(nextLeft, nextRight)
@@ -108,7 +110,15 @@ object ModelBisimulation {
     }
   }
 
-  private def filterTrans(ts: Set[LtsTransition]) : Set[String] = {
-    ts.map(_.label).filter(_ != Tau).map(_.simple)
+  private def compareStates(left: LtsState, right: LtsState) : Boolean = {
+    false
+  }
+
+  private def compareTransitions(left: LtsTransition, right: LtsTransition) : Boolean = {
+    false
+  }
+
+  private def transitionSubset(left: Set[LtsTransition], right: Set[LtsTransition]) : Boolean = {
+    left.filter(_.label != Tau).forall{ lt => right.exists{ rt => compareTransitions(lt, rt) } }
   }
 }
