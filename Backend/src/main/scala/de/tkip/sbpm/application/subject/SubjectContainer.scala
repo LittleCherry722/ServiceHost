@@ -119,7 +119,7 @@ class SubjectContainer(
       // inform the subject provider about his new subject
       context.parent !! msg
 
-      reStartSubject(userID)
+      startSubject(userID)
     }
 
     log.debug("Processinstance [" + processInstanceID + "] created Subject " +
@@ -181,9 +181,6 @@ class SubjectContainer(
           log.info("Subject Container creating new subject for user ID: {}", userID)
           createSubject(userID)
         }
-      } else if (!subjects(userID).running) {
-        log.info("Subject Container restarting subject for user ID: :{}", userID)
-        reStartSubject(userID)
       }
 
       log.debug("SEND: {}", message)
@@ -213,24 +210,22 @@ class SubjectContainer(
     sendTo(Array(ExternalUser), message)
   }
 
-  private def reStartSubject(userID: UserID) {
+  private def startSubject(userID: UserID) = {
     if (subjects.contains(userID)) {
       blockingHandlerActor !! BlockUser(userID)
       increaseSubjectCounter()
-      subjects(userID).running = true
       // start the execution
       val msg = StartSubjectExecution()
       subjects(userID) ! msg
     } else {
-      log.error("User %i unknown for subject %s, (re)start failed!"
+      log.error("User %i unknown for subject %s, start failed!"
         .format(userID, subject.id))
     }
   }
 
   private case class SubjectInfo(
     ref: Future[SubjectRef],
-    userID: UserID,
-    var running: Boolean = true) extends ClassTraceLogger {
+    userID: UserID) extends ClassTraceLogger {
 
     def tell(message: Any, from: ActorRef) {
       log.debug("FORWARD: {} TO {} FROM {}", message, ref, from)
