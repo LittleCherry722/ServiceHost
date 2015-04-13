@@ -51,7 +51,7 @@ class SubjectContainer(
   increaseSubjectCounter: () => Unit,
   decreaseSubjectCounter: () => Unit)(implicit context: ActorContext) extends  ClassTraceLogger {
 
-  import scala.collection.mutable.{ Map => MutableMap }
+  import scala.collection.mutable.{ Map => MutableMap, Set => MutableSet }
 
   private implicit val timeout = Timeout(30 seconds)
   implicit val traceName = this.getClass.getSimpleName
@@ -61,7 +61,7 @@ class SubjectContainer(
   private val external = subject.external
 
   private val subjects = MutableMap[UserID, SubjectInfo]()
-  private val nonProperSubjects = MutableMap[UserID, SubjectInfo]()
+  private val nonProperSubjects = MutableSet[UserID]()
 
   /**
    * Adds a Subject to this multisubject
@@ -134,7 +134,7 @@ class SubjectContainer(
     val userID = message.userID
 
     if (!message.proper) {
-      nonProperSubjects += userID -> subjects(userID)
+      nonProperSubjects += userID
     }
 
     // decrease the subject counter
