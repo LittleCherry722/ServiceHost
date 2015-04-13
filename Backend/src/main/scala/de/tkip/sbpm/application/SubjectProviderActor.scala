@@ -15,7 +15,7 @@ package de.tkip.sbpm.application
 
 import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor._
-import akka.pattern.ask
+import akka.pattern.{ ask, pipe }
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Await
 import scala.concurrent.Future
@@ -39,7 +39,7 @@ protected case class SubjectCreated(userID: UserID,
   ref: SubjectRef)
   extends SubjectProviderMessage
 
-case class SubjectTerminated(userID: UserID, subjectID: SubjectID, processInstanceID: ProcessInstanceID, proper: Boolean)
+case class SubjectTerminated(userID: UserID, subjectID: SubjectID, processInstanceID: ProcessInstanceID, proper: Boolean) extends SubjectProviderMessage
 
 case class AskSubjectsForAvailableActions(userID: UserID,
   processInstanceID: ProcessInstanceID = AllProcessInstances,
@@ -51,58 +51,50 @@ class SubjectProviderActor(userID: UserID) extends InstrumentedActor {
 
   val logger = Logging(context.system, this)
 
-  private type Subject = SubjectCreated
+  private var subjects = Map[(ProcessInstanceID, SubjectID), SubjectRef]()
 
-  private var subjects = Set[Subject]()
-
-  private lazy val processManagerActor = ActorLocator.processManagerActor
+  private val processManagerActor = ActorLocator.processManagerActor
 
   processManagerActor ! RegisterSubjectProvider(userID, self)
 
   def wrappedReceive = {
-    case subject: Subject => {
-      subjects += subject
+    case subjectCreated: SubjectCreated => {
+      if (subjectCreated.userID != userID) log.warning("userID mismatch!")
+      subjects += (((subjectCreated.processInstanceID, subjectCreated.subjectID), subjectCreated.ref))
+    }
+
+    case st: SubjectTerminated => {
+      log.info("SubjectTerminated: " + st)
+      subjects -= ((st.processInstanceID, st.subjectID))
     }
 
     case get: GetAvailableActions => {
-      // TODO increase performance
-      // remove the subjects the user is not interested about:
-      // - terminated
-      // - different process instance id
-      // - different subject id
       if (get.isInstanceOf[Debug]) {
         val msg =
           AvailableActionsAnswer(get, DebugActionData.generateActions(get.userID, get.processInstanceID))
         sender !! msg
       } else {
-        askSubjectsForAvailableActions(
+        val f = askSubjectsForAvailableActions(
           get.processInstanceID,
           get.subjectID,
           (actions: Array[AvailableAction]) =>
-            AvailableActionsAnswer(get, actions))()
+            AvailableActionsAnswer(get, actions))
+        f pipeTo sender
       }
     }
 
-    // TODO momentan ist es nicht moeglich den sender zu verwalten
     case AskSubjectsForAvailableActions(_, processInstanceID, subjectID, generateAnswer) => {
-      askSubjectsForAvailableActions(
+      val f = askSubjectsForAvailableActions(
         processInstanceID,
         subjectID,
-        generateAnswer)(sender)
+        generateAnswer)
+      f pipeTo sender
     }
 
     // send subject messages direct to the subject
     case message: SubjectMessage => {
-      // TODO muss performanter gehen weils nur ein subject ist
-      for (
-        subject <- subjects.filter({
-          s: Subject =>
-            s.processInstanceID == message.processInstanceID &&
-              s.subjectID == message.subjectID
-        })
-      ) {
-        subject.ref ! message
-      }
+      val ref = subjects((message.processInstanceID, message.subjectID))
+      ref ! message
     }
 
     // general matching
@@ -129,27 +121,27 @@ class SubjectProviderActor(userID: UserID) extends InstrumentedActor {
 
   private def askSubjectsForAvailableActions(processInstanceID: ProcessInstanceID,
     subjectID: SubjectID,
-    generateAnswer: Array[AvailableAction] => Any)(returnAdress: ActorRef = self) {
+    generateAnswer: Array[AvailableAction] => Any): Future[Any] = {
 
-    val collectedSubjects: Iterable[SubjectRef] =
-      subjects.filter(
-        (s: Subject) =>
-          !s.ref.isTerminated &&
-            (if (processInstanceID == AllProcessInstances)
-              true
-            else
-              (if (subjectID == AllSubjects)
-                processInstanceID == s.processInstanceID
-              else
-                processInstanceID == s.processInstanceID &&
-                  subjectID == s.subjectID))).map(_.ref)
+    val collectedSubjectRefs: Iterable[SubjectRef] =
+      if (processInstanceID != AllProcessInstances && subjectID != AllSubjects) {
+        Seq(subjects((processInstanceID, subjectID)))
+      }
+      else {
+        subjects.filter{
+          case ((pID, sID),_) => {
+            (pID == processInstanceID || processInstanceID == AllProcessInstances) &&
+              (sID == subjectID || subjectID == AllSubjects)
+          }
+        }.map(_._2)
+      }
 
-    logger.debug("subjects: " + collectedSubjects)
+    logger.debug("collectedSubjectsRefs: " + collectedSubjectRefs)
 
     implicit val timeout = akka.util.Timeout(5 seconds) // TODO how long the timeout?
 
     val actionFutureSeq: Seq[Future[Seq[Seq[AvailableAction]]]] =
-      for (subject <- collectedSubjects.filterNot(_.isTerminated).toArray)
+      for (subject <- collectedSubjectRefs.toArray)
         yield (subject ? GetAvailableAction(processInstanceID)).mapTo[Seq[Seq[AvailableAction]]]
     val nestedActionFutures = Future.sequence(actionFutureSeq)
     // flatten the actions
@@ -160,14 +152,7 @@ class SubjectProviderActor(userID: UserID) extends InstrumentedActor {
           action <- inner
         } yield action
 
-    // Await the result
-    // TODO can be done smarter, but at the moment this actor has a single run
-    val actions = Await.result(actionFutures, timeout.duration)
-    logger.debug("Collected: " + actions)
-
-    val answer = generateAnswer(actions.toArray)
-
-    logger.debug("TRACE: from " + this.self + " to " + returnAdress + " " + answer)
-    returnAdress ! answer
+    // return result as Future
+    actionFutures.map(actions => generateAnswer(actions.toArray))
   }
 }

@@ -140,6 +140,9 @@ class SubjectContainer(
     // decrease the subject counter
     decreaseSubjectCounter()
     subjects -= userID
+
+    // inform the subject provider about his terminated subject
+    context.parent !! message
   }
 
   /**
