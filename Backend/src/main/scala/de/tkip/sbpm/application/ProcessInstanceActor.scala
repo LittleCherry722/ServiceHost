@@ -215,7 +215,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
 
       log.debug("process instance [" + id + "]: subject terminated " + st.subjectID)
 
-      if (isTerminated) {
+      if (isTerminated && false) { // deactivated, see SBPM-1009
         log.debug("process instance [" + id + "] is going to terminate")
         val terminate = ProcessInstanceTerminated(id)
         context.parent ! terminate
