@@ -182,7 +182,7 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
       // if it is the mainmacro, terminate the Subject, its IP and all macros; otherwise kill only the terminated macro
       if (macroId.contains(subject.mainMacroName)) {
         killAll()
-        val f = inputPoolActor ?? IsIPEmpty((subjectID, ProcessAttributes.AllMessages))
+        val f = inputPoolActor ?? IsIPEmpty((ProcessAttributes.AllSubjects, ProcessAttributes.AllMessages))
         f.onSuccess {
           case IPEmpty(true) => terminate(true)
           case IPEmpty(false) => terminate(false)
