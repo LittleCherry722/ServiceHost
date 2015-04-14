@@ -62,7 +62,10 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
     case _ =>
       throw new IllegalArgumentException("A Subjectactor need a Subject as data")
   }
-  private val userID = data.userID
+
+  private val userID: UserID = data.userID
+
+  private val processInstanceID: ProcessInstanceID = data.processInstanceID
 
   private val subjectID: SubjectID = subject.id
   private val subjectName: String = subject.id
@@ -126,6 +129,17 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
     //    }
   }
 
+  private def terminate(proper: Boolean): Unit = {
+    log.debug("Subject Terminated")
+    killAll()
+
+    val message = SubjectTerminated(userID, subjectID, processInstanceID, proper)
+    context.parent ! message
+
+    context.stop(inputPoolActor)
+    context.stop(self)
+  }
+
   def wrappedReceive = {
 
     case sm: SubjectToSubjectMessage => {
@@ -165,12 +179,14 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
     }
 
     case MacroTerminated(macroId) => {
-      // TODO if its the mainmacro, kill everything
+      // if it is the mainmacro, terminate the Subject, its IP and all macros; otherwise kill only the terminated macro
       if (macroId.contains(subject.mainMacroName)) {
-        log.debug("Subject Terminated")
         killAll()
-        val message = SubjectTerminated(userID, subjectID)
-        context.parent ! message
+        val f = inputPoolActor ?? IsIPEmpty((ProcessAttributes.AllSubjects, ProcessAttributes.AllMessages))
+        f.onSuccess {
+          case IPEmpty(true) => terminate(true)
+          case IPEmpty(false) => terminate(false)
+        }
       } else {
         log.debug(s"Macro terminated $macroId")
         killMacro(macroId)

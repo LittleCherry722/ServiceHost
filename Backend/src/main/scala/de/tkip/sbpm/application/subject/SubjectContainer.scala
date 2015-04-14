@@ -19,7 +19,7 @@ import akka.actor.Props
 import java.util.UUID
 import akka.pattern.ask
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
-import de.tkip.sbpm.application.{ SubjectCreated, RegisterSingleSubjectInstance }
+import de.tkip.sbpm.application.{ SubjectCreated, SubjectTerminated, RegisterSingleSubjectInstance }
 import de.tkip.sbpm.application.ProcessInstanceActor.{Agent}
 import akka.event.LoggingAdapter
 import akka.actor.ActorRef
@@ -51,7 +51,7 @@ class SubjectContainer(
   increaseSubjectCounter: () => Unit,
   decreaseSubjectCounter: () => Unit)(implicit context: ActorContext) extends  ClassTraceLogger {
 
-  import scala.collection.mutable.{ Map => MutableMap }
+  import scala.collection.mutable.{ Map => MutableMap, Set => MutableSet }
 
   private implicit val timeout = Timeout(30 seconds)
   implicit val traceName = this.getClass.getSimpleName
@@ -61,6 +61,7 @@ class SubjectContainer(
   private val external = subject.external
 
   private val subjects = MutableMap[UserID, SubjectInfo]()
+  private val nonProperSubjects = MutableSet[UserID]()
 
   /**
    * Adds a Subject to this multisubject
@@ -118,7 +119,7 @@ class SubjectContainer(
       // inform the subject provider about his new subject
       context.parent !! msg
 
-      reStartSubject(userID)
+      startSubject(userID)
     }
 
     log.debug("Processinstance [" + processInstanceID + "] created Subject " +
@@ -128,12 +129,20 @@ class SubjectContainer(
   def handleSubjectTerminated(message: SubjectTerminated) {
 
     log.debug("Processinstance [" + processInstanceID + "] Subject " + subject.id + "[" +
-      message.userID + "] terminated")
+      message.userID + "] terminated proper [" + message.proper.toString + "]")
+
+    val userID = message.userID
+
+    if (!message.proper) {
+      nonProperSubjects += userID
+    }
 
     // decrease the subject counter
     decreaseSubjectCounter()
+    subjects -= userID
 
-    subjects(message.userID).running = false
+    // inform the subject provider about his terminated subject
+    context.parent !! message
   }
 
   /**
@@ -165,14 +174,20 @@ class SubjectContainer(
     for (userID <- targetSubjects) {
       log.info("Sending message to user: {}", userID)
       if (!subjects.contains(userID)) {
-        log.info("Subject Container creating new subject for user ID: {}", userID)
-        createSubject(userID)
-      } else if (!subjects(userID).running) {
-        log.info("Subject Container restarting subject for user ID: :{}", userID)
-        reStartSubject(userID)
+        if(nonProperSubjects.contains(userID)) {
+          log.info("Subject is not allowed to restart")
+          return
+        } else {
+          log.info("Subject Container creating new subject for user ID: {}", userID)
+          createSubject(userID)
+        }
       }
 
       log.debug("SEND: {}", message)
+      log.debug("Target user: {}", message.target.targetUsers)
+      for (userId <- subjects) {
+        log.debug("userID: {}", userId)
+      }
 
       val newMessage = if (external) {
         // exchange the target subject id
@@ -195,24 +210,22 @@ class SubjectContainer(
     sendTo(Array(ExternalUser), message)
   }
 
-  private def reStartSubject(userID: UserID) {
+  private def startSubject(userID: UserID) = {
     if (subjects.contains(userID)) {
       blockingHandlerActor !! BlockUser(userID)
       increaseSubjectCounter()
-      subjects(userID).running = true
       // start the execution
       val msg = StartSubjectExecution()
       subjects(userID) ! msg
     } else {
-      log.error("User %i unknown for subject %s, (re)start failed!"
+      log.error("User %i unknown for subject %s, start failed!"
         .format(userID, subject.id))
     }
   }
 
   private case class SubjectInfo(
     ref: Future[SubjectRef],
-    userID: UserID,
-    var running: Boolean = true) extends ClassTraceLogger {
+    userID: UserID) extends ClassTraceLogger {
 
     def tell(message: Any, from: ActorRef) {
       log.debug("FORWARD: {} TO {} FROM {}", message, ref, from)

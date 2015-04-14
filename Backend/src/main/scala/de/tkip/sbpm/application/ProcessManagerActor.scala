@@ -128,6 +128,10 @@ class ProcessManagerActor extends InstrumentedActor {
       //      ActorLocator.persistenceActor ! DeleteProcessInstance(id)
     }
 
+    case terminated: ProcessInstanceTerminated => {
+      processInstanceMap -= terminated.processInstanceID
+    }
+
     // general matching
 
     // SubjectMessage extends trait ProcessInstanceMessage
