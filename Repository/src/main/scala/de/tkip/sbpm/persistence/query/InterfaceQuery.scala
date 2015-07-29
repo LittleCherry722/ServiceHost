@@ -77,7 +77,7 @@ object InterfaceQuery {
         }
       }
     }
-    return deleteSuccess
+    deleteSuccess
   }
 
   // update entity or throw exception if it does not exist

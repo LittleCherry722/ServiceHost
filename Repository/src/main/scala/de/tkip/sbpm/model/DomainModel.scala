@@ -23,7 +23,9 @@ object InterfaceType extends Enumeration {
   val InterfaceInterfaceType = Value(InterfaceTypeString)
 }
 
+
 import InterfaceType.InterfaceType
+import de.tkip.sbpm.newmodel.ProcessModelTypes.SubjectId
 
 case class Configuration(key: String,
                          label: Option[String],
@@ -53,7 +55,61 @@ case class Address(id: Option[Int], ip: String, port: Int)
 case class Graph(id: Option[Int],
                  conversations: Map[String, GraphConversation],
                  messages: Map[String, GraphMessage],
-                 subjects: Map[String, GraphSubject])
+                 subjects: Map[String, GraphSubject]) {
+
+  lazy val startSubject = subjects.values.find(_.isStartSubject.getOrElse(false))
+
+  // creates a set of message transitions (from, msg, to) that very roughly
+  // describes the interaction between subjects in this graph.
+  // Useful for quick sanity checks if two graphs could have an equivalent behavior.
+  lazy val staticInterface = subjects.values.flatMap{s =>
+    val transitions = s.transitions
+    transitions.filter(t => t.isReceive || t.isSend).flatMap { t =>
+      if (t.isReceive) {
+        t.edge.target.map (target => (target.subjectId, t.edge.text, s.id) )
+      } else if (t.isSend) {
+        t.edge.target.map (target => (s.id, t.edge.text, target.subjectId) )
+      } else {
+        None
+      }
+    }
+  }.toSet
+}
+
+case class GraphTransition(fromNode: GraphNode
+                           ,toNode: GraphNode
+                           ,edge: GraphEdge
+                           ,mId: String = "##main##"
+                           ,mName: String = "internal behavior") {
+  lazy val isReceive = fromNode.isReceive
+  lazy val isSend = fromNode.isSend
+  lazy val isModal = fromNode.isModalJoin || fromNode.isModalSplit
+  lazy val isVarMan = fromNode.isVarMan
+  lazy val isChooseAgent = fromNode.isChooseAgent
+
+  lazy val saveToVariable = edge.variableId.filterNot(_.isEmpty)
+
+  lazy val targetSubjectId: Option[SubjectId] = edge.target.map{target: GraphEdgeTarget => target.subjectId}
+
+  def usesVariable(variable: String): Boolean = {
+    fromNode.variableId.contains(variable) ||
+      fromNode.varMan.exists{v => Seq(v.var1Id, v.var2Id, v.storeVarId).contains(variable) } ||
+      edge.target.exists(_.variableId.contains(variable))
+  }
+  val communicationPartner =
+    if (isSend || isReceive) {
+      edge.target.map(_.subjectId)
+    } else {
+      None
+    }
+
+  def interactsWith(subject: GraphSubject): Boolean = {
+    (isSend || isReceive) && edge.target.map(_.subjectId).contains(subject.id)
+  }
+  def interactsWith(subject: SubjectId): Boolean = {
+    (isSend || isReceive) && edge.target.map(_.subjectId).contains(subject)
+  }
+}
 
 case class GraphConversation(id: String, name: String)
 
@@ -77,7 +133,40 @@ case class GraphSubject(id: String,
                         implementations: Seq[InterfaceImplementation],
                         comment: Option[String],
                         variables: Map[String, GraphVariable],
-                        macros: Map[String, GraphMacro])
+                        macros: Map[String, GraphMacro]) extends Ordered[GraphSubject] {
+
+  def compare(that: GraphSubject): Int = this.id compare that.id
+
+  // Incoming messages as (SubjectId, MsgId) tuple
+  lazy val inCom: Set[(String, String)] = transitions.filter{t => t.isReceive}
+    .flatMap(trans => trans.edge.target.map(t => (t.subjectId, trans.edge.text))).toSet
+
+  // Outgoing messages as (SubjectId, MsgId) tuple
+  lazy val outCom: Set[(String, String)] = transitions.filter{t => t.isSend}
+    .flatMap(trans => trans.edge.target.map(t => (t.subjectId, trans.edge.text))).toSet
+
+  lazy val outDegree: Int = outCom.size
+  lazy val inDegree: Int = inCom.size
+
+  // Set of SubjectIds this subject interacts with (sending or receiving messages)
+  lazy val neighborSubjectIds: Set[SubjectId] = transitions.filter{t => t.isSend}
+    .flatMap(_.edge.target.map(_.subjectId))
+    .filter(_ != id).toSet
+
+  // State Transitions flattened over all macros as a List of GraphTransitions.
+  lazy val transitions: Seq[GraphTransition] = {
+    val ts = for {
+      makro <- macros.values
+      edge <- makro.edges
+    } yield GraphTransition(
+        fromNode = makro.nodes(edge.startNodeId)
+        ,toNode = makro.nodes(edge.endNodeId)
+        ,edge = edge
+        ,mId = makro.id
+        ,mName = makro.name)
+    ts.toSeq
+  }
+}
 
 case class GraphVariable(id: String, name: String)
 
@@ -102,7 +191,28 @@ case class GraphNode(id: Short,
                      chooseAgentSubject: Option[String],
                      macroId: Option[String],
                      blackboxname: Option[String],
-                     varMan: Option[GraphVarMan])
+                     varMan: Option[GraphVarMan]) {
+
+  // Convenience variables for easy node type comparisons
+  val isVarMan = nodeType == StateType.VariableManipulationString
+  val isBlackbox = nodeType == StateType.BlackboxStateString
+  val isTau = nodeType == StateType.TauStateString
+  val isMacro = nodeType == StateType.MacroStateString
+  val isArchive = nodeType == StateType.ArchiveStateString
+  val isSplitGuard = nodeType == StateType.SplitGuardStateString
+  val isModalJoin = nodeType == StateType.ModalJoinStateString
+  val isModalSplit = nodeType == StateType.ModalSplitStateString
+  val isChooseAgent = nodeType == StateType.ChooseAgentStateString
+  val isDecision = nodeType == StateType.DecisionStateString
+  val isDeactivate = nodeType == StateType.DeactivateStateString
+  val isActivate = nodeType == StateType.ActivateStateString
+  val isIsIpEmpty = nodeType == StateType.IsIPEmptyStateString
+  val isOpenIp = nodeType == StateType.OpenIPStateString
+  val isCloseIp = nodeType == StateType.CloseIPStateString
+  val isReceive = nodeType == StateType.ReceiveStateString
+  val isSend = nodeType == StateType.SendStateString
+  val isAct = nodeType == StateType.ActStateString
+}
 
 case class GraphNodeOptions(messageId: Option[String] = None,
                             subjectId: Option[String] = None,

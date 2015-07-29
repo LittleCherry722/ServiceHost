@@ -38,15 +38,18 @@ object ProjectBuild extends Build {
 
         "org.xerial" % "sqlite-jdbc" % "3.7.2",
         "com.mchange" % "c3p0" % "0.9.5-pre8",
-        "io.spray" %% "spray-testkit" % "1.3.1" % "test",
-        "io.spray" %% "spray-can" % "1.3.1",
-        "io.spray" %% "spray-routing" % "1.3.1",
-        "io.spray" %% "spray-client" % "1.3.1",
+        "io.spray" %% "spray-testkit" % "1.3.3" % "test",
+        "io.spray" %% "spray-can" % "1.3.3",
+        "io.spray" %% "spray-json" % "1.3.2",
+        "io.spray" %% "spray-routing" % "1.3.3",
+        "io.spray" %% "spray-client" % "1.3.3",
         "net.virtual-void" %%  "json-lenses" % "0.5.4",
         "com.github.t3hnar" % "scala-bcrypt_2.11" % "2.4",
         "com.fasterxml.jackson.core" % "jackson-core" % "2.2.0",
 
         "org.scalaj" %% "scalaj-http" % "0.3.15",
+
+        "org.scalaz" %% "scalaz-core" % "7.1.2",
 
         //"com.google.guava" % "guava" % "14.0.1",
         //"com.google.code.findbugs" % "jsr305" % "2.0.1",

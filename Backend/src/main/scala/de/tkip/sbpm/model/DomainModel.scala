@@ -17,6 +17,7 @@ import de.tkip.sbpm.application.ProcessInstanceActor.AgentAddress
 import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.UserID
 import de.tkip.sbpm.application.subject.misc.{ActionData, AvailableAction}
+import de.tkip.sbpm.newmodel.ProcessModelTypes.SubjectId
 
 
 // Model for Administration
@@ -53,6 +54,20 @@ case class Process(id: Option[Int],
                    activeGraphId: Option[Int] = None)
 
 case class Message(id: Option[Int], fromUser: UserID, toUser: UserID, title: String, isRead: Boolean, content: String, date: java.sql.Timestamp)
+
+object SubjectType {
+  val ExternalSubjectType = "external"
+  val SingleSubjectType = "single"
+  val MultiSubjectType = "multi"
+  val MultiExternalSubjectType = "multiexternal"
+}
+
+object SubjectExternalType {
+  val ExternalSubjectdType = "external"
+  val InterfaceSubjectType = "interface"
+  val InstantInterfaceSubjectType = "instantinterface"
+  val BlackBoxSubjectType = "blackbox"
+}
 
 //case class Action(id: Option[Int], data: String) // TODO extend this case class to fit the requirements
 
@@ -183,8 +198,27 @@ case class Graph(id: Option[Int],
                  date: java.sql.Timestamp,
                  conversations: Map[String, GraphConversation],
                  messages: Map[String, GraphMessage],
-                 subjects: Map[String, GraphSubject],
-                 routings: Seq[GraphRouting])
+                 subjects: Map[SubjectId, GraphSubject],
+                 routings: Seq[GraphRouting]) {
+
+  lazy val startSubject = subjects.values.find(_.isStartSubject.getOrElse(false))
+
+  // creates a set of message transitions (from, msg, to) that very roughly
+  // describes the interaction between subjects in this graph.
+  // Useful for quick sanity checks if two graphs could have an equivalent behavior.
+  lazy val staticInterface = subjects.values.flatMap{s =>
+    val transitions = s.transitions
+    transitions.filter(t => t.isReceive || t.isSend).flatMap { t =>
+      if (t.isReceive) {
+        t.edge.target.map (target => (target.subjectId, t.edge.text, s.id) )
+      } else if (t.isSend) {
+        t.edge.target.map (target => (s.id, t.edge.text, target.subjectId) )
+      } else {
+        None
+      }
+    }
+  }.toSet
+}
 
 case class GraphConversation(id: String, name: String)
 
@@ -200,6 +234,42 @@ case class GraphRoutingExpression(subjectId: String,
                                   userId: Option[Int])
 
 case class MergedSubject(id: String, name: String)
+
+
+case class GraphTransition(fromNode: GraphNode
+                          ,toNode: GraphNode
+                          ,edge: GraphEdge
+                          ,mId: String = "##main##"
+                          ,mName: String = "internal behavior") {
+  lazy val isReceive = fromNode.isReceive
+  lazy val isSend = fromNode.isSend
+  lazy val isModal = fromNode.isModalJoin || fromNode.isModalSplit
+  lazy val isVarMan = fromNode.isVarMan
+  lazy val isChooseAgent = fromNode.isChooseAgent
+
+  lazy val saveToVariable = edge.variableId.filterNot(_.isEmpty)
+
+  lazy val targetSubjectId: Option[SubjectId] = edge.target.map{target: GraphEdgeTarget => target.subjectId}
+
+  def usesVariable(variable: String): Boolean = {
+    fromNode.variableId.contains(variable) ||
+      fromNode.varMan.exists{v => Seq(v.var1Id, v.var2Id, v.storeVarId).contains(variable) } ||
+      edge.target.exists(_.variableId.contains(variable))
+  }
+  val communicationPartner =
+    if (isSend || isReceive) {
+      edge.target.map(_.subjectId)
+    } else {
+      None
+    }
+
+  def interactsWith(subject: GraphSubject): Boolean = {
+    (isSend || isReceive) && edge.target.map(_.subjectId).contains(subject.id)
+  }
+  def interactsWith(subject: SubjectId): Boolean = {
+    (isSend || isReceive) && edge.target.map(_.subjectId).contains(subject)
+  }
+}
 
 case class GraphSubject(id: String,
                         name: String,
@@ -218,7 +288,40 @@ case class GraphSubject(id: String,
                         implementations: Option[List[InterfaceImplementation]],
                         comment: Option[String],
                         variables: Map[String, GraphVariable],
-                        macros: Map[String, GraphMacro])
+                        macros: Map[String, GraphMacro]) extends Ordered[GraphSubject] {
+
+  def compare(that: GraphSubject): Int = this.id compare that.id
+
+  // Incoming messages as (SubjectId, MsgId) tuple
+  lazy val inCom: Set[(String, String)] = transitions.filter{t => t.isReceive}
+    .flatMap(trans => trans.edge.target.map(t => (t.subjectId, trans.edge.text))).toSet
+
+  // Outgoing messages as (SubjectId, MsgId) tuple
+  lazy val outCom: Set[(String, String)] = transitions.filter{t => t.isSend}
+    .flatMap(trans => trans.edge.target.map(t => (t.subjectId, trans.edge.text))).toSet
+
+  lazy val outDegree: Int = outCom.size
+  lazy val inDegree: Int = inCom.size
+
+  // Set of SubjectIds this subject interacts with (sending or receiving messages)
+  lazy val neighborSubjectIds: Set[SubjectId] = transitions.filter{t => t.isSend}
+    .flatMap(_.edge.target.map(_.subjectId))
+    .filter(_ != id).toSet
+
+  // State Transitions flattened over all macros as a List of GraphTransitions.
+  lazy val transitions: Seq[GraphTransition] = {
+    val ts = for {
+      makro <- macros.values
+      edge <- makro.edges
+    } yield GraphTransition(
+        fromNode = makro.nodes(edge.startNodeId)
+        ,toNode = makro.nodes(edge.endNodeId)
+        ,edge = edge
+        ,mId = makro.id
+        ,mName = makro.name)
+    ts.toSeq
+  }
+}
 
 case class GraphVariable(id: String, name: String)
 
@@ -228,22 +331,43 @@ case class GraphMacro(id: String,
                       edges: Seq[GraphEdge])
 
 case class GraphNode(id: Short,
-                     text: String,
-                     isStart: Boolean,
-                     isEnd: Boolean,
+                     text: String = "",
+                     isStart: Boolean = false,
+                     isEnd: Boolean = false,
                      nodeType: String,
-                     manualPositionOffsetX: Option[Short],
-                     manualPositionOffsetY: Option[Short],
-                     isAutoExecute: Option[Boolean],
-                     isDisabled: Boolean,
-                     isMajorStartNode: Boolean,
-                     conversationId: Option[String],
-                     variableId: Option[String],
-                     options: GraphNodeOptions,
-                     chooseAgentSubject: Option[String],
-                     macroId: Option[String],
-                     blackboxname: Option[String],
-                     varMan: Option[GraphVarMan])
+                     manualPositionOffsetX: Option[Short] = None,
+                     manualPositionOffsetY: Option[Short] = None,
+                     isAutoExecute: Option[Boolean] = Some(false),
+                     isDisabled: Boolean = false,
+                     isMajorStartNode: Boolean = false,
+                     conversationId: Option[String] = None,
+                     variableId: Option[String] = None,
+                     options: GraphNodeOptions = GraphNodeOptions(),
+                     chooseAgentSubject: Option[String] = None,
+                     macroId: Option[String] = None,
+                     blackboxname: Option[String] = None,
+                     varMan: Option[GraphVarMan] = None) {
+
+  // Convenience variables for easy node type comparisons
+  val isVarMan = nodeType == StateType.VariableManipulationString
+  val isBlackbox = nodeType == StateType.BlackboxStateString
+  val isTau = nodeType == StateType.TauStateString
+  val isMacro = nodeType == StateType.MacroStateString
+  val isArchive = nodeType == StateType.ArchiveStateString
+  val isSplitGuard = nodeType == StateType.SplitGuardStateString
+  val isModalJoin = nodeType == StateType.ModalJoinStateString
+  val isModalSplit = nodeType == StateType.ModalSplitStateString
+  val isChooseAgent = nodeType == StateType.ChooseAgentStateString
+  val isDecision = nodeType == StateType.DecisionStateString
+  val isDeactivate = nodeType == StateType.DeactivateStateString
+  val isActivate = nodeType == StateType.ActivateStateString
+  val isIsIpEmpty = nodeType == StateType.IsIPEmptyStateString
+  val isOpenIp = nodeType == StateType.OpenIPStateString
+  val isCloseIp = nodeType == StateType.CloseIPStateString
+  val isReceive = nodeType == StateType.ReceiveStateString
+  val isSend = nodeType == StateType.SendStateString
+  val isAct = nodeType == StateType.ActStateString
+}
 
 case class GraphNodeOptions(messageId: Option[String] = None,
                             subjectId: Option[String] = None,
@@ -265,22 +389,22 @@ case class GraphEdge(startNodeId: Short,
                      endNodeId: Short,
                      text: String,
                      edgeType: String,
-                     manualPositionOffsetLabelX: Option[Short],
-                     manualPositionOffsetLabelY: Option[Short],
-                     target: Option[GraphEdgeTarget],
-                     isDisabled: Boolean,
-                     isOptional: Boolean,
-                     priority: Byte,
-                     manualTimeout: Boolean,
-                     variableId: Option[String],
-                     correlationId: Option[String],
-                     comment: Option[String],
-                     transportMethod: Seq[String])
+                     manualPositionOffsetLabelX: Option[Short] = None,
+                     manualPositionOffsetLabelY: Option[Short] = None,
+                     target: Option[GraphEdgeTarget] = None,
+                     isDisabled: Boolean = false,
+                     isOptional: Boolean = false,
+                     priority: Byte = 1,
+                     manualTimeout: Boolean = false,
+                     variableId: Option[String] = None,
+                     correlationId: Option[String] = None,
+                     comment: Option[String] = None,
+                     transportMethod: Seq[String] = Seq("internal"))
 
 case class GraphEdgeTarget(subjectId: String,
-                           exchangeOriginId: Option[String],
-                           exchangeTargetId: Option[String],
+                           exchangeOriginId: Option[String] = None,
+                           exchangeTargetId: Option[String] = None,
                            min: Short = -1,
                            max: Short = -1,
-                           createNew: Boolean,
+                           createNew: Boolean = false,
                            variableId: Option[String])

@@ -2,6 +2,11 @@ import sbt._
 import sbt.Keys._
 
 object ProjectBuild extends Build {
+  lazy val verification = project.in(file("verification")).settings(
+    name := "S-BPM Verification",
+    scalaVersion := "2.11.1"
+  )
+
 
   lazy val root = Project(
     id = "root",
@@ -19,7 +24,7 @@ object ProjectBuild extends Build {
         "Sonatype Releases" at "http://oss.sonatype.org/content/repositories/releases",
         "google-api-services" at "http://google-api-client-libraries.appspot.com/mavenrepo"),
       libraryDependencies ++= Seq(
-        "org.scalatest" %% "scalatest" % "2.2.0" % "test",
+        "org.scalatest" %% "scalatest" % "2.2.1" % "test",
         "com.typesafe.akka" %% "akka-actor" % "2.3.4",
         "com.typesafe.akka" %% "akka-testkit" % "2.3.4" % "test",
         "com.typesafe.akka" %% "akka-slf4j" % "2.3.4",
@@ -29,10 +34,12 @@ object ProjectBuild extends Build {
         "org.xerial" % "sqlite-jdbc" % "3.7.2",
         "com.mchange" % "c3p0" % "0.9.5-pre8",
 
-        "io.spray" %% "spray-testkit" % "1.3.1" % "test",
-        "io.spray" %% "spray-can" % "1.3.1",
-        "io.spray" %% "spray-routing" % "1.3.1",
-        "io.spray" %% "spray-http" % "1.3.1",
-        "io.spray" %% "spray-json" % "1.2.6"
-      )))
+        "org.scalaz" %% "scalaz-core" % "7.1.2",
+
+        "io.spray" %% "spray-testkit" % "1.3.3" % "test",
+        "io.spray" %% "spray-can" % "1.3.3",
+        "io.spray" %% "spray-routing" % "1.3.3",
+        "io.spray" %% "spray-http" % "1.3.3",
+        "io.spray" %% "spray-json" % "1.3.2"
+      ))).aggregate().dependsOn(verification)
 }

@@ -2071,7 +2071,7 @@ function gf_guiLoadDropDownForNode (behavior, nodeType)
 	else if (nodeType == "$chooseagent")
 	{
 		gf_guiElementShow(gv_elements.inputNodeChooseAgent);
-		gf_guiLoadDropDownInterfaceSubjects(gv_elements.inputNodeChooseAgentSubject, gv_graph.selectedSubject);
+		gf_guiLoadDropDownSubjects(gv_elements.inputNodeChooseAgentSubject, gv_graph.selectedSubject);
 	}
 	else if (nodeType == "$blackbox")
 	{

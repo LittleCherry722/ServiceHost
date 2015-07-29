@@ -48,7 +48,7 @@ case class ProcessModel(id: ProcessId,
       collect { case NewSubjectInstances(r, _, _, _) => r }
   ) {
     require(
-      subjects map (_.id) contains relatedSubject,
+      subjects.map(_.id).contains(relatedSubject),
       "The target of CreateNewSubjectInstance musst exists, failed for: "
         + relatedSubject)
   }

@@ -1,13 +1,9 @@
 package de.tkip.sbpm.verification.lts
 
-import de.tkip.sbpm.newmodel._
-import de.tkip.sbpm.newmodel.StateTypes._
-import de.tkip.sbpm.newmodel.ProcessModelTypes._
 import de.tkip.sbpm.misc.HashCodeCache
+import de.tkip.sbpm.newmodel._
+import de.tkip.sbpm.verification.subject.{SubjectStatus, VerificationSubject}
 import de.tkip.sbpm.verification.succ._
-import de.tkip.sbpm.verification.subject.SubjectStatus
-import de.tkip.sbpm.verification.subject.VerificationSubject
-import de.tkip.sbpm.verification.subject.SubjectStatus
 
 /*
  * activated subjects
@@ -52,5 +48,5 @@ case class LtsState(subjectMap: Map[Channel, VerificationSubject]) extends HashC
       transition.priority)
   }
 
-  def mkString = subjectMap.map(_._2).mkString("", " | ", "")
+  def mkString = subjectMap.values.mkString("", " | ", "")
 }

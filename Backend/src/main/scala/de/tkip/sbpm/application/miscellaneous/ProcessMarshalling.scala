@@ -13,13 +13,12 @@
 
 package de.tkip.sbpm.application.miscellaneous
 
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.{ Map => MutableMap }
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.model._
-import de.tkip.sbpm.model.StateType._
-import de.tkip.sbpm.rest.JsonProtocol._
 import de.tkip.sbpm.application.subject.behavior._
+import de.tkip.sbpm.model.StateType._
+import de.tkip.sbpm.model._
+
+import scala.collection.mutable.{ArrayBuffer, Map => MutableMap}
 
 object MarshallingAttributes {
   val exitCondLabel = "exitcondition"

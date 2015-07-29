@@ -105,6 +105,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       // convert role name back to role object if role is known 
       case JsString(name) if (roles.hasRole(name))  => roles.getRole(name)
       case JsString("noRole")                       => None
+      case JsString("default")                      => None
       case JsString("")                             => None
       case JsNull                                   => None
       case _                                        => throw new DeserializationException("Existing role name or null expected. Unknown role: " + v + ". RoleMapper: " + roles)

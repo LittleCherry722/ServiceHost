@@ -1,14 +1,7 @@
 package de.tkip.sbpm.verification.graph
 
-import de.tkip.sbpm.graph.graphml.GraphWriter
-import de.tkip.sbpm.graph.graphml.NodeFields
-import de.tkip.sbpm.verification.lts.LtsState
-import de.tkip.sbpm.graph.graphml.EdgeFields
-import de.tkip.sbpm.verification.lts.LtsTransition
-import de.tkip.sbpm.verification.lts.Tau
-import de.tkip.sbpm.verification.lts.SendLabel
-import de.tkip.sbpm.verification.lts.Lts
-import de.tkip.sbpm.verification.lts.ReceiveLabel
+import de.tkip.sbpm.graph.graphml.{EdgeFields, GraphWriter, NodeFields}
+import de.tkip.sbpm.verification.lts.{Lts, LtsState, LtsTransition, Tau}
 
 object VerificationGraphWriter {
   def writeLts(lts: Lts,
@@ -39,27 +32,35 @@ class VerificationGraphWriter(lts: Lts) extends GraphWriter[LtsState] {
         override def myType = "roundrectangle"
         override def color = "#00CCCC"
       }
-      case _ =>
-        if (lts.fromStatesMap(node).nonEmpty)
+      case _ => {
+        if (lts.fromStatesMap(node).nonEmpty) {
           // if its a failed end state in the run
           if (lts.invalidNodes contains node) new NodeFields() {
             override def text = node.mkString
+
             override def myType = "roundrectangle"
+
             override def color = "#FF9900"
-          }
-          else
+          } else {
             // successful state (has a way to the successful end state)
             new NodeFields() {
               override def text = node.mkString
+
               override def color = "#FFFF99"
             }
+          }
         // failed end state end of run
-        // normal state 
-        else new NodeFields() {
-          override def text = node.mkString
-          override def myType = "diamond"
-          override def color = "#FF6600"
+        // normal state
+        } else {
+          new NodeFields() {
+            override def text = node.mkString
+
+            override def myType = "diamond"
+
+            override def color = "#FF6600"
+          }
         }
+      }
     }
 
   protected def getEdgeInfo(edge: GraphEdge[LtsState]) =

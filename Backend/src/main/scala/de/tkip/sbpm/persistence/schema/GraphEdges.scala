@@ -74,7 +74,7 @@ trait GraphEdgesSchema extends GraphNodesSchema {
         manualPositionOffsetLabelX = x(8),
         manualPositionOffsetLabelY = x(9),
         targetSubjectId            = x(10),
-        exchangeTargetId    = x(11),
+        exchangeTargetId           = x(11),
         targetMin                  = x(12),
         targetMax                  = x(13),
         targetCreateNew            = x(14),
