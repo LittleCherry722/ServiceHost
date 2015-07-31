@@ -13,20 +13,19 @@
 
 package de.tkip.sbpm.persistence.testdata
 
-import de.tkip.sbpm.model._
+import java.io.ByteArrayOutputStream
+
 import akka.actor.ActorRef
 import akka.pattern._
-import scala.concurrent.duration._
-import scala.concurrent.Future
-
 import com.github.t3hnar.bcrypt._
-import scala.concurrent.ExecutionContext
 import de.tkip.sbpm.application.miscellaneous.RoleMapper
+import de.tkip.sbpm.model._
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.rest.GraphJsonProtocol._
 import spray.json.JsonParser
-import de.tkip.sbpm.model._
-import java.io.ByteArrayOutputStream
+
+import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration._
 
 /**
  * Provides test data for the database.
@@ -109,21 +108,21 @@ object Entities {
 //    (Process(None, None, false, """Fortgeschritten Rechnung""", false) -> loadJson("fortgeschritten_rechnung")),
 //    (Process(None, None, false, """Simple Observer Example""", false) -> loadJson("simple_observer_example")),
 //    (Process(None, None, false, """Shared IP Test""", false) -> loadJson("shared_ip_test")),
-    (Process(None, None, false, """Service Host Test""", false) -> loadJson("service_host_test")),
-    (Process(None, None, false, """Service Host Two""", false) -> loadJson("service_host_two")),
-    (Process(None, None, false, """ServiceToService Test""", false) -> loadJson("ServiceToService")),
-    (Process(None, None, false, """Service Host Three""", false) -> loadJson("service_host_three")),
+    (Process(None, None, Seq.empty, false, """Service Host Test""", false) -> loadJson("service_host_test")),
+    (Process(None, None, Seq.empty, false, """Service Host Two""", false) -> loadJson("service_host_two")),
+    (Process(None, None, Seq.empty, false, """ServiceToService Test""", false) -> loadJson("ServiceToService")),
+    (Process(None, None, Seq.empty, false, """Service Host Three""", false) -> loadJson("service_host_three")),
 //    (Process(None, None, false, """Service Host Four""", false) -> loadJson("service_host_four")),
-    (Process(None, None, false, """VASEC Router Stub""", false) -> loadJson("vasec_router_stub")),
+    (Process(None, None, Seq.empty, false, """VASEC Router Stub""", false) -> loadJson("vasec_router_stub")),
 
 //  variables processes
-    (Process(None, None, false, """Variables to subjects local""", false) -> loadJson("variables_to_subjects_local")),
-    (Process(None, None, false, """Variables to subjects external""", false) -> loadJson("variables_to_subjects_external")),
-    (Process(None, None, false, """Variables to variables external""", false) -> loadJson("variables_to_variables")),
-    (Process(None, None, false, """Variables to variables and extraction external""", false) -> loadJson("variables_to_variables_extraction")),
+    (Process(None, None, Seq.empty, false, """Variables to subjects local""", false) -> loadJson("variables_to_subjects_local")),
+    (Process(None, None, Seq.empty, false, """Variables to subjects external""", false) -> loadJson("variables_to_subjects_external")),
+    (Process(None, None, Seq.empty, false, """Variables to variables external""", false) -> loadJson("variables_to_variables")),
+    (Process(None, None, Seq.empty, false, """Variables to variables and extraction external""", false) -> loadJson("variables_to_variables_extraction")),
 
-    (Process(None, None, false, """test8080""", false) -> loadJson("test8080")),
-    (Process(None, None, false, """RatioDrink""", false) -> loadJson("ratiodrink"))
+    (Process(None, None, Seq.empty, false, """test8080""", false) -> loadJson("test8080")),
+    (Process(None, None, Seq.empty, false, """RatioDrink""", false) -> loadJson("ratiodrink"))
    )
 
 

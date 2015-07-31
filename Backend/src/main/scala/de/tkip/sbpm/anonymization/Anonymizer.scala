@@ -10,8 +10,8 @@ object Anonymizer {
   type GraphNodeId = Short
 
   // Create a view of the graph originalGraph for the subject with the specified viewSubjectId.
-  // STATUS: DONE
-  def createView(viewSubjectId: SubjectId, originalGraph: Graph): Either[String, Graph] = {
+  // TODO: Implement advanced Pruning
+  def createView(viewSubjectId: SubjectId, originalGraph: Graph): Either[String, View] = {
     // make sure the of the currently local subjects, only one is communicating with the world.
     // If this is not the case, report the violation and return
     // At the moment, we require that exactly one local subject is in contact with all
@@ -33,15 +33,10 @@ object Anonymizer {
           // Mark the viewSubject as local single subject and all others as interface subjects
           squashInterfaceSubjects(flipSubjectTypes(newGraph, viewSubjectId)) match {
             case None => Left("Cannot squash interface subjects")
-            case Some(g) => Right(g)
+            case Some(g) => Right(View(viewSubjectId, g))
           }
       }
     }
-  }
-
-  // Anonymize a graph. Local subjects are treated as immutable.
-  private def anonymize(graph: Graph): Graph = {
-    graph
   }
 
   // Given a process graph and a proxy subject that is not to be removed, prune all
@@ -60,19 +55,20 @@ object Anonymizer {
       val newGraph: Option[Graph] = removableSubjects(removeCandidates, graph).headOption.map {
         case (remSub, fromSub) => pruneSubject(remSub.id, fromSub.id, graph)
       }.orElse {
+        None
         // View creates a lazy view on the set of subjects. Mapping over the lazy list and then finding
         // ensures the mergeSubject function is only executed exactly as often as needed to find
         // a subject that can be merged.
         // Put more clearly, the mapping function is called for the first element of the list,
         // then the find function is called for this element. If an element is found, the search can terminate
         // early. If not, the mapping function is called for the next element in the list, etc.
-        val mergePairs = for {
-          distantSub <- localSubs - localProxy
-          comSubId <- distantSub.transitions.filter(s => s.isReceive || s.isSend).flatMap(_.targetSubjectId.filterNot(_.isEmpty))
-        } yield (comSubId, distantSub.id)
-        mergePairs.view.map(remSubPair => mergeSubject(remSubPair._1, remSubPair._2, graph)).find(g =>
-          g.subjects.size < graph.subjects.size
-        )
+//        val mergePairs = for {
+//          distantSub <- localSubs - localProxy
+//          comSubId <- distantSub.transitions.filter(s => s.isReceive || s.isSend).flatMap(_.targetSubjectId.filterNot(_.isEmpty))
+//        } yield (comSubId, distantSub.id)
+//        mergePairs.view.map(remSubPair => mergeSubject(remSubPair._1, remSubPair._2, graph)).find(g =>
+//          g.subjects.size < graph.subjects.size
+//        )
       }
 
       // hand-rolled map, since map itself is a function after all and would make this function
@@ -111,24 +107,25 @@ object Anonymizer {
             case (remSub, fromSub) =>
               pruneSubject(remSub.id, fromSub.id, graph)
           }.orElse {
+            None
             // View creates a lazy view on the set of subjects. Mapping over the lazy list and then finding
             // ensures the mergeSubject function is only executed exactly as often as needed to find
             // a subject that can be merged.
             // Put more clearly, the mapping function is called for the first element of the list,
             // then the find function is called for this element. If an element is found, the search can terminate
             // early. If not, the mapping function is called for the next element in the list, etc.
-            val mergePairs = for {
-              distantSub <- distantSubjects
-              comSubId <- distantSub.transitions.filter(s => s.isReceive || s.isSend).flatMap(_.targetSubjectId.filterNot(_.isEmpty))
-            } yield (comSubId, distantSub.id)
-            mergePairs.view.map(remSubPair => mergeSubject(remSubPair._2, remSubPair._1, graph)).find(g =>
-              g.subjects.size < graph.subjects.size
-            )
+//            val mergePairs = for {
+//              distantSub <- distantSubjects
+//              comSubId <- distantSub.transitions.filter(s => s.isReceive || s.isSend).flatMap(_.targetSubjectId.filterNot(_.isEmpty))
+//            } yield (comSubId, distantSub.id)
+//            mergePairs.view.map(remSubPair => mergeSubject(remSubPair._2, remSubPair._1, graph)).find(g =>
+//              g.subjects.size < graph.subjects.size
+//            )
           }
 
           newGraph match {
             case None =>
-              None
+              Some(graph)
             case Some(g) =>
               squashInterfaceSubjects(g)
 
@@ -343,42 +340,6 @@ object Anonymizer {
     recAddVars(Set.empty, vars.toSet)
   }
 
-  // merge two subjects by inlining the behavior of the fromSubject into the intoSubject.
-  // This introduces new modalSplit and modalJoin states before and after the first, respectively last
-  // interaction with this subject. All former communication with this subject is rewritten to be internal messages,
-  // essentially messages from subject A to subject A, something that is NOT supported by the current execution engine.
-  // It should however be supported by the verification engine.
-  // All other subjects in graph that communicate with the fromSubject have their communication
-  // rewritten to point to the intoSubject.
-  // The fromSubject is then removed from the graph.
-  // This algorithm assumes that only one start node is present, multiple end nodes are however perfectly fine.
-  // TODO: Modal split -> End states are not connected properly, investigate
-  // STATUS: DONNE
-  private def mergeSubject(from: SubjectId, into: SubjectId, graph: Graph): Graph = {
-    // get the actual subjects from the supplied subject ids
-    val fromSub = graph.subjects(from)
-    val intoSub = graph.subjects(into)
-
-    // split current behavior with a modal split/join wrapper
-    val (msId, mjId, splitIntoSubject) = splitSubjectBehavior(intoSub)
-
-    // smash fromSubject behavior in the alternative branch of the modal split/join wrapper
-    val newIntoSubject = insertSubject(fromSub, splitIntoSubject, msId, mjId)
-    val newGraph = graph.copy(subjects = graph.subjects.updated(into, newIntoSubject))
-
-    // sanitize the new graph a bit. Fist step: Set chooseAgent states targeted at one of the two merged
-    // subjects to tau, and in case this variable is never transmitted, remove this variable completely.
-    val chooseAgentSanitized = sanitizeChooseAgentStates(newGraph.subjects(into))
-    val sanitizedGraph = newGraph.copy(subjects = newGraph.subjects.updated(into, chooseAgentSanitized))
-
-    // Update all receive and send state that target fromSubjectId to target intoSubjectId instead.
-    // This also clears all targets of its variable / channel target option.
-    val messageUpdatedGraph = remapMessages(sanitizedGraph, from, into)
-
-    // finally, remove the from subject from the graph
-    val trimmedSubjects = messageUpdatedGraph.subjects - from
-    graph.copy(subjects = trimmedSubjects)
-  }
 
   /*
    * Removes Choose Agent states in subject that target itself.

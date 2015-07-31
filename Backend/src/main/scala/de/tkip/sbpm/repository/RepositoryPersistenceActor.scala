@@ -13,25 +13,23 @@
 
 package de.tkip.sbpm.repository
 
-import scala.collection.immutable.{ Map, Set }
-import de.tkip.sbpm.application.miscellaneous.{ RoleMapper, SystemProperties }
-import de.tkip.sbpm.logging.DefaultLogging
-import akka.actor.{ ActorRef, Props }
-import akka.util._
-import scala.concurrent.duration._
-import spray.json._
-import de.tkip.sbpm.rest.JsonProtocol.{GraphHeader, createInterfaceHeaderFormat}
-import scalaj.http.{Http, HttpOptions}
-import scala.concurrent.{ExecutionContext, Future}
-import de.tkip.sbpm.persistence.query.Roles
-import de.tkip.sbpm.instrumentation.InstrumentedActor
-import ExecutionContext.Implicits.global
-import de.tkip.sbpm.model.Role
-import scala.concurrent.{Await}
-import de.tkip.sbpm.ActorLocator
 import akka.event.Logging
+import akka.util._
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.application.ProcessInstanceActor.Agent
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.SubjectID
-import de.tkip.sbpm.application.ProcessInstanceActor.{Agent, AgentAddress}
+import de.tkip.sbpm.application.miscellaneous.RoleMapper
+import de.tkip.sbpm.instrumentation.InstrumentedActor
+import de.tkip.sbpm.model.Role
+import de.tkip.sbpm.persistence.query.Roles
+import de.tkip.sbpm.rest.JsonProtocol.{GraphHeader, createInterfaceHeaderFormat}
+import spray.json._
+
+import scala.collection.immutable.{Map, Set}
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.util.Try
+import scalaj.http.{Http, HttpOptions}
 
 object RepositoryPersistenceActor {
   case class SaveInterface(json: GraphHeader, roles: Option[RoleMapper] = None)
@@ -65,27 +63,36 @@ class RepositoryPersistenceActor extends InstrumentedActor {
       log.debug("[SAVE INTERFACE] save message received")
 
       implicit val roleMap: RoleMapper = if (roles.isDefined) {
-                               roles.get
-                             }
-                             else {
-                               val rolesFuture = Await.result((persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]], 2 seconds)
-                               val rm = rolesFuture.map(r => (r.name, r)).toMap
-                               RoleMapper.createRoleMapper(rm)
-                             }
+        roles.get
+      } else {
+        val rolesFuture = Await.result((persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]], 2 seconds)
+        val rm = rolesFuture.map(r => (r.name, r)).toMap
+        RoleMapper.createRoleMapper(rm)
+      }
 
-      val interface = gHeader.toInterfaceHeader().toJson.toString()
-      log.debug("[SAVE INTERFACE] sending message to repository... " + repoLocation + "interfaces")
-      log.debug("-------------------------------------------------------------")
-      log.debug(interface)
-      log.debug("-------------------------------------------------------------")
-      val result = Http.postData(repoLocation + "interfaces", interface)
-        .charset("UTF-8")
-        .header("Content-Type", "application/json; charset=UTF-8")
-        .header("Charset", "UTF-8")
-        .option(HttpOptions.readTimeout(10000))
-        .asString
-      log.debug("[SAVE INTERFACE] repository says: " + result)
-      sender !! Some(result.toInt)
+      val resp = gHeader.toInterfaceHeader().right.flatMap { interface =>
+        val interfaceString = interface.toJson.toString()
+        log.debug("[SAVE INTERFACE] sending message to repository... " + repoLocation + "interfaces")
+        log.debug("-------------------------------------------------------------")
+        log.debug(interfaceString)
+        log.debug("-------------------------------------------------------------")
+        val tResult = Try(Http(repoLocation + "interfaces")
+          .postData(interfaceString)
+          .charset("UTF-8")
+          .header("Content-Type", "application/json; charset=UTF-8")
+          .header("Charset", "UTF-8")
+          .option(HttpOptions.readTimeout(10000))
+          .asString)
+        tResult.toOption.toRight(Seq("Error while transmitting interfaces to repository.")).right.flatMap { result =>
+          if (result.isSuccess) {
+            Right(result.body.toInt)
+          } else {
+            Left(Seq("Error while transmitting interfaces to repository."))
+          }
+        }
+      }
+      log.debug("[SAVE INTERFACE] repository says: " + resp)
+      sender !! resp
     }
 
     case DeleteInterface(interfaceId) => {
@@ -96,9 +103,10 @@ class RepositoryPersistenceActor extends InstrumentedActor {
         .header("Content-Type", "application/json; charset=UTF-8")
         .header("Charset", "UTF-8")
         .option(HttpOptions.readTimeout(10000))
-        .responseCode
+        .asString
+        .code
       log.debug("[SAVE INTERFACE] repository says: " + result)
-      sender !! (None)
+      sender !! None
     }
     case GetAgentsMapMessage(externalSubjectIds) => {
       // Create a string of all external subjects to query the repository with
@@ -107,10 +115,10 @@ class RepositoryPersistenceActor extends InstrumentedActor {
       val newAgentsString = Http(repoLocation + "implementations")
         .param("subjectIds", externalSubjectIdsString)
         .option(HttpOptions.readTimeout(10000))
-        .asString
+        .asString.body
       log.info("received new agents mapping for subjectIds: {}", externalSubjectIds)
       log.info("String response: {}", newAgentsString)
-      val newAgentsMap = newAgentsString.asJson.convertTo[Map[String, Set[Agent]]]
+      val newAgentsMap = newAgentsString.parseJson.convertTo[Map[String, Set[Agent]]]
       log.info("JSON parsed mapping: {}", newAgentsMap)
       sender !! AgentsMappingResponse(newAgentsMap)
     }

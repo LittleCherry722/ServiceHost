@@ -209,7 +209,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
   }
 
   implicit val addressFormat = jsonFormat3(Address)
-  implicit val interfaceImplementationFormat = jsonFormat3(InterfaceImplementation)
+  implicit val interfaceImplementationFormat = jsonFormat5(InterfaceImplementation)
 
   implicit val mergedSubjectsFormat = jsonFormat2(MergedSubject)
 

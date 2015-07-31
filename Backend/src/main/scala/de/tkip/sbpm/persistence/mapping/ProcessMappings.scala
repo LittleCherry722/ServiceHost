@@ -24,25 +24,30 @@ object ProcessMappings {
   /**
    * Convert process and id of active graph to domain model.
    */
-  def convert(p: (Process, Option[Int])): domainModel.Process =
-    domainModel.Process(p._1.id,
-      p._1.interfaceId,
-      p._1.publishInterface,
-      p._1.name,
-      p._1.isCase,
-      Some(p._1.startAble),
-      p._2)
+
+  def convert(pt: (Seq[VerificationError], Process, Option[Int])): domainModel.Process = {
+    val (ves, p, id) = pt
+    domainModel.Process(p.id,
+      p.interfaceId,
+      ves.map(_.message),
+      p.publishInterface,
+      p.name,
+      p.isCase,
+      Some(p.startAble),
+      id)
+  }
+
 
   /**
    * Convert process option and id of active graph to domain model.
    */
-  def convert(p: Option[(Process, Option[Int])]): Option[domainModel.Process] =
-    if (p.isDefined) Some(convert(p.get))
-    else None
+  def convert(pOption: Option[(Seq[VerificationError], Process, Option[Int])]): Option[domainModel.Process] =
+    pOption.map(convert)
 
   /**
    * Convert process from domain model to db entity and
    * extracts optional active graph id.
+   * TODO: Verification Errors
    */
   def convert(p: domainModel.Process): (Process, Option[Int]) =
     (Process(p.id, p.interfaceId, p.publishInterface, p.name, p.isCase, p.startAble.getOrElse(false)), p.activeGraphId)

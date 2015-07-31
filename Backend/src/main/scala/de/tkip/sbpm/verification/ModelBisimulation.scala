@@ -27,24 +27,34 @@ object ModelBisimulation {
    * True if g1 is behavioral congruent to g2 and vice versa.
    */
   def checkGraphs(g1: Graph, g2: Graph): Boolean = {
-    val lts1 = Verification.buildLts(ModelConverter.convertForVerification(g1), optimize = true)
-    val lts2 = Verification.buildLts(ModelConverter.convertForVerification(g2), optimize = true)
+    val processGraphs = for {
+      pg1 <- ModelConverter.convertForVerification(g1)
+      pg2 <- ModelConverter.convertForVerification(g2)
+    } yield (pg1, pg2)
 
-    // Check if a subejct message mapping for g1 and g2 exists, such that g1 and g2 are behavioral
-    // congruent.
-    // Subject and message maps can be quite large, however checking obviously non congruend graphs
-    // is quite fast.
-    possibleGraphMappings(g1, g2).exists(_.exists {case (subjectMap, msgMaps) =>
-      val sIdMap = subjectMap.map(s => (s._1.id, s._2.id))
-      // Paralellize the lts congruence checks
-      ParSet(msgMaps.toSeq: _*).exists { msgMap =>
-        val checks = for {
-          c1 <- Future { checkLts(lts1, lts2, sIdMap, msgMap) }
-          c2 <- Future { checkLts(lts2, lts1, sIdMap.map(_.swap), msgMap.map(_.swap)) }
-        } yield Seq(c1, c2)
-        Await.result(checks, 90.seconds).fold(true)(_ & _)
+    processGraphs match {
+      case Left(_) => false
+      case Right((pg1, pg2)) => {
+        val lts1 = Verification.buildLts(pg1, optimize = true)
+        val lts2 = Verification.buildLts(pg2, optimize = true)
+
+        // Check if a subejct message mapping for g1 and g2 exists, such that g1 and g2 are behavioral
+        // congruent.
+        // Subject and message maps can be quite large, however checking obviously non congruend graphs
+        // is quite fast.
+        possibleGraphMappings(g1, g2).exists(_.exists {case (subjectMap, msgMaps) =>
+          val sIdMap = subjectMap.map(s => (s._1.id, s._2.id))
+          // Paralellize the lts congruence checks
+          ParSet(msgMaps.toSeq: _*).exists { msgMap =>
+            val checks = for {
+              c1 <- Future { checkLts(lts1, lts2, sIdMap, msgMap) }
+              c2 <- Future { checkLts(lts2, lts1, sIdMap.map(_.swap), msgMap.map(_.swap)) }
+            } yield Seq(c1, c2)
+            Await.result(checks, 90.seconds).fold(true)(_ & _)
+          }
+        })
       }
-    })
+    }
   }
 
 

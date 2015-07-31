@@ -14,12 +14,6 @@
 package de.tkip.sbpm.persistence
 
 import de.tkip.sbpm.instrumentation.InstrumentedActor
-import akka.actor.Props
-import scala.slick.lifted
-import scala.slick.model.ForeignKeyAction._
-import de.tkip.sbpm.model.User
-import de.tkip.sbpm.model.UserIdentity
-import akka.event.Logging
 import de.tkip.sbpm.persistence.schema._
 
 /**
@@ -37,6 +31,7 @@ private[persistence] class SchemaActor extends InstrumentedActor
   with GroupsUsersSchema
   with MessagesSchema
   with ProcessActiveGraphsSchema
+  with VerificationErrorsSchema
   with ProcessInstancesSchema
   with ConfigurationsSchema
   with UserIdentitiesSchema {
@@ -61,6 +56,7 @@ private[persistence] class SchemaActor extends InstrumentedActor
     groupsUsers,
     messages,
     processes,
+    verificationErrors,
     processActiveGraphs,
     processInstances,
     roles,

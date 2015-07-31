@@ -57,7 +57,9 @@ object InterfaceQuery {
         InterfaceImplementation(
           processId = s._1,
           address = Address(id = None, ip = s._2, port = s._3),
-          subjectId = subjectId)
+          ownSubjectId = subjectId,
+          subjectIdMap = Map.empty,
+          messageIdMap = Map.empty) // TODO: Fixme
       }
     }
     returnSubjects

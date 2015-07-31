@@ -18,7 +18,8 @@ import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.UserID
 import de.tkip.sbpm.application.subject.misc.{ActionData, AvailableAction}
 import de.tkip.sbpm.newmodel.ProcessModelTypes.SubjectId
-
+import de.tkip.sbpm.anonymization.Anonymizer.createView
+import de.tkip.sbpm.verification.ModelConverter.verifyGraph
 
 // Model for Administration
 case class User(id: Option[Int], name: String, isActive: Boolean = true, inputPoolSize: Int = 8, gdriveId: String = "")
@@ -47,6 +48,7 @@ case class ProcessInstance(id: Option[Int], processId: Int, graphId: Int, data: 
 
 case class Process(id: Option[Int],
                    interfaceId: Option[Int],
+                   verificationErrors: Seq[String],
                    publishInterface: Boolean,
                    name: String,
                    isCase: Boolean = false,
@@ -193,6 +195,9 @@ case class InterfaceImplementation(processId: Int,
                                    address: AgentAddress,
                                    subjectId: String)
 
+case class View(mainSubjectId: SubjectId,
+                graph: Graph)
+
 case class Graph(id: Option[Int],
                  processId: Option[Int],
                  date: java.sql.Timestamp,
@@ -218,6 +223,22 @@ case class Graph(id: Option[Int],
       }
     }
   }.toSet
+
+
+  lazy val views: Either[Seq[String], Map[SubjectId, View]] = {
+    verifyGraph(this).right.flatMap { vg =>
+      val errorsOrViews: Seq[Either[String, (SubjectId, View)]] = subjects.values.map { s =>
+        createView(s.id, vg).right.map { v => (s.id, v) }
+      }.toSeq
+      val errors: Seq[String] = errorsOrViews.flatMap{eov => eov.left.toOption}
+      val views: Map[SubjectId, View] = errorsOrViews.flatMap{eov => eov.right.toOption}.toMap
+      if (errors.nonEmpty) {
+        Left(errors)
+      } else {
+        Right(views)
+      }
+    }
+  }
 }
 
 case class GraphConversation(id: String, name: String)

@@ -1,27 +1,23 @@
 package de.tkip.sbpm.persistence
 
-import com.mchange.v2.c3p0.ComboPooledDataSource
-import com.mchange.v2.c3p0.DataSources
-import com.typesafe.config.{ ConfigFactory }
+import com.mchange.v2.c3p0.{ComboPooledDataSource, DataSources}
+import com.typesafe.config.ConfigFactory
+import de.tkip.sbpm.persistence.schema.EmptyViewMappingsSchema
+import de.tkip.sbpm.persistence.schema.ImplementationMappingsSchema
+
 import scala.slick.driver.JdbcDriver.simple._
 
 object DatabaseAccess {
-  import schema.Schema.driver.simple._
-  import schema.InterfaceSchema
-  import schema.GraphConversationsSchema
-  import schema.GraphEdgesSchema
-  import schema.GraphMacrosSchema
-  import schema.GraphMessagesSchema
-  import schema.GraphNodesSchema
-  import schema.GraphSchema
-  import schema.GraphSubjectsSchema
-  import schema.GraphVariablesSchema
-  import schema.GraphMergedSubjectsSchema
-  import schema.GraphVarMansSchema
-  import schema.ProcessEngineAddressSchema
   import DatabaseConnection.database
+  import schema.Schema.driver.simple._
+  import schema.{EmptyViewSchema, GraphConversationsSchema, GraphEdgesSchema, GraphMacrosSchema, GraphMergedSubjectsSchema, GraphMessagesSchema, GraphNodesSchema, GraphSchema, GraphSubjectsSchema, GraphVarMansSchema, GraphVariablesSchema, InterfaceImplementationSchema, InterfaceSchema, ProcessEngineAddressSchema, ViewSchema}
 
   val interfaces = InterfaceSchema.interfaces
+  val interfaceImplementations = InterfaceImplementationSchema.interfaceImplementations
+  val views = ViewSchema.views
+  val emptyViews = EmptyViewSchema.emptyViews
+  val emptyViewMappings = EmptyViewMappingsSchema.emptyViewMappings
+  val implementationMappings = ImplementationMappingsSchema.implementationMappings
   val graphConversations = GraphConversationsSchema.graphConversations
   val graphEdges = GraphEdgesSchema.graphEdges
   val graphMacros = GraphMacrosSchema.graphMacros
@@ -38,6 +34,11 @@ object DatabaseAccess {
 
   private val tables = List(
     interfaces,
+    interfaceImplementations,
+    views,
+    emptyViews,
+    emptyViewMappings,
+    implementationMappings,
     addresses,
     graphConversations,
     graphEdges,

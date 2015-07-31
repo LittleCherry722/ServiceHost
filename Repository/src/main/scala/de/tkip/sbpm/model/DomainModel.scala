@@ -37,18 +37,25 @@ case class Interface(interfaceType: InterfaceType,
                      id: Option[Int],
                      processId: Int,
                      name: String,
-                     graph: Graph)
+                     views: Map[SubjectId, View])
+
+case class View(mainSubjectId: SubjectId,
+                implementations: Seq[InterfaceImplementation],
+                graph: Graph)
 
 case class IntermediateInterface(interfaceType: InterfaceType,
                                  processId: Int,
                                  port: Int,
                                  interfaceId: Option[Int],
                                  name: String,
-                                 graph: Graph)
+                                 views: Map[SubjectId, View])
 
 case class InterfaceImplementation(processId: Int,
                                    address: Address,
-                                   subjectId: String)
+                                   ownSubjectId: String,
+                                   subjectIdMap: Map[SubjectId, SubjectId],
+                                   messageIdMap: Map[String, String] )
+
 
 case class Address(id: Option[Int], ip: String, port: Int)
 
@@ -130,7 +137,6 @@ case class GraphSubject(id: String,
                         isImplementation: Option[Boolean],
                         externalType: Option[String],
                         role: Option[String],
-                        implementations: Seq[InterfaceImplementation],
                         comment: Option[String],
                         variables: Map[String, GraphVariable],
                         macros: Map[String, GraphMacro]) extends Ordered[GraphSubject] {

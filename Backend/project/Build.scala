@@ -47,7 +47,7 @@ object ProjectBuild extends Build {
         "com.github.t3hnar" % "scala-bcrypt_2.11" % "2.4",
         "com.fasterxml.jackson.core" % "jackson-core" % "2.2.0",
 
-        "org.scalaj" %% "scalaj-http" % "0.3.15",
+        "org.scalaj" %% "scalaj-http" % "1.1.0",
 
         "org.scalaz" %% "scalaz-core" % "7.1.2",
 

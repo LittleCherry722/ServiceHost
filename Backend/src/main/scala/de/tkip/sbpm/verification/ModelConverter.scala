@@ -6,10 +6,13 @@ import de.tkip.sbpm.newmodel.StateTypes.StateType
 import de.tkip.sbpm.newmodel._
 import de.tkip.sbpm.verification.lts.Lts
 
+import scala.util.{Failure, Success, Try}
+
 /**
  * Created by Arne Link on 18.10.14.
  */
 object ModelConverter {
+  private case class ModelConversionError(message: String) extends RuntimeException(message)
   case class InvalidGraphException(message: String, loc: ErrorLocation) extends Exception(s"$message ${loc.toString}")
   case class ErrorLocation( subject: Option[GraphSubject] = None
                           , makro: Option[GraphMacro] = None
@@ -29,50 +32,52 @@ object ModelConverter {
     }
   }
 
-  def graphToLts(graph: Graph): Verificator = {
-    val processModel = convertForVerification(graph)
-    val veri = new Verificator(processModel)
-    veri.optimize = true
-    veri
+  def graphToLts(graph: Graph): Either[String, Verificator] = {
+    convertForVerification(graph).right.map { processModel =>
+      val veri = new Verificator(processModel)
+      veri.optimize = true
+      veri
+    }
   }
 
-  def verifyGraph(graph: Graph): Option[String] = {
-    val processModel = convertForVerification(graph)
-    val lts = Verification.buildLts(ModelConverter.convertForVerification(graph), optimize = true)
+  def verifyGraph(graph: Graph): Either[Seq[String], Graph] = {
+    convertForVerification(graph).left.map(Seq(_)).right.flatMap { processModel =>
+      val lts = Verification.buildLts(processModel, optimize = true)
 
-    val subjectNameMap = graph.subjects.mapValues(_.name)
-    val msgMap = graph.messages.mapValues(_.name)
-    lazy val invalidNodesString = lts.invalidNodes.flatMap(_.subjectMap.values.flatMap{vs =>
-      vs.activeStates.map{st =>
-        val baseStateText = s"${st.id} (${st.stateType})"
-        val comParams = st.communicationTransitions
-          .map(_.exitParams)
-          .filter(_.isInstanceOf[CommunicationParams])
-          .map(_.asInstanceOf[CommunicationParams])
-        val stateText = if (comParams.nonEmpty) {
-          val arrow = if (st.stateType == StateTypes.Send) {
-            "->"
+      val subjectNameMap = graph.subjects.mapValues(_.name)
+      val msgMap = graph.messages.mapValues(_.name)
+      lazy val invalidNodesString = lts.invalidNodes.flatMap(_.subjectMap.values.flatMap{vs =>
+        vs.activeStates.map{st =>
+          val baseStateText = s"${st.id} (${st.stateType})"
+          val comParams = st.communicationTransitions
+            .map(_.exitParams)
+            .filter(_.isInstanceOf[CommunicationParams])
+            .map(_.asInstanceOf[CommunicationParams])
+          val stateText = if (comParams.nonEmpty) {
+            val arrow = if (st.stateType == StateTypes.Send) {
+              "->"
+            } else {
+              "<-"
+            }
+            s"$baseStateText " +
+              comParams
+                .map(c => s"'${msgMap(c.messageType)}' $arrow ${subjectNameMap(c.subject)}")
+                .mkString("msgs [(", "), (", ")]")
           } else {
-            "<-"
+            baseStateText
           }
-          s"$baseStateText " +
-            comParams
-              .map(c => s"'${msgMap(c.messageType)}' $arrow ${subjectNameMap(c.subject)}")
-              .mkString("msgs [(", "), (", ")]")
-        } else {
-          baseStateText
+          s"${subjectNameMap(vs.channel.subjectId)}, $stateText"
         }
-        (subjectNameMap(vs.channel.subjectId), stateText)
+      }).toSeq
+      if (!lts.valid && lts.invalidNodes.isEmpty) {
+        // something fishy, possibly dirty end states etc...
+        Left(Seq("Graph invalid, no more information available"))
       }
-    }).mkString("\n")
-    if (!lts.valid && lts.invalidNodes.isEmpty) {
-      // something fishy, possibly dirty end states etc...
-      Some("Graph invalid, no more information available")
-    }
-    if (lts.invalidNodes.isEmpty) {
-      None
-    } else {
-      Some(invalidNodesString)
+      if (lts.invalidNodes.isEmpty) {
+        Right(graph)
+      } else {
+        Left(invalidNodesString)
+      }
     }
   }
 
@@ -109,28 +114,25 @@ object ModelConverter {
     }
   }
 
-  def convertForVerification(model: Graph) : ProcessModel = {
-      val subjects: Set[SubjectLike] = model.subjects.values.map(s => subjectToVerification(s)).toSet
-      val messageTypes: Map[String, MessageContentType] = model.messages.map((messagesToVerification _).tupled)
-      val processModel = ProcessModel(
-        id =  model.id.getOrElse(0),
-        name = "Process",
-        subjects = subjects,
-        messageTypes = messageTypes
-      )
-      processModel
-  }
-
-  def convertForInterface(model: Graph, viewSubjectId: SubjectId) : ProcessModel = {
-    val subjects: Set[SubjectLike] = model.subjects.values.map(s => subjectToVerification(s, Some(viewSubjectId))).toSet
-    val messageTypes: Map[String, MessageContentType] = model.messages.map((messagesToVerification _).tupled)
-    val processModel = ProcessModel(
+  def convertForVerification(model: Graph) : Either[String, ProcessModel] = {
+    val tSubjects: Try[Set[SubjectLike]] = Try(model.subjects.values.map(s => subjectToVerification(s)).toSet)
+    val tMessageTypes: Try[Map[String, MessageContentType]] = Try(model.messages.map((messagesToVerification _).tupled))
+    val tProcessModel = for {
+      subjects <- tSubjects
+      messageTypes <- tMessageTypes
+    }yield ProcessModel(
       id =  model.id.getOrElse(0),
       name = "Process",
       subjects = subjects,
       messageTypes = messageTypes
     )
-    processModel
+    tProcessModel match {
+      case Success(processModel) =>
+        Right(processModel)
+      case Failure(e: IllegalArgumentException) => Left(e.getMessage)
+      case Failure(e: ModelConversionError) => Left(e.getMessage)
+      case Failure(e: Exception) => throw e
+    }
   }
 
 
@@ -144,7 +146,11 @@ object ModelConverter {
     val isMulti = sub.externalType.contains("multisubject")
     lazy val ipSize = sub.inputPool
     lazy val isStartSubject = sub.isStartSubject.contains(true)
-    lazy val startState = sub.macros.values.flatMap(_.nodes.find(_._2.isStart).map(_._1)).head.toInt
+    val startStates = sub.macros.values.flatMap(_.nodes.find(_._2.isStart).map(_._1))
+    val startState = startStates.headOption match {
+      case Some(h) => h.toInt
+      case None => throw ModelConversionError(s"No start State defined for Subject ${sub.name}")
+    }
     lazy val macros = sub.macros.values.flatMap(m => macrosToVerification(m, sub)).toSet
     lazy val states = statesToVerification(sub.macros("##main##"), sub)
     // External subjects etc are not really supported in the verification engine the same way they

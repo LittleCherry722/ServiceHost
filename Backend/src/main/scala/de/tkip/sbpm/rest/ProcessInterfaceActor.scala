@@ -13,22 +13,21 @@
 
 package de.tkip.sbpm.rest
 
-import de.tkip.sbpm.instrumentation.InstrumentedActor
-import spray.http._
-import spray.routing._
-import akka.pattern.ask
-import de.tkip.sbpm.model._
-import scala.concurrent.{future, Await}
-import scala.concurrent.duration._
-import spray.httpx.SprayJsonSupport._
+import akka.event.Logging
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.miscellaneous.RoleMapper
-import de.tkip.sbpm.rest.JsonProtocol._
-import de.tkip.sbpm.repository.RepositoryPersistenceActor.{DeleteInterface, SaveInterface}
-import spray.json._
-import scala.concurrent.Future
+import de.tkip.sbpm.instrumentation.InstrumentedActor
+import de.tkip.sbpm.model._
 import de.tkip.sbpm.persistence.query._
-import akka.event.Logging
+import de.tkip.sbpm.repository.RepositoryPersistenceActor.{DeleteInterface, SaveInterface}
+import de.tkip.sbpm.rest.JsonProtocol._
+import de.tkip.sbpm.verification.ModelConverter._
+import spray.http._
+import spray.httpx.SprayJsonSupport._
+import spray.json._
+import spray.routing._
+
+import scala.concurrent.Future
 
 /**
  * This Actor is only used to process REST calls regarding "process"
@@ -44,6 +43,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
 
   private lazy val persistanceActor = ActorLocator.persistenceActor
   private lazy val repositoryPersistenceActor = ActorLocator.repositoryPersistenceActor
+
   import context.dispatcher
 
   /**
@@ -78,7 +78,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
             processes <- (persistanceActor ?? Processes.Read()).mapTo[Seq[Process]]
             filtered = if (showProcesses.isEmpty) processes
             else processes filter (showProcesses contains _.id.getOrElse(-1))
-          }  yield filtered)
+          } yield filtered)
         }
       } ~
         // READ
@@ -137,7 +137,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
   })
 
   override def wrappedReceive = {
-    case ctx : RequestContext => {
+    case ctx: RequestContext => {
       log.debug(s"received requestContext: $ctx")
       route(ctx)
     }
@@ -194,6 +194,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
           process.name,
           process.interfaceId,
           process.publishInterface,
+          Seq.empty,  // verification errors
           graphResult,
           process.isCase,
           process.id)
@@ -217,7 +218,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
     val processFuture = (persistanceActor ?? Processes.Read.ByName(json.name)).mapTo[Option[Process]]
     onSuccess(processFuture) {
       processResult =>
-        validate(!processResult.isDefined || processResult.get.id == id, "The process names have to be unique.") {
+        validate(processResult.isEmpty || processResult.get.id == id, "The process names have to be unique.") {
           validate(json.name.length() >= 3, "The name has to contain three or more letters.") {
             if (json.graph.isDefined) {
               saveWithGraph(id, json)
@@ -233,7 +234,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
    * Saves the given process without its graph.
    */
   private def saveWithoutGraph(id: Option[Int], json: GraphHeader): Route = {
-    val process = Process(id, json.interfaceId, json.publishInterface, json.name, json.isCase)
+    val process = Process(id, json.interfaceId, json.verificationErrors, json.publishInterface, json.name, json.isCase)
     val future = (persistanceActor ?? Processes.Save(process)).mapTo[Option[Int]]
     val result = future.map(resultId => JsObject("id" -> resultId.getOrElse(id.getOrElse(-1)).toJson))
     complete(result)
@@ -243,41 +244,54 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
    * Saves the given process with its graph.
    */
   private def saveWithGraph(id: Option[Int], json: GraphHeader): Route = {
-    val currentInterfaceId : Option[Int] = json.interfaceId
+    val currentInterfaceId: Option[Int] = json.interfaceId
     log.info(s"CURRENT INTERFACEID DEFINED: ${currentInterfaceId.isDefined}")
-    val interfaceIdFuture : Future[Option[Int]] = if (json.publishInterface) {
+    lazy val oldProcessFuture = (persistanceActor ?? Processes.Read.ById(id.getOrElse(-1))).mapTo[Option[Process]]
+
+    val graph = json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)
+    val verificationErrors = verifyGraph(graph).left.getOrElse(Seq.empty)
+    val interfaceIdFuture: Future[Either[Seq[String], Option[Int]]] = if (json.publishInterface) {
       log.debug("[SAVE INTERFACE] Sending save interface request")
-      (repositoryPersistenceActor ?? SaveInterface(json)).mapTo[Option[Int]]
+      (repositoryPersistenceActor ?? SaveInterface(json)).mapTo[Either[Seq[String], Option[Int]]]
     } else {
       for {
-        oldProcess <- (persistanceActor ?? Processes.Read.ById(id.getOrElse(-1))).mapTo[Option[Process]]
-        interfaceId <- if (oldProcess.map{op => log.info(s"OLD PROCESS PUBLISH: ${op.publishInterface}"); op.publishInterface}.isDefined && currentInterfaceId.isDefined) {
-          (repositoryPersistenceActor ?? DeleteInterface(currentInterfaceId.get)).mapTo[Option[Int]]
+        oldProcess <- oldProcessFuture
+        interfaceId <- if (oldProcess.map { op => op.publishInterface }.isDefined && currentInterfaceId.isDefined) {
+          (repositoryPersistenceActor ?? DeleteInterface(currentInterfaceId.get)).mapTo[Either[Seq[String], Option[Int]]]
         } else {
-          Future { json.interfaceId }
+          Future(Right(json.interfaceId))
         }
       } yield interfaceId
     }
-    val result = for {
+    val resultFuture = for {
       interfaceId <- interfaceIdFuture
-      process = Process(id, interfaceId, json.publishInterface, json.name, json.isCase)
-      graph = json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)
+      oldProcess <- oldProcessFuture
+      oldPublishFlag = oldProcess.fold(false)(_.publishInterface)
+      publishFlag = if (interfaceId.isLeft) { oldPublishFlag } else { json.publishInterface }
+      process = Process(id, interfaceId.right.toOption.flatten, verificationErrors, publishFlag, json.name, json.isCase)
       (processId, graphId) <- (persistanceActor ?? Processes.Save.WithGraph(process, graph)).mapTo[(Option[Int], Option[Int])]
       result = JsObject("id" -> processId.getOrElse(id.getOrElse(-1)).toJson, "graphId" -> graphId.toJson)
-      savedProcess = GraphHeader(
-        name = process.name,
-        interfaceId = process.interfaceId,
-        publishInterface = process.publishInterface,
-        graph = Some(graph.copy(id = graphId, processId = processId)),
-        isCase = process.isCase,
-        id = processId)
-    } yield savedProcess
-    onSuccess((persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]]) {
-      roles =>
-        // implicite value for marshalling
-        val roleMap = roles.map(r => (r.name, r)).toMap
-        implicit val roleMapper: RoleMapper = RoleMapper.createRoleMapper(roleMap)
-        complete(result)
+      roles <- (persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]]
+      savedProcess = interfaceId.right.map { _ =>
+        GraphHeader(
+          name = process.name,
+          interfaceId = process.interfaceId,
+          verificationErrors = verificationErrors,
+          publishInterface = process.publishInterface,
+          graph = Some(graph.copy(id = graphId, processId = processId)),
+          isCase = process.isCase,
+          id = processId)
+      }
+    } yield (savedProcess, roles)
+    onSuccess(resultFuture) { res =>
+      val (eGraphHeader, roles) = res
+      // implicit value for marshalling
+      val roleMap = roles.map(r => (r.name, r)).toMap
+      implicit val roleMapper: RoleMapper = RoleMapper.createRoleMapper(roleMap)
+      eGraphHeader match {
+        case Right(gh) => complete(gh)
+        case Left(errors) => complete(StatusCodes.InternalServerError, errors)
+      }
     }
   }
 

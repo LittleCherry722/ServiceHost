@@ -227,6 +227,53 @@ object DomainModelMappings {
     )
   }
 
+  def convertView(view: View,
+                  implementations: Seq[(InterfaceImplementation,
+                                        ProcessEngineAddress,
+                                        Seq[ImplementationMapping])],
+                  emptyViewMaps: Seq[EmptyViewMapping],
+                  subModels:(Seq[GraphMergedSubject],
+                             Seq[GraphConversation], Seq[GraphMessage],
+                             Seq[GraphSubject], Seq[GraphVariable],
+                             Seq[GraphMacro], Seq[GraphNode],
+                             Seq[GraphVarMan], Seq[GraphEdge])): domainModel.View = {
+    val subjectsIdMap =  convertSubjectIdMappings(emptyViewMaps)
+    val messagesIdMap =  convertMessageIdMappings(emptyViewMaps)
+    domainModel.View(
+      mainSubjectId = view.mainSubjectId,
+      implementations = implementations.map{i => convertImplementation(i._1, i._2, i._3, subjectsIdMap, messagesIdMap)},
+      graph = convertGraph(Graph(id = Some(view.graphId)), subModels)
+    )
+  }
+
+  def convertImplementation(impl: InterfaceImplementation,
+                            address: ProcessEngineAddress,
+                            mappings: Seq[ImplementationMapping],
+                            evSubjIdMap: Map[String, String],
+                            evMsgIdMap: Map[String, String]): domainModel.InterfaceImplementation = {
+    val subjectIdMap = convertSubjectIdMappings(mappings)
+    val messageIdMap = convertMessageIdMappings(mappings)
+    domainModel.InterfaceImplementation(
+      processId = impl.processId,
+      address =  convert(address),
+      ownSubjectId = impl.ownSubjectId,
+      subjectIdMap = subjectIdMap,
+      messageIdMap = messageIdMap)
+  }
+
+  def convertSubjectIdMappings(maps: Seq[ImplementationMapping]): Map[String, String] = {
+    maps.filter(_.mappingType == "SubjectMap").map{m => (m.from, m.to)}.toMap
+  }
+  def convertMessageIdMappings(maps: Seq[ImplementationMapping]): Map[String, String] = {
+    maps.filter(_.mappingType == "MessageMap").map{m => (m.from, m.to)}.toMap
+  }
+  def convertSubjectIdMappings(maps: Seq[EmptyViewMapping]): Map[String, String] = {
+    maps.filter(_.mappingType == "SubjectMap").map{m => (m.from, m.to)}.toMap
+  }
+  def convertMessageIdMappings(maps: Seq[EmptyViewMapping]): Map[String, String] = {
+    maps.filter(_.mappingType == "MessageMap").map{m => (m.from, m.to)}.toMap
+  }
+
   /**
    * Convert all database entities of a graph to a single
    * object tree of domain model objects. 
@@ -297,7 +344,6 @@ object DomainModelMappings {
       isImplementation = s.isImplementation,
       externalType = s.externalType,
       role = s.role,
-      implementations = List.empty,
       comment = s.comment,
       variables = variables.getOrElse(s.id, Map()),
       macros = convert(macros.getOrElse(s.id, List()), nodes.getOrElse(s.id, List()), varMans.getOrElse(s.id, List()), edges.getOrElse(s.id, List())))

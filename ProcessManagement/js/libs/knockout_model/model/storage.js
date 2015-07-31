@@ -168,7 +168,7 @@ define([
           callbacks.success.call( model, textStatus );
         },
         error: function( jqXHR, textStatus, error ) {
-          callbacks.error.call( model, textStatus, error );
+          callbacks.error.call( model, jqXHR.responseText + " (" + textStatus + ")", error );
         },
         complete: function( jqXHR, textStatus ) {
           callbacks.complete.call( model, textStatus );
@@ -211,7 +211,7 @@ define([
           callbacks.success.call( model, textStatus );
         },
         error: function( jqXHR, textStatus, error ) {
-          callbacks.error.call( model, textStatus, error );
+          callbacks.error.call( model, jqXHR.responseText + " (" + textStatus + ")", error );
         },
         complete: function( jqXHR, textStatus ) {
           callbacks.complete.call( model, textStatus );
@@ -253,7 +253,7 @@ define([
           callbacks.success.call( model, textStatus );
         },
         error: function( jqXHR, textStatus, error ) {
-          callbacks.error.call( model, textStatus, error );
+          callbacks.error.call( model, jqXHR.responseText + " (" + textStatus + ")", error );
         },
 
           complete: function( jqXHR, textStatus ) {
@@ -289,7 +289,7 @@ define([
           callbacks.success.call( model, textStatus );
         },
         error: function( jqXHR, textStatus, error ) {
-          callbacks.error.call( model, textStatus, error );
+          callbacks.error.call( model, jqXHR.responseText + " (" + textStatus + ")", error );
         },
         complete: function( jqXHR, textStatus ) {
           callbacks.complete.call( model, textStatus );
@@ -361,7 +361,7 @@ define([
           callbacks.success.call( Model, textStatus  );
         },
         error: function( jqXHR, textStatus, error ) {
-          callbacks.error.call( Model, textStatus, error );
+          callbacks.error.call( Model, jqXHR.responseText + " (" + textStatus + ")", error );
         },
         complete: function( jqXHR, textStatus ) {
           callbacks.complete.call( Model, textStatus );

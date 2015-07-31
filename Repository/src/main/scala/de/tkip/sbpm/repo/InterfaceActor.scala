@@ -13,16 +13,17 @@
 
 package de.tkip.sbpm.repo
 
-import akka.actor.{ActorLogging, Actor}
-import de.tkip.sbpm.persistence.DatabaseAccess
-import spray.httpx.SprayJsonSupport
-import scala.collection.mutable
-import spray.json._
-import de.tkip.sbpm.model._
-import de.tkip.sbpm.model.InterfaceType._
-import de.tkip.sbpm.model.GraphJsonProtocol._
+import akka.actor.{Actor, ActorLogging}
 import akka.event.Logging
+import de.tkip.sbpm.model.GraphJsonProtocol._
+import de.tkip.sbpm.model.InterfaceType._
+import de.tkip.sbpm.model._
+import de.tkip.sbpm.persistence.DatabaseAccess
 import de.tkip.sbpm.persistence.query.{InterfaceQuery => Query}
+import spray.httpx.SprayJsonSupport
+import spray.json._
+
+import scala.collection.mutable
 
 object InterfaceActor {
   case object GetAllInterfaces
@@ -52,7 +53,6 @@ object InterfaceActor {
 
 class InterfaceActor extends Actor with ActorLogging {
   import InterfaceActor._
-  import MyJsonProtocol._
 
   private val logger = Logging(context.system, this)
   private val interfaces = mutable.Map[Int, Interface]()
@@ -60,12 +60,12 @@ class InterfaceActor extends Actor with ActorLogging {
   def receive = {
     case GetAllInterfaces => {
       log.info("Get all interfaces")
-      sender ! Query.loadInterfaces().map(addInterfaceImplementations)
+      sender ! Query.loadInterfaces().map(withInterfaceImplementations)
     }
 
     case GetInterface(interfaceId) => {
       log.info(s"Get interface with id: $interfaceId")
-      sender ! Query.loadInterface(interfaceId).map(addInterfaceImplementations)
+      sender ! Query.loadInterface(interfaceId).map(withInterfaceImplementations)
     }
 
     case DeleteInterface(interfaceId) => {
@@ -89,7 +89,7 @@ class InterfaceActor extends Actor with ActorLogging {
       // TODO: move filter to Query
       val filtered = listFuture.filter(impl => (impl.interfaceType == BlackboxcontentInterfaceType && impl.graph.subjects.values.exists(subj => (subj.id == subjectId && subj.blackboxname == Some(blackboxname)))))
 
-      sender ! filtered.map(addInterfaceImplementations).headOption // TODO: list or single one?
+      sender ! filtered.map(withInterfaceImplementations).headOption // TODO: list or single one?
     }
 
     case AddInterface(interface) => {
@@ -106,8 +106,8 @@ class InterfaceActor extends Actor with ActorLogging {
     }
   }
 
-  private def addInterfaceImplementations(interface: Interface) : Interface = {
-    log.info("addInterfaceImplementations called for interface {}", interface.id)
+  private def withInterfaceImplementations(interface: Interface) : Interface = {
+    log.info("withInterfaceImplementations called for interface {}", interface.id)
     interface.copy(graph = interface.graph.copy(
       subjects = interface.graph.subjects.mapValues{
         subject => {

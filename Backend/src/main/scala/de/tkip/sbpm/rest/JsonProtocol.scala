@@ -16,14 +16,14 @@ package de.tkip.sbpm.rest
 import java.sql.Timestamp
 import java.util.Date
 
-import GraphJsonProtocol.graphJsonFormat
 import akka.actor.{ActorContext, ActorRef}
-import de.tkip.sbpm.application.history._
-import de.tkip.sbpm.application.miscellaneous._
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.ProcessInstanceActor.{Agent, AgentAddress}
+import de.tkip.sbpm.application.history._
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.application.miscellaneous._
+import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.model._
+import de.tkip.sbpm.rest.GraphJsonProtocol.graphJsonFormat
 import spray.json._
 import spray.routing.authentication.UserPass
 
@@ -87,11 +87,12 @@ object JsonProtocol extends DefaultJsonProtocol {
   case class GraphHeader(name: String,
                          interfaceId: Option[Int],
                          publishInterface: Boolean,
+                         verificationErrors: Seq[String],
                          graph: Option[Graph],
                          isCase: Boolean,
                          id: Option[Int] = None) {
     require(name.length() >= 3, "The name hast to contain 3 or more letters!")
-    def toInterfaceHeader() (implicit context : ActorContext) : Option[InterfaceHeader] = {
+    def toInterfaceHeader() (implicit context : ActorContext) : Either[Seq[String], InterfaceHeader] = {
       val port = SystemProperties.akkaRemotePort(context.system.settings.config)
 
       val containsBlackbox = if (graph.isDefined) {
@@ -102,26 +103,27 @@ object JsonProtocol extends DefaultJsonProtocol {
       toInterfaceHeader(port, interfaceType)
     }
 
-    def toInterfaceHeader(port: Int, interfaceType: String) = { // TODO: value
-      if (!id.isDefined) System.err.println("id is None") // TODO: log!
-
-      id.map { pId =>
-        InterfaceHeader(
-          interfaceType = interfaceType,
-          name = name,
-          interfaceId = interfaceId,
-          graph = graph,
-          port = port,
-          processId = pId
-        )
-      }
+    def toInterfaceHeader(port: Int, interfaceType: String): Either[Seq[String], InterfaceHeader] = {
+      if (id.isEmpty) System.err.println("id is None") // TODO: log!
+      for {
+        processId <- id.toRight(Seq("No Process Id available.")).right
+        rightGraph <- graph.toRight(Seq("Process graph is not available")).right
+        rightViews <- rightGraph.views.right
+      } yield InterfaceHeader(
+        interfaceType = interfaceType,
+        name = name,
+        interfaceId = interfaceId,
+        views = rightViews,
+        port = port,
+        processId = processId
+      )
     }
   }
 
   case class InterfaceHeader(interfaceType: String,
                              name: String,
                              interfaceId: Option[Int],
-                             graph: Option[Graph],
+                             views: Map[String, View],
                              port: Int,
                              processId: Int,
                              ip: Option[Int] = None)
@@ -138,6 +140,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val groupUserFormat = jsonFormat2(GroupUser)
   implicit val groupRoleFormat = jsonFormat2(GroupRole)
   implicit val password = jsonFormat2(SetPassword)
+  implicit val viewFormat = jsonFormat2(View)
 
   // for message system
   import de.tkip.sbpm.model
@@ -149,7 +152,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val userPassFormat = jsonFormat2(UserPass)
 
   // DomainModel
-  implicit val domainProcessFormat = jsonFormat7(Process)
+  implicit val domainProcessFormat = jsonFormat8(Process)
   //  implicit val actionFormat = jsonFormat2(Action)
 
   implicit val configFormat = jsonFormat4(Configuration)
@@ -164,7 +167,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val processInstanceDataFormat = jsonFormat9(ProcessInstanceData)
 
   implicit val createProcessIdFormat = jsonFormat2(ProcessIdHeader)
-  implicit def createGraphHeaderFormat(implicit roles: RoleMapper) = jsonFormat6(GraphHeader)
+  implicit def createGraphHeaderFormat(implicit roles: RoleMapper) = jsonFormat7(GraphHeader)
   implicit def createInterfaceHeaderFormat(implicit roles: RoleMapper) = jsonFormat7(InterfaceHeader)
   implicit val createActionIdHeaderFormat = jsonFormat8(ExecuteAction)
 

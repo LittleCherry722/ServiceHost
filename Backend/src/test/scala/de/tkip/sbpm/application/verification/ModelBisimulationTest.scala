@@ -22,13 +22,13 @@ class ModelBisimulationTest extends FunSuite {
 
   test("simple identical graphs are behavorial congruent") {
     val simple = getGraph("sim1.json")
-    assert(ModelConverter.verifyGraph(simple).isEmpty)
+    assert(ModelConverter.verifyGraph(simple).isRight)
     assert(ModelBisimulation.checkGraphs(simple, simple) === true)
   }
 
   test("complex identical graphs are behavioral congruent") {
     val ratioDrink = getGraph("ratio-drink.json")
-    assert(ModelConverter.verifyGraph(ratioDrink).isEmpty)
+    assert(ModelConverter.verifyGraph(ratioDrink).isRight)
 
     assert(ModelBisimulation.checkGraphs(ratioDrink, ratioDrink))
   }
@@ -36,8 +36,8 @@ class ModelBisimulationTest extends FunSuite {
   test("distinct simple graphs can be behavioral congruent") {
     val simple1 = getGraph("sim1.json")
     val simple2 = getGraph("sim2.json")
-    assert(ModelConverter.verifyGraph(simple1).isEmpty)
-    assert(ModelConverter.verifyGraph(simple2).isEmpty)
+    assert(ModelConverter.verifyGraph(simple1).isRight)
+    assert(ModelConverter.verifyGraph(simple2).isRight)
 
     assert(ModelBisimulation.checkGraphs(simple1, simple2))
   }
@@ -60,15 +60,15 @@ class ModelBisimulationTest extends FunSuite {
   test("distinct regular graphs can be behavioral congruent") {
     val graph1 = getGraph("medium1.json")
     val graph2 = getGraph("medium2.json")
-    assert(ModelConverter.verifyGraph(graph1).isEmpty)
-    assert(ModelConverter.verifyGraph(graph2).isEmpty)
+    assert(ModelConverter.verifyGraph(graph1).isRight)
+    assert(ModelConverter.verifyGraph(graph2).isRight)
 
     assert(ModelBisimulation.checkGraphs(graph1, graph2) === true)
   }
 
   test("regular identical graphs are behavioral congruent") {
     val graph = getGraph("medium1.json")
-    assert(ModelConverter.verifyGraph(graph).isEmpty)
+    assert(ModelConverter.verifyGraph(graph).isRight)
 
     assert(ModelBisimulation.checkGraphs(graph, graph) === true)
   }

@@ -13,31 +13,25 @@
 
 package de.tkip.sbpm.persistence
 
-import de.tkip.sbpm.instrumentation.InstrumentedActor
-import query.Processes._
-import mapping.ProcessMappings._
-import de.tkip.sbpm.model._
-import akka.actor.Props
-import scala.slick.lifted
-import akka.pattern._
-import scala.concurrent._
-import akka.actor.ActorLogging
-import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.persistence.query.Graphs
-import akka.actor.PoisonPill
-import de.tkip.sbpm.persistence.query.BaseQuery
-import akka.actor.ActorRef
-import scala.concurrent.duration._
-import de.tkip.sbpm._
 import java.util.UUID
-import akka.event.Logging
+
+import akka.actor.{ActorLogging, ActorRef, PoisonPill, Props}
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.instrumentation.InstrumentedActor
+import de.tkip.sbpm.model._
+import de.tkip.sbpm.persistence.mapping.ProcessMappings._
+import de.tkip.sbpm.persistence.query.{BaseQuery, Graphs}
+import de.tkip.sbpm.persistence.query.Processes._
+import de.tkip.sbpm.persistence.schema.VerificationErrorsSchema
+
+import scala.concurrent.duration._
 
 private[persistence] class ProcessInspectActor extends InstrumentedActor with ActorLogging {
-  import de.tkip.sbpm.model._
-  import akka.pattern.ask
   import akka.util.Timeout
-  import scala.concurrent.Future
+  import de.tkip.sbpm.model._
+
   import scala.concurrent.ExecutionContext.Implicits.global
+  import scala.concurrent.Future
   implicit val timeout = Timeout(30 seconds)
   def wrappedReceive = {
     case q @ Save.Entity(ps @ _*) => {
@@ -116,7 +110,7 @@ private[persistence] class ProcessInspectActor extends InstrumentedActor with Ac
  * Handles database connection for "process" entities using slick.
  */
 private class ProcessPersistenceActor extends GraphPersistenceActor
-  with DatabaseAccess with schema.ProcessesSchema with schema.ProcessActiveGraphsSchema {
+  with DatabaseAccess with schema.ProcessesSchema with schema.ProcessActiveGraphsSchema with VerificationErrorsSchema {
   // import current slick driver dynamically
   import driver.simple._
 
@@ -125,24 +119,34 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
   override def wrappedReceive = {
     // get all processes
     case Read.All => answerProcessed { implicit session: Session =>
-      joinQuery().list
+      joinQuery().list.map{ case (p, gId) =>
+        val errors = verificationErrors.filter(_.processId === p.id).list
+        (errors, p, gId)
+      }
     }(_.map(convert))
     // get process with given id
     case Read.ById(id) => answerOptionProcessed { implicit session: Session =>
-      joinQuery(processes.filter(_.id === id)).firstOption
+      val errors = verificationErrors.filter(_.processId === id).list
+      val processOption = joinQuery(processes.filter(_.id === id)).firstOption
+      for {
+        (p, pId) <- processOption
+      } yield (errors, p, pId)
     }(convert)
     // get process with given name
     case Read.ByName(name) => answerOptionProcessed { implicit session: Session =>
-      joinQuery(processes.filter(_.name === name)).firstOption
+      joinQuery(processes.filter(_.name === name)).firstOption.map { case (p, gId) =>
+        val errors = verificationErrors.filter(_.processId === p.id).list
+        (errors, p, gId)
+      }
     }(convert)
     // create or update processes
     case Save.Entity(ps @ _*) => answer { implicit session =>
       // process all entities
       ps.map {
         // insert if id is None
-        case p @ Process(None, _, _, _, _, _, _) => Some(insert(p))
+        case p @ Process(None, _, _, _, _, _, _, _) => Some(insert(p))
         // update otherwise
-        case p @ Process(id, _, _, _, _, _, _)   => update(id, p)
+        case p @ Process(id, _, _, _, _, _, _, _)   => update(id, p)
       } match {
         // only one process was given, return it's id
 //        case ids if (ids.size == 1) => ids.head
@@ -171,6 +175,7 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
   private def joinQuery(baseQuery: Query[Processes, mapping.Process, Seq] = processes) = for {
     // left join because active graph may not exist
     (p, pag) <- baseQuery.leftJoin(processActiveGraphs).on(_.id === _.processId)
+    ves <- verificationErrors.filter(_.processId === p.id)
   } yield (p, pag.graphId.?)
 
   /**

@@ -139,7 +139,7 @@ define([
 
             if ( !self.selectedInterface() ) return;
             if ( self.interfaceInsertionStrategy() === "insert" ) {
-                var template = self.selectedInterface().getTemplate(self.interfaceInsertionSubject());
+                var template = self.selectedInterface().views[self.interfaceInsertionSubject()];
                 currentProcess().insertTemplate(template);
             } else /*conditions...*/ {
                 // TODO: implement...
@@ -653,7 +653,7 @@ define([
                 Router.setHasUnsavedChanges(false);
             },
             error: function( textStatus, error ) {
-                Notify.error("Error", "Process '" + currentProcess().name() + "' could not be saved.\nFehler: " + error);
+                Notify.error("Error", "Process '" + currentProcess().name() + "' could not be saved.\nError: " + textStatus);
             }
         });
     };

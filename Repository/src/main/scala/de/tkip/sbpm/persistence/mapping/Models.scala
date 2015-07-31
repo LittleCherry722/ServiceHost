@@ -32,8 +32,26 @@ case class Interface(interfaceType: String,
                      id: Option[Int],
                      addressId: Int,
                      processId: Int,
-                     graphId: Int,
                      name: String)
+
+case class View(id: Option[Int],
+                interfaceId: Int,
+                mainSubjectId: String,
+                graphId: Int)
+
+case class EmptyView(id: Option[Int],
+                     interfaceId: Int,
+                     viewId: Int)
+
+case class EmptyViewMapping(mappingType: String, emptyViewId: Int, from: String, to: String)
+
+case class InterfaceImplementation(processId: Int,
+                                   addressId: Int,
+                                   ownSubjectId: String,
+                                   viewId: Int)
+
+case class ImplementationMapping(mappingType: String, implementationId: Int, from: String, to: String)
+
 
 case class GraphMessage(id: String,
                         graphId: Int,

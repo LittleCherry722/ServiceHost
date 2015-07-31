@@ -15,29 +15,32 @@ package de.tkip.sbpm.persistence.schema
 
 import de.tkip.sbpm.persistence.mapping._
 
+import scala.slick.model.ForeignKeyAction.{Cascade, NoAction}
+
 /**
  * Defines the database schema of Processes.
  * If you want to query Processes database table mix this trait
  * into the actor performing the queries.
  */
-object InterfaceSchema extends Schema {
+object InterfaceImplementationSchema extends Schema {
   // import current slick driver dynamically
 
+  import ProcessEngineAddressSchema.addresses
   import driver.simple._
 
   // represents schema if the "processes" table in the database
   // using slick's lifted embedding API
-  class Interfaces(tag: Tag) extends SchemaTable[Interface](tag, "interfaces") {
+  class InterfaceImplementations(tag: Tag) extends SchemaTable[InterfaceImplementation](tag, "interface_implementation") {
     def id = autoIncIdCol[Int]
-    def interfaceType = column[String]("interfaceType")
-    def addressId = column[Int]("address_id")
     def processId = column[Int]("process_id")
-    def graphId = column[Int]("graph_id")
-    def name = nameCol
-    def * = (interfaceType, id.?, addressId, processId, graphId, name) <> (Interface.tupled, Interface.unapply)
-    // def autoInc = * returning id
-    def uniqueName = unique(name)
+    def addressId = column[Int]("address_id")
+    def ownSubjectId = column[Int]("own_subject_id")
+    def viewId = column[Int]("view_id")
+
+    def * = (id.?, processId, addressId, ownSubjectId, viewId) <> (InterfaceImplementation.tupled, InterfaceImplementation.unapply)
+
+    def address = foreignKey(fkName("address"), processId, addresses)(_.id, NoAction, Cascade)
   }
 
-  val interfaces = TableQuery[Interfaces]
+  val interfaceImplementations = TableQuery[InterfaceImplementations]
 }

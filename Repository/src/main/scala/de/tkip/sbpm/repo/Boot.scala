@@ -42,64 +42,62 @@ object Boot extends App with SimpleRoutingApp {
 //  DatabaseAccess.recreateDatabase()
 
   startServer(interface = "localhost", port = 8181) {
-    logRequest("MARK 1") {
-      clientIP { ip =>
-        pathPrefix("repo") {
-          path("reset") {
-            (get | put) {
-              ctx =>
-                interfaceActor ! Reset
-                ctx.complete(HttpResponse(status = StatusCodes.OK))
-            }
-          } ~ pathPrefix("implementations") {
-            get {
-              pathEnd {
-                parameter("subjectIds") {
-                  (subjectIdsString) =>
-                    complete {
-                      (interfaceActor ? GetImplementations(subjectIdsString.split("::"))).mapTo[Map[String, Seq[InterfaceImplementation]]]
-                    }
-                }
-              }
-            }
-          } ~ pathPrefix("blackbox") {
-            get {
-              path(Segment / Segment) {
-                (subjectId, blackboxname) => complete {
-                  (interfaceActor ? GetBlackbox(subjectId, blackboxname)).mapTo[Option[Interface]] // TODO: list or single one?
-                }
-              }
-            }
-          } ~ pathPrefix("interfaces") {
-            get {
-              pathEnd {
-                complete {
-                  (interfaceActor ? GetAllInterfaces).mapTo[Seq[Interface]]
-                }
-              } ~ path(IntNumber) {
-                id =>
+    clientIP { ip =>
+      pathPrefix("repo") {
+        path("reset") {
+          (get | put) {
+            ctx =>
+              interfaceActor ! Reset
+              ctx.complete(HttpResponse(status = StatusCodes.OK))
+          }
+        } ~ pathPrefix("implementations") {
+          get {
+            pathEnd {
+              parameter("subjectIds") {
+                (subjectIdsString) =>
                   complete {
-                    (interfaceActor ? GetInterface(id)).mapTo[Option[Interface]]
+                    (interfaceActor ? GetImplementations(subjectIdsString.split("::"))).mapTo[Map[String, Seq[InterfaceImplementation]]]
                   }
               }
-            } ~ post {
-              pathEnd {
-                entity(as[IntermediateInterface]) { iInterface =>
-                  val future = for {
-                    interface <- (intermediateInterfaceActor ? ConvertToInterface(iInterface, ip)).mapTo[Interface]
-                    response <- (interfaceActor ? AddInterface(interface)).mapTo[Option[String]]
-                  } yield response
-                  onSuccess(future) {
-                    case Some(s) => complete(s)
-                    case None => complete(HttpResponse(status = StatusCodes.InternalServerError))
-                  }
+            }
+          }
+        } ~ pathPrefix("blackbox") {
+          get {
+            path(Segment / Segment) {
+              (subjectId, blackboxname) => complete {
+                (interfaceActor ? GetBlackbox(subjectId, blackboxname)).mapTo[Option[Interface]] // TODO: list or single one?
+              }
+            }
+          }
+        } ~ pathPrefix("interfaces") {
+          get {
+            pathEnd {
+              complete {
+                (interfaceActor ? GetAllInterfaces).mapTo[Seq[Interface]]
+              }
+            } ~ path(IntNumber) {
+              id =>
+                complete {
+                  (interfaceActor ? GetInterface(id)).mapTo[Option[Interface]]
+                }
+            }
+          } ~ post {
+            pathEnd {
+              entity(as[IntermediateInterface]) { iInterface =>
+                val future = for {
+                  interface <- (intermediateInterfaceActor ? ConvertToInterface(iInterface, ip)).mapTo[Interface]
+                  response <- (interfaceActor ? AddInterface(interface)).mapTo[Option[String]]
+                } yield response
+                onSuccess(future) {
+                  case Some(s) => complete(s)
+                  case None => complete(HttpResponse(status = StatusCodes.InternalServerError))
                 }
               }
-            } ~ delete {
-              path(IntNumber) { interfaceId =>
-                interfaceActor ! DeleteInterface(interfaceId)
-                complete(StatusCodes.OK)
-              }
+            }
+          } ~ delete {
+            path(IntNumber) { interfaceId =>
+              interfaceActor ! DeleteInterface(interfaceId)
+              complete(StatusCodes.OK)
             }
           }
         }

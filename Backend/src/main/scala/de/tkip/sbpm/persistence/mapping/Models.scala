@@ -52,6 +52,8 @@ case class Process(id: Option[Int],
   isCase: Boolean = false,
   startAble: Boolean)
 
+case class VerificationError(id: Option[Int], graphId: Int, message: String)
+
 case class Message(id: Option[Int],
   fromUserId: Int,
   toUserId: Int,
