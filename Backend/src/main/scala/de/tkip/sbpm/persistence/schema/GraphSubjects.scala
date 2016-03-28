@@ -36,17 +36,15 @@ trait GraphSubjectsSchema extends GraphsSchema with RolesSchema {
     def isStartSubject = column[Boolean]("start_subject")
     def inputPool = column[Short]("input_pool", DbType.smallint)
     def blackboxname = column[Option[String]]("blackboxname")
-    def relatedSubjectId = column[Option[String]]("related_subject_id")
-    def relatedInterfaceId = column[Option[Int]]("related_interface_id")
-    def isImplementation = column[Option[Boolean]]("is_implementation")
+    def viewId = column[Option[Int]]("view_id")
+    def isExternalView = column[Boolean]("is_external_view")
     def externalType = column[Option[String]]("external_type", DbType.stringIdentifier)
     def roleId = column[Option[Int]]("role_id")
-    def url = column[Option[String]]("url")
     def comment = column[Option[String]]("comment", DbType.comment)
 
     def * = (id, graphId, name, subjectType, isDisabled, isStartSubject, inputPool
-      , blackboxname, relatedSubjectId , relatedInterfaceId, isImplementation, externalType, roleId, url
-      , comment) <> (GraphSubject.tupled, GraphSubject unapply)
+      , blackboxname, viewId, isExternalView, externalType, roleId
+      , comment) <> (GraphSubject.tupled, GraphSubject.unapply)
 
     def pk = primaryKey(pkName, (id, graphId))
 

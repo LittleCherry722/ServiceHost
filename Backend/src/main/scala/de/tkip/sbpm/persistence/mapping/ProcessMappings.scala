@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.persistence.mapping
 
-import de.tkip.sbpm.{ model => domainModel }
+import de.tkip.sbpm.{model => domainModel}
 
 /**
  * Provides conversions from domain model entities
@@ -25,30 +25,55 @@ object ProcessMappings {
    * Convert process and id of active graph to domain model.
    */
 
-  def convert(pt: (Seq[VerificationError], Process, Option[Int])): domainModel.Process = {
-    val (ves, p, id) = pt
-    domainModel.Process(p.id,
-      p.interfaceId,
-      ves.map(_.message),
-      p.publishInterface,
-      p.name,
-      p.isCase,
-      Some(p.startAble),
-      id)
+  def convert(pt: (Seq[VerificationError], Process, Option[Int], Map[Int, Map[String, String]], Map[Int, Map[String, String]])): domainModel.Process = {
+    val (ves, p, graphId, subjectMap, messageMap) = pt
+    domainModel.Process(
+      id = p.id,
+      interfaceId = p.interfaceId,
+      verificationErrors = ves.map(_.message),
+      publishInterface = p.publishInterface,
+      name = p.name,
+      subjectMap = subjectMap,
+      messageMap = messageMap,
+      implementationIds = p.implementationIds,
+      isCase = p.isCase,
+      startAble = Some(p.startAble),
+      activeGraphId = graphId)
   }
 
 
   /**
    * Convert process option and id of active graph to domain model.
    */
-  def convert(pOption: Option[(Seq[VerificationError], Process, Option[Int])]): Option[domainModel.Process] =
+  def convert(pOption: Option[(Seq[VerificationError],Process, Option[Int], Map[Int, Map[String, String]], Map[Int, Map[String, String]])]): Option[domainModel.Process] =
     pOption.map(convert)
 
   /**
    * Convert process from domain model to db entity and
    * extracts optional active graph id.
-   * TODO: Verification Errors
    */
-  def convert(p: domainModel.Process): (Process, Option[Int]) =
-    (Process(p.id, p.interfaceId, p.publishInterface, p.name, p.isCase, p.startAble.getOrElse(false)), p.activeGraphId)
+  def convert(p: domainModel.Process): (Process, Option[Int], (Int) => (Seq[ProcessSubjectMapping], Seq[ProcessMessageMapping], Seq[VerificationError])) = {
+    val mappings = (pId: Int) => {
+      val subjectMap = p.subjectMap.flatMap {
+        case (viewId, sMap) => sMap.map {
+          case (from, to) => ProcessSubjectMapping(pId, viewId, from, to)
+        }
+      }.toSeq
+      val messageMap = p.messageMap.flatMap {
+        case (viewId, mMap) => mMap.map {
+          case (from, to) => ProcessMessageMapping(pId, viewId, from, to)
+        }
+      }.toSeq
+      val vErrors = p.verificationErrors.map(m => VerificationError(None, pId, m)).toSeq
+      (subjectMap, messageMap, vErrors)
+    }
+    val process = Process(id = p.id,
+      interfaceId = p.interfaceId,
+      publishInterface = p.publishInterface,
+      name = p.name,
+      isCase = p.isCase,
+      startAble = p.startAble.getOrElse(false),
+      implementationIds = p.implementationIds)
+    (process, p.activeGraphId, mappings)
+  }
 }

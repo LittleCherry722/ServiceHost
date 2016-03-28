@@ -20,15 +20,9 @@ define([
 
   Interface.attrs({
     interfaceType: "string",
-    creator: "string",
     name: "string",
     description: "string",
     processId: "integer",
-    implementations: {
-      type: "json",
-      layz: false,
-      defaults: []
-    },
     views: {
       type: "json",
       lazy: false
@@ -41,32 +35,22 @@ define([
     initialize: function( data ) {
       var self = this;
 
-      this.filterInterfaceSubjects = function(test) {
-        return ko.computed({
-          deferEvaluation: true,
-          read: function() {
-            var t,
-                subjects = [];
+      this.viewSubjects = ko.computed({
+        deferEvaluation: true,
+        read: function() {
+          var t,
+              subjects = [];
 
-            _( self.graph().process ).each(function( s ) {
-              t = s.subjectType ? s.subjectType : s.type;
-              if (t === "external" && s.externalType === "interface" && test(s)) {
-                var imps = s.implementations;
-                subjects.push({id: s.id, name: s.name, impCount: imps.length, imps: imps});
-              }
+          _( self.views() ).each(function(view, viewId) {
+            var s = _(view.graph.process).find(function(s) {
+              return s.id == viewId;
             });
+            var imps = view.implementations;
+            subjects.push({id: s.id, name: s.name, impCount: imps.length, imps: imps});
+          });
 
-            return subjects;
-          }
-        });
-      };
-
-      this.implementedInterfaceSubjects = self.filterInterfaceSubjects(function(s) {
-        return !s.relatedInterfaceSubjects;
-      });
-
-      this.freeInterfaceSubjects = self.filterInterfaceSubjects(function(s) {
-        return s.relatedInterfaceSubjects;
+          return subjects;
+        }
       });
 
       this.isImplemented = ko.computed({

@@ -37,6 +37,8 @@ object Processes {
      * returns process by name or None if not found (Option[Process])
      */
     case class ByName(name: String) extends Query
+
+    case class MessageMappings(graphId: Int) extends Query
   }
 
   object Save {

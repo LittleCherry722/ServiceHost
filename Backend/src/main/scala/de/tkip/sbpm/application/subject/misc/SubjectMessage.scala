@@ -13,6 +13,8 @@
 
 package de.tkip.sbpm.application.subject.misc
 
+import akka.actor.ActorRef
+
 import scala.collection.mutable.ArrayBuffer
 
 import de.tkip.sbpm.application.subject.behavior.Target
@@ -25,26 +27,73 @@ import de.tkip.sbpm.application.miscellaneous.{
   ProcessInstanceData
 }
 import de.tkip.sbpm.model.Graph
-import de.tkip.sbpm.application.ProcessInstanceActor.Agent
-
 import de.tkip.sbpm.rest.google.GDriveControl.GDriveFileInfo
 
+/*
+ * Variable, message, message content definitions etc. are mainly as an example
+ * of how variables could and should be structured to allow
+ * sending to variables, sending variables, etc.
+ *
+ * The Main obstacles in using regular SubjectToSubjectMessages as a means of channel
+ * transmissions are:
+ *   - Current variables implementation is not compatible
+ *   - Sending to Variables / Channels is not currently supported (sending to the sender of a message),
+ *     in order to send to someone, this exact subject has to be in the graph, a subjectContainer has
+ *     to be created etc. Ideally, sending to a graph subject that has not been instantiated, sending
+ *     to an already existing graph subject, sending to a channel extracted from a message / variable
+ *     and sending to an new or existing external subject should just consist of sending the same
+ *     SubjectToSubjectMessage to an actorRef.
+ *   - Variable manipulation states have to be implemented for recursively defined variables
+ *   - Frontend needs support for sending variables to a subject, not only sending a message to a
+ *     variable. This also needs support from the Backend though, as the Send state could and should
+ *     just be automatically executed without user interaction.
+ */
+sealed trait MessageContent {
+  def channels : Set[Channel] = Set.empty
+}
+case class SingleMessage(message: SubjectToSubjectMessage) extends MessageContent {
+  override def channels : Set[Channel] = Set(message.fromChannel)
+}
+case class MessageSet(messages: Set[SubjectToSubjectMessage]) extends MessageContent {
+  override def channels : Set[Channel] = messages.map(_.fromChannel)
+}
+case class TextContent(content: String) extends MessageContent
+case object EmptyContent extends MessageContent
+
+case class Channel(actor: ActorRef, agent: Agent)
+
+// AgentMapping trait and AgentCandidates are not currently used, but might
+// be necessary for the blackbox / service host implementation
+sealed trait AgentMapping
+case class AgentCandidates(candidates: Set[Agent]) extends AgentMapping
+case class Agent(processId: ProcessID,
+                 address: AgentAddress,
+                 subjectId: SubjectID) extends AgentMapping
+
+case class AgentAddress(ip: String, port: Int) {
+  def toUrl = "@" + ip + ":" + port
+}
+
+/*
+ * Original Subject Message content
+ */
+
 // switch state messages
-case class StartSubjectExecution() extends SubjectBehaviorRequest
+case object StartSubjectExecution extends SubjectBehaviorRequest
 
 // internal subject messages TODO besserer trait name, braucht man den trait ueberhaupt?
 sealed trait MessageObject
 // message from subject to subject
-case class SubjectToSubjectMessage(
-  messageID: MessageID,
-  processID: ProcessID,
-  userID: UserID,
-  from: SubjectID,
-  target: Target,
-  messageType: MessageType,
-  messageContent: MessageContent,
-  fileID: Option[String] = None,
-  var fileInfo: Option[GDriveFileInfo] = None) extends MessageObject {
+case class SubjectToSubjectMessage(messageID: MessageID,
+                                   processID: ProcessID,
+                                   userID: UserID,
+                                   from: SubjectID,
+                                   fromChannel: Channel,
+                                   target: Target,
+                                   messageName: MessageName,
+                                   messageContent: MessageContent,
+                                   fileID: Option[String] = None,
+                                   var fileInfo: Option[GDriveFileInfo] = None) extends MessageObject {
 
   def to = target.subjectID
 
@@ -71,16 +120,15 @@ sealed trait SubjectBehaviorRequest
 case class GetAvailableAction(processInstanceID: ProcessInstanceID)
   extends SubjectBehaviorRequest // TODO eigentlich auch subject message
 
-case class SetAgentForSubject(subjectId: SubjectID, agent: Agent)
+case object GetProcessInstanceManager
 
-// TODO vllt in controlmessage verschieben, d sie jetzt direkt mit dem FE interagieren
-case class MessageData(
-  messageID: MessageID,
-  userID: UserID,
-  messageContent: String,
-  title: Option[String] = None,
-  url: Option[String] = None,
-  iconLink: Option[String] = None)
+// TODO vllt in controlmessage verschieben, da sie jetzt direkt mit dem FE interagieren
+case class MessageData(messageID: MessageID,
+                       userID: UserID,
+                       messageContent: String,
+                       title: Option[String] = None,
+                       url: Option[String] = None,
+                       iconLink: Option[String] = None)
 
 case class TargetUser(min: Int, max: Int, external: Boolean, targetUsers: Array[UserID])
 

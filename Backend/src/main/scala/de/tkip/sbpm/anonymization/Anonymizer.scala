@@ -4,13 +4,23 @@ import de.tkip.sbpm.model._
 import de.tkip.sbpm.newmodel.ProcessModelTypes.SubjectId
 
 import scala.annotation.tailrec
+import scala.collection.immutable
 
 
 object Anonymizer {
   type GraphNodeId = Short
 
+  def createViews(graph: Graph): Either[String, Map[SubjectId, View]] = {
+    val views: Seq[Either[String, View]] = graph.subjects.map(s => createView(s._1, graph)).toSeq
+    views.foldLeft(Right(Map.empty) : Either[String, Map[String, View]]) {
+      case (Right(vm), Right(v)) => Right(vm + (v.mainSubjectId -> v))
+      case (e@Left(_), _) => e
+      case (_, Left(e)) => Left(e)
+    }
+  }
+
   // Create a view of the graph originalGraph for the subject with the specified viewSubjectId.
-  // TODO: Implement advanced Pruning
+  // TODO: Implement advanced Pruning?
   def createView(viewSubjectId: SubjectId, originalGraph: Graph): Either[String, View] = {
     // make sure the of the currently local subjects, only one is communicating with the world.
     // If this is not the case, report the violation and return
@@ -33,7 +43,7 @@ object Anonymizer {
           // Mark the viewSubject as local single subject and all others as interface subjects
           squashInterfaceSubjects(flipSubjectTypes(newGraph, viewSubjectId)) match {
             case None => Left("Cannot squash interface subjects")
-            case Some(g) => Right(View(viewSubjectId, g))
+            case Some(g) => Right(View(None, viewSubjectId, Seq.empty, g))
           }
       }
     }

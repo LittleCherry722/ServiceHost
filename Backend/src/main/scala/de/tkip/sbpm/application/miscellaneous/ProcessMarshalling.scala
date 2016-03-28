@@ -32,12 +32,12 @@ object MarshallingAttributes {
 object parseGraph {
 
   // This map matches the short versions and real versions of the message types
-  private var messageMap: Map[String, String] = null
+  private var messageMap: Map[String, MessageName] = null
 
   def apply(graph: Graph): ProcessGraph = synchronized {
 
     // create the message map from the graph
-    messageMap = graph.messages.mapValues(_.id)
+    messageMap = graph.messages.mapValues(gm => MessageName(gm.name))
 
     // parse the subjects and return the resulting processgraph
     ProcessGraph(parseSubjects(graph.subjects))
@@ -96,8 +96,7 @@ object parseGraph {
       else {
         // FIXME GraphId != processId
         // TODO check ob vorhanden!
-
-        ExternalSubject(id, subject.inputPool, multi, subject.relatedSubjectId, None, subject.relatedInterfaceId, subject.isImplementation, varMap)
+        ExternalSubject(id, subject.inputPool, multi, subject.mergedSubjects, subject.implementsViews, subject.viewId, subject.isExternalView, varMap)
       }
     }
 
@@ -121,16 +120,16 @@ object parseGraph {
         states(node.id) =
           new StateCreator(mainMacro, node.id, node.text, fromStringtoStateType(node.nodeType)
             , node.isAutoExecute.getOrElse(false), node.isMajorStartNode, node.isStart, node.macroId, node.blackboxname
-            , options, node.chooseAgentSubject)
+            , options, node.varMan, node.chooseAgentSubject)
       }
     }
 
     private def parseNodeOptions(nodeOptions: GraphNodeOptions): StateOptions = {
-      val messageId = nodeOptions.messageId.map(id => if (id == GraphNodeOptions.AllMessages) AllMessages else id)
+      val messageName = nodeOptions.messageId.map(id => if (id == GraphNodeOptions.AllMessages) AllMessages else id)
       val subjectId = nodeOptions.subjectId.map(id => if (id == GraphNodeOptions.AllSubjects) AllSubjects else id)
       val stateId = nodeOptions.nodeId.map(_.toInt)
 
-      StateOptions(messageId, subjectId, nodeOptions.correlationId, nodeOptions.conversationId, stateId)
+      StateOptions(messageName.map(MessageName(_)), subjectId, nodeOptions.correlationId, nodeOptions.conversationId, stateId)
     }
 
     private def parseEdges(edges: Iterable[GraphEdge]) {
@@ -172,29 +171,27 @@ object parseGraph {
             // the messageType is the edge text
             // for receive and send states the edgetext is the short form
             // so replace it with the real form, if possible
-            val messageType = state.stateType match {
-              case ReceiveStateType => messageMap.getOrElse(edge.text, edge.text)
-              case SendStateType    => messageMap.getOrElse(edge.text, edge.text)
-              case _                => edge.text
+            val messageName = state.stateType match {
+              case ReceiveStateType => messageMap.getOrElse(edge.text, MessageName("Message name not found"))
+              case SendStateType    => messageMap.getOrElse(edge.text, MessageName("Message name not found"))
+              case _                => MessageName(edge.text)
             }
 
             // at the transition to the state
             state.addTransition(
-              Transition(ExitCond(messageType, target), edge.endNodeId, edge.priority, edge.variableId))
+              Transition(ExitCond(messageName, target), edge.endNodeId, edge.priority, edge.variableId))
           }
 
-          case "timeout" => {
+          case "timeout" =>
             // get the duration only if its not manual
             val duration = if (edge.manualTimeout) -1 else parseInt(edge.text)
             // at the transition to the state
             states(edge.startNodeId).addTransition(
               TimeoutTransition(edge.manualTimeout, duration, edge.endNodeId))
-          }
 
-          case s => {
+          case s =>
             // TODO error loggen
             System.err.println("Cant parse edgetype: " + s)
-          }
         }
       }
     }
@@ -215,6 +212,7 @@ object parseGraph {
     val graphMacro: Option[String],
     val blackboxname: Option[String],
     val options: StateOptions,
+    val varManOptions: Option[GraphVarMan],
     val chooseAgentSubject: Option[String]) {
 
     // store all transitions in this Buffer
@@ -231,6 +229,6 @@ object parseGraph {
      * Creates and returns the state for this state creator
      */
     def createState: State =
-      State(id, text, stateType, autoExecute, majorStartState, !majorStartState && mainMacro && startState && stateType == ReceiveStateType, graphMacro, blackboxname, options, transitions.toArray, chooseAgentSubject)
+      State(id, text, stateType, autoExecute, majorStartState, !majorStartState && mainMacro && startState && stateType == ReceiveStateType, graphMacro, blackboxname, options, varManOptions, transitions.toArray, chooseAgentSubject)
   }
 }

@@ -32,7 +32,8 @@ case class Interface(interfaceType: String,
                      id: Option[Int],
                      addressId: Int,
                      processId: Int,
-                     name: String)
+                     name: String,
+                     deleted: Boolean = false)
 
 case class View(id: Option[Int],
                 interfaceId: Int,
@@ -43,14 +44,18 @@ case class EmptyView(id: Option[Int],
                      interfaceId: Int,
                      viewId: Int)
 
-case class EmptyViewMapping(mappingType: String, emptyViewId: Int, from: String, to: String)
+case class EmptyViewSubjectMap(emptyViewId: Int, from: String, to: String)
+case class EmptyViewMessageMap(emptyViewId: Int, from: String, to: String)
 
-case class InterfaceImplementation(processId: Int,
+case class InterfaceImplementation(id: Option[Int],
+                                   processId: Int,
                                    addressId: Int,
                                    ownSubjectId: String,
-                                   viewId: Int)
+                                   viewId: Int,
+                                   dependsOnInterface: Option[Int])
 
-case class ImplementationMapping(mappingType: String, implementationId: Int, from: String, to: String)
+case class ImplementationSubjectMapping(implementationId: Int, from: String, to: String)
+case class ImplementationMessageMapping(implementationId: Int, from: String, to: String)
 
 
 case class GraphMessage(id: String,

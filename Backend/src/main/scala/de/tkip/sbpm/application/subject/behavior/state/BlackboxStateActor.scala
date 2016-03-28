@@ -13,9 +13,7 @@
 
 package de.tkip.sbpm.application.subject.behavior.state
 
-import scala.Array.canBuildFrom
 import scala.concurrent._
-import scala.concurrent.duration._
 import scala.collection.mutable.{Map => MutableMap}
 
 // TODO: sortieren / aufräumen
@@ -31,13 +29,12 @@ import scalaj.http.Http
 import de.tkip.sbpm.persistence.query._
 
 import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.rest.JsonProtocol._
 
 import de.tkip.sbpm.application.miscellaneous.{ RoleMapper, UnBlockUser }
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.SubjectID
-import de.tkip.sbpm.application.subject.misc.ActionData
+import de.tkip.sbpm.application.subject.misc.{ActionData}
 import de.tkip.sbpm.model._
-import de.tkip.sbpm.application.ProcessInstanceActor.{RegisterSubjects, AgentAddress, Agent}
+import de.tkip.sbpm.application.ProcessInstanceActor.RegisterSubjects
 import de.tkip.sbpm.application.subject.CallMacroStates
 import de.tkip.sbpm.application.subject.misc.MacroTerminated
 import akka.event.Logging
@@ -82,10 +79,8 @@ case class BlackboxStateActor(data: StateData)
   val plaintextGraph: String = loadPlaintextGraph(url)
 
   rolesFuture onComplete {
-    case Success(res) => {
+    case Success(res) =>
       log.info("rolesFuture Success")
-
-
       val rolesSeq: Seq[Role] = res.asInstanceOf[Seq[Role]]
 
       val roles: Map[String, Role] = rolesSeq.map(r => (r.name, r)).toMap
@@ -102,23 +97,22 @@ case class BlackboxStateActor(data: StateData)
 
       // register all used subjects except the own
       val externalSubjects: Map[SubjectID, SubjectLike] = processGraph.subjects.filterNot(_._1 == mySubjectID)
-      val externalGraphSubjects: Map[SubjectID, GraphSubject] = reversedGraph.subjects.filterNot(_._1 == mySubjectID)
 
-      val agents: Map[SubjectID, Agent] = externalGraphSubjects.values.map(
-        subj => {
-          val impl: InterfaceImplementation = subj.implementations.get.head // TODO: check existence / how to choose?
-          val agent = Agent(impl.processId, AgentAddress(impl.address.ip, impl.address.port), impl.subjectId)
-          (subj.id, agent)
-        }).toMap
+      //      val agents: Map[SubjectID, Agent] = externalGraphSubjects.values.map(
+      //        subj => {
+      //          val impl: InterfaceImplementation = subj.implementations.get.head // TODO: check existence / how to choose?
+      //          val agent = Agent(impl.processId, AgentAddress(impl.address.ip, impl.address.port), impl.subjectId)
+      //          (subj.id, agent)
+      //        }).toMap
+      // TODO: Fix blackbox agents / interfaceImplementations
 
-      callMacro(mainMacro, externalSubjects, agents)
-    }
-    case Failure(e) => {
+      callMacro(mainMacro, externalSubjects)
+
+    case Failure(e) =>
       e.printStackTrace()
       log.error("error loading roles", e)
       // TODO: weitere Fehlerbehandlung
       exit()
-    }
   }
 
   // TODO: how is this done in frontend when implementing an interface?
@@ -129,7 +123,7 @@ case class BlackboxStateActor(data: StateData)
           val subject = e._2
 
           if (subject.subjectType == "external") {
-            if (subject.externalType == Some("blackbox")) {
+            if (subject.externalType.contains("blackbox")) {
               log.info("reverseExternalSubjects: found blackbox, switch it to single subject")
               subject.copy(
                 subjectType = "single",
@@ -152,21 +146,15 @@ case class BlackboxStateActor(data: StateData)
     ))
   }
 
-  def callMacro(mainMacro: Array[State], externalSubjects: Map[SubjectID, SubjectLike], agents: Map[SubjectID, Agent]): Unit = {
+  def callMacro(mainMacro: Array[State], externalSubjects: Map[SubjectID, SubjectLike]): Unit = {
     val macroName = blackboxInstance + "@blackbox"
-    log.info("=============================")
     log.info("=============================")
     log.info("callMacro: " + macroName + " => " + mainMacro.mkString(", "))
     log.info("=============================")
-    log.info("=============================")
-
-    val msg = RegisterSubjects(externalSubjects, agents)
 
     // TODO: include subject information in callmacro
-    context.parent ! msg
-
+    context.parent ! RegisterSubjects(externalSubjects)
     log.info("registered subjects")
-
     // TODO: BlockUser ?
     context.parent ! CallMacroStates(this.self, macroName, mainMacro)
     // TODO: UnBlockUser ?
@@ -177,18 +165,14 @@ case class BlackboxStateActor(data: StateData)
   }
 
   protected def stateReceive = {
-    case mt: MacroTerminated => {
+    case mt: MacroTerminated =>
       log.info("Macro terminated: " + mt.macroID)
-
       blockingHandlerActor ! UnBlockUser(userID)
-
       exit()
-    }
   }
 
   def exit(): Unit = {
     log.info("exit")
-
     changeState(exitTransitions(0).successorID, data, null)
   }
 }

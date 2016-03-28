@@ -44,49 +44,37 @@ class SubjectProviderManagerActor extends InstrumentedActor {
     // general matching:
     // first match the answers
     // then SubjectProviderMessages
-    case answer: AnswerMessage => {
+    case answer: AnswerMessage =>
       if (answer.sender != null) {
         answer.sender !! answer
       }
-    }
 
     // TODO werden noch zu forwards aber zum routing testen erstmal tells
-    case message: SubjectProviderMessage => {
+    case message: SubjectProviderMessage =>
       if (subjectProviderMap.contains(message.userID)) {
         subjectProviderMap(message.userID) ! withSender(message)
       } else {
         // TODO dynamisch erstellen?
+        log.info("creating new subject provider")
         createNewSubjectProvider(message.userID)
         subjectProviderMap(message.userID).forward(withSender(message))
       }
-    }
 
-    case message: CreateProcessInstance => {
-      val filteredAgentsMap = message.agentsMap.filter{ tuple =>
-        !(tuple._2.address.toUrl == SystemProperties.akkaRemoteUrl)
-      }
-      val filteredRequest = message.copy(agentsMap = filteredAgentsMap)
-      log.info("CREATE PROCESS INSTANCE received. Agents map filtered from {} to {}", message.agentsMap, filteredAgentsMap)
-      processManagerActor ! filteredRequest.withSender(sender)
-
-    }
+    case message: CreateProcessInstance =>
+      processManagerActor ! message.withSender(sender)
 
     // TODO muss man zusammenfassen koennen
-    case message: AnswerAbleMessage => {
+    case message: AnswerAbleMessage =>
       processManagerActor ! message.withSender(sender)
-    }
 
-    case message: ControlMessage => {
+    case message: ControlMessage =>
       processManagerActor ! message
-    }
 
-    case message: SubjectMessage => {
+    case message: SubjectMessage =>
       processManagerActor ! message
-    }
 
-    case s => {
+    case s =>
       println("SubjectProviderManger not yet implemented: " + s)
-    }
   }
 
   /**
@@ -101,22 +89,11 @@ class SubjectProviderManagerActor extends InstrumentedActor {
     message
   }
 
-  // forward control message to subjectProvider that is mapped to a specific userID
-  private def forwardControlMessageToProvider(userID: UserID,
-    controlMessage: ControlMessage) {
-    if (subjectProviderMap.contains(userID)) {
-      if (controlMessage.isInstanceOf[AnswerAbleMessage]) {
-        controlMessage.asInstanceOf[AnswerAbleMessage].sender = sender
-      }
-      subjectProviderMap(userID).forward(controlMessage)
-    }
-  }
-
   // creates a new subject provider and registers it with the given userID
   // (overrides the old entry)
   private def createNewSubjectProvider(userID: UserID) = {
     val subjectProvider =
-      context.actorOf(Props(new SubjectProviderActor(userID)), "SubjectProviderActor____" + UUID.randomUUID().toString())
+      context.actorOf(Props(new SubjectProviderActor(userID)), "SubjectProviderActor____" + UUID.randomUUID().toString)
     subjectProviderMap += userID -> subjectProvider
     subjectProvider
   }

@@ -19,16 +19,17 @@ import de.tkip.sbpm.model.GraphJsonProtocol._
 import de.tkip.sbpm.model.InterfaceType._
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.persistence.DatabaseAccess
+import de.tkip.sbpm.persistence.query.InterfaceQuery.IdResult
 import de.tkip.sbpm.persistence.query.{InterfaceQuery => Query}
 import spray.httpx.SprayJsonSupport
 import spray.json._
-
-import scala.collection.mutable
 
 object InterfaceActor {
   case object GetAllInterfaces
   case class GetInterface(id: Int)
   case class AddInterface(interface: Interface)
+  case class AddImplementation(implementation: InterfaceImplementation)
+  case class DeleteImplementation(implementationId: Int)
   case class DeleteInterface(interfaceId: Int)
   case class GetImplementations(subjectIds: Seq[String])
   case class GetBlackbox(subjectId: String, blackboxname: String)
@@ -38,9 +39,7 @@ object InterfaceActor {
     implicit object interfaceTypeFormat extends RootJsonFormat[InterfaceType] {
       def write(obj: InterfaceType) = JsString(obj.toString)
       def read(v: JsValue) = v match {
-        case JsString(str) => try {
-          InterfaceType.withName(str)
-        }
+        case JsString(str) => InterfaceType.withName(str)
         case _ => deserializationError("String expected")
       }
     }
@@ -55,17 +54,17 @@ class InterfaceActor extends Actor with ActorLogging {
   import InterfaceActor._
 
   private val logger = Logging(context.system, this)
-  private val interfaces = mutable.Map[Int, Interface]()
+//  private val interfaces = mutable.Map[Int, Interface]()
 
   def receive = {
     case GetAllInterfaces => {
       log.info("Get all interfaces")
-      sender ! Query.loadInterfaces().map(withInterfaceImplementations)
+      sender ! Query.loadInterfaces() //.map(withInterfaceImplementations)
     }
 
     case GetInterface(interfaceId) => {
       log.info(s"Get interface with id: $interfaceId")
-      sender ! Query.loadInterface(interfaceId).map(withInterfaceImplementations)
+      sender ! Query.loadInterface(interfaceId) //.map(withInterfaceImplementations)
     }
 
     case DeleteInterface(interfaceId) => {
@@ -81,22 +80,20 @@ class InterfaceActor extends Actor with ActorLogging {
       sender ! implementationsMap
     }
 
-    case GetBlackbox(subjectId, blackboxname) => {
-      log.info("GetBlackbox: " + subjectId + "/" + blackboxname)
-
-      val listFuture: Seq[Interface] = Query.loadInterfaces()
-
-      // TODO: move filter to Query
-      val filtered = listFuture.filter(impl => (impl.interfaceType == BlackboxcontentInterfaceType && impl.graph.subjects.values.exists(subj => (subj.id == subjectId && subj.blackboxname == Some(blackboxname)))))
-
-      sender ! filtered.map(withInterfaceImplementations).headOption // TODO: list or single one?
-    }
-
     case AddInterface(interface) => {
       log.info(s"Adding new interface")
-      val interfaceId = Query.saveInterface(interface)
-      log.info(s"Interface adding completed. id: $interfaceId")
-      sender ! Some(interfaceId.toString)
+      val interfaceSaveResult = Query.saveInterface(interface)
+      log.info(s"Interface adding completed. Result: $interfaceSaveResult")
+      sender ! Some(interfaceSaveResult)
+    }
+
+    case AddImplementation(implementation) => {
+      val implementationId = Query.saveImplementation(implementation)
+      sender ! Some(IdResult(implementationId))
+    }
+
+    case DeleteImplementation(implementationId) => {
+      Query.deleteImplementation(implementationId)
     }
 
     case Reset => {
@@ -106,23 +103,6 @@ class InterfaceActor extends Actor with ActorLogging {
     }
   }
 
-  private def withInterfaceImplementations(interface: Interface) : Interface = {
-    log.info("withInterfaceImplementations called for interface {}", interface.id)
-    interface.copy(graph = interface.graph.copy(
-      subjects = interface.graph.subjects.mapValues{
-        subject => {
-          logger.info("Searching for implementations for subject " + subject.name + " from " + interface.name)
-          if (subject.subjectType == "single") {
-            logger.info("Subject is an single subject, copy its implementations")
-            subject.copy(implementations = implementationsFor(subject.id))
-          } else {
-            logger.info("Subject is not an single subject, aborting. subject types: " + subject.subjectType + ", " + subject.externalType)
-            subject
-          }
-        }
-      }
-    ))
-  }
 
   private def implementationsFor(subjectId: String) : Seq[InterfaceImplementation] = {
     logger.info("implementationsFor called for subjectId {}", subjectId)

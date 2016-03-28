@@ -68,7 +68,7 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
   private val subjectName: String = subject.id
   // create the inputpool
   private val inputPoolActor: ActorRef =
-    context.actorOf(Props(new InputPoolActor(data)), "InputPoolActor____" + UUID.randomUUID().toString())
+    context.actorOf(Props(new InputPoolActor(data)), "InputPoolActor____" + UUID.randomUUID().toString)
   // and the internal behavior
   //  private val internalBehaviorActor =
   //    context.actorOf(Props(new InternalBehaviorActor(data, inputPoolActor)),"InternalBehaviorActor____"+UUID.randomUUID().toString())
@@ -83,7 +83,7 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
     macroIdCounter += 1
     val entry @ (_, macroActor) =
       macroId -> context.actorOf(Props(
-        new InternalBehaviorActor(macroId, callActor, data, inputPoolActor)), "InternalBehaviorActor____" + UUID.randomUUID().toString())
+        new InternalBehaviorActor(macroId, callActor, data, inputPoolActor)), "InternalBehaviorActor____" + UUID.randomUUID().toString)
 
     // TODO: send all states at once?
     for (state <- macroStates) {
@@ -177,7 +177,7 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
       }
     }
 
-    case _: StartSubjectExecution => {
+    case StartSubjectExecution => {
       restart()
     }
 

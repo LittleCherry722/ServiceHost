@@ -15,8 +15,8 @@ package de.tkip.sbpm.application.miscellaneous
 
 import ProcessAttributes._
 import akka.actor._
-import de.tkip.sbpm.application.ProcessInstanceActor.{ AgentsMap, Agent }
 import de.tkip.sbpm.application.history._
+import de.tkip.sbpm.application.subject.misc.Agent
 import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject.misc.AvailableAction
 import java.util.Date
@@ -87,14 +87,11 @@ case class ReadProcessInstance(userID: UserID,
 case class ReadProcessInstanceAnswer(request: ReadProcessInstance,
                                      answer: ProcessInstanceData) extends AnswerControlMessage
 
-case class GetAgentsList (processId: ProcessID, url: String)
-case class GetAgentsListResponse(agentsMap:  AgentsMap)
 
 case class CreateProcessInstance(userID: UserID,
                                  processID: ProcessID,
                                  name: String,
-                                 manager: Option[ActorRef] = None,
-                                 agentsMap: AgentsMap) extends AnswerAbleControlMessage
+                                 manager: Option[ActorRef] = None) extends AnswerAbleControlMessage
 
 case class ProcessInstanceCreated(request: CreateProcessInstance,
                                   processInstanceActor: ProcessInstanceRef,

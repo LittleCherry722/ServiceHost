@@ -15,6 +15,8 @@ package de.tkip.sbpm
 
 import java.security.{KeyStore, SecureRandom}
 import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
+import de.tkip.sbpm.model.User
+
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import akka.actor.{Actor, ActorSystem, Props, actorRef2Scala}
@@ -23,7 +25,7 @@ import akka.pattern._
 import akka.io.IO
 import ActorLocator._
 import de.tkip.sbpm.application._
-import de.tkip.sbpm.persistence.query.Schema
+import de.tkip.sbpm.persistence.query.{Users, Schema}
 import de.tkip.sbpm.persistence.testdata.Entities
 import de.tkip.sbpm.persistence.PersistenceActor
 import de.tkip.sbpm.repository.RepositoryPersistenceActor
@@ -39,6 +41,8 @@ import de.tkip.sbpm.polling.{Polling, ReplyForTrafficJam}
 import de.tkip.sbpm.instrumentation.InstrumentationLogger
 import de.tkip.sbpm.logging.SlickAppender
 
+import com.github.t3hnar.bcrypt._
+
 object Boot extends App {
 
   implicit val system = ActorSystem("sbpm")
@@ -51,7 +55,7 @@ object Boot extends App {
     logging.debug("Shutting down the system...")
     val stopFutures = Future.sequence(rootActors.map(gracefulStop(_, 5 seconds)))
     Await.result(stopFutures, 6 seconds)
-    system.shutdown();
+    system.shutdown()
   }
 
   // for SSL support (if enabled in application.conf)
@@ -95,7 +99,7 @@ object Boot extends App {
 
   // binding the frontendInterfaceActor to a HttpListener
   IO(Http) ! Http.Bind(frontendInterfaceActor, interface = sbpmHostname, port = sbpmPort)
-//   IO(Http) ! Http.Bind(frontendInterfaceActor, interface = "localhost", port = sys.env.getOrElse("SBPM_PORT", "8080").toInt)
+//  IO(Http) ! Http.Bind(frontendInterfaceActor, interface = "localhost", port = sys.env.getOrElse("SBPM_PORT", "8080").toInt)
 
   // db init code below
   implicit val timout = Timeout(30 seconds)

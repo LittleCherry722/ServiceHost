@@ -13,6 +13,8 @@
 
 package de.tkip.sbpm.persistence.mapping
 
+import de.tkip.sbpm.newmodel.ProcessModelTypes.ProcessId
+
 /*
  * Define all database entities here.
  * These entities are converted to domain model entities
@@ -46,11 +48,12 @@ case class ProcessInstance(id: Option[Int],
   data: Option[String] = None)
 
 case class Process(id: Option[Int],
-  interfaceId: Option[Int],
-  publishInterface: Boolean,
-  name: String,
-  isCase: Boolean = false,
-  startAble: Boolean)
+                   interfaceId: Option[Int],
+                   publishInterface: Boolean,
+                   name: String,
+                   isCase: Boolean = false,
+                   startAble: Boolean,
+                   implementationIds: Seq[Int])
 
 case class VerificationError(id: Option[Int], graphId: Int, message: String)
 
@@ -95,22 +98,24 @@ case class GraphRouting(id: String,
   implicationUserId: Option[Int])
 
 case class GraphSubject(id: String,
-  graphId: Int,
-  name: String,
-  subjectType: String,
-  isDisabled: Boolean,
-  isStartSubject: Boolean,
-  inputPool: Short,
-  blackboxname: Option[String],
-  relatedSubjectId: Option[String],
-  relatedInterfaceId: Option[Int],
-  isImplementation: Option[Boolean],
-  externalType: Option[String],
-  roleId: Option[Int],
-  url: Option[String],
-  comment: Option[String])
+                        graphId: Int,
+                        name: String,
+                        subjectType: String,
+                        isDisabled: Boolean,
+                        isStartSubject: Boolean,
+                        inputPool: Short,
+                        blackboxname: Option[String],
+                        viewId: Option[Int],
+                        isExternalView: Boolean,
+                        externalType: Option[String],
+                        roleId: Option[Int],
+                        comment: Option[String])
+
+case class ProcessSubjectMapping(processId: ProcessId, viewId: Int, from: String, to: String)
+case class ProcessMessageMapping(processId: ProcessId, viewId: Int, from: String, to: String)
 
 case class GraphMergedSubject(id: String, subjectId: String, graphId: Int, name: String)
+case class GraphSubjectViewId(subjectId: String, viewId: Int)
 
 case class GraphVariable(id: String,
   subjectId: String,

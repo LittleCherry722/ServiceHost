@@ -36,7 +36,8 @@ object InterfaceSchema extends Schema {
     def addressId = column[Int]("address_id")
     def processId = column[Int]("process_id")
     def name = nameCol
-    def * = (interfaceType, id.?, addressId, processId, name) <> (Interface.tupled, Interface.unapply)
+    def deleted = column[Boolean]("interface_deleted")
+    def * = (interfaceType, id.?, addressId, processId, name, deleted) <> (Interface.tupled, Interface.unapply)
     // def autoInc = * returning id
     def uniqueName = unique(name)
 

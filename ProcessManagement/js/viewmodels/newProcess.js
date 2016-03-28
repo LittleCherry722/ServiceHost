@@ -106,7 +106,7 @@ define([
 
 		this.removeSubject = Subject.remove;
 		this.removeMessage = Message.remove;
-	}
+  };
 
 	/*
 	 * The current Process.
@@ -125,23 +125,26 @@ define([
 		if ( currentProcess().name().length < 1 ) {
 			Notify.warning( 'Warning', 'Please enter a name for the process!' );
 			return;
-		}
+    }
 
-		if ( this.displayTable() ) {
+    if ( this.displayTable() ) {
 			currentProcess().subjects = Subject.allClean();
 			currentProcess().messages = Message.allClean();
 			currentProcess().isCreatedFromTable = true;
-		}
+    }
+
+    currentProcess().subjectMap({});
+    currentProcess().messageMap({});
 
 		currentProcess().save(null, {
 			success: function() {
 				Router.goTo( currentProcess() );
 			},
 			error: function() {
-				Notify.error("Error", "Saving the process failed.")
+        Notify.error("Error", "Saving the process failed.");
 			}
 		});
-	}
+  };
 
 	// Initialize our View.
 	// Includes loading the template and creating the viewModel
@@ -155,11 +158,11 @@ define([
 			App.loadTemplate( "newProcess/quickView", viewModel, "quick_table" );
 
 		});
-	}
+  };
 
 	// Everything in this object will be the public API
 	return {
 		init: initialize
-	}
+  };
 });
 

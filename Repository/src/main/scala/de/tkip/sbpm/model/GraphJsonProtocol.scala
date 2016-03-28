@@ -233,7 +233,6 @@ object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
       "isImplementation" -> s.isImplementation.toJson,
       "externalType" -> s.externalType.toJson,
       "role" -> s.role.toJson,
-      "implementations" -> s.implementations.toJson,
       "comment" -> s.comment.toJson,
       "variables" -> s.variables.toJson,
       // extract counter value from variable ids
@@ -255,7 +254,6 @@ object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
       "isImplementation",
       "externalType",
       "role",
-      "implementations",
       "comment",
       "variables",
       "macros"))
@@ -297,6 +295,9 @@ object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
         case x => throw new DeserializationException("Graph expected, but found: " + x)
       }
   }
+
+
+  implicit val viewFormat = jsonFormat4(View)
 
   /**
    * Extracts the current id counter value from an string id -> entity map.

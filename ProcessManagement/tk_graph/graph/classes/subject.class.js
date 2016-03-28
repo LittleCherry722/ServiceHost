@@ -90,9 +90,9 @@ function GCsubject (id, text, type, inputPool)
 	/**
 	 * TODO
 	 *
-	 * @type String
+   * @type [Int]
 	 */
-	this.relatedInterface	= null;
+  this.implementsViews	= null;
 
 	/**
 	 * For blackbox subjects: the referenced blackboxname.
@@ -134,7 +134,14 @@ function GCsubject (id, text, type, inputPool)
 	 *
 	 * @type boolean
 	 */
-	this.startSubject	= false;
+  this.startSubject	= false;
+
+  /**
+   * Flag if the subject is en external interface and must not be modified
+   *
+   * @type boolean
+   */
+  this.externalView	= false;
 
 	/**
 	 * The label of the subject.
@@ -237,19 +244,19 @@ function GCsubject (id, text, type, inputPool)
 
 	/**
 	 * TODO
-	 * Returns the related interface.
+   * Returns the views this subject implements.
 	 *
-	 * @returns {String} The related Interface
+   * @returns {[Int]} The views this subject implements
 	 */
-	this.getRelatedInterface = function ()
+  this.getImplementsViews = function ()
 	{
-		return this.relatedInterface;
+    return this.implementsViews;
 	};
 
 	/**
-	 * Returns the related interface.
+   * Returns the merged subjects.
 	 *
-	 * @returns {[String]} The related Interface
+   * @returns {[String]} The merged subjects
 	 */
 	this.getMergedSubjects = function ()
 	{
@@ -407,7 +414,17 @@ function GCsubject (id, text, type, inputPool)
 	this.isStartSubject = function ()
 	{
 		return this.startSubject === true;
-	};
+  };
+
+  /**
+   * Returns true when the subject is an external view and must not be modified
+   *
+   * @returns {boolean} Returns true when subject is an external view subject.
+   */
+  this.isExternalView = function ()
+  {
+    return this.externalView === true;
+  };
 
 	/**
 	 * Updates the subject's comment.
@@ -497,16 +514,16 @@ function GCsubject (id, text, type, inputPool)
 	};
 
 	/**
-	 * Sets the related interface.
+   * Sets the views this subject implements.
 	 *
-	 * @param {String} relatedInterface The related interface.
+   * @param {[Int]} implementsViews The views this subject implements.
 	 * @returns {void}
 	 */
-	this.setRelatedInterface = function (relatedInterface)
+  this.setImplementsViews = function (implementsViews)
 	{
-		if (gf_isset(relatedInterface))
+    if (gf_isset(implementsViews))
 		{
-			this.relatedInterface	= relatedInterface;
+      this.implementsViews	= implementsViews;
 		}
 	};
 
@@ -572,7 +589,21 @@ function GCsubject (id, text, type, inputPool)
 		{
 			this.startSubject = startSubject === true;
 		}
-	};
+  };
+
+  /**
+   * Updates the startSubject status of the subject.
+   *
+   * @param {boolean} startSubject New status of the subject.
+   * @returns {void}
+   */
+  this.setExternalView = function (externalView)
+  {
+    if (gf_isset(externalView))
+    {
+      this.externalView = externalView === true;
+    }
+  };
 
 	/**
 	 * Updates the label of this node with the given text.

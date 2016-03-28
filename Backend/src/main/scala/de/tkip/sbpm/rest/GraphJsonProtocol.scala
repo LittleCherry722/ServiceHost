@@ -13,19 +13,24 @@
 
 package de.tkip.sbpm.rest
 
+import java.sql.Timestamp
+
+import akka.actor.{ActorContext, ActorRef}
+import de.tkip.sbpm.application.history._
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.model._
-import de.tkip.sbpm.application.miscellaneous.RoleMapper
-import de.tkip.sbpm.application.ProcessInstanceActor.{Agent, AgentAddress}
+import de.tkip.sbpm.application.miscellaneous.{ProcessInstanceData, ProcessInstanceInfo, SystemProperties, RoleMapper}
 import spray.json._
+import spray.routing.authentication.UserPass
 import scala.collection.immutable.Map
-import java.util.UUID
+import java.util.{Date, UUID}
 
 /**
  * Provides conversion from Graph domain model
  * to JSON and vice versa.
  */
 object GraphJsonProtocol extends DefaultJsonProtocol {
-
   /**
    * Override default option format because null values in
    * JSON are sometimes represented as empty String.
@@ -286,14 +291,14 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     def read(v: JsValue) = v match {
       case a: JsArray => a.elements.map { e =>
         val m = e.convertTo[GraphMacro]
-        (m.id -> m)
+        m.id -> m
       }.toMap
       case _ => throw new DeserializationException("Array expected.")
     }
   }
 
   implicit val addressFormat = jsonFormat2(AgentAddress)
-  implicit val interfaceImplementationFormat = jsonFormat3(InterfaceImplementation)
+  implicit val interfaceImplementationFormat = jsonFormat5(InterfaceImplementation)
 
   implicit val mergedSubjectsFormat = jsonFormat2(MergedSubject)
 
@@ -313,19 +318,17 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       "startSubject" -> s.isStartSubject.toJson,
       "inputPool" -> s.inputPool.toJson,
       "blackboxname" -> s.blackboxname.toJson,
-      "relatedSubject" -> s.relatedSubjectId.toJson,
-      "relatedInterface" -> s.relatedInterfaceId.toJson,
-      "isImplementation" -> s.isImplementation.toJson,
+      "implementsViews" -> s.implementsViews.toJson,
+      "viewId" -> s.viewId.toJson,
+      "externalView" -> s.isExternalView.toJson,
       "externalType" -> s.externalType.toJson,
       "role" -> s.role.toJson,
-      "url" -> s.url.toJson,
-      "implementations" -> s.implementations.toJson,
       "comment" -> s.comment.toJson,
       "variables" -> s.variables.toJson,
       // extract counter value from variable ids
       "variableCounter" -> counter(s.variables),
       "macros" -> s.macros.values.toJson,
-      // extract counter value fro∂m macro ids
+      // extract counter value from macro ids
       "macroCounter" -> counter(s.macros))
     def read(v: JsValue) = v.asJsObject.convertTo[GraphSubject](jsonFormat(GraphSubject,
       "id",
@@ -336,13 +339,11 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       "startSubject",
       "inputPool",
       "blackboxname",
-      "relatedSubject",
-      "relatedInterface",
-      "isImplementation",
+      "implementsViews",
+      "viewId",
+      "externalView",
       "externalType",
       "role",
-      "url",
-      "implementations",
       "comment",
       "variables",
       "macros"))
@@ -382,7 +383,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
             date.convertTo[java.sql.Timestamp],
             definition.fields("conversations").convertTo[Map[String, GraphConversation]],
             definition.fields("messages").convertTo[Map[String, GraphMessage]],
-            definition.fields("process").convertTo[Seq[GraphSubject]].map(s => (s.id -> s)).toMap,
+            definition.fields("process").convertTo[Seq[GraphSubject]].map(s => s.id -> s).toMap,
             routings.convertTo[Seq[GraphRouting]])
         case Seq(definition: JsObject,
           routings: JsArray) => Graph(None,
@@ -390,7 +391,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
           new java.sql.Timestamp(System.currentTimeMillis()),
           definition.fields("conversations").convertTo[Map[String, GraphConversation]],
           definition.fields("messages").convertTo[Map[String, GraphMessage]],
-          definition.fields("process").convertTo[Seq[GraphSubject]].map(s => (s.id -> s)).toMap,
+          definition.fields("process").convertTo[Seq[GraphSubject]].map(s => s.id -> s).toMap,
           routings.convertTo[Seq[GraphRouting]])
         case x => v.asJsObject.getFields("process",
           "conversations",
@@ -402,7 +403,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
                 new java.sql.Timestamp(System.currentTimeMillis()),
                 conversations.convertTo[Map[String, GraphConversation]],
                 messages.convertTo[Map[String, GraphMessage]],
-                process.convertTo[Seq[GraphSubject]].map(s => (s.id -> s)).toMap,
+                process.convertTo[Seq[GraphSubject]].map(s => s.id -> s).toMap,
                 Seq())
             case y => throw new DeserializationException("Graph expected, but found: " + y)
         }
@@ -480,4 +481,171 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       case JsString(s)   => Some(s)
     }
   }
+
+
+  /*
+   * Former JSON format
+   */
+
+  implicit object DateFormat extends RootJsonFormat[Date] {
+    def write(obj: Date) = {
+      JsObject("date" -> JsNumber(obj.getTime()))
+    }
+    def read(json: JsValue) = {
+      json.asJsObject().getFields("date") match {
+        case Seq(JsNumber(date)) => new Date(date.toLong)
+        case _                   => throw new DeserializationException("Date expected")
+      }
+    }
+  }
+
+  //  TODO so richtig durchgereicht
+  implicit object RefFormat extends RootJsonFormat[ActorRef] {
+    def write(obj: ActorRef) = obj.toJson
+    def read(json: JsValue) = json.convertTo[ActorRef]
+  }
+
+  implicit object ValueFormat extends RootJsonFormat[de.tkip.sbpm.model.StateType.StateType] {
+    def write(obj: de.tkip.sbpm.model.StateType.StateType) = obj.toJson
+    def read(json: JsValue) = json.convertTo[de.tkip.sbpm.model.StateType.StateType]
+  }
+
+  implicit def bufferFormat[T: JsonFormat] = new RootJsonFormat[scala.collection.mutable.Buffer[T]] {
+    def write(array: scala.collection.mutable.Buffer[T]) = JsArray(array.map(_.toJson).toList)
+    def read(value: JsValue) = value match {
+      case JsArray(elements) => scala.collection.mutable.Buffer[T]() ++ elements.map(_.convertTo[T])
+      case x                 => deserializationError("Expected Array as JsArray, but got " + x)
+    }
+  }
+
+  /**
+    * header case classes
+    */
+  // TODO name should not be optional
+
+  case class InterfaceHeader(interfaceType: String,
+                             name: String,
+                             interfaceId: Option[Int],
+                             views: Map[String, View],
+                             port: Int,
+                             processId: Int,
+                             ip: Option[Int] = None)
+
+  case class ProcessIdHeader(name: Option[String], processId: Int)
+  case class GraphHeader(name: String,
+                         interfaceId: Option[Int],
+                         publishInterface: Boolean,
+                         verificationErrors: Seq[String],
+                         graph: Option[Graph],
+                         subjectMap: Map[Int, Map[String, String]], // Map from viewId to a map of SubjectId from/to mapping
+                         messageMap: Map[Int, Map[String, String]], // Map from viewId to a map of Message id from/to mapping
+                         implementationIds: Seq[Int],
+                         isCase: Boolean,
+                         id: Option[Int] = None) {
+    require(name.length() >= 3, "The name hast to contain 3 or more letters!")
+    def toInterfaceHeader() (implicit context : ActorContext) : Either[Seq[String], InterfaceHeader] = {
+      val port = SystemProperties.akkaRemotePort(context.system.settings.config)
+
+      val containsBlackbox = if (graph.isDefined) {
+        graph.get.subjects.values.exists(subj => subj.subjectType == "external" && subj.externalType.contains("blackbox"))
+      } else false
+      val interfaceType = if (containsBlackbox) "blackboxcontent" else "interface"
+
+      toInterfaceHeader(port, interfaceType)
+    }
+
+    def toInterfaceHeader(port: Int, interfaceType: String): Either[Seq[String], InterfaceHeader] = {
+      if (id.isEmpty) System.err.println("id is None") // TODO: log!
+      for {
+        processId <- id.toRight(Seq("No Process Id available.")).right
+        rightGraph <- graph.toRight(Seq("Process graph is not available")).right
+        rightViews <- rightGraph.views.right
+      } yield InterfaceHeader(
+        interfaceType = interfaceType,
+        name = name,
+        interfaceId = interfaceId,
+        views = rightViews,
+        port = port,
+        processId = processId
+      )
+    }
+  }
+
+  // administration
+  implicit val userFormat = jsonFormat5(User)
+  implicit val userUpdate = jsonFormat3(UserUpdate)
+  implicit val providerMail = jsonFormat2(ProviderMail)
+  implicit val userWithMail = jsonFormat5(UserWithMail)
+  implicit val userIdentityFormat = jsonFormat4(UserIdentity)
+  implicit val roleFormat = jsonFormat3(Role)
+  implicit val groupFormat = jsonFormat3(Group)
+  implicit val groupUserFormat = jsonFormat2(GroupUser)
+  implicit val groupRoleFormat = jsonFormat2(GroupRole)
+  implicit val password = jsonFormat2(SetPassword)
+  implicit val viewFormat = jsonFormat4(View)
+
+  // for message system
+  import de.tkip.sbpm.model
+  case class SendMessageHeader(toUser: UserID, title: String, content: String)
+  implicit val messageFormat = jsonFormat7(model.UserToUserMessage)
+  implicit val messageHeaderFormat = jsonFormat3(SendMessageHeader)
+
+  // used for login
+  implicit val userPassFormat = jsonFormat2(UserPass)
+
+  // DomainModel
+  implicit val domainProcessFormat = jsonFormat11(Process)
+  //  implicit val actionFormat = jsonFormat2(Action)
+
+  implicit val configFormat = jsonFormat4(Configuration)
+
+  implicit val processInstanceInfoFormat = jsonFormat3(ProcessInstanceInfo)
+  implicit val targetUserFormat = jsonFormat4(TargetUser)
+  implicit object messageNameFormat extends RootJsonFormat[MessageName] {
+    def write(messageName: MessageName) = JsString(messageName.name)
+    def read(value: JsValue) = {
+      value match {
+        case JsString(msgName) => MessageName(msgName)
+        case _ => throw new DeserializationException("String expected")
+      }
+    }
+  }
+  implicit val messageDataFormat = jsonFormat6(MessageData)
+  implicit val agentDataFormat = jsonFormat3(Agent)
+  implicit val actionDataFormat = jsonFormat10(ActionData)
+  implicit val availableActionFormat = jsonFormat9(AvailableAction)
+  implicit val processInstanceDataFormat = jsonFormat9(ProcessInstanceData)
+
+  implicit val createProcessIdFormat = jsonFormat2(ProcessIdHeader)
+  implicit def createGraphHeaderFormat(implicit roles: RoleMapper) = jsonFormat10(GraphHeader)
+  implicit val createInterfaceHeaderFormat = jsonFormat7(InterfaceHeader)
+  implicit val createActionIdHeaderFormat = jsonFormat8(ExecuteAction)
+
+  implicit val newStateFormat = jsonFormat2(NewHistoryState)
+  implicit val newHistoryProcessDataFormat = jsonFormat3(NewHistoryProcessData)
+  implicit val newMessageFormat = jsonFormat5(NewHistoryMessage)
+  implicit val newHistoryTransitionDataFormat = jsonFormat5(NewHistoryTransitionData)
+  implicit val newHistoryEntryFormat = jsonFormat6(NewHistoryEntry)
+  implicit val newHistoryFormat = jsonFormat1(NewHistory)
+
+  implicit val processRelatedChangeDataFormat = jsonFormat6(ProcessRelatedChangeData)
+  implicit val processRelatedDeleteDataFormat = jsonFormat1(ProcessRelatedDeleteData)
+  implicit val processRelatedChangeFormat = jsonFormat3(ProcessRelatedChange)
+
+  implicit val actionRelatedChangeDataFormat = jsonFormat9(ActionRelatedChangeData)
+  implicit val actionRelatedDeleteDataFormat = jsonFormat1(ActionRelatedDeleteData)
+  implicit val actionRelatedChangeFormat = jsonFormat3(ActionRelatedChange)
+
+  implicit val historyRelatedChangeDataFormat = jsonFormat6(HistoryRelatedChangeData)
+  implicit val historyRelatedChange = jsonFormat1(HistoryRelatedChange)
+
+  implicit val processInstanceRelatedChangeDataFormat = jsonFormat4(ProcessInstanceRelatedChangeData)
+  implicit val processInstanceRelatedDeleteDataFormat = jsonFormat1(ProcessInstanceRelatedDeleteData)
+  implicit val processInstanceRelatedChangeFormat = jsonFormat3(ProcessInstanceRelatedChange)
+
+  implicit val messageRelatedChangeDataFormat = jsonFormat7(MessageRelatedChangeData)
+  implicit val messageRelatedChangeFormat = jsonFormat1(MessageRelatedChange)
+
+  implicit val changeData = jsonFormat5(ChangeRelatedData)
+
 }

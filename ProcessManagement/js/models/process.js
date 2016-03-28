@@ -34,9 +34,29 @@ define([
       type: "integer",
       defaults: null
     },
+    verificationErrors: {
+      type: "json",
+      defaults: [],
+      lazy: false
+    },
     publishInterface: {
       type: "boolean",
       defaults: false
+    },
+    implementationIds : {
+      type: "json",
+      defaults: [],
+      layz: false
+    },
+    subjectMap: {
+      type: "json",
+      defaults: {},
+      layz: false
+    },
+    messageMap: {
+      type: "json",
+      defaults: {},
+      layz: false
     },
     graph: {
       type: "json",
@@ -69,7 +89,7 @@ define([
     initialize: function( data ) {
       var self = this;
 
-      this.tableSubjects = []
+      this.tableSubjects = [];
       this.tableMessages = [];
       this.isCreatedFromTable = false;
 
@@ -89,7 +109,7 @@ define([
       this.instanceCount = ko.computed({
         deferEvaluation: true,
         read: function() {
-          return self.processInstances().length
+          return self.processInstances().length;
         }
       });
 
@@ -149,7 +169,7 @@ define([
       };
 
       this.graphForSubject = function( subjectId ) {
-        console.log("graph for subject", subjectId)
+        console.log("graph for subject", subjectId);
         return self.graphObject().process.filter(function( subject ) {
           return subject.id === subjectId;
         })[0];
@@ -216,17 +236,48 @@ define([
         }
       });
 
-      this.insertTemplate = function(template) {
-        console.log("inserting template");
-        console.log(template);
-        var newGraph = JSON.parse(JSON.stringify(self.graph())),
-            td = template.definition,
-            nd = newGraph.definition;
+      this.insertTemplate = function(view) {
+        var viewId = parseInt(view.id, 10),
+            td = view.graph,
+            newGraph = JSON.parse(JSON.stringify(self.graph())),
+            nd = newGraph.definition,
+            msgOffset = parseInt(nd.messageCounter, 10) - 1,
+            offsetMsg = function(msg) {
+              return "m" + (parseInt(msg.substring(1), 10) + msgOffset);
+            };
+        // Fix message IDs
+        _(td.process.macros).each(function(macro) {
+          _(macro.edges).each(function(edge) {
+            edge.text = offsetMsg(edge.text);
+          });
+        });
+        var newMessages = newGraph.messages;
+        var newMessageMap = self.messageMap();
+        _(td.messages).each(function(mVal, mKey) {
+          newMessages[offsetMsg(mKey)] = mVal;
+          newMessageMap[viewId][offsetMsg(mKey)] = mKey;
+        });
+        self.messageMap(newMessageMap);
+        // set implementation flags
+        _(td.process).each(function(subject) {
+          if (subject.id === view.mainSubjectId) {
+            if (!subject.implementsViews) {
+              subject.implementsViews = [viewId];
+            } else {
+              subject.implementsViews.push(viewId);
+            }
+          }
+        });
+        // mark view subjects as external views (immutable)
+        _(td.process).each(function(subject) {
+          if (subject.type === "external" /* also check for external type? */) {
+            subject.externalView = true;
+          }
+        });
 
-        // Add processes and messages
-        // TODO: Fix subject and message IDs
-        nd.process = nd.process.concat(td.process)
-        nd.messageCounter = parseInt(nd.messageCounter, 10) + parseInt(td.messageCounter, 10);
+        // combine process graphs
+        nd.process = nd.process.concat(td.process);
+        nd.messageCounter = parseInt(td.messageCounter, 10) + msgOffset;
         nd.messages = _(nd.messages).extend(td.messages);
         self.graph(newGraph);
 

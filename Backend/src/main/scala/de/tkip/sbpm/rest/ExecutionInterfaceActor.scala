@@ -28,7 +28,7 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.logging.DefaultLogging
-import de.tkip.sbpm.rest.JsonProtocol._
+import de.tkip.sbpm.rest.GraphJsonProtocol._
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -76,7 +76,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
         //you cannot run statements inside the path-block like above, instead, put them into a block inside the complete statement
         complete {
           val getHistoryFuture = (ActorLocator.processManagerActor ?? GetNewHistory()).mapTo[NewHistoryAnswer]
-          getHistoryFuture.map(result => result.history.entries.filter(x => x.userId == Some(userId) || x.userId == None))
+          getHistoryFuture.map(result => result.history.entries.filter(x => x.userId.contains(userId) || x.userId.isEmpty))
         }
       } ~
       //LIST
@@ -97,7 +97,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
           //stop and delete given process instance
           // error gets caught automatically by the exception handler
           complete {
-            val future = (subjectProviderManager ?? KillProcessInstance(processInstanceID))
+            val future = subjectProviderManager ?? KillProcessInstance(processInstanceID)
             future.map(_ => StatusCodes.NoContent)
           }
         }
@@ -126,8 +126,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
                   userID = userId,
                   processID = json.processId,
                   name = name,
-                  manager = None,
-                  agentsMap = Map.empty)
+                  manager = None)
               val future = (subjectProviderManager ?? msg).mapTo[ProcessInstanceCreated]
               future.map(result => result.answer)
             }

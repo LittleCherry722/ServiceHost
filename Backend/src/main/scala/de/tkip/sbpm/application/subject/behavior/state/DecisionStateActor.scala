@@ -13,9 +13,10 @@
 
 package de.tkip.sbpm.application.subject.behavior.state
 
-import akka.actor.actorRef2Scala
-import de.tkip.sbpm.application.subject.behavior.{Transition, ExitCond, ErrorCond, Variable}
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageName
+import de.tkip.sbpm.application.subject.behavior.{ErrorCond, ExitCond, Transition, Variable}
 import de.tkip.sbpm.application.subject.misc.{ActionData, SubjectToSubjectMessage}
+import de.tkip.sbpm.application.subject.misc.{MessageContent, TextContent}
 
 
 case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) {
@@ -23,7 +24,7 @@ case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) 
   private var falseTransition: Transition = null
   private val travel_request_string = extractVariable(variables)
 
-  prepareTransitions
+  prepareTransitions()
 
   log.debug("DecisionStateActor initialized: exitTransactions=" + exitTransitions.mkString(",") +
     ", variables="+variables.mkString(",")+",travel_request_string="+travel_request_string+", trueTransition="+trueTransition+
@@ -34,9 +35,8 @@ case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) 
     applyDecision(res)
   }
   catch {
-    case ex : Throwable => {
+    case ex : Throwable =>
       log.error("DecisionStateActor exception during evaluation")
-    }
   }
 
 
@@ -46,19 +46,22 @@ case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) 
     for((key,variable) <- variables) {
       for(value <- variable.messages) {
         value match {
-          case SubjectToSubjectMessage(_,_,_,_,_,"Travel Application",msg,_,_) => {ret = msg; log.debug("DecisionStateActor extractVariable: found with key '"+key+"': " + value)}
-          case x => {log.debug("DecisionStateActor extractVariable: it is not '"+key+"' with value: " + x)}
+          case SubjectToSubjectMessage(_,_,_,_,_,_,MessageName("Travel Application"),TextContent(msgString),_,_) =>
+            ret = msgString
+            log.debug("DecisionStateActor extractVariable: found with key '"+key+"': " + value)
+          case x =>
+            log.debug("DecisionStateActor extractVariable: it is not '"+key+"' with value: " + x)
         }
       }
     }
     ret
   }
 
-  protected def prepareTransitions = {
+  protected def prepareTransitions() = {
     for(transition <- exitTransitions) {
       transition match {
-        case Transition(ExitCond("true",_),_,_,_) => {trueTransition = transition}
-        case Transition(ExitCond("false",_),_,_,_) => {falseTransition = transition}
+        case Transition(ExitCond(MessageName("true"),_),_,_,_) => trueTransition = transition
+        case Transition(ExitCond(MessageName("false"),_),_,_,_) => falseTransition = transition
         case _ => log.error("DecisionStateActor unexpected transition: " + transition)
       }
     }
@@ -68,7 +71,7 @@ case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) 
   protected def evaluateDecision(input: String): Boolean = {
     // Only get one String and parse it as following: "x TAGE? y" with x count of days and y destination
     val in = input.toLowerCase()
-    return ((in contains "1 tag") || (in contains "2 tage") || (in contains "3 tage")) && ((in contains "münchen") || (in contains "berlin"))
+    ((in contains "1 tag") || (in contains "2 tage") || (in contains "3 tage")) && ((in contains "münchen") || (in contains "berlin"))
   }
 
   protected def applyDecision(res: Boolean) = {

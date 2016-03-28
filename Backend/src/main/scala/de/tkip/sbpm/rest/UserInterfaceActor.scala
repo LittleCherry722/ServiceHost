@@ -23,7 +23,7 @@ import akka.util.Timeout
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.User
 import scala.language.postfixOps
-import de.tkip.sbpm.rest.JsonProtocol._
+import de.tkip.sbpm.rest.GraphJsonProtocol._
 import de.tkip.sbpm.rest.ProcessAttribute._
 import spray.http.MediaTypes._
 import spray.httpx.SprayJsonSupport._

@@ -10,7 +10,7 @@ import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.persistence.query._
-import de.tkip.sbpm.rest.JsonProtocol._
+import de.tkip.sbpm.rest.GraphJsonProtocol._
 import spray.http.StatusCodes
 import spray.httpx.SprayJsonSupport._
 
@@ -29,13 +29,13 @@ class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
       path(IntNumber) { messageID =>
         //                  completeWithQuery[Message](Messages.Read.ById(messageID))
         complete {
-          (persistence ?? Messages.Read.ById(messageID)).mapTo[Option[Message]]
+          (persistence ?? Messages.Read.ById(messageID)).mapTo[Option[UserToUserMessage]]
         }
       } ~
         pathEnd {
           complete {
-            val from = (persistence ?? Messages.Read.WithSource(userId)).mapTo[Seq[Message]]
-            val to = (persistence ?? Messages.Read.WithTarget(userId)).mapTo[Seq[Message]]
+            val from = (persistence ?? Messages.Read.WithSource(userId)).mapTo[Seq[UserToUserMessage]]
+            val to = (persistence ?? Messages.Read.WithTarget(userId)).mapTo[Seq[UserToUserMessage]]
             for {
               f <- from
               t <- to
@@ -44,12 +44,12 @@ class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
         } ~
         path("outbox") {
           complete {
-            (persistence ?? Messages.Read.WithSource(userId)).mapTo[Seq[Message]]
+            (persistence ?? Messages.Read.WithSource(userId)).mapTo[Seq[UserToUserMessage]]
           }
         } ~
         path("inbox") {
           complete {
-            (persistence ?? Messages.Read.WithTarget(userId)).mapTo[Seq[Message]]
+            (persistence ?? Messages.Read.WithTarget(userId)).mapTo[Seq[UserToUserMessage]]
           }
         }
     } ~
@@ -69,10 +69,10 @@ class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
           pathEnd {
             entity(as[SendMessageHeader]) { json =>
               complete {
-                val message = Message(None, userId, json.toUser, json.title, false, json.content, new java.sql.Timestamp(System.currentTimeMillis()))
+                val message = UserToUserMessage(None, userId, json.toUser, json.title, false, json.content, new java.sql.Timestamp(System.currentTimeMillis()))
 
                 val future = for {
-                  all <- (persistence ?? Messages.Read.All).mapTo[Seq[Message]]
+                  all <- (persistence ?? Messages.Read.All).mapTo[Seq[UserToUserMessage]]
                   length = all.length
                 } yield length
                 val result = Await.result(future, 5 seconds).asInstanceOf[Int]

@@ -20,7 +20,6 @@ import java.util.UUID
 import akka.pattern.ask
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 import de.tkip.sbpm.application.{ SubjectCreated, RegisterSingleSubjectInstance }
-import de.tkip.sbpm.application.ProcessInstanceActor.{Agent}
 import akka.event.LoggingAdapter
 import akka.actor.ActorRef
 import de.tkip.sbpm.ActorLocator
@@ -42,12 +41,12 @@ import de.tkip.sbpm.instrumentation.{ClassTraceLogger, TraceLogger}
  */
 class SubjectContainer(
   subject: SubjectLike,
+  messageMap: Map[Int, Map[MessageID, MessageID]],
   processID: ProcessID,
   processInstanceID: ProcessInstanceID,
   processInstanceManager: ActorRef,
   log: LoggingAdapter,
   blockingHandlerActor: ActorRef,
-  agent: Option[Agent],
   increaseSubjectCounter: () => Unit,
   decreaseSubjectCounter: () => Unit)(implicit context: ActorContext) extends  ClassTraceLogger {
 
@@ -58,69 +57,43 @@ class SubjectContainer(
 
   private val multi = subject.multi
   private val single = !multi
-  private val external = subject.external
-
   private val subjects = MutableMap[UserID, SubjectInfo]()
 
   /**
    * Adds a Subject to this multisubject
    */
-  // TODO ueberarbeiten
   def createSubject(userID: UserID) {
     log.debug("SubjectContainer.createSubject: " + userID)
     log.debug("Created: " + RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID))
     if (single) {
-      if (subjects.size > 0) {
+      if (subjects.nonEmpty) {
         log.error("Single subjects cannot be created twice")
         return
       }
-      // register this subject at the context resolver so other subject dont
+      // register this subject at the context resolver so other subjects dont
       // try to send to wrong instances
       val msg = RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID)
       ActorLocator.contextResolverActor !! msg
     }
 
-    val subjectData =
-      SubjectData(
-        userID,
-        processID,
-        processInstanceID,
-        context.self,
-        blockingHandlerActor,
-        subject)
-
-    // TODO hier external einfuegen
-    if (external) {
-      log.debug("CREATE EXTERNAL: {}", subjectData.subject)
-
-      // process schon vorhanden?
-      // TODO mit futures
-      // TODO make sure the agent is available (Some) and not None
-      val processInstanceRef =
-        (processInstanceManager ??
-          GetProcessInstanceProxy(agent.get))
-          .mapTo[ActorRef]
-
-      log.debug("CREATE: processInstanceRef = {}", processInstanceRef)
-
-      // TODO we need this unblock!
-      blockingHandlerActor !! UnBlockUser(userID)
-
-      subjects += userID -> SubjectInfo(processInstanceRef, userID)
-    } else {
+    if (!subject.external) {
+      val subjectData =
+        SubjectData(
+          userID,
+          processID,
+          processInstanceID,
+          context.self,
+          blockingHandlerActor,
+          subject)
       // create subject
-      val subjectRef =
-        context.actorOf(Props(new SubjectActor(subjectData)), "SubjectActor____" + UUID.randomUUID().toString())
+      val subjectRef = context.actorOf(Props(new SubjectActor(subjectData)), "SubjectActor____" + UUID.randomUUID().toString)
       // and store it in the map
       subjects += userID -> SubjectInfo(Future.successful(subjectRef), userID)
 
-      val msg = SubjectCreated(userID, processID, processInstanceID, subject.id, subjectRef)
       // inform the subject provider about his new subject
-      context.parent !! msg
-
+      context.parent !! SubjectCreated(userID, processID, processInstanceID, subject.id, subjectRef)
       reStartSubject(userID)
     }
-
     log.debug("Processinstance [" + processInstanceID + "] created Subject " +
       subject.id + " for user " + userID)
   }
@@ -137,18 +110,38 @@ class SubjectContainer(
   }
 
   /**
-   * Forwards a message to all Subjects of this MultiSubject
+   * Forwards a message to all Subjects associated with this SubjectContainer.
+   * This could be multiple subjects in case of a multi subject, or just one
+   * for the regular case of the subject being a single subject.
    */
   def send(message: SubjectToSubjectMessage) {
     val target = message.target
-
     if (target.toVariable) {
-      // TODO why not targetUsers = var subjects?
-      sendTo(target.varSubjects.map(_._2), message)
-    } else if (target.toExternal && target.toUnknownUsers) {
-      sendToExternal(message)
+      log.info("Sending message to variable.")
+      target.varSubjects.foreach {v =>
+        v.messages.foreach {m =>
+          log.info(s"sending message: ${message.messageName.name}")
+          val newTarget = message.target.copy(subjectID = m.fromChannel.agent.subjectId)
+          val newMessage = message.copy(target = newTarget)
+          m.fromChannel.actor.tell(newMessage, context.sender)
+        }
+      }
     } else {
-      sendTo(target.targetUsers, message)
+      for (userID <- target.targetUsers) {
+        log.info("Sending message to user: {}", userID)
+        if (!subjects.contains(userID)) {
+          log.info("Subject Container creating new subject for user ID: {}", userID)
+          createSubject(userID)
+        } else if (!subjects(userID).running) {
+          log.info("Subject Container restarting subject for user ID: :{}", userID)
+          reStartSubject(userID)
+        }
+
+        log.debug("SEND: {}", message)
+
+        // blockingHandlerActor !! BlockUser(userID)
+        subjects(userID).tell(message, context.sender)
+      }
     }
   }
 
@@ -158,54 +151,16 @@ class SubjectContainer(
     }
   }
 
-  /**
-   * Forwards the message to the array of subjects
-   */
-  private def sendTo(targetSubjects: Array[UserID], message: SubjectToSubjectMessage) {
-    for (userID <- targetSubjects) {
-      log.info("Sending message to user: {}", userID)
-      if (!subjects.contains(userID)) {
-        log.info("Subject Container creating new subject for user ID: {}", userID)
-        createSubject(userID)
-      } else if (!subjects(userID).running) {
-        log.info("Subject Container restarting subject for user ID: :{}", userID)
-        reStartSubject(userID)
-      }
-
-      log.debug("SEND: {}", message)
-
-      val newMessage = if (external) {
-        // exchange the target subject id
-        val newMessage = message.copy(target = message.target.copy(subjectID = agent.get.subjectId))
-        log.debug("SEND (target exchanged): {}", newMessage)
-        // TODO we need this unblock! Why?
-        blockingHandlerActor !! UnBlockUser(userID)
-        newMessage
-      } else {
-        message
-      }
-      // blockingHandlerActor !! BlockUser(userID)
-      subjects(userID).tell(newMessage, context.sender)
-
-    }
-  }
-
-  def sendToExternal(message: SubjectToSubjectMessage) {
-    log.info("Sending message to external subject: {}", message)
-    sendTo(Array(ExternalUser), message)
-  }
-
   private def reStartSubject(userID: UserID) {
     if (subjects.contains(userID)) {
       blockingHandlerActor !! BlockUser(userID)
       increaseSubjectCounter()
       subjects(userID).running = true
       // start the execution
-      val msg = StartSubjectExecution()
+      val msg = StartSubjectExecution
       subjects(userID) ! msg
     } else {
-      log.error("User %i unknown for subject %s, (re)start failed!"
-        .format(userID, subject.id))
+      log.error(s"User $userID unknown for subject ${subject.id}, (re)start failed!")
     }
   }
 

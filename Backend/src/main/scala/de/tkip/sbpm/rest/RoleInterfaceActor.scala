@@ -28,7 +28,7 @@ import spray.http.StatusCodes._
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.persistence._
 import de.tkip.sbpm.persistence.query._
-import de.tkip.sbpm.rest.JsonProtocol._
+import de.tkip.sbpm.rest.GraphJsonProtocol._
 import de.tkip.sbpm.instrumentation.InstrumentedActor
 
 /**

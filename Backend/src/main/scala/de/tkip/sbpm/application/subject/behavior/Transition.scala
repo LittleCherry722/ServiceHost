@@ -16,9 +16,9 @@ package de.tkip.sbpm.application.subject.behavior
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 
 sealed trait TransitionType
-case class ExitCond(messageType: MessageType, target: Option[Target] = None) extends TransitionType {
-  def actionType = messageType
-  
+case class ExitCond(messageName: MessageName, target: Option[Target] = None) extends TransitionType {
+  def actionType = messageName
+
   def subjectID = if (target.isDefined) target.get.subjectID else "None"
 }
 case class TimeoutCond(manual: Boolean, duration: Int) extends TransitionType
@@ -36,15 +36,15 @@ case class Target(
   val toVariable = variable.isDefined && variable.get != ""
   val toAll = defaultValues && !createNew && !toVariable // Dont need to all, always set users?
 
-  private var _vars: Array[(SubjectID, UserID)] = Array()
+  private var _vars: Set[Variable] = Set.empty
   private var _targetUsers = Array[UserID]()
 
   def varSubjects = _vars
   def targetUsers: Array[UserID] = _targetUsers
-  def toUnknownUsers = !toVariable && _targetUsers.isEmpty
+  def toUnknownUsers = _targetUsers.isEmpty
 
   def insertVariable(v: Variable) {
-    _vars = for (m <- v.messages) yield ((m.from, m.userID))
+    _vars = _vars + v
   }
 
   def insertTargetUsers(userIDs: Array[UserID]) {
@@ -71,15 +71,24 @@ case class Transition(
   def isTimeout = myType.isInstanceOf[TimeoutCond]
   def isErrorCond = myType.isInstanceOf[ErrorCond]
 
-  def messageType = if (myType.isInstanceOf[ExitCond]) myType.asInstanceOf[ExitCond].messageType else ""
-  def target : Option[Target] = if (myType.isInstanceOf[ExitCond]) myType.asInstanceOf[ExitCond].target else None
-  def subjectID = if (myType.isInstanceOf[ExitCond]) myType.asInstanceOf[ExitCond].subjectID else ""
+  def messageName = myType match {
+    case cond: ExitCond => cond.messageName
+    case _ => MessageName("No Message for non-exit conditions")
+  }
+  def target : Option[Target] = myType match {
+    case cond: ExitCond => cond.target
+    case _ => None
+  }
+  def subjectID = myType match {
+    case cond: ExitCond => cond.subjectID
+    case _ => ""
+  }
 
-  def storeToVar: Boolean = storeVar != ""
+  def storeToVar: Boolean = !storeVar.contains("")
 }
 
 object ActTransition {
-  def apply(actionType: MessageType, successorID: SuccessorID) =
+  def apply(actionType: MessageName, successorID: SuccessorID) =
     Transition(ExitCond(actionType), successorID, 1)
 }
 

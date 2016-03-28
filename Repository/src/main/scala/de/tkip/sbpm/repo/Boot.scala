@@ -15,22 +15,26 @@ package de.tkip.sbpm.repo
 
 import akka.event.Logging
 import de.tkip.sbpm.model._
+import de.tkip.sbpm.persistence.query.InterfaceQuery.{IdResult, InterfaceSaveResult}
 import spray.httpx.SprayJsonSupport._
-import spray.routing.SimpleRoutingApp
+import spray.routing.{Route, SimpleRoutingApp}
 import akka.actor.{ActorSystem, Props}
 import akka.pattern.ask
-import spray.http.{StatusCodes, HttpResponse}
+import spray.http.{HttpResponse, StatusCodes}
 import de.tkip.sbpm.repo.InterfaceActor._
 import de.tkip.sbpm.repo.IntermediateInterfaceActor.ConvertToInterface
+
 import scala.concurrent.duration._
 import akka.util.Timeout
 import de.tkip.sbpm.model.GraphJsonProtocol._
+
 import reflect.ClassTag
 import de.tkip.sbpm.persistence.DatabaseAccess
-
+import spray.routing.directives.DebuggingDirectives
 
 
 object Boot extends App with SimpleRoutingApp {
+
   import de.tkip.sbpm.repo.InterfaceActor.MyJsonProtocol._
 
   implicit val system = ActorSystem("repo")
@@ -39,9 +43,9 @@ object Boot extends App with SimpleRoutingApp {
   val interfaceActor = system.actorOf(Props[InterfaceActor])
   val intermediateInterfaceActor = system.actorOf(Props[IntermediateInterfaceActor])
 
-//  DatabaseAccess.recreateDatabase()
+  // DatabaseAccess.recreateDatabase()
 
-  startServer(interface = "localhost", port = 8181) {
+  val route: Route = DebuggingDirectives.logRequest("api", Logging.InfoLevel) {
     clientIP { ip =>
       pathPrefix("repo") {
         path("reset") {
@@ -53,12 +57,30 @@ object Boot extends App with SimpleRoutingApp {
         } ~ pathPrefix("implementations") {
           get {
             pathEnd {
-              parameter("subjectIds") {
+              parameters('subjectIds) {
                 (subjectIdsString) =>
                   complete {
                     (interfaceActor ? GetImplementations(subjectIdsString.split("::"))).mapTo[Map[String, Seq[InterfaceImplementation]]]
                   }
               }
+            }
+          } ~ post {
+            pathEnd {
+              entity(as[InterfaceImplementation]) { tmpImplementation =>
+                val implementation = tmpImplementation.copy(ownAddress = tmpImplementation.ownAddress.copy(ip = ip.value))
+                val future = for {
+                  response <- (interfaceActor ? AddImplementation(implementation)).mapTo[Option[IdResult]]
+                } yield response
+                onSuccess(future) {
+                  case Some(s) => complete(s.id.toString)
+                  case None => complete(HttpResponse(status = StatusCodes.InternalServerError))
+                }
+              }
+            }
+          } ~ delete {
+            path(IntNumber) { implementationId =>
+              interfaceActor ! DeleteImplementation(implementationId)
+              complete(StatusCodes.OK)
             }
           }
         } ~ pathPrefix("blackbox") {
@@ -86,12 +108,9 @@ object Boot extends App with SimpleRoutingApp {
               entity(as[IntermediateInterface]) { iInterface =>
                 val future = for {
                   interface <- (intermediateInterfaceActor ? ConvertToInterface(iInterface, ip)).mapTo[Interface]
-                  response <- (interfaceActor ? AddInterface(interface)).mapTo[Option[String]]
+                  response <- (interfaceActor ? AddInterface(interface)).mapTo[Option[InterfaceSaveResult]]
                 } yield response
-                onSuccess(future) {
-                  case Some(s) => complete(s)
-                  case None => complete(HttpResponse(status = StatusCodes.InternalServerError))
-                }
+                complete(future)
               }
             }
           } ~ delete {
@@ -104,4 +123,9 @@ object Boot extends App with SimpleRoutingApp {
       }
     }
   }
+
+  startServer(interface = "localhost", port = 8181) {
+    route
+  }
+
 }

@@ -13,18 +13,18 @@
 
 package de.tkip.sbpm.model
 
-import akka.actor._
 import java.sql.Timestamp
-import spray.json._
 import java.util.Date
-import GraphJsonProtocol.graphJsonFormat
+
+import akka.actor._
 import de.tkip.sbpm.repo.InterfaceActor.MyJsonProtocol.interfaceTypeFormat
+import GraphJsonProtocol._
+import spray.json._
 
 /**
  * supplies the marshalling/unmarshalling process with the needed information about how to cast values
  */
 object JsonProtocol extends DefaultJsonProtocol {
-
   /**
    * primitive formater
    */
@@ -71,7 +71,6 @@ object JsonProtocol extends DefaultJsonProtocol {
     }
   }
 
-
   implicit val addressFormat = jsonFormat3(de.tkip.sbpm.model.Address)
   implicit object interfaceFormat extends RootJsonFormat[Interface] {
     def write(a: Interface) = JsObject(
@@ -79,7 +78,7 @@ object JsonProtocol extends DefaultJsonProtocol {
       "id" -> a.id.toJson,
       "processId" -> JsNumber(a.processId),
       "name" -> JsString(a.name),
-      "graph" -> a.graph.toJson
+      "views" -> a.views.toJson
     )
     def read(v: JsValue) = v.asJsObject.convertTo[Interface](jsonFormat(Interface,
       "interfaceType",
@@ -87,7 +86,7 @@ object JsonProtocol extends DefaultJsonProtocol {
       "id",
       "processId",
       "name",
-      "graph"))
+      "views"))
   }
 
 

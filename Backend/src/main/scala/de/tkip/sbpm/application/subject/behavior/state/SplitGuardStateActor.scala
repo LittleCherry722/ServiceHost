@@ -54,14 +54,14 @@ case class SplitGuardStateActor(data: StateData)
   }
 
   override protected def getAvailableAction: Array[ActionData] = {
-    val actions = exitTransitions.map((t: Transition) => ActionData(t.messageType, true, exitCondLabel))
+    val actions = exitTransitions.map((t: Transition) => ActionData(t.messageName.name, true, exitCondLabel))
     actions :+ ActionData(joinText, true, exitCondLabel)
   }
 
   private def indexOfInput(input: String): Int = {
     var i = 0
     for (t <- exitTransitions) {
-      if (t.messageType.equals(input)) {
+      if (t.messageName.name == input) {
         return i
       }
       i += 1

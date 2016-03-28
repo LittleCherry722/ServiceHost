@@ -17,7 +17,7 @@ import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.event.Logging
 import de.tkip.sbpm.model.Configuration
 import de.tkip.sbpm.persistence.query.Configurations._
-import de.tkip.sbpm.rest.JsonProtocol._
+import de.tkip.sbpm.rest.GraphJsonProtocol._
 import spray.httpx.SprayJsonSupport._
 import spray.json._
 import spray.routing.Directive.pimpApply

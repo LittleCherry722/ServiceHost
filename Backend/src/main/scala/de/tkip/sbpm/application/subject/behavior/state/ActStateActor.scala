@@ -46,12 +46,12 @@ case class ActStateActor(data: StateData)
   }
 
   override protected def getAvailableAction: Array[ActionData] =
-    exitTransitions.map((t: Transition) => ActionData(t.messageType, true, exitCondLabel))
+    exitTransitions.map((t: Transition) => ActionData(t.messageName.name, true, exitCondLabel))
 
   private def indexOfInput(input: String): Int = {
     var i = 0
     for (t <- exitTransitions) {
-      if (t.messageType.equals(input)) {
+      if (t.messageName.name == input) {
         return i
       }
       i += 1

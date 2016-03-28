@@ -32,52 +32,52 @@ import scala.concurrent.duration._
  */
 object Entities {
   val groups = List(
-    Group(None, "Gro\u00dfunternehmen", true),
-    Group(None, """Staples""", true),
-    Group(None, """Zulieferer""", true),
+    Group(None, "Gro\u00dfunternehmen", isActive = true),
+    Group(None, """Staples""", isActive = true),
+    Group(None, """Zulieferer""", isActive = true),
 
-    Group(None, """_SAME_""", true),
-    Group(None, """_ANY_""", true),
+    Group(None, """_SAME_""", isActive = true),
+    Group(None, """_ANY_""", isActive = true),
 
-    Group(None, """Employees""", true),
-    Group(None, """Supervisors""", true),
-    Group(None, """Human Resources""", true),
+    Group(None, """Employees""", isActive = true),
+    Group(None, """Supervisors""", isActive = true),
+    Group(None, """Human Resources""", isActive = true),
 
-    Group(None, """Warehouse""", true),
-    Group(None, """Purchasing""", true)
+    Group(None, """Warehouse""", isActive = true),
+    Group(None, """Purchasing""", isActive = true)
   )
 
   val roles = List(
-    Role(None, "Gro\u00dfunternehmen", true),
-    Role(None, """Staples""", true),
-    Role(None, """Kunde""", true),
-    Role(None, """Verarbeitung""", true),
-    Role(None, """Zulieferer""", true),
+    Role(None, "Gro\u00dfunternehmen", isActive = true),
+    Role(None, """Staples""", isActive = true),
+    Role(None, """Kunde""", isActive = true),
+    Role(None, """Verarbeitung""", isActive = true),
+    Role(None, """Zulieferer""", isActive = true),
 
-    Role(None, """default""", true),
-    Role(None, """assess_travel_requests""", true),
-    Role(None, """recieve_approved_travel_requests""", true),
+    Role(None, """default""", isActive = true),
+    Role(None, """assess_travel_requests""", isActive = true),
+    Role(None, """recieve_approved_travel_requests""", isActive = true),
 
-    Role(None, """execute_orders""", true),
-    Role(None, """handle_purchases""", true),
-    Role(None, """manage_cost_center""", true)
+    Role(None, """execute_orders""", isActive = true),
+    Role(None, """handle_purchases""", isActive = true),
+    Role(None, """manage_cost_center""", isActive = true)
   )
 
   // users and one default identity with password for login
   val users = List(
-    (User(None, """Superuser""", true, 8, "test@gmail.com"), ("sbpm", "superuser@sbpm.com", "s1234".bcrypt)),
-    (User(None, "Gro\u00dfunternehmen Mitarbeiter", true, 8), ("sbpm", "unternehmer@sbpm.com", "u1234".bcrypt)),
-    (User(None, """Staples Mitarbeiter""", true, 8), ("sbpm", "staples@sbpm.com", "s1234".bcrypt)),
-    (User(None, """TSP Mitarbeiter""", true, 8), ("sbpm", "tsp@sbpm.com", "t1234".bcrypt)),
+    (User(None, """Superuser""", isActive = true, inputPoolSize = 8, "test@gmail.com"), ("sbpm", "superuser@sbpm.com", "s1234".bcrypt)),
+    (User(None, "Gro\u00dfunternehmen Mitarbeiter", isActive = true, inputPoolSize = 8), ("sbpm", "unternehmer@sbpm.com", "u1234".bcrypt)),
+    (User(None, """Staples Mitarbeiter""", isActive = true, inputPoolSize = 8), ("sbpm", "staples@sbpm.com", "s1234".bcrypt)),
+    (User(None, """TSP Mitarbeiter""", isActive = true, inputPoolSize = 8), ("sbpm", "tsp@sbpm.com", "t1234".bcrypt)),
 
-    (User(None, """Google App Engine""", true, 8), ("sbpm", "google@sbpm.com", "g1234".bcrypt)),
-    (User(None, """Beyer""", true, 8), ("sbpm", "beyer@sbpm.com", "b1234".bcrypt)),
-    (User(None, """Link""", true, 8), ("sbpm", "link@sbpm.com", "l1234".bcrypt)),
-    (User(None, """Woehnl""", true, 8), ("sbpm", "woehnl@sbpm.com", "w1234".bcrypt)),
-    (User(None, """Borgert""", true, 8), ("sbpm", "borgert@sbpm.com", "b1234".bcrypt)),
-    (User(None, """Roeder""", true, 8), ("sbpm", "roeder@sbpm.com", "r1234".bcrypt)),
-    (User(None, """Hartwig""", true, 8), ("sbpm", "hartwig@sbpm.com", "h1234".bcrypt)),
-    (User(None, """Stein""", true, 8), ("sbpm", "stein@sbpm.com", "s1234".bcrypt)))
+    (User(None, """Google App Engine""", isActive = true, inputPoolSize = 8), ("sbpm", "google@sbpm.com", "g1234".bcrypt)),
+    (User(None, """Beyer""", isActive = true, inputPoolSize = 8), ("sbpm", "beyer@sbpm.com", "b1234".bcrypt)),
+    (User(None, """Link""", isActive = true, inputPoolSize = 8), ("sbpm", "link@sbpm.com", "l1234".bcrypt)),
+    (User(None, """Woehnl""", isActive = true, inputPoolSize = 8), ("sbpm", "woehnl@sbpm.com", "w1234".bcrypt)),
+    (User(None, """Borgert""", isActive = true, inputPoolSize = 8), ("sbpm", "borgert@sbpm.com", "b1234".bcrypt)),
+    (User(None, """Roeder""", isActive = true, inputPoolSize = 8), ("sbpm", "roeder@sbpm.com", "r1234".bcrypt)),
+    (User(None, """Hartwig""", isActive = true, inputPoolSize = 8), ("sbpm", "hartwig@sbpm.com", "h1234".bcrypt)),
+    (User(None, """Stein""", isActive = true, inputPoolSize = 8), ("sbpm", "stein@sbpm.com", "s1234".bcrypt)))
 
   // process with one active graph loaded from corresponding json file
   val processes = List[(Process, String)](
@@ -108,21 +108,21 @@ object Entities {
 //    (Process(None, None, false, """Fortgeschritten Rechnung""", false) -> loadJson("fortgeschritten_rechnung")),
 //    (Process(None, None, false, """Simple Observer Example""", false) -> loadJson("simple_observer_example")),
 //    (Process(None, None, false, """Shared IP Test""", false) -> loadJson("shared_ip_test")),
-    (Process(None, None, Seq.empty, false, """Service Host Test""", false) -> loadJson("service_host_test")),
-    (Process(None, None, Seq.empty, false, """Service Host Two""", false) -> loadJson("service_host_two")),
-    (Process(None, None, Seq.empty, false, """ServiceToService Test""", false) -> loadJson("ServiceToService")),
-    (Process(None, None, Seq.empty, false, """Service Host Three""", false) -> loadJson("service_host_three")),
+//    Process(None, None, Seq.empty, false, """Service Host Test""", Map.empty, Map.empty, Seq.empty) -> loadJson("service_host_test"),
+//    Process(None, None, Seq.empty, false, """Service Host Two""", Map.empty, Map.empty, Seq.empty) -> loadJson("service_host_two"),
+//    Process(None, None, Seq.empty, false, """ServiceToService Test""", Map.empty, Map.empty, Seq.empty) -> loadJson("ServiceToService"),
+//    Process(None, None, Seq.empty, false, """Service Host Three""", Map.empty, Map.empty, Seq.empty) -> loadJson("service_host_three"),
 //    (Process(None, None, false, """Service Host Four""", false) -> loadJson("service_host_four")),
-    (Process(None, None, Seq.empty, false, """VASEC Router Stub""", false) -> loadJson("vasec_router_stub")),
+//    Process(None, None, Seq.empty, false, """VASEC Router Stub""", Map.empty, Map.empty, Seq.empty) -> loadJson("vasec_router_stub"),
 
 //  variables processes
-    (Process(None, None, Seq.empty, false, """Variables to subjects local""", false) -> loadJson("variables_to_subjects_local")),
-    (Process(None, None, Seq.empty, false, """Variables to subjects external""", false) -> loadJson("variables_to_subjects_external")),
-    (Process(None, None, Seq.empty, false, """Variables to variables external""", false) -> loadJson("variables_to_variables")),
-    (Process(None, None, Seq.empty, false, """Variables to variables and extraction external""", false) -> loadJson("variables_to_variables_extraction")),
-
-    (Process(None, None, Seq.empty, false, """test8080""", false) -> loadJson("test8080")),
-    (Process(None, None, Seq.empty, false, """RatioDrink""", false) -> loadJson("ratiodrink"))
+//    Process(None, None, Seq.empty, false, """Variables to subjects local""", Map.empty, Map.empty, Seq.empty) -> loadJson("variables_to_subjects_local"),
+//    Process(None, None, Seq.empty, false, """Variables to subjects external""", Map.empty, Map.empty, Seq.empty) -> loadJson("variables_to_subjects_external"),
+//    Process(None, None, Seq.empty, false, """Variables to variables external""", Map.empty, Map.empty, Seq.empty) -> loadJson("variables_to_variables"),
+//    Process(None, None, Seq.empty, false, """Variables to variables and extraction external""", Map.empty, Map.empty, Seq.empty) -> loadJson("variables_to_variables_extraction"),
+//
+//    Process(None, None, Seq.empty, false, """test8080""", Map.empty, Map.empty, Seq.empty) -> loadJson("test8080"),
+//    Process(None, None, Seq.empty, false, """RatioDrink""", Map.empty, Map.empty, Seq.empty) -> loadJson("ratiodrink")
    )
 
 
@@ -220,13 +220,13 @@ object Entities {
       // save user identities for generated user ids
       ui <- Future.sequence(users.indices.map { i =>
         val ident = users(i)._2
-        (persistenceActor ? Users.Save.Identity(u(i).get, ident._1, ident._2, Some(ident._3)))
+        persistenceActor ? Users.Save.Identity(u(i).get, ident._1, ident._2, Some(ident._3))
       })
       // save group -> user mappings with generated ids
-      gu <- (persistenceActor ? GroupsUsers.Save(groupUsers.map(gu => GroupUser(g(gu._1).get, u(gu._2).get)): _*))
+      gu <- persistenceActor ? GroupsUsers.Save(groupUsers.map(gu => GroupUser(g(gu._1).get, u(gu._2).get)): _*)
       r <- rolesFuture
       // save group -> role mappings with generated ids
-      gr <- (persistenceActor ? GroupsRoles.Save(groupRoles.map(gr => GroupRole(g(gr._1).get, r(gr._2).get)): _*))
+      gr <- persistenceActor ? GroupsRoles.Save(groupRoles.map(gr => GroupRole(g(gr._1).get, r(gr._2).get)): _*)
     } yield (r, gu, gr)
 
     // insert processes
@@ -239,7 +239,7 @@ object Entities {
         ga <- groupAssocFuture
         p <- processesFuture
         // convert roles to name -> role mapping (necessary for parsing json)
-        rls <- Future(ga._1.zip(roles).map(t => (t._2.name -> t._2.copy(t._1))).toMap)
+        rls <- Future(ga._1.zip(roles).map(t => t._2.name -> t._2.copy(t._1)).toMap)
         // parse graph jsons and insert graphs
         g <- (persistenceActor ? Graphs.Save(processes.indices.map { i =>
           // use slicks' json parser to convert graph from string to domain model

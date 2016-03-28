@@ -49,7 +49,7 @@ object PrimitiveMappings {
     val processInstance = Iso.hlist(domainModel.ProcessInstance.apply _, domainModel.ProcessInstance.unapply _)
     val groupRole = Iso.hlist(domainModel.GroupRole.apply _, domainModel.GroupRole.unapply _)
     val groupUser = Iso.hlist(domainModel.GroupUser.apply _, domainModel.GroupUser.unapply _)
-    val message = Iso.hlist(domainModel.Message.apply _, domainModel.Message.unapply _)
+    val message = Iso.hlist(domainModel.UserToUserMessage.apply _, domainModel.UserToUserMessage.unapply _)
     val configuration = Iso.hlist(domainModel.Configuration.apply _, domainModel.Configuration.unapply _)
   }
 

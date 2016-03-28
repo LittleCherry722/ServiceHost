@@ -14,15 +14,10 @@
 package de.tkip.sbpm.application.subject.behavior.state
 
 import scala.collection.mutable.ArrayBuffer
-import scala.Array.canBuildFrom
-import scala.concurrent.{ Await, Future }
-import scala.concurrent.duration._
 
 import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor._
-import akka.pattern.ask
 import akka.util.Timeout
-import akka.event.Logging
 
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
@@ -32,8 +27,6 @@ import de.tkip.sbpm.application.history.{
 import de.tkip.sbpm
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.{ SubjectInformation, RequestUserID }
-import de.tkip.sbpm.model._
-import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.behavior._
@@ -43,6 +36,8 @@ import de.tkip.sbpm.logging.DefaultLogging
 import com.google.api.services.drive.model.Permission
 import de.tkip.sbpm.model.ChangeDataMode._
 import java.util.UUID
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
 private class GoogleSendProxyActor(
   processInstanceActor: ActorRef,
@@ -50,12 +45,12 @@ private class GoogleSendProxyActor(
 
   lazy val driveActor = sbpm.ActorLocator.googleDriveActor
   implicit val ec = context.dispatcher
-  implicit val timeout = Timeout(3000)
+  implicit val timeout = Timeout(3, SECONDS)
 
   def wrappedReceive = {
     case message: SubjectToSubjectMessage if message.fileID.isDefined =>
-      val f_info = (driveActor ?? GetFileInfo(userId, message.fileID.get))
-      val f_pub = (driveActor ?? PublishFile(userId, message.fileID.get))
+      val f_info = driveActor ?? GetFileInfo(userId, message.fileID.get)
+      val f_pub = driveActor ?? PublishFile(userId, message.fileID.get)
       val origin = context.sender
       for {
         info <- f_info.mapTo[GDriveFileInfo]
@@ -64,25 +59,23 @@ private class GoogleSendProxyActor(
         message.fileInfo = Some(info)
         processInstanceActor.tell(message, origin)
       }
-    case message => {
-      processInstanceActor forward message
-    }
+    case message => processInstanceActor.forward(message)
   }
 }
 
 case class SendStateActor(data: StateData)
   extends BehaviorStateActor(data) with ActorLogging {
-
   import scala.collection.mutable.{ Map => MutableMap }
+  import de.tkip.sbpm.application.subject.misc.MessageContent
+
+  implicit val config = context.system.settings.config
 
   private var remainingStored = 0
-  private var messageContent: Option[String] = None
+  private var messageContent: Option[MessageContent] = None
   private val unsentMessageIDs: MutableMap[MessageID, Transition] =
     MutableMap[MessageID, Transition]()
 
-  // TODO
-  private val sendTransition: Transition =
-    transitions.find(_.isExitCond).get
+  private val sendTransition: Transition = transitions.find(_.isExitCond).get
   private val sendExitCond = sendTransition.myType.asInstanceOf[ExitCond]
   private val sendTarget = sendExitCond.target.get
 
@@ -90,7 +83,7 @@ case class SendStateActor(data: StateData)
   // TODO so ist das noch nicht, besser machen!
   // ask the ContextResolver for the targetIDs
   // store them in a val
-  implicit val timeout = Timeout(2000)
+  implicit val timeout = Timeout(2, SECONDS)
 
   var targetUserIDs: Option[Array[UserID]] = None
 
@@ -112,30 +105,24 @@ case class SendStateActor(data: StateData)
 
   protected def stateReceive = {
 
-    case TargetUsers(userIDs) if (!targetUserIDs.isDefined) =>
+    case TargetUsers(userIDs) if targetUserIDs.isEmpty =>
       targetUserIDs = Some(userIDs)
       // send information about changed actions to actionchangeactor
       actionChanged(Updated)
       blockingHandlerActor ! UnBlockUser(userID)
 
-    case action: ExecuteAction if (action.actionData.messageContent.isDefined) => {
-      if (!messageContent.isDefined) {
+    case action: ExecuteAction if action.actionData.messageContent.isDefined =>
+      if (messageContent.isEmpty) {
         // send subjectInternalMessage before sending executionAnswer to make sure that the executionAnswer
         // can be blocked until a potentially new subject is created to ensure all available actions will
         // be returned when asking
-        messageContent = action.actionData.messageContent
 
         for (transition <- exitTransitions if transition.target.isDefined) {
           blockingHandlerActor ! BlockUser(userID) // TODO handle several targetusers
 
-          val messageType = transition.messageType
-          val toSubject = transition.subjectID
+          val messageType = transition.messageName
           val messageID = nextMessageID
           unsentMessageIDs(messageID) = transition
-
-          log.debug("Send@" + userID + "/" + subjectID + ": Message[" +
-            messageID + "] \"" + messageType + " to " + transition.target +
-            "\" with content \"" + messageContent.get + "\"")
 
           // This ArrayBuffer stores the user, which should be blocked
           // one user can blocked several times
@@ -144,21 +131,20 @@ case class SendStateActor(data: StateData)
           val target = transition.target.get
           if (target.toVariable) {
             target.insertVariable(variables(target.variable.get))
-            for ((_, userID) <- target.varSubjects) { blockUsers += userID }
-          } else if (targetUserIDs.isDefined) {
-            val userIDs = targetUserIDs.get
+          } else {
+            targetUserIDs.foreach{ userIDs =>
+              if (userIDs.length == target.min && target.min == target.max) {
+                target.insertTargetUsers(userIDs)
+              } else if (action.actionData.targetUsersData.isDefined) {
+                val targetUserData = action.actionData.targetUsersData.get
+                // TODO validate?!
+                target.insertTargetUsers(targetUserData.targetUsers)
+              } else {
+                // TODO error?
+              }
 
-            if (userIDs.length == target.min == target.max) {
-              target.insertTargetUsers(userIDs)
-            } else if (action.actionData.targetUsersData.isDefined) {
-              val targetUserData = action.actionData.targetUsersData.get
-              // TODO validate?!
-              target.insertTargetUsers(targetUserData.targetUsers)
-            } else {
-              // TODO error?
+              blockUsers ++= target.targetUsers
             }
-
-            blockUsers ++= target.targetUsers
           }
 
           // block the target users for this message
@@ -168,22 +154,39 @@ case class SendStateActor(data: StateData)
 
           remainingStored += target.min
 
-          // send the message over the process instance
+          messageContent = transition.storeVar match {
+            case Some(storeVar) if storeVar != "" =>
+              variables.get(storeVar).map{v => MessageSet(v.messages.toSet)} : Option[MessageContent]
+            case _ =>
+              action.actionData.messageContent.map(TextContent)
+          }
+          log.debug("Send@" + userID + "/" + subjectID + ": Message[" +
+            messageID + "] \"" + messageType + " to " + transition.target +
+            "\" with content \"" + messageContent.get + "\"")
+
+          // send the message to the processInstanceActor this sendState is executed within.
+          // This will not directly cross boundaries. The processIntanceActor will forward this
+          // message to the appropiate SubjectContainer.
           val sendProxy = context.actorOf(Props(
             new GoogleSendProxyActor(
               processInstanceActor,
-              action.userID.toString)), "GoogleSendProxyActor____" + UUID.randomUUID().toString())
-          val msg =
+              action.userID.toString)), "GoogleSendProxyActor____" + UUID.randomUUID().toString)
+          val ownAddress = AgentAddress(ip = SystemProperties.akkaRemoteHostname, port = SystemProperties.akkaRemotePort)
+          val ownProxyFuture = (processInstanceActor ?? GetProxyActor).mapTo[ActorRef]
+          val ownProxy = Await.result(ownProxyFuture, 2.seconds)
+          val ownChannel = Channel(ownProxy, Agent(processID, ownAddress, subjectID))
+          val subjectToSubjectMessage =
             SubjectToSubjectMessage(
               messageID,
               processID,
               userID,
               subjectID,
+              ownChannel,
               target,
               messageType,
               messageContent.get,
               action.actionData.fileId)
-          sendProxy ! msg
+          sendProxy ! subjectToSubjectMessage
           // send the ActionExecuted to the blocking actor, it will send it
           // to the process instance, when this user is ready
           blockingHandlerActor ! ActionExecuted(action)
@@ -191,52 +194,41 @@ case class SendStateActor(data: StateData)
       } else {
         log.error("Second send-message action request received")
       }
-    }
 
-    case Stored(messageID) if (messageContent.isDefined &&
-      unsentMessageIDs.contains(messageID) // TODO might remove the message ID from unsentMessageIDs?
-      ) => {
+    case Stored(messageID) if messageContent.isDefined && unsentMessageIDs.contains(messageID) =>
+      // TODO might remove the message ID from unsentMessageIDs?
       val transition = unsentMessageIDs(messageID)
       // Create the history message
       val message =
-        HistoryMessage(messageID, transition.messageType, subjectID, transition.subjectID, messageContent.get)
+        HistoryMessage(messageID, transition.messageName, subjectID, transition.subjectID, messageContent.get.toString)
       // Change the state and enter the History entry
       remainingStored -= 1
-
       log.debug("message with id {} stored. remaining: {}", messageID, remainingStored)
-
       if (remainingStored <= 0) {
         changeState(transition.successorID, data, message)
         blockingHandlerActor ! UnBlockUser(userID)
       }
-    }
 
-    case Stored(messageID) => {
+    case Stored(messageID) =>
       log.warning("unknown message with id {}", messageID)
-    }
 
-    case Rejected(messageID) if (
-      messageContent.isDefined &&
-      unsentMessageIDs.contains(messageID)) => {
+    case Rejected(messageID) if messageContent.isDefined && unsentMessageIDs.contains(messageID) =>
       log.warning("message with id {} was rejected", messageID)
-
       //TODO how to handle the rejected message?
       blockingHandlerActor ! UnBlockUser(userID)
-    }
-      
-    case Reopen => {
+
+    case Reopen =>
       messageContent = None
       remainingStored = 0
       actionChanged(Updated)
-    }
   }
 
   // TODO only send targetUserData when its not trivial
   override protected def getAvailableAction: Array[ActionData] =
     Array(
       ActionData(
-        sendTransition.messageType,
-        !messageContent.isDefined && targetUserIDs.isDefined && targetUserIDs.get.length >= sendTarget.min,
+        sendTransition.messageName.name,
+        messageContent.isEmpty && targetUserIDs.isDefined && targetUserIDs.get.length >= sendTarget.min,
         exitCondLabel,
         relatedSubject = Some(sendTransition.subjectID),
         targetUsersData =

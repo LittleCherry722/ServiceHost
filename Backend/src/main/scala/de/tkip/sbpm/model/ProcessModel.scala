@@ -94,15 +94,15 @@ case class State(
   callMacro: Option[String],
   blackboxname: Option[String],
   options: StateOptions,
+  varMan: Option[GraphVarMan],
   transitions: Array[Transition],
   chooseAgentSubject: Option[String])
 
-case class StateOptions(
-  messageType: Option[MessageType],
-  subjectId: Option[SubjectID],
-  correlationId: Option[String],
-  conversation: Option[String],
-  stateId: Option[StateID])
+case class StateOptions(messageName: Option[MessageName],
+                        subjectId: Option[SubjectID],
+                        correlationId: Option[String],
+                        conversation: Option[String],
+                        stateId: Option[StateID])
 
 case class ProcessMacro(name: String, states: Array[State])
 case class Subject(
@@ -125,10 +125,10 @@ case class ExternalSubject(
   id: SubjectID,
   inputPool: Int,
   multi: Boolean,
-  relatedSubjectId: Option[SubjectID],
-  relatedProcessId: Option[Int],
-  relatedInterfaceId: Option[Int],
-  isImplementation: Option[Boolean],
+  mergedSubjects: Option[List[MergedSubject]],
+  implementsViews: Option[List[Int]],
+  viewId: Option[Int],
+  isExternalView: Boolean,
   variablesMap:Map[String,String]) extends SubjectLike {
   lazy val external = true
 }

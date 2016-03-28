@@ -2,7 +2,7 @@ package de.tkip.sbpm.persistence
 
 import com.mchange.v2.c3p0.{ComboPooledDataSource, DataSources}
 import com.typesafe.config.ConfigFactory
-import de.tkip.sbpm.persistence.schema.EmptyViewMappingsSchema
+import de.tkip.sbpm.persistence.schema.EmptyViewSubjectMapSchema
 import de.tkip.sbpm.persistence.schema.ImplementationMappingsSchema
 
 import scala.slick.driver.JdbcDriver.simple._
@@ -16,8 +16,10 @@ object DatabaseAccess {
   val interfaceImplementations = InterfaceImplementationSchema.interfaceImplementations
   val views = ViewSchema.views
   val emptyViews = EmptyViewSchema.emptyViews
-  val emptyViewMappings = EmptyViewMappingsSchema.emptyViewMappings
-  val implementationMappings = ImplementationMappingsSchema.implementationMappings
+  val emptyViewSubjectMappings = EmptyViewSubjectMapSchema.emptyViewSubjectMappings
+  val emptyViewMessageMappings = EmptyViewSubjectMapSchema.emptyViewMsgMappings
+  val implementationSubjectMappings = ImplementationMappingsSchema.implementationSubjectMappings
+  val implementationMessageMappings = ImplementationMappingsSchema.implementationMessageMappings
   val graphConversations = GraphConversationsSchema.graphConversations
   val graphEdges = GraphEdgesSchema.graphEdges
   val graphMacros = GraphMacrosSchema.graphMacros
@@ -37,8 +39,10 @@ object DatabaseAccess {
     interfaceImplementations,
     views,
     emptyViews,
-    emptyViewMappings,
-    implementationMappings,
+    emptyViewSubjectMappings,
+    emptyViewMessageMappings,
+    implementationSubjectMappings,
+    implementationMessageMappings,
     addresses,
     graphConversations,
     graphEdges,
@@ -64,7 +68,9 @@ object DatabaseAccess {
     }
   }
   def recreateDatabase() : Unit = {
+    println("Dropping DB")
     dropDatabase()
+    println("Creating DB")
     createDatabase()
   }
 

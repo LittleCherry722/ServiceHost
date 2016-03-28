@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.persistence.query
 
-import de.tkip.sbpm.model.Message
+import de.tkip.sbpm.model.UserToUserMessage
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.UserID
 
 /**
@@ -41,7 +41,7 @@ object Messages {
   }
 
   object Save {
-    def apply(message: Message*) = Entity(message: _*)
+    def apply(message: UserToUserMessage*) = Entity(message: _*)
     /**
      * saves all given messages
      * if one entity given, returns generated id if 
@@ -50,11 +50,11 @@ object Messages {
      * if multiple entities given, Seq[Option[Int]]
      * is returned respectively
      */
-    case class Entity(message: Message*) extends Query
+    case class Entity(message: UserToUserMessage*) extends Query
   }
 
   object Delete {
-    def apply(message: Message) = ById(message.id.get)
+    def apply(message: UserToUserMessage) = ById(message.id.get)
     /**
      * deletes entity by id with empty result
      */

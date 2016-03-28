@@ -19,25 +19,18 @@ import scala.collection.mutable.{Map => MutableMap}
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 
-class SubjectVariable {
-
-}
 
 /**
  * This class holds the InternalStatus of an Internalbehavior, defined by:
  * - Variables
  */
 protected case class InternalStatus() {
-  // set this variable to store if a subject started message has been sent
-  // (needed for loop, which passes the start state several times)
-  var subjectStartedSent = false// TODO outdated
-
   // This map stores all active variables 
   val variables = MutableMap[String, Variable]()
 }
 
 protected case class Variable(id: String) {
-  private val _messages = ArrayBuffer[SubjectToSubjectMessage]()
+  private var _messages = Set[SubjectToSubjectMessage]()
 
   def addMessage(message: SubjectToSubjectMessage) {
     _messages += message
@@ -45,7 +38,7 @@ protected case class Variable(id: String) {
   
   def messages = _messages.toArray
 
-  override def toString() = {
+  override def toString = {
     "{%s <- %s}".format(id, _messages.mkString("[", ", ", "]"))
   }
 }

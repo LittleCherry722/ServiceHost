@@ -14,9 +14,7 @@
 package de.tkip.sbpm.persistence.mapping
 
 import de.tkip.sbpm.model.MergedSubject
-import de.tkip.sbpm.persistence.schema.GraphMergedSubjectsSchema.GraphMergedSubjects
-import de.tkip.sbpm.{ model => domainModel }
-import shapeless._
+import de.tkip.sbpm.{model => domainModel}
 
 /**
  * Methods to convert domain model objects (defined in sbmp.model package)
@@ -30,9 +28,12 @@ object DomainModelMappings {
    * If id of graph is None only graph itself is converted
    * id must be known for converting sub entities.
    */
-  def convert(g: domainModel.Graph): Either[Graph, (Graph, Seq[GraphMergedSubject], Seq[GraphConversation], Seq[GraphMessage], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge])] = {
+  def convertGraph(g: domainModel.Graph): Either[Graph, (Graph, Seq[GraphMergedSubject], Seq[GraphConversation], Seq[GraphMessage]
+                                                        ,Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode]
+                                                        ,Seq[GraphVarMan], Seq[GraphEdge]
+                                                        )] = {
     val graph = Graph(g.id)
-    if (!g.id.isDefined) {
+    if (g.id.isEmpty) {
       Left(graph)
     } else {
       val (subjects, mergedSubjects, variables, macros, nodes, varMans, edges) = extractSubjects(g.subjects.values, g.id.get)
@@ -207,108 +208,91 @@ object DomainModelMappings {
 
   def convertInterface(interface: Interface,
                        address: ProcessEngineAddress,
-                       subModels: (Seq[GraphMergedSubject],
-                                   Seq[GraphConversation], Seq[GraphMessage],
-                                   Seq[GraphSubject], Seq[GraphVariable],
-                                   Seq[GraphMacro], Seq[GraphNode],
-                                   Seq[GraphVarMan], Seq[GraphEdge])
+                       views: Seq[domainModel.View]
                        ) : domainModel.Interface = {
+    val viewMap = views.map(v => (v.mainSubjectId, v)).toMap
     domainModel.Interface(
       interfaceType = domainModel.InterfaceType.withName(interface.interfaceType),
-      id = interface.id,
-      processId = interface.processId,
-      name = interface.name,
       address = domainModel.Address(
         id = address.id,
         ip = address.ip,
         port = address.port
       ),
-      graph = convertGraph(Graph(id = Some(interface.graphId)), subModels)
+      id = interface.id,
+      processId = interface.processId,
+      name = interface.name,
+      views = viewMap
     )
   }
 
   def convertView(view: View,
                   implementations: Seq[(InterfaceImplementation,
                                         ProcessEngineAddress,
-                                        Seq[ImplementationMapping])],
-                  emptyViewMaps: Seq[EmptyViewMapping],
+                                        Seq[ImplementationSubjectMapping],
+                                        Seq[ImplementationMessageMapping])],
                   subModels:(Seq[GraphMergedSubject],
                              Seq[GraphConversation], Seq[GraphMessage],
                              Seq[GraphSubject], Seq[GraphVariable],
                              Seq[GraphMacro], Seq[GraphNode],
                              Seq[GraphVarMan], Seq[GraphEdge])): domainModel.View = {
-    val subjectsIdMap =  convertSubjectIdMappings(emptyViewMaps)
-    val messagesIdMap =  convertMessageIdMappings(emptyViewMaps)
     domainModel.View(
+      id = view.id,
       mainSubjectId = view.mainSubjectId,
-      implementations = implementations.map{i => convertImplementation(i._1, i._2, i._3, subjectsIdMap, messagesIdMap)},
+      implementations = implementations.map{i => convertImplementation(i._1, i._2, i._3, i._4)},
       graph = convertGraph(Graph(id = Some(view.graphId)), subModels)
     )
   }
 
   def convertImplementation(impl: InterfaceImplementation,
                             address: ProcessEngineAddress,
-                            mappings: Seq[ImplementationMapping],
-                            evSubjIdMap: Map[String, String],
-                            evMsgIdMap: Map[String, String]): domainModel.InterfaceImplementation = {
-    val subjectIdMap = convertSubjectIdMappings(mappings)
-    val messageIdMap = convertMessageIdMappings(mappings)
+                            subjectMappings: Seq[ImplementationSubjectMapping],
+                            messageMappings: Seq[ImplementationMessageMapping]): domainModel.InterfaceImplementation = {
+    val subjectIdMap = subjectMappings.filter(m => impl.id.contains(m.implementationId)).map{ m => (m.from, m.to)}.toMap
+    val messageMap = messageMappings.filter(m => impl.id.contains(m.implementationId)).map{ m => (m.from, m.to)}.toMap
     domainModel.InterfaceImplementation(
-      processId = impl.processId,
-      address =  convert(address),
+      viewId = impl.viewId,
+      ownProcessId = impl.processId,
+      ownAddress =  convertPEAddress(address),
       ownSubjectId = impl.ownSubjectId,
-      subjectIdMap = subjectIdMap,
-      messageIdMap = messageIdMap)
+      dependsOnInterface = impl.dependsOnInterface)
   }
 
-  def convertSubjectIdMappings(maps: Seq[ImplementationMapping]): Map[String, String] = {
-    maps.filter(_.mappingType == "SubjectMap").map{m => (m.from, m.to)}.toMap
-  }
-  def convertMessageIdMappings(maps: Seq[ImplementationMapping]): Map[String, String] = {
-    maps.filter(_.mappingType == "MessageMap").map{m => (m.from, m.to)}.toMap
-  }
-  def convertSubjectIdMappings(maps: Seq[EmptyViewMapping]): Map[String, String] = {
-    maps.filter(_.mappingType == "SubjectMap").map{m => (m.from, m.to)}.toMap
-  }
-  def convertMessageIdMappings(maps: Seq[EmptyViewMapping]): Map[String, String] = {
-    maps.filter(_.mappingType == "MessageMap").map{m => (m.from, m.to)}.toMap
-  }
 
   /**
    * Convert all database entities of a graph to a single
    * object tree of domain model objects. 
    */
-  def convertGraph(graph: Graph,
-              subModels: (Seq[GraphMergedSubject],
-                          Seq[GraphConversation], Seq[GraphMessage],
-                          Seq[GraphSubject], Seq[GraphVariable],
-                          Seq[GraphMacro], Seq[GraphNode],
-                          Seq[GraphVarMan], Seq[GraphEdge])
-              ): domainModel.Graph = {
+  def convertGraph(graph: Graph
+                  ,subModels: (Seq[GraphMergedSubject],
+                               Seq[GraphConversation], Seq[GraphMessage],
+                               Seq[GraphSubject], Seq[GraphVariable],
+                               Seq[GraphMacro], Seq[GraphNode],
+                               Seq[GraphVarMan], Seq[GraphEdge])
+                   ): domainModel.Graph = {
     val (mergedSubjects, conversations, messages, subjects, variables, macros, nodes, varMans, edges) = subModels
     domainModel.Graph(
       graph.id,
-      conversations.map(convert).toMap,
-      messages.map(convert).toMap,
+      conversations.map(convertGraphConversation).toMap,
+      messages.map(convertGraphMessage).toMap,
       convertSubjects(subjects, mergedSubjects, variables, macros, nodes, varMans, edges))
   }
 
   /**
    * Convert  to id -> entity mapping.
    */
-  def convert(c: GraphConversation): (String, domainModel.GraphConversation) =
+  def convertGraphConversation(c: GraphConversation): (String, domainModel.GraphConversation) =
     c.id -> domainModel.GraphConversation(c.id, c.name)
 
   /**
    * Convert  to id -> entity mapping.
    */
-  def convert(a: ProcessEngineAddress): domainModel.Address =
+  def convertPEAddress(a: ProcessEngineAddress): domainModel.Address =
     domainModel.Address(id = a.id, ip = a.ip, port = a.port)
 
   /**
    * Convert message to id -> entity mapping.
    */
-  def convert(m: GraphMessage): (String, domainModel.GraphMessage) =
+  def convertGraphMessage(m: GraphMessage): (String, domainModel.GraphMessage) =
     m.id -> domainModel.GraphMessage(m.id, m.name)
 
   /**
@@ -323,7 +307,7 @@ object DomainModelMappings {
                       vm: Seq[GraphVarMan],
                       es: Seq[GraphEdge]) : Map[String, domainModel.GraphSubject] = ss.map { s =>
     // group variables, macros, nodes and edges by subject
-    val variables = vs.groupBy(_.subjectId).mapValues(_.map(convert).toMap)
+    val variables = vs.groupBy(_.subjectId).mapValues(_.map(convertGraphVariable).toMap)
     val macros = ms.groupBy(_.subjectId)
     val nodes = ns.groupBy(_.subjectId)
     val varMans = vm.groupBy(_.subjectId)
@@ -346,7 +330,7 @@ object DomainModelMappings {
       role = s.role,
       comment = s.comment,
       variables = variables.getOrElse(s.id, Map()),
-      macros = convert(macros.getOrElse(s.id, List()), nodes.getOrElse(s.id, List()), varMans.getOrElse(s.id, List()), edges.getOrElse(s.id, List())))
+      macros = convertGraphMacros(macros.getOrElse(s.id, List()), nodes.getOrElse(s.id, List()), varMans.getOrElse(s.id, List()), edges.getOrElse(s.id, List())))
   }.toMap
 
   def convertMS(ms: GraphMergedSubject) : MergedSubject = {
@@ -356,7 +340,7 @@ object DomainModelMappings {
   /**
    * Convert variable to id -> entity mapping.
    */
-  def convert(v: GraphVariable): (String, domainModel.GraphVariable) =
+  def convertGraphVariable(v: GraphVariable): (String, domainModel.GraphVariable) =
     v.id -> domainModel.GraphVariable(v.id, v.name)
 
   /**
@@ -364,14 +348,14 @@ object DomainModelMappings {
    * object trees.
    * Returns id -> entity map.
    */
-  def convert(ms: Seq[GraphMacro], ns: Seq[GraphNode], vm: Seq[GraphVarMan], es: Seq[GraphEdge]): Map[String, domainModel.GraphMacro] = {
+  def convertGraphMacros(ms: Seq[GraphMacro], ns: Seq[GraphNode], vm: Seq[GraphVarMan], es: Seq[GraphEdge]): Map[String, domainModel.GraphMacro] = {
     // group nodes and edges by it's macros
     val nodes = ns.groupBy(_.macroId).mapValues(_.map(x => {
       val filteredVarMans = vm.filter(t => t.id == x.id && t.macroId == x.macroId && t.subjectId == x.subjectId)
       val varMan:Option[GraphVarMan] =  if (filteredVarMans.length == 0) None else Some(filteredVarMans(0))
-      convert(x, varMan)
+      convertGraphNode(x, varMan)
     }).toMap)
-    val edges = es.groupBy(_.macroId).mapValues(_.map(convert))
+    val edges = es.groupBy(_.macroId).mapValues(_.map(convertGraphEdge))
 
     ms.map { m =>
       m.id -> domainModel.GraphMacro(
@@ -386,22 +370,21 @@ object DomainModelMappings {
    * Convert node to domain model.
    * Returns id -> entity mapping
    */
-  def convert(n: GraphNode, vm: Option[GraphVarMan]): (Short, domainModel.GraphNode) = {
+  def convertGraphNode(n: GraphNode, vm: Option[GraphVarMan]): (Short, domainModel.GraphNode) = {
     // create list of varMan properties to check easily if all are defined
-    val graphVarMan = vm match {
-      case Some(GraphVarMan(_, _, _, _, varManVar1Id, varManVar2Id, varManOperation, varManStoreVarId)) => {
+    val graphVarMan = vm.flatMap {
+      case GraphVarMan(_, _, _, _, varManVar1Id, varManVar2Id, varManOperation, varManStoreVarId) =>
         val graphVarManList = List(varManVar1Id, varManVar2Id, varManOperation, varManStoreVarId)
         // if not all props are defined then varMan is None
-        if (graphVarManList.forall(_.isDefined))
+        if (graphVarManList.forall(_.isDefined)) {
           Some(domainModel.GraphVarMan(
             vm.get.varManVar1Id.get,
             vm.get.varManVar2Id.get,
             vm.get.varManOperation.get,
             vm.get.varManStoreVarId.get))
-        else
+        } else {
           None
-      }
-      case null => None
+        }
     }
 
     (n.id, domainModel.GraphNode(
@@ -432,7 +415,7 @@ object DomainModelMappings {
   /**
    * Convert edge to domain model.
    */
-  def convert(e: GraphEdge): domainModel.GraphEdge = {
+  def convertGraphEdge(e: GraphEdge): domainModel.GraphEdge = {
     // create list of target properties to check easily if all are defined
     val targetList = List[Option[Any]](e.targetSubjectId, e.targetMin, e.targetMax, e.targetCreateNew)
     // if not all props are defined then target is None 

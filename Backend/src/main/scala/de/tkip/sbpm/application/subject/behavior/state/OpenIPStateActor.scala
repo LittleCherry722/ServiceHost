@@ -20,7 +20,7 @@ import de.tkip.sbpm.application.subject.misc.ActionData
 
 case class OpenIPStateActor(data: StateData)
   extends BehaviorStateActor(data) {
-  val msg = OpenInputPool((stateOptions.subjectId.get, stateOptions.messageType.get))
+  val msg = OpenInputPool((stateOptions.subjectId.get, stateOptions.messageName.get))
   inputPoolActor ! msg
 
   override protected def stateReceive = {

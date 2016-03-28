@@ -30,8 +30,8 @@ object ProcessAttributes {
   type StateAction = String
 
   type MessageType = String; val AllMessages = ""
-  type MessageContent = String
   type MessageID = Int
+  case class MessageName(name: String) extends AnyVal
   type ActionID = Int
 
   type SubjectProviderManagerRef = ActorRef
@@ -44,5 +44,5 @@ object ProcessAttributes {
   type InternalBehaviorRef = ActorRef
   type BehaviorStateRef = ActorRef
 
-  type ChannelID = (SubjectID, MessageType)
+  type ChannelID = (SubjectID, MessageName)
 }

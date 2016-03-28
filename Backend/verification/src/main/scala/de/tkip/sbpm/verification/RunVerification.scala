@@ -40,7 +40,7 @@ object RunVerification {
     runWithTimeLog("Writing graph", veri.writeGraph _)
 
     val after = System.currentTimeMillis()
-    val duration = (after - before)
+    val duration = after - before
     println(
       "Whole progress took " +
         (if (duration >= 1000) ((duration / 1000) + " sec, ") else "") +

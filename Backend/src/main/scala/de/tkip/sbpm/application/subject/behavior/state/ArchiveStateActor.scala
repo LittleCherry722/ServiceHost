@@ -37,29 +37,27 @@ import de.tkip.sbpm.model.Subject
 case class ArchiveStateActor(data: StateData)
   extends BehaviorStateActor(data) {
   private final val archivePath = "./log/"
-    
+
   changeState(exitTransition.successorID, data, null)
-  
-  
-  
-  
+
+
   protected def stateReceive = {
-     case autoArchive : AutoArchive =>{
-       //TODO do not address hardcoded... iterate over all and write them
-      val msg =  data.internalStatus.variables.get("archiveMsg").get.messages(0).messageContent
-      val format=new SimpleDateFormat("yyyy_MM_dd HH_mm_ss")
-      val date=format.format(new Date);
-      val f = new File(archivePath+"archive"+"_"+date+".log")
-     
-      println(f.getAbsolutePath())
+    case autoArchive: AutoArchive =>
+      //TODO do not address hardcoded... iterate over all and write them
+      val msg = data.internalStatus.variables.get("archiveMsg").get.messages(0).messageContent
+      val format = new SimpleDateFormat("yyyy_MM_dd HH_mm_ss")
+      val date = format.format(new Date)
+      val f = new File(archivePath + "archive" + "_" + date + ".log")
+
+      println(f.getAbsolutePath)
       val writer = new PrintWriter(f)
-      writer.write(msg)
+      writer.write(msg.toString)
       writer.close()
-      
-    }
   }
+
   private def exitTransition = exitTransitions(0)
+
   override protected def getAvailableAction: Array[ActionData] =
-    exitTransitions.map((t: Transition) => ActionData(t.messageType, true, exitCondLabel))
+    exitTransitions.map((t: Transition) => ActionData(t.messageName.name, true, exitCondLabel))
 
 }

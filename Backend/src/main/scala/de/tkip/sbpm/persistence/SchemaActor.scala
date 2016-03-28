@@ -30,10 +30,13 @@ private[persistence] class SchemaActor extends InstrumentedActor
   with GroupsRolesSchema
   with GroupsUsersSchema
   with MessagesSchema
+  with ProcessMessageMappingSchema
+  with ProcessSubjectMappingSchema
   with ProcessActiveGraphsSchema
   with VerificationErrorsSchema
   with ProcessInstancesSchema
   with ConfigurationsSchema
+  with GraphSubjectViewIdsSchema
   with UserIdentitiesSchema {
 
   // import current slick driver dynamically
@@ -48,6 +51,7 @@ private[persistence] class SchemaActor extends InstrumentedActor
     graphNodes,
     graphVarMans,
     graphRoutings,
+    graphSubjectViewIds,
     graphs,
     graphSubjects,
     graphVariables,
@@ -55,6 +59,8 @@ private[persistence] class SchemaActor extends InstrumentedActor
     groupsRoles,
     groupsUsers,
     messages,
+    processMessageMappings,
+    processSubjectMappings,
     processes,
     verificationErrors,
     processActiveGraphs,

@@ -13,24 +13,22 @@
 
 package de.tkip.sbpm.application.subject.behavior
 
-import scala.collection.mutable.{ Map => MutableMap, Set => MutableSet, MutableList, Queue }
+import scala.collection.mutable.{Map => MutableMap, Set => MutableSet}
 import akka.actor._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.SubjectData
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
-import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
-import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
-import akka.event.Logging
-import com.typesafe.config.ConfigFactory
 import akka.event.LoggingAdapter
 import de.tkip.sbpm.instrumentation.InstrumentedActor
+
+import scala.collection.mutable
 
 protected case class SubscribeIncomingMessages(
   stateID: StateID, // the ID of the receive state
   fromSubject: SubjectID,
-  messageType: MessageType) { // the number of messages the state want to receive
+  messageType: MessageName) { // the number of messages the state want to receive
 
   private var stateActor: ActorRef = null
 
@@ -45,13 +43,13 @@ protected case class SubscribeIncomingMessages(
   }
 }
 
-// returns the messages the input pool holds from the subject with the messagetype
+// returns the messages the input pool holds from the subject with the message name (formerly messagetype)
 // returns: Array[SubjectToSubjectMessage]
-private[subject] case class GetInputPoolMessage(fromSubject: SubjectID, messageType: MessageType)
+private[subject] case class GetInputPoolMessage(fromSubject: SubjectID, messageName: MessageName)
 // deletes the messages from the InputPool
-private[subject] case class DeleteInputPoolMessages(fromSubject: SubjectID, messageType: MessageType, messages: Array[MessageID])
+private[subject] case class DeleteInputPoolMessages(fromSubject: SubjectID, messageName: MessageName, messages: Array[MessageID])
 
-private[subject] case class InputPoolMessagesChanged(subject: SubjectID, messageType: MessageType, messages: Array[SubjectToSubjectMessage])
+private[subject] case class InputPoolMessagesChanged(subject: SubjectID, messageType: MessageName, messages: Array[SubjectToSubjectMessage])
 
 // message to inform the input pool that the state does not subscribe anything anymore
 protected case class UnSubscribeIncomingMessages(stateID: StateID)
@@ -88,7 +86,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
 
   // this map holds the queue of the income messages for a channel
   private val messageQueueMap =
-    MutableMap[ChannelID, Queue[SubjectToSubjectMessage]]()
+    MutableMap[ChannelID, mutable.Queue[SubjectToSubjectMessage]]()
   // this map holds the states which are subscribing a channel
   private val waitingStatesMap =
     //  MutableMap[ChannelID, WaitingStateList]()
@@ -116,78 +114,64 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     //      messageQueueMap.put((sm.from, sm.messageType), newQueue)
     //    }
 
-    case registerAll: Array[SubscribeIncomingMessages] => {
+    case registerAll: Array[SubscribeIncomingMessages] =>
       handleSubscribers(registerAll)
-    }
 
-    case register: SubscribeIncomingMessages => {
+    case register: SubscribeIncomingMessages =>
       handleSubscribers(Array(register))
-    }
 
-    case UnSubscribeIncomingMessages(stateID) => {
+    case UnSubscribeIncomingMessages(stateID) =>
       // unregister the waiting states
-      // TODO increase performance
-      //      waitingStatesMap.map(_._2.remove(stateID))
-      waitingStatesMap.map(_._2.remove(stateID))
-    }
+      waitingStatesMap.values.foreach(_.remove(stateID))
 
-    case message: SubjectToSubjectMessage if closedChannels.isChannelClosedAndNotReOpened((message.from, message.messageType)) => {
+    case message: SubjectToSubjectMessage if closedChannels.isChannelClosedAndNotReOpened((message.from, message.messageName)) =>
       // Unlock the sender
       sender !! Rejected(message.messageID)
-      val channelID = new ChannelID(message.from, message.messageType)
+      val channelID = new ChannelID(message.from, message.messageName)
       blockedSendStatesMap(channelID) = sender
 
       log.warning("message rejected: {}", message)
       // unblock this user
       blockingHandlerActor ! UnBlockUser(userID)
-    }
 
-    case message: SubjectToSubjectMessage => {
+    case message: SubjectToSubjectMessage =>
       log.debug("InputPool received: " + message + " from " + sender)
       // Unlock the sender
       sender !! Stored(message.messageID)
       // store the message
       enqueueMessage(message)
-      log.debug("Inputpool has: " +
-        getMessageArray(message.from, message.messageType).mkString("{", ", ", "}"))
+      log.debug("Inputpool has: " + getMessageArray(message.from, message.messageName).mkString("{", ", ", "}"))
       // inform the states about this change
-      broadcastChangeFor((message.from, message.messageType))
+      broadcastChangeFor((message.from, message.messageName))
       // unblock this user
       blockingHandlerActor ! UnBlockUser(userID)
-    }
 
-    case DeleteInputPoolMessages(fromSubject, messageType, messages) => {
+    case DeleteInputPoolMessages(fromSubject, messageType, messages) =>
       val result =
         dequeueMessages((fromSubject, messageType), messages)
       if (!result) {
         // TODO error, delete failed
       }
       broadcastChangeFor((fromSubject, messageType))
-    }
 
-    case CloseInputPool(channelId) => {
+    case CloseInputPool(channelId) =>
       closedChannels.close(channelId)
       sender !! InputPoolClosed
-    }
 
-    case OpenInputPool(channelId) => {
+    case OpenInputPool(channelId) =>
       closedChannels.open(channelId)
       closedChannels.reopen(channelId, blockedSendStatesMap)
       sender !! InputPoolOpened
-    }
 
-    case IsIPEmpty((subjectId, messageType)) => {
-      if (subjectId == ProcessAttributes.AllSubjects || messageType == ProcessAttributes.AllMessages) {
+    case IsIPEmpty((subjectId, messageType)) =>
+      if (subjectId == ProcessAttributes.AllSubjects || messageType.name == ProcessAttributes.AllMessages) {
         val filtered = filterQueueMap(subjectId, messageType)
-        val isEmpty = (filtered.values map (_.isEmpty)).foldLeft(true)(_ && _)
-        sender !! IPEmpty(isEmpty)
+        sender !! IPEmpty(filtered.values.forall(_.isEmpty))
       } // single subject, single message type
       else {
         val msg = IPEmpty(messageQueueIsEmpty(subjectId, messageType))
         sender !! msg
       }
-
-    }
   }
 
   /**
@@ -197,7 +181,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     val (subjectId, messageType) = channelId
 
     // 'all subjects' and 'all message types'
-    if (subjectId == ProcessAttributes.AllSubjects && messageType == ProcessAttributes.AllMessages) {
+    if (subjectId == ProcessAttributes.AllSubjects && messageType.name == ProcessAttributes.AllMessages) {
       messageQueueMap
     } // 'all subjects'
     else if (subjectId == ProcessAttributes.AllSubjects) {
@@ -216,7 +200,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
    */
   private def handleSubscribers(registerAll: Array[SubscribeIncomingMessages]) {
     // set all state actors to the sender
-    registerAll.map(_.setStateActor(sender))
+    registerAll.foreach(_.setStateActor(sender))
 
     for (register <- registerAll) {
       // try to transport all messages
@@ -279,11 +263,11 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
    * Returns the WaitingStateList for the key
    * Creates and returns the list, if it does not exists
    */
-  private def getWaitingStatesSet(key: (SubjectID, MessageType)) =
+  private def getWaitingStatesSet(key: ChannelID) =
     waitingStatesMap.getOrElseUpdate(key, new WaitingStateSet(log))
 
-  private def getMessageArray(subjectID: SubjectID, messageType: MessageType): Array[SubjectToSubjectMessage] =
-    messageQueueMap.getOrElse((subjectID, messageType), Queue[SubjectToSubjectMessage]()).toArray
+  private def getMessageArray(subjectID: SubjectID, messageName: MessageName): Array[SubjectToSubjectMessage] =
+    messageQueueMap.getOrElse((subjectID, messageName), mutable.Queue[SubjectToSubjectMessage]()).toArray
 
   /**
    * Enqueue a message, add it to the correct queue
@@ -292,8 +276,8 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     // get or create the message queue
     val messageQueue =
       messageQueueMap.getOrElseUpdate(
-        (message.from, message.messageType),
-        Queue[SubjectToSubjectMessage]())
+        (message.from, message.messageName),
+        mutable.Queue[SubjectToSubjectMessage]())
 
     // if the queue is not to big, enqueue the message
     if (messageQueue.size < messageLimit) {
@@ -303,10 +287,10 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     }
   }
 
-  private def dequeueMessages(key: (SubjectID, MessageType), messages: Array[MessageID]): Boolean = {
-    if (messages forall (id => messageQueueMap(key).exists(_.messageID == id))) {
-      // TODO might increase performance
-      messages foreach (id => messageQueueMap(key).dequeueAll(_.messageID == id))
+  private def dequeueMessages(key: ChannelID, messages: Array[MessageID]): Boolean = {
+    if (messages.forall(id => messageQueueMap(key).exists(_.messageName == id))) {
+      // TODO increase performance
+      messages.foreach(id => messageQueueMap(key).dequeueAll(_.messageName == id))
       true
     } else {
       false
@@ -317,14 +301,14 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
    * Dequeue a message, remove and return the first message
    * TODO sonst null?, oder muss man vorher abfragen
    */
-  private def dequeueMessage(key: (SubjectID, MessageType)) =
+  private def dequeueMessage(key: ChannelID) =
     messageQueueMap(key).dequeue()
 
   /**
    * Returns if the message queue for the key is empty.
    * (A not existing queue is seen as empty)
    */
-  private def messageQueueIsEmpty(key: (SubjectID, MessageType)) =
+  private def messageQueueIsEmpty(key: ChannelID) =
     !messageQueueMap.contains(key) || messageQueueMap(key).isEmpty
 }
 
@@ -394,8 +378,8 @@ private[behavior] class ClosedChannels {
 
   def isChannelClosedAndNotReOpened(channelId: ChannelID): Boolean = {
     def channelFilter(rule: Rule) = (rule.channelId._1 == channelId._1 || rule.channelId._1 == AllSubjects) &&
-        (rule.channelId._2 == channelId._2 || rule.channelId._2 == AllMessages)
+        (rule.channelId._2 == channelId._2 || rule.channelId._2.name == AllMessages)
     val rule = rules.find(channelFilter)
-    !rule.map(_.ruleType == Open).getOrElse(!rule.map(_.ruleType == Close).getOrElse(false))
+    !rule.fold(!rule.exists(_.ruleType == Close))(_.ruleType == Open)
   }
 }

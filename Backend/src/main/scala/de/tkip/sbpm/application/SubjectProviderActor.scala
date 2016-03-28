@@ -127,7 +127,7 @@ class SubjectProviderActor(userID: UserID) extends InstrumentedActor {
 
   private def askSubjectsForAvailableActions(processInstanceID: ProcessInstanceID,
     subjectID: SubjectID,
-    generateAnswer: Array[AvailableAction] => Any)(returnAdress: ActorRef = self) {
+    generateAnswer: Array[AvailableAction] => Any)(returnAddress: ActorRef = self) {
 
     val collectedSubjects: Iterable[SubjectRef] =
       subjects.filter(
@@ -165,7 +165,7 @@ class SubjectProviderActor(userID: UserID) extends InstrumentedActor {
 
     val answer = generateAnswer(actions.toArray)
 
-    logger.debug("TRACE: from " + this.self + " to " + returnAdress + " " + answer)
-    returnAdress ! answer
+    logger.debug("TRACE: from " + this.self + " to " + returnAddress + " " + answer)
+    returnAddress ! answer
   }
 }

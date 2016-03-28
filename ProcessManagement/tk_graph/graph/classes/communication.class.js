@@ -1401,13 +1401,16 @@ function GCcommunication ()
 						this.subjects[gt_subject.id].setStartSubject(gt_subject.startSubject);
             
 					if (gf_isset(gt_subject.mergedSubjects))
-						this.subjects[gt_subject.id].setMergedSubjects(gt_subject.mergedSubjects);
+            this.subjects[gt_subject.id].setMergedSubjects(gt_subject.mergedSubjects);
+
+          if (gf_isset(gt_subject.externalView))
+            this.subjects[gt_subject.id].setExternalView(gt_subject.externalView);
 
 					if (gf_isset(gt_subject.blackboxname))
 						this.subjects[gt_subject.id].setBlackboxname(gt_subject.blackboxname);
 
-					if (gf_isset(gt_subject.relatedInterface))
-						this.subjects[gt_subject.id].setRelatedInterface(gt_subject.relatedInterface);
+          if (gf_isset(gt_subject.implementsViews))
+            this.subjects[gt_subject.id].setImplementsViews(gt_subject.implementsViews);
 
 					if (gf_isset(gt_subject.isImplementation))
 						this.subjects[gt_subject.id].setIsImplementation(gt_subject.isImplementation);
@@ -1693,11 +1696,12 @@ function GCcommunication ()
 						name: this.subjects[gt_sid].getText(),
 						type: this.subjects[gt_sid].getType(),
 						subjectType: this.subjects[gt_sid].getType(),
-						mergedSubjects: this.subjects[gt_sid].getMergedSubjects(),
-						deactivated: this.subjects[gt_sid].isDeactivated(),
+            mergedSubjects: this.subjects[gt_sid].getMergedSubjects(),
+            externalView: this.subjects[gt_sid].isExternalView(),
+            deactivated: this.subjects[gt_sid].isDeactivated(),
 						inputPool: this.subjects[gt_sid].getInputPool(),
 						blackboxname: this.subjects[gt_sid].getBlackboxname(),
-						relatedInterface: this.subjects[gt_sid].getRelatedInterface(),
+            implementsViews: this.subjects[gt_sid].getImplementsViews(),
 						relatedProcess: this.subjects[gt_sid].getRelatedProcess(),
 						relatedSubject: this.subjects[gt_sid].getRelatedSubject(),
 						isImplementation: this.subjects[gt_sid].getIsImplementation(),

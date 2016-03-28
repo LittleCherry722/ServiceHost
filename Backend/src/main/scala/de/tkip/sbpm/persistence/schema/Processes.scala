@@ -25,9 +25,12 @@ trait ProcessesSchema extends Schema {
 
   import driver.simple._
 
-  implicit val stringToStringList = MappedColumnType.base[List[String], String](
-    list => list mkString ",",
-    str => (str split ",").toList
+  implicit val intListToString = MappedColumnType.base[Seq[Int], String](
+    list => list.map(_.toString).mkString(";"),
+    str => str match {
+      case "" => List()
+      case _ => (str split ";").toList.map(_.toInt)
+    }
   )
 
   // represents schema if the "processes" table in the database
@@ -39,7 +42,8 @@ trait ProcessesSchema extends Schema {
     def name = nameCol
     def isCase = column[Boolean]("case")
     def startAble = column[Boolean]("startAble")
-    def * = (id.?, interfaceId, publishInterface, name, isCase, startAble) <> (Process.tupled, Process.unapply)
+    def implementationIds = column[Seq[Int]]("implementation_ids")
+    def * = (id.?, interfaceId, publishInterface, name, isCase, startAble, implementationIds) <> (Process.tupled, Process.unapply)
     // def autoInc = * returning id
     def uniqueName = unique(name)
   }

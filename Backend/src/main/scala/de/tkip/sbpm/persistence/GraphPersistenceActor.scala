@@ -26,6 +26,7 @@ private[persistence] class GraphPersistenceActor extends InstrumentedActor
   with DatabaseAccess
   with schema.GraphConversationsSchema
   with schema.GraphMergedSubjectsSchema
+  with schema.GraphSubjectViewIdsSchema
   with schema.GraphMessagesSchema
   with schema.GraphEdgesSchema
   with schema.GraphNodesSchema
@@ -100,7 +101,7 @@ private[persistence] class GraphPersistenceActor extends InstrumentedActor
   // update entity or throw exception if it does not exist
   protected def save(g: Graph)(implicit session: Session) = {
     // convert domain model graph to db entities
-    val (graph, mergedSubjects, conversations, messages, routings, subjects, variables, macros, nodes, varMans, edges) =
+    val (graph, mergedSubjects, implementsViews, conversations, messages, routings, subjects, variables, macros, nodes, varMans, edges) =
       convert(g) match {
       // only graph was converted, because it's a new graph (no id exits)
         case Left(model: mapping.Graph) =>
@@ -112,7 +113,7 @@ private[persistence] class GraphPersistenceActor extends InstrumentedActor
           // id of graph was given -> update existing
           // first check if graph really exists
           val q = graphs.filter(_.id === models._1.id)
-          if (!q.firstOption.isDefined)
+          if (q.firstOption.isEmpty)
             throw new EntityNotFoundException("Graph with id %d does not exist.", models._1.id.get)
           // update graph
           q.update(models._1)
@@ -156,20 +157,25 @@ private[persistence] class GraphPersistenceActor extends InstrumentedActor
     graphMessages.filter(_.graphId === id).delete
     graphConversations.filter(_.graphId === id).delete
     graphMergedSubjects.filter(_.graphId === id).delete
+    graphSubjectViewIds.filter(_.subjectId in graphSubjects.filter(_.graphId === id).map(_.id)).delete
   }
 
   /**
    * Load all dependent entities of a graph with given id.
    */
-  def retrieveSubEntities(id: Int)(implicit session: Session) = (
-    graphMergedSubjects.filter(_.graphId === id).list,
-    graphConversations.filter(_.graphId === id).list,
-    graphMessages.filter(_.graphId === id).list,
-    graphRoutings.filter(_.graphId === id).list,
-    graphSubjects.filter(_.graphId === id).list,
-    graphVariables.filter(_.graphId === id).list,
-    graphMacros.filter(_.graphId === id).list,
-    graphNodes.filter(_.graphId === id).list,
-    graphVarMans.filter(_.graphId === id).list,
-    graphEdges.filter(_.graphId === id).list)
+  def retrieveSubEntities(id: Int)(implicit session: Session) = {
+    val subjects = graphSubjects.filter(_.graphId === id).list
+    (
+      graphMergedSubjects.filter(_.graphId === id).list,
+      graphSubjectViewIds.filter(_.subjectId inSet subjects.map(_.id)).list,
+      graphConversations.filter(_.graphId === id).list,
+      graphMessages.filter(_.graphId === id).list,
+      graphRoutings.filter(_.graphId === id).list,
+      subjects,
+      graphVariables.filter(_.graphId === id).list,
+      graphMacros.filter(_.graphId === id).list,
+      graphNodes.filter(_.graphId === id).list,
+      graphVarMans.filter(_.graphId === id).list,
+      graphEdges.filter(_.graphId === id).list)
+  }
 }

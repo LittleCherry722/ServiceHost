@@ -36,7 +36,7 @@ private[persistence] class MessagePersistenceActor extends InstrumentedActor
   def toDomainModel(u: Option[mapping.Message]) =
     convert(u, Persistence.message, Domain.message)
 
-  def toPersistenceModel(u: Message) =
+  def toPersistenceModel(u: UserToUserMessage) =
     convert(u, Domain.message, Persistence.message)
 
   def wrappedReceive = {
@@ -59,9 +59,9 @@ private[persistence] class MessagePersistenceActor extends InstrumentedActor
     case Save.Entity(ms @ _*) => answer { implicit session =>
       ms.map {
         // insert if id is None
-        case m @ Message(None, _, _, _, _, _, _) => Some((messages returning messages.map(_.id)) += toPersistenceModel(m))
+        case m @ UserToUserMessage(None, _, _, _, _, _, _) => Some((messages returning messages.map(_.id)) += toPersistenceModel(m))
         // otherwise update
-        case m @ Message(id, _, _, _, _, _, _)   => update(id, m)
+        case m @ UserToUserMessage(id, _, _, _, _, _, _)   => update(id, m)
       } match {
         // only one message was given, return it's id
         case ids if (ids.size == 1) => ids.head
@@ -76,7 +76,7 @@ private[persistence] class MessagePersistenceActor extends InstrumentedActor
   }
 
   // update entity or throw exception if it does not exist
-  def update(id: Option[Int], m: Message) = answer { implicit session =>
+  def update(id: Option[Int], m: UserToUserMessage) = answer { implicit session =>
     val res = messages.filter(_.id === id).update(toPersistenceModel(m))
     if (res == 0)
       throw new EntityNotFoundException("Message with id %d does not exist.", id.get)

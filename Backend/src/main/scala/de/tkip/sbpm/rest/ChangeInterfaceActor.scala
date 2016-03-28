@@ -22,7 +22,7 @@ import de.tkip.sbpm.application.change._
 import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.model._
-import de.tkip.sbpm.rest.JsonProtocol._
+import de.tkip.sbpm.rest.GraphJsonProtocol._
 import spray.httpx.SprayJsonSupport._
 
 class ChangeInterfaceActor extends AbstractInterfaceActor with DefaultLogging {

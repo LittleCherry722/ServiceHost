@@ -39,7 +39,8 @@ case class Interface(interfaceType: InterfaceType,
                      name: String,
                      views: Map[SubjectId, View])
 
-case class View(mainSubjectId: SubjectId,
+case class View(id: Option[Int],
+                mainSubjectId: SubjectId,
                 implementations: Seq[InterfaceImplementation],
                 graph: Graph)
 
@@ -50,11 +51,11 @@ case class IntermediateInterface(interfaceType: InterfaceType,
                                  name: String,
                                  views: Map[SubjectId, View])
 
-case class InterfaceImplementation(processId: Int,
-                                   address: Address,
+case class InterfaceImplementation(viewId: Int,
+                                   ownAddress: Address,
+                                   ownProcessId: Int,
                                    ownSubjectId: String,
-                                   subjectIdMap: Map[SubjectId, SubjectId],
-                                   messageIdMap: Map[String, String] )
+                                   dependsOnInterface: Option[Int])
 
 
 case class Address(id: Option[Int], ip: String, port: Int)

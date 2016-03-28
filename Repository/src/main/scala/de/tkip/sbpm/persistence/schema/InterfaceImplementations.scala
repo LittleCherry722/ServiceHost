@@ -34,10 +34,11 @@ object InterfaceImplementationSchema extends Schema {
     def id = autoIncIdCol[Int]
     def processId = column[Int]("process_id")
     def addressId = column[Int]("address_id")
-    def ownSubjectId = column[Int]("own_subject_id")
+    def ownSubjectId = column[String]("own_subject_id")
     def viewId = column[Int]("view_id")
+    def dependsOnInterface = column[Option[Int]]("depends_on_interface")
 
-    def * = (id.?, processId, addressId, ownSubjectId, viewId) <> (InterfaceImplementation.tupled, InterfaceImplementation.unapply)
+    def * = (id.?, processId, addressId, ownSubjectId, viewId, dependsOnInterface) <> (InterfaceImplementation.tupled, InterfaceImplementation.unapply)
 
     def address = foreignKey(fkName("address"), processId, addresses)(_.id, NoAction, Cascade)
   }

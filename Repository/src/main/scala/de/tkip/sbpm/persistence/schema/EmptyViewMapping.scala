@@ -22,7 +22,7 @@ import scala.slick.model.ForeignKeyAction.{Cascade, NoAction}
  * If you want to query Processes database table mix this trait
  * into the actor performing the queries.
  */
-object EmptyViewMappingsSchema extends Schema {
+object EmptyViewSubjectMapSchema extends Schema {
   // import current slick driver dynamically
   import EmptyViewSchema.emptyViews
   import driver.simple._
@@ -30,19 +30,32 @@ object EmptyViewMappingsSchema extends Schema {
 
   // represents schema if the "processes" table in the database
   // using slick's lifted embedding API
-  class EmptyViewMappings(tag: Tag) extends SchemaTable[EmptyViewMapping](tag, "empty_view_mapping") {
-    def mappingType = column[String]("mapping_type")
+  class EmptyViewSubjectMaps(tag: Tag) extends SchemaTable[EmptyViewSubjectMap](tag, "empty_view_mapping") {
     def emptyViewId = column[Int]("empty_view_id")
     def from = column[String]("from")
     def to = column[String]("to")
 
-    def * = (mappingType, emptyViewId, from, to) <> (EmptyViewMapping.tupled, EmptyViewMapping.unapply)
+    def * = (emptyViewId, from, to) <> (EmptyViewSubjectMap.tupled, EmptyViewSubjectMap.unapply)
 
-    def pk = primaryKey(pkName, (mappingType, emptyViewId, from, to))
-    def idx = index(s"${tableName}_idx_view_mapping_id", (emptyViewId, mappingType))
+    def pk = primaryKey(pkName, (emptyViewId, from, to))
+    def idx = index(s"${tableName}_idx_view_mapping_id", emptyViewId)
 
     def emptyView = foreignKey(fkName("empty_views"), emptyViewId, emptyViews)(_.id, NoAction, Cascade)
   }
 
-  val emptyViewMappings = TableQuery[EmptyViewMappings]
+  class EmptyViewMessageMaps(tag: Tag) extends SchemaTable[EmptyViewMessageMap](tag, "empty_view_msg_mapping") {
+    def emptyViewId = column[Int]("empty_view_id")
+    def from = column[String]("from")
+    def to = column[String]("to")
+
+    def * = (emptyViewId, from, to) <> (EmptyViewMessageMap.tupled, EmptyViewMessageMap.unapply)
+
+    def pk = primaryKey(pkName, (emptyViewId, from, to))
+    def idx = index(s"${tableName}_idx_view_mapping_id", emptyViewId)
+
+    def emptyView = foreignKey(fkName("empty_views"), emptyViewId, emptyViews)(_.id, NoAction, Cascade)
+  }
+
+  val emptyViewMsgMappings = TableQuery[EmptyViewMessageMaps]
+  val emptyViewSubjectMappings = TableQuery[EmptyViewSubjectMaps]
 }

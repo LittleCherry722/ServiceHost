@@ -19,8 +19,8 @@ import de.tkip.sbpm.application.miscellaneous.RoleMapper
 import de.tkip.sbpm.instrumentation.InstrumentedActor
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.persistence.query._
-import de.tkip.sbpm.repository.RepositoryPersistenceActor.{DeleteInterface, SaveInterface}
-import de.tkip.sbpm.rest.JsonProtocol._
+import de.tkip.sbpm.repository.RepositoryPersistenceActor.{InterfaceSaveResult, DeleteInterface, SaveInterface}
+import de.tkip.sbpm.rest.GraphJsonProtocol._
 import de.tkip.sbpm.verification.ModelConverter._
 import spray.http._
 import spray.httpx.SprayJsonSupport._
@@ -145,17 +145,13 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
   }
 
   private def sendDeleteInterfaceForProcessId(id: Int) = {
-    log.debug("[DELETE INTERFACE] starting to get process information")
     val processFuture = (persistenceActor ?? Processes.Read.ById(id)).mapTo[Option[Process]]
     processFuture.onSuccess {
       case processResult =>
-        log.debug("[DELETE INTERFACE] Got process Information")
         if (processResult.isDefined) {
-          log.debug("[DELETE INTERFACE] Process available")
           val interfaceId = processResult.get.interfaceId
           if (interfaceId.isDefined) {
-            log.debug("[DELETE INTERFACE] Sending delete interface request")
-            repositoryPersistenceActor ! DeleteInterface(interfaceId.get)
+            repositoryPersistenceActor !! DeleteInterface(interfaceId.get)
           }
         }
     }
@@ -191,13 +187,16 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
     val result = graphFuture.map {
       graphResult =>
         GraphHeader(
-          process.name,
-          process.interfaceId,
-          process.publishInterface,
-          Seq.empty,  // verification errors
-          graphResult,
-          process.isCase,
-          process.id)
+          name = process.name,
+          interfaceId = process.interfaceId,
+          publishInterface = process.publishInterface,
+          verificationErrors = Seq.empty,  // verification errors
+          graph = graphResult,
+          subjectMap = process.subjectMap,
+          messageMap = process.messageMap,
+          implementationIds = process.implementationIds,
+          isCase = process.isCase,
+          id = process.id)
     }
 
     onSuccess(roleFuture) {
@@ -234,7 +233,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
    * Saves the given process without its graph.
    */
   private def saveWithoutGraph(id: Option[Int], json: GraphHeader): Route = {
-    val process = Process(id, json.interfaceId, json.verificationErrors, json.publishInterface, json.name, json.isCase)
+    val process = Process(id, json.interfaceId, json.verificationErrors, json.publishInterface, json.name, json.subjectMap, json.messageMap, json.implementationIds, json.isCase)
     val future = (persistanceActor ?? Processes.Save(process)).mapTo[Option[Int]]
     val result = future.map(resultId => JsObject("id" -> resultId.getOrElse(id.getOrElse(-1)).toJson))
     complete(result)
@@ -243,55 +242,53 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
   /**
    * Saves the given process with its graph.
    */
-  private def saveWithGraph(id: Option[Int], json: GraphHeader): Route = {
-    val currentInterfaceId: Option[Int] = json.interfaceId
-    log.info(s"CURRENT INTERFACEID DEFINED: ${currentInterfaceId.isDefined}")
-    lazy val oldProcessFuture = (persistanceActor ?? Processes.Read.ById(id.getOrElse(-1))).mapTo[Option[Process]]
-
-    val graph = json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)
+  private def saveWithGraph(id: Option[Int], gHeader: GraphHeader): Route = {
+    val graph = gHeader.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)
     val verificationErrors = verifyGraph(graph).left.getOrElse(Seq.empty)
-    val interfaceIdFuture: Future[Either[Seq[String], Option[Int]]] = if (json.publishInterface) {
-      log.debug("[SAVE INTERFACE] Sending save interface request")
-      (repositoryPersistenceActor ?? SaveInterface(json)).mapTo[Either[Seq[String], Option[Int]]]
-    } else {
-      for {
-        oldProcess <- oldProcessFuture
-        interfaceId <- if (oldProcess.map { op => op.publishInterface }.isDefined && currentInterfaceId.isDefined) {
-          (repositoryPersistenceActor ?? DeleteInterface(currentInterfaceId.get)).mapTo[Either[Seq[String], Option[Int]]]
-        } else {
-          Future(Right(json.interfaceId))
+    println(s"SAVING WITH GRAPH: ${(gHeader.publishInterface, gHeader.interfaceId)}")
+    val interfaceIdFuture: Future[Either[Option[Int], Option[InterfaceSaveResult]]] = (gHeader.publishInterface, gHeader.interfaceId) match {
+      case (true, Some(iId)) => Future(Left(Some(iId)))
+      case (true, None) =>
+        val respFuture = (repositoryPersistenceActor ?? SaveInterface(gHeader)).mapTo[Either[Seq[String], Option[InterfaceSaveResult]]]
+        respFuture.map {
+          case Left(_) => Right(None)
+          case Right(r) => Right(r)
         }
-      } yield interfaceId
+      case (false, Some(iId)) =>
+        repositoryPersistenceActor !! DeleteInterface(iId)
+        Future(Left(None))
+      case (false, None) => Future(Left(None))
     }
     val resultFuture = for {
-      interfaceId <- interfaceIdFuture
-      oldProcess <- oldProcessFuture
-      oldPublishFlag = oldProcess.fold(false)(_.publishInterface)
-      publishFlag = if (interfaceId.isLeft) { oldPublishFlag } else { json.publishInterface }
-      process = Process(id, interfaceId.right.toOption.flatten, verificationErrors, publishFlag, json.name, json.isCase)
-      (processId, graphId) <- (persistanceActor ?? Processes.Save.WithGraph(process, graph)).mapTo[(Option[Int], Option[Int])]
-      result = JsObject("id" -> processId.getOrElse(id.getOrElse(-1)).toJson, "graphId" -> graphId.toJson)
-      roles <- (persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]]
-      savedProcess = interfaceId.right.map { _ =>
-        GraphHeader(
-          name = process.name,
-          interfaceId = process.interfaceId,
-          verificationErrors = verificationErrors,
-          publishInterface = process.publishInterface,
-          graph = Some(graph.copy(id = graphId, processId = processId)),
-          isCase = process.isCase,
-          id = processId)
+      interfaceSaveResult <- interfaceIdFuture
+      (publishFlag, interfaceId) = interfaceSaveResult match {
+        case Left(None) => (false, None)
+        case Right(None) => (true, None)
+        case Left(Some(iId)) => (true, Some(iId))
+        case Right(Some(isr)) => (true, Some(isr.id))
       }
+      process = Process(id, interfaceId, verificationErrors, publishFlag, gHeader.name, gHeader.subjectMap, gHeader.messageMap, gHeader.implementationIds, gHeader.isCase)
+      (processId, graphId) <- (persistanceActor ?? Processes.Save.WithGraph(process, graph)).mapTo[(Int, Option[Int])]
+      result = JsObject("id" -> processId.toJson, "graphId" -> graphId.toJson)
+      roles <- (persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]]
+      savedProcess = GraphHeader(
+        name = process.name,
+        interfaceId = process.interfaceId,
+        verificationErrors = verificationErrors,
+        publishInterface = process.publishInterface,
+        graph = Some(graph.copy(id = graphId, processId = Some(processId))),
+        subjectMap = process.subjectMap,
+        messageMap = process.messageMap,
+        implementationIds = process.implementationIds,
+        isCase = process.isCase,
+        id = Some(processId))
     } yield (savedProcess, roles)
     onSuccess(resultFuture) { res =>
-      val (eGraphHeader, roles) = res
+      val (graphHeader, roles) = res
       // implicit value for marshalling
       val roleMap = roles.map(r => (r.name, r)).toMap
       implicit val roleMapper: RoleMapper = RoleMapper.createRoleMapper(roleMap)
-      eGraphHeader match {
-        case Right(gh) => complete(gh)
-        case Left(errors) => complete(StatusCodes.InternalServerError, errors)
-      }
+      complete(graphHeader)
     }
   }
 

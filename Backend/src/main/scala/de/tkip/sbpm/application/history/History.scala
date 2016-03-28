@@ -14,10 +14,14 @@
 package de.tkip.sbpm.application.history
 
 import java.util.Date
+
 import akka.actor.ActorRef
+
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.Buffer
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+
+import scala.collection.mutable
 
 // represents an entry in the history (a state transition inside a subject)
 //case class Entry(timestamp: Date, // time transition occurred
@@ -28,8 +32,8 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 // describes properties of a state
 //case class State(name: String, stateType: String)
 // message exchanged in a state transition
-case class Message(id: Int,
-                   messageType: String,
+case class Message(messageID: MessageID,
+                   messageName: MessageName,
                    from: String, // sender subject of message
                    to: String, // receiver subject of message
                    data: String, // link to msg payload
@@ -48,7 +52,7 @@ case class MessagePayloadLink(actor: ActorRef, payloadId: String)
 //New History Structure
 
 case class NewHistory(
-  entries: Buffer[NewHistoryEntry] = ArrayBuffer[NewHistoryEntry]()
+  entries: mutable.Buffer[NewHistoryEntry] = ArrayBuffer[NewHistoryEntry]()
 )
 case class NewHistoryEntry(
     timeStamp: Date,
@@ -61,6 +65,6 @@ case class NewHistoryEntry(
 
 case class NewHistoryProcessData(processName: String, processInstanceId: ProcessInstanceID, processInstanceName: String)
 case class NewHistoryState(text: String, stateType: String)
-case class NewHistoryMessage(messageId: MessageID, fromSubject: SubjectName, toSubject: SubjectName, messageType: MessageType, text: MessageContent)
+case class NewHistoryMessage(messageID: MessageID, fromSubject: SubjectName, toSubject: SubjectName, messageName: MessageName, text: String)
 case class NewHistoryTransitionData(fromState: NewHistoryState, text: String, transitionType: String, toState: NewHistoryState, message: Option[NewHistoryMessage])
 case class GetHistorySince(timeStamp: Long)

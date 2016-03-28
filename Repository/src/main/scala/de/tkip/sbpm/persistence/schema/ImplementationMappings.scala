@@ -30,19 +30,31 @@ object ImplementationMappingsSchema extends Schema {
 
   // represents schema if the "processes" table in the database
   // using slick's lifted embedding API
-  class ImplementationMappings(tag: Tag) extends SchemaTable[ImplementationMapping](tag, "impl_mappings") {
-    def mappingType = column[String]("mapping_type")
+  class ImplementationSubjectMappings(tag: Tag) extends SchemaTable[ImplementationSubjectMapping](tag, "impl_subject_mappings") {
     def implementationId = column[Int]("implementation_id")
     def from = column[String]("from")
     def to = column[String]("to")
 
-    def * = (mappingType, implementationId, from, to) <> (ImplementationMapping.tupled, ImplementationMapping.unapply)
+    def * = (implementationId, from, to) <> (ImplementationSubjectMapping.tupled, ImplementationSubjectMapping.unapply)
 
-    def pk = primaryKey(pkName, (mappingType, implementationId, from, to))
-    def idx = index(s"${tableName}_idx_implementation_id", (implementationId, mappingType))
+    def pk = primaryKey(pkName, (implementationId, from, to))
+    def idx = index(s"${tableName}_idx_implementation_id", implementationId)
+
+    def implementation = foreignKey(fkName("implementation"), implementationId, emptyViews)(_.id, NoAction, Cascade)
+  }
+  class ImplementationMessageMappings(tag: Tag) extends SchemaTable[ImplementationMessageMapping](tag, "impl_message_mappings") {
+    def implementationId = column[Int]("implementation_id")
+    def from = column[String]("from")
+    def to = column[String]("to")
+
+    def * = (implementationId, from, to) <> (ImplementationMessageMapping.tupled, ImplementationMessageMapping.unapply)
+
+    def pk = primaryKey(pkName, (implementationId, from, to))
+    def idx = index(s"${tableName}_idx_implementation_id", implementationId)
 
     def implementation = foreignKey(fkName("implementation"), implementationId, emptyViews)(_.id, NoAction, Cascade)
   }
 
-  val implementationMappings = TableQuery[ImplementationMappings]
+  val implementationSubjectMappings = TableQuery[ImplementationSubjectMappings]
+  val implementationMessageMappings = TableQuery[ImplementationMessageMappings]
 }

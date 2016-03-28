@@ -13,9 +13,9 @@
 
 package de.tkip.sbpm.model
 
-import de.tkip.sbpm.application.ProcessInstanceActor.AgentAddress
 import de.tkip.sbpm.application.history._
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.UserID
+import de.tkip.sbpm.application.subject.misc.AgentAddress
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.{MessageID, UserID}
 import de.tkip.sbpm.application.subject.misc.{ActionData, AvailableAction}
 import de.tkip.sbpm.newmodel.ProcessModelTypes.SubjectId
 import de.tkip.sbpm.anonymization.Anonymizer.createView
@@ -51,11 +51,15 @@ case class Process(id: Option[Int],
                    verificationErrors: Seq[String],
                    publishInterface: Boolean,
                    name: String,
+                   subjectMap: Map[Int, Map[String, String]], // Map from viewId to a map of SubjectId from/to mapping
+                   messageMap: Map[Int, Map[String, String]], // Map from viewId to a map of Message id from/to mapping
+                   implementationIds: Seq[Int],
                    isCase: Boolean = false,
                    startAble: Option[Boolean] = None,
-                   activeGraphId: Option[Int] = None)
+                   activeGraphId: Option[Int] = None
+                  )
 
-case class Message(id: Option[Int], fromUser: UserID, toUser: UserID, title: String, isRead: Boolean, content: String, date: java.sql.Timestamp)
+case class UserToUserMessage(id: Option[Int], fromUser: UserID, toUser: UserID, title: String, isRead: Boolean, content: String, date: java.sql.Timestamp)
 
 object SubjectType {
   val ExternalSubjectType = "external"
@@ -114,7 +118,7 @@ case class ProcessInstanceDelete(id: Int, date: java.util.Date) extends ProcessI
 
 trait MessageChangeData extends ChangeData
 
-case class MessageChange(message: Message, info: String, date: java.util.Date) extends MessageChangeData
+case class MessageChange(message: UserToUserMessage, info: String, date: java.util.Date) extends MessageChangeData
 
 case class ProcessRelatedChangeData(id: Int,
                                     interfaceId: Option[Int],
@@ -191,11 +195,15 @@ case class Interface(// TODO: interfaceType
                      name: String,
                      graph: Graph)
 
-case class InterfaceImplementation(processId: Int,
-                                   address: AgentAddress,
-                                   subjectId: String)
+case class InterfaceImplementation(viewId: Int,
+                                   dependsOnInterface: Option[Int],
+                                   ownAddress: AgentAddress,
+                                   ownProcessId: Int,
+                                   ownSubjectId: String)
 
-case class View(mainSubjectId: SubjectId,
+case class View(id: Option[Int],
+                mainSubjectId: SubjectId,
+                implementations: Seq[InterfaceImplementation],
                 graph: Graph)
 
 case class Graph(id: Option[Int],
@@ -227,13 +235,16 @@ case class Graph(id: Option[Int],
 
   lazy val views: Either[Seq[String], Map[SubjectId, View]] = {
     verifyGraph(this).right.flatMap { vg =>
-      val errorsOrViews: Seq[Either[String, (SubjectId, View)]] = subjects.values.map { s =>
+      val viewSubjects =  subjects.values.filterNot{s => s.isExternalView || s.subjectType == SubjectType.SingleSubjectType}
+      val errorsOrViews: Seq[Either[String, (SubjectId, View)]] = viewSubjects.map { s =>
         createView(s.id, vg).right.map { v => (s.id, v) }
       }.toSeq
       val errors: Seq[String] = errorsOrViews.flatMap{eov => eov.left.toOption}
       val views: Map[SubjectId, View] = errorsOrViews.flatMap{eov => eov.right.toOption}.toMap
       if (errors.nonEmpty) {
         Left(errors)
+      } else if(views.isEmpty) {
+        Left(Seq("No views available for Graph"))
       } else {
         Right(views)
       }
@@ -300,13 +311,11 @@ case class GraphSubject(id: String,
                         isStartSubject: Option[Boolean],
                         inputPool: Short,
                         blackboxname: Option[String],
-                        relatedSubjectId: Option[String],
-                        relatedInterfaceId: Option[Int],
-                        isImplementation: Option[Boolean],
+                        implementsViews: Option[List[Int]],
+                        viewId: Option[Int],
+                        isExternalView: Boolean,
                         externalType: Option[String],
                         role: Option[Role],
-                        url: Option[String],
-                        implementations: Option[List[InterfaceImplementation]],
                         comment: Option[String],
                         variables: Map[String, GraphVariable],
                         macros: Map[String, GraphMacro]) extends Ordered[GraphSubject] {

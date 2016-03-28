@@ -16,27 +16,17 @@ package de.tkip.sbpm.application.subject.behavior.state
 import scala.Array.canBuildFrom
 import scala.collection.mutable.ArrayBuffer
 import akka.actor.actorRef2Scala
-import de.tkip.sbpm.application.history.{ Message => HistoryMessage }
+import de.tkip.sbpm.application.history.{Message => HistoryMessage}
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes.exitCondLabel
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageContent
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageID
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageType
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.StateID
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.SubjectID
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 import de.tkip.sbpm.application.subject.behavior.InputPoolSubscriptionPerformed
 import de.tkip.sbpm.application.subject.behavior.SubscribeIncomingMessages
 import de.tkip.sbpm.application.subject.behavior.Transition
 import de.tkip.sbpm.application.subject.behavior.UnSubscribeIncomingMessages
 import de.tkip.sbpm.application.subject.behavior.Variable
-import de.tkip.sbpm.application.subject.misc.ActionData
-import de.tkip.sbpm.application.subject.misc.ActionExecuted
-import de.tkip.sbpm.application.subject.misc.ExecuteAction
-import de.tkip.sbpm.application.subject.misc.MessageData
-import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
+import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.rest.google.GDriveControl.GDriveFileInfo
-import de.tkip.sbpm.application.subject.misc.DisableNonObserverStates
-import de.tkip.sbpm.application.subject.misc.KillNonObserverStates
 import de.tkip.sbpm.application.subject.behavior.InputPoolMessagesChanged
 import de.tkip.sbpm.application.subject.behavior.DeleteInputPoolMessages
 import de.tkip.sbpm.model.ChangeDataMode._
@@ -46,10 +36,10 @@ case class ReceiveStateActor(data: StateData)
 
   // convert the transitions into a map of extended transitions, to work with
   // this map in the whole actor
-  private val exitTransitionsMap: Map[(SubjectID, MessageType), ExtendedExitTransition] =
+  private val exitTransitionsMap: Map[(SubjectID, MessageName), ExtendedExitTransition] =
     exitTransitions.map((t: Transition) =>
-      ((t.subjectID, t.messageType), new ExtendedExitTransition(t)))
-      .toMap[(SubjectID, MessageType), ExtendedExitTransition]
+      ((t.subjectID, t.messageName), new ExtendedExitTransition(t)))
+      .toMap[(SubjectID, MessageName), ExtendedExitTransition]
 
   log.debug("exitTransitionsMap: " + exitTransitionsMap.mkString(","))
 
@@ -57,61 +47,55 @@ case class ReceiveStateActor(data: StateData)
 
   val msg = {
     // convert the transition array into the request array
-    for (transition <- exitTransitions if (transition.target.isDefined)) yield {
+    for (transition <- exitTransitions if transition.target.isDefined) yield {
       // the register-message for the inputpool
-      SubscribeIncomingMessages(id, transition.subjectID, transition.messageType)
+      SubscribeIncomingMessages(id, transition.subjectID, transition.messageName)
     }
   }
   inputPoolActor ! msg
 
   protected def stateReceive = {
     // execute an action
-    case action: ExecuteAction if ({
+    case action: ExecuteAction if {
       // check if the related subject exists
       val input = action.actionData
       input.relatedSubject.isDefined && {
         val from = input.relatedSubject.get
-        val messageType = input.text
+        val messageName = MessageName(input.text)
         // check if the related transition exists
-        exitTransitionsMap.contains((from, messageType)) &&
+        exitTransitionsMap.contains((from, messageName)) &&
           // only execute transitions, which are ready to execute
-          exitTransitionsMap((from, messageType)).ready
+          exitTransitionsMap((from, messageName)).ready
       }
-    }) => {
+    } =>
       val input = action.actionData
       // get the transition from the map
-      val transition = exitTransitionsMap((input.relatedSubject.get, input.text))
-
+      val transition = exitTransitionsMap((input.relatedSubject.get, MessageName(input.text)))
       // create the Historymessage
       val message =
-        HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, transition.messageContent.get)
-
+        HistoryMessage(transition.messageID, transition.messageName, transition.from, subjectID, transition.messageContent.get.toString)
       // TODO check if possible
-      val msg = DeleteInputPoolMessages(transition.from, transition.messageType, transition.receiveMessages)
+      val msg = DeleteInputPoolMessages(transition.from, transition.messageName, transition.receiveMessages)
       inputPoolActor ! msg
-
       // change the state and enter the history entry
       changeState(transition.successorID, data, message)
-
       // inform the processinstance, that this action is executed
       blockingHandlerActor ! ActionExecuted(action)
-    }
 
-    case InputPoolMessagesChanged(fromSubject, messageType, messages) if (exitTransitionsMap.contains((fromSubject, messageType))) => {
-
+    case InputPoolMessagesChanged(fromSubject, messageType, messages) if exitTransitionsMap.contains((fromSubject, messageType)) => {
       log.debug("Receive@" + userID + "/" + subjectID + ": " +
-        messages.size + ". Messages \"" +
+        messages.length + ". Messages \"" +
         messageType + "\" from \"" + fromSubject +
         "\" with content \"" + messages.map(_.messageContent).mkString("[", ", ", "]") + "\"")
 
       exitTransitionsMap(fromSubject, messageType).setMessages(messages)
 
       val t = exitTransitionsMap(fromSubject, messageType).transition
-      val varID = t.storeVar
-      if (t.storeToVar && varID.isDefined) {
-        // FIXME variablen in dem context
-        //        variables.getOrElseUpdate(varID.get, Variable(varID.get)).addMessage(sm)
-        //        System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
+      t.storeVar match {
+        case Some(varId) => if (varId != "") {
+          val variable = variables.getOrElseUpdate(varId, Variable(varId))
+          messages.foreach(variable.addMessage)
+        }
       }
 
       //      val ack = SubjectToSubjectMessageReceived(sm)
@@ -138,27 +122,27 @@ case class ReceiveStateActor(data: StateData)
               p = et.priority
               tr1 = et
             }
-            if (messageType.equals(et.messageType)) {
+            if (messageType.equals(et.messageName)) {
               tr2 = et
               count += 1
             }
           }
           //Check if there is a highest priority
           if (p > t) {
-            transition = exitTransitionsMap(tr1.subjectID, tr1.messageType)
+            transition = exitTransitionsMap(tr1.subjectID, tr1.messageName)
             isAutoReceive = true
             //Check if there is a matched message type
           } else if (count == 1) {
-            transition = exitTransitionsMap(tr2.subjectID, tr2.messageType)
+            transition = exitTransitionsMap(tr2.subjectID, tr2.messageName)
             isAutoReceive = true
           }
         }
         if (isAutoReceive) {
           val message =
-            HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, transition.messageContent.get)
+            HistoryMessage(transition.messageID, transition.messageName, transition.from, subjectID, transition.messageContent.get.toString)
 
           // TODO check if possible
-          val msg = DeleteInputPoolMessages(transition.from, transition.messageType, transition.receiveMessages)
+          val msg = DeleteInputPoolMessages(transition.from, transition.messageName, transition.receiveMessages)
           inputPoolActor ! msg
 
           // change the state and enter the history entry
@@ -190,16 +174,14 @@ case class ReceiveStateActor(data: StateData)
     //      tryDisableNonObserverStates()
     //    }
 
-    case InputPoolSubscriptionPerformed => {
+    case InputPoolSubscriptionPerformed =>
       // This state has all inputpool information -> unblock the user
       blockingHandlerActor ! UnBlockUser(userID)
-    }
 
-    case KillState => {
+    case KillState =>
       // inform the inputpool, that this state is not waiting for messages anymore
       inputPoolActor ! UnSubscribeIncomingMessages(id)
       suicide()
-    }
   }
 
   override protected def delayUnblockAtStart = true
@@ -223,7 +205,7 @@ case class ReceiveStateActor(data: StateData)
 
   override protected def executeTimeout() {
     val exitTransition =
-      exitTransitionsMap.map(_._2).filter(_.ready).map(_.transition)
+      exitTransitionsMap.values.filter(_.ready).map(_.transition)
         .reduceOption((t1, t2) => if (t1.priority < t2.priority) t1 else t2)
 
     // if this is an observer state disable the other states,
@@ -241,11 +223,11 @@ case class ReceiveStateActor(data: StateData)
   override protected def getAvailableAction: Array[ActionData] =
     (for ((k, t) <- exitTransitionsMap) yield {
       ActionData(
-        t.messageType,
+        t.messageName.name,
         t.ready,
         exitCondLabel,
         relatedSubject = Some(t.from),
-        messageContent = t.messageContent, // TODO delete
+        messageContent = t.messageContent.map(_.toString), // TODO delete
         messages = Some(t.messages))
     }).toArray
 
@@ -266,7 +248,7 @@ case class ReceiveStateActor(data: StateData)
    */
   private class ExtendedExitTransition(val transition: Transition) {
     val from: SubjectID = transition.subjectID
-    val messageType: MessageType = transition.messageType
+    val messageName: MessageName = transition.messageName
     val successorID: StateID = transition.successorID
 
     var ready = false
@@ -280,8 +262,7 @@ case class ReceiveStateActor(data: StateData)
 
     def receiveMessages: Array[MessageID] = {
       // TODO Transition max valie
-      if (ready) messages.take(Math.min(1, messages.size)).map(_.messageID)
-
+      if (ready) messages.take(Math.min(1, messages.length)).map(_.messageID)
       else Array()
     }
 
@@ -301,7 +282,7 @@ case class ReceiveStateActor(data: StateData)
 
     private def addMessage(message: SubjectToSubjectMessage) {
       // validate
-      if (!(message.messageType == messageType && message.from == from)) {
+      if (!(message.messageName == messageName && message.from == from)) {
         log.error("Transportmessage is invalid to transition: " + message +
           ", " + this)
         return
@@ -315,9 +296,9 @@ case class ReceiveStateActor(data: StateData)
       messageContent = Some(message.messageContent)
       val (title, url, iconLink) = message.fileInfo match {
         case Some(GDriveFileInfo(title, url, iconLink)) => (Some(title), Some(url), Some(iconLink))
-        case None                                       => (None, None, None)
+        case None => (None, None, None)
       }
-      messageData += MessageData(message.messageID, message.userID, message.messageContent, title, url, iconLink)
+      messageData += MessageData(message.messageID, message.userID, message.messageContent.toString, title, url, iconLink)
     }
   }
 }

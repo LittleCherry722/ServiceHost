@@ -243,16 +243,11 @@
                  data-bind="click: $parent.selectBusinessInterface,
                             css: { active: $parent.selectedInterfaceId() == $data.id() }">
                 <strong data-bind="text: name"></strong>
-                <em data-bind="text: creator"></em>
             </div>
         </div>
         <div class="interface-preview pull-left" data-bind="visible: selectedInterface">
             <h4>Interface Name</h4>
             <p data-bind="text: selectedInterfaceName"></p>
-            <h4>Author</h4>
-            <p data-bind="text: selectedInterfaceCreator"></p>
-            <!-- <h4>Description</h4> -->
-            <!-- <p data-bind="text: selectedInterfaceDescription"></p> -->
             <h4>Available Interfaces</h4>
             <div data-bind="foreach: selectedInterfaceImplSubjects">
                 <p>
@@ -270,9 +265,6 @@
                 <option value="new" disabled>New Process</option>
                 <option value="insert" selected>Insert in current Process</option>
             </select>
-            <!-- <h4>Preview</h4> -->
-            <!-- <img src="/sbpm/images/internal.png" heigh="400" width="400" -->
-            <!--      data-bind="visible: selectedInterface" /> -->
         </div>
     </div>
     <div class="modal-footer">

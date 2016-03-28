@@ -24,7 +24,7 @@ class ProcessMarshallingTest extends FunSuite {
 
     assert(closeIPState.stateType === StateType.CloseIPStateType)
 
-    assert(options.messageType === Some("m0"))
+    assert(options.messageName === Some("m0"))
     assert(options.subjectId === Some("Subj1"))
     assert(options.correlationId === Some(""))
     assert(options.conversation === Some(""))
@@ -40,7 +40,7 @@ class ProcessMarshallingTest extends FunSuite {
 
     assert(openIPState.stateType === StateType.OpenIPStateType)
 
-    assert(options.messageType === Some(AllMessages))
+    assert(options.messageName === Some(AllMessages))
     assert(options.subjectId === Some(AllSubjects))
     assert(options.correlationId === Some("##cid##"))
     assert(options.conversation === Some("c1"))
@@ -56,7 +56,7 @@ class ProcessMarshallingTest extends FunSuite {
 
     assert(actState.stateType === StateType.ActStateType)
 
-    assert(options.messageType === None)
+    assert(options.messageName === None)
     assert(options.subjectId === None)
     assert(options.correlationId === Some(""))
     assert(options.conversation === Some(""))

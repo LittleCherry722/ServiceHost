@@ -80,47 +80,40 @@ class InternalBehaviorActor(
   private var startState: StateID = _
   //  private var currentState: BehaviorStateRef = null
   private var internalStatus: InternalStatus = InternalStatus()
-  private var modalSplitList: Stack[(Int, Int)] = new Stack // tmp
+  private var modalSplitList: mutable.Stack[(Int, Int)] = new mutable.Stack // tmp
 
   def wrappedReceive = {
-    case state: State => {
+    case state: State =>
       addStateToModel(state)
-    }
 
-    case StartMacroExecution => {
+    case StartMacroExecution =>
       addState(startState)
-    }
 
-    case DisableNonObserverStates => {
+    case DisableNonObserverStates =>
       for (
-        (id, state) <- currentStatesMap;
-        if (!statesMap(id).observerState)
+        (id, state) <- currentStatesMap
+        if !statesMap(id).observerState
       ) {
         state ! DisableState
       }
 
-    }
-    case KillNonObserverStates => {
+    case KillNonObserverStates =>
       // TODO kill other macros!
       for (
-        state <- currentStatesMap.map(_._1);
-        if (!statesMap(state).observerState)
-      ) {
+        state <- currentStatesMap.keys
+        if !statesMap(state).observerState) {
         killState(state)
       }
-    }
 
-    case ActivateState(id) => {
+    case ActivateState(id) =>
       addState(id)
-    }
 
-    case DeactivateState(id) => {
+    case DeactivateState(id) =>
       // TODO this will cause an error, because receive states still will
       // subscribe the inputpool messages
       killState(id)
-    }
 
-    case change: ChangeState => {
+    case change: ChangeState =>
       // update the internal status
       internalStatus = change.internalStatus
       modalSplitList = change.prevStateData.visitedModalSplit
@@ -134,106 +127,91 @@ class InternalBehaviorActor(
         currentStatesMap(change.nextState) ! msg
       }
       // create the History Entry and send it to the subject
-        val msg = current.stateType.toString() match {
+        val msg = current.stateType.toString match {
           case "$splitguard" =>
             NewHistoryTransitionData(
-              NewHistoryState(current.text, current.stateType.toString()),
+              NewHistoryState(current.text, current.stateType.toString),
               "nein", "nein",
-              NewHistoryState(next.text, next.stateType.toString()),
+              NewHistoryState(next.text, next.stateType.toString),
               if (change.history != null) Some(NewHistoryMessage(
-                change.history.id,
+                change.history.messageID,
                 change.history.from,
                 change.history.to,
-                change.history.messageType,
+                change.history.messageName,
                 change.history.data))
               else None)
-          case _ => 
+          case _ =>
             NewHistoryTransitionData(
-              NewHistoryState(current.text, current.stateType.toString()),
-              current.transitions.filter(_.successorID == next.id)(0).messageType.toString(),
-              current.transitions.filter(_.successorID == next.id)(0).myType.getClass().getSimpleName(),
-              NewHistoryState(next.text, next.stateType.toString()),
+              NewHistoryState(current.text, current.stateType.toString),
+              current.transitions.filter(_.successorID == next.id)(0).messageName.name,
+              current.transitions.filter(_.successorID == next.id)(0).myType.getClass.getSimpleName,
+              NewHistoryState(next.text, next.stateType.toString),
               if (change.history != null) Some(NewHistoryMessage(
-                change.history.id,
+                change.history.messageID,
                 change.history.from,
                 change.history.to,
-                change.history.messageType,
+                change.history.messageName,
                 change.history.data))
-              else None)    
+              else None)
         }
       context.parent ! msg
-    }
 
-    case ea: ExecuteAction => {
+    case ea: ExecuteAction =>
       currentStatesMap(ea.stateID).forward(ea)
-    }
 
-    case terminated: MacroTerminated => {
+    case terminated: MacroTerminated =>
       if (macroStartState.isDefined) {
         data.blockingHandlerActor ! BlockUser(userID)
         macroStartState.get ! terminated
       }
       context.parent ! terminated
-    }
 
-    case m: CallMacro => {
+    case m: CallMacro =>
       context.parent ! m
-    }
 
-    case m: CallMacroStates => {
+    case m: CallMacroStates =>
       context.parent ! m
-    }
 
-    case m: RegisterSubjects => {
+    case m: RegisterSubjects =>
       context.parent forward m
-    }
 
-    case getActions: GetAvailableAction => {
+    case getActions: GetAvailableAction =>
       // Create a Future with the available actions
       val actionFutures =
         Future.sequence(
-          for ((_, c) <- currentStatesMap if (!c.isTerminated)) yield (c ?? getActions).mapTo[AvailableAction])
+          for ((_, c) <- currentStatesMap if !c.isTerminated) yield (c ?? getActions).mapTo[AvailableAction])
       // and pipe the actions back to the sender
       actionFutures pipeTo sender
-    }
 
     // general matching
-    case message: SubjectProviderMessage => {
+    case message: SubjectProviderMessage =>
       context.parent ! message
-    }
-    case av: AddVariable => {
 
-      if (!internalStatus.variables.contains(av.variableName)) {
-        internalStatus.variables.put(av.variableName, new Variable(av.variableName))
-      }
-      internalStatus.variables(av.variableName).addMessage(av.message)
+    case AddVariable(variableName, message) =>
+      internalStatus.variables.getOrElseUpdate(variableName, new Variable(variableName)).addMessage(message)
 
-    }
-
-    case joinstate: AskForJoinStateID => {
+    case joinstate: AskForJoinStateID =>
       val stateBuffer = ArrayBuffer[Int]()
       val visited = ArrayBuffer[Int]()
       var notFind = true
       var current = joinstate.id
       stateBuffer += current
-      while (!stateBuffer.isEmpty && notFind) {
+      while (stateBuffer.nonEmpty && notFind) {
         for (t <- statesMap(current).transitions; if !visited.contains(t.successorID)) {
           visited += t.successorID
           stateBuffer += t.successorID
-          if (statesMap(t.successorID).stateType.toString().equals("modaljoin")) {
+          if (statesMap(t.successorID).stateType.toString.equals("modaljoin")) {
             sender ! statesMap(t.successorID).id
             notFind = true
           }
         }
         stateBuffer -= current
-        if(!stateBuffer.isEmpty) current = stateBuffer.head
+        if(stateBuffer.nonEmpty) current = stateBuffer.head
       }
       sender ! -1
-    }
 
-    case n => {
+    case n =>
       log.error("InternalBehavior - Not yet supported: " + n + " " + subjectID)
-    }
   }
 
   /**
@@ -310,72 +288,59 @@ class InternalBehaviorActor(
 
     // create the actor which matches to the statetype
     state.stateType match {
-      case ActStateType => {
+      case ActStateType =>
         context.actorOf(Props(new ActStateActor(stateData)), "ActStateActor____" + UUID.randomUUID().toString)
-      }
 
-      case SendStateType => {
+      case SendStateType =>
         context.actorOf(Props(new SendStateActor(stateData)), "SendStateActor____" + UUID.randomUUID().toString)
-      }
 
-      case ReceiveStateType => {
+      case ReceiveStateType =>
         context.actorOf(Props(new ReceiveStateActor(stateData)), "ReceiveStateActor____" + UUID.randomUUID().toString)
-      }
 
       case EndStateType =>
         context.actorOf(Props(new EndStateActor(stateData)), "EndStateActor____" + UUID.randomUUID().toString)
 
-      case CloseIPStateType => {
+      case CloseIPStateType =>
         context.actorOf(Props(new CloseIPStateActor(stateData)), "CloseIPStateActor____" + UUID.randomUUID().toString)
-      }
 
-      case OpenIPStateType => {
+      case OpenIPStateType =>
         context.actorOf(Props(new OpenIPStateActor(stateData)), "OpenIPStateActor____" + UUID.randomUUID().toString)
-      }
 
-      case IsIPEmptyStateType => {
+      case IsIPEmptyStateType =>
         context.actorOf(Props(new IsIPEmptyStateActor(stateData)), "IsIPEmptyStateActor____" + UUID.randomUUID().toString)
-      }
 
-      case ModalSplitStateType => {
+      case ModalSplitStateType =>
         context.actorOf(Props(new ModalSplitStateActor(stateData)), "ModalSplitStateActor____" + UUID.randomUUID().toString)
-      }
 
-      case ModalJoinStateType => {
+      case ModalJoinStateType =>
         context.actorOf(Props(new ModalJoinStateActor(stateData)), "ModalJoinStateActor____" + UUID.randomUUID().toString)
-      }
 
-      case SplitGuardStateType => {
+      case SplitGuardStateType =>
         context.actorOf(Props(new SplitGuardStateActor(stateData)), "SplitGuardStateActor____" + UUID.randomUUID().toString)
-      }
 
-      case MacroStateType => {
+      case MacroStateType =>
         context.actorOf(Props(new MacroStateActor(stateData)), "MacroStateActor____" + UUID.randomUUID().toString)
-      }
 
-      case ActivateStateType => {
+      case ActivateStateType =>
         context.actorOf(Props(new ActivateStateActor(stateData)), "ActivateStateActor____" + UUID.randomUUID().toString)
-      }
 
-      case DeactivateStateType => {
+      case DeactivateStateType =>
         context.actorOf(Props(new DeactivateStateActor(stateData)), "DeactivateStateActor____" + UUID.randomUUID().toString)
-      }
 
-      case ArchiveStateType => {
+      case ArchiveStateType =>
         context.actorOf(Props(new ArchiveStateActor(stateData)), "ArchiveStateActor____" + UUID.randomUUID().toString)
-      }
 
-      case ChooseAgentStateType => {
+      case ChooseAgentStateType =>
         context.actorOf(Props(new ChooseAgentStateActor(stateData)), "ChooseAgentStateActor____" + UUID.randomUUID().toString)
-      }
 
-      case DecisionStateType => {
+      case DecisionStateType =>
         context.actorOf(Props(new DecisionStateActor(stateData)), "DecisionStateActor____" + UUID.randomUUID().toString)
-      }
 
-      case BlackboxStateType => {
-        context.actorOf(Props(new BlackboxStateActor(stateData)), "BlackboxStateActor____" + UUID.randomUUID().toString())
-      }
+      case BlackboxStateType =>
+        context.actorOf(Props(new BlackboxStateActor(stateData)), "BlackboxStateActor____" + UUID.randomUUID().toString)
+
+      case VariableManipulationType =>
+        context.actorOf(Props(new VariableManipulationStateActor(stateData)), "VariableManipulationStateActor____" + UUID.randomUUID().toString)
     }
   }
 }

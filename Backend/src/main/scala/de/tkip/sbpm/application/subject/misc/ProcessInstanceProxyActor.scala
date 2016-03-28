@@ -23,36 +23,35 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
 
   private case class RandomUsersLoaded(message: SubjectToSubjectMessage, from: ActorRef, userIds: Array[UserID])
 
+  /* TODO: Describe the message flow
+   *
+   */
   def wrappedReceive = {
-    case message: SubjectToSubjectMessage => {
+    case message: SubjectToSubjectMessage =>
       log.debug("got {} from {}", message, sender)
-      val localizedMessage = message.copy(target = message.target.copy(toExternal = false))
+      val localizedMessage = message.copy(target = message.target.copy(toExternal = false, variable = None))
       log.debug("localized message: {}", localizedMessage)
       if (message.target.toUnknownUsers) {
         loadRandomUsers(localizedMessage)
       } else {
         log.debug("Just forwarding message {} to {}", localizedMessage, context.parent)
-        context.parent forward localizedMessage
+        context.parent.forward(localizedMessage)
       }
-    }
 
-    case RandomUsersLoaded(message, from, userIds) => {
+    case RandomUsersLoaded(message, from, userIds) =>
       log.debug("random users: {}", userIds.mkString(","))
       val selectedUsers = selectRandomUsers(message, userIds)
       log.debug("selected users: {}", userIds.mkString(","))
       message.target.insertTargetUsers(selectedUsers)
       context.parent.tell(message, from)
-    }
 
-    case message => {
-      context.parent forward message
-    }
+    case message => context.parent.forward(message)
   }
 
   private def loadRandomUsers(message: SubjectToSubjectMessage) {
     log.debug("load random users...")
 
-    val request = RequestUserID(SubjectInformation(processId, id, message.to), userIds => userIds)
+    val request = RequestUserID(SubjectInformation(processId, id, message.to), identity)
     val result = (contextResolver ?? request).mapTo[Array[UserID]]
     val from = context.sender
     result.map(userIds => RandomUsersLoaded(message, from, userIds)) pipeTo self

@@ -15,13 +15,9 @@ package de.tkip.sbpm.application.subject.behavior.state
 
 import scala.Array.canBuildFrom
 import de.tkip.sbpm.instrumentation.InstrumentedActor
-import akka.actor.Actor
 import akka.actor.ActorRef
-import akka.actor.FSM
-import akka.actor.Props
 import akka.actor.Status.Failure
 import akka.actor.actorRef2Scala
-import akka.event.Logging
 import de.tkip.sbpm.application.history.{ Message => HistoryMessage }
 import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
 import de.tkip.sbpm.application.miscellaneous.BlockUser
@@ -31,24 +27,19 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.ProcessInstanceR
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.StateID
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.SubjectID
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.UserID
-import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 import de.tkip.sbpm.application.subject.SubjectData
 import de.tkip.sbpm.application.subject.behavior.ChangeState
 import de.tkip.sbpm.application.subject.behavior.InternalStatus
 import de.tkip.sbpm.application.subject.behavior.TimeoutCond
 import de.tkip.sbpm.application.subject.misc.ActionData
-import de.tkip.sbpm.application.subject.misc.ActionExecuted
-import de.tkip.sbpm.application.subject.misc.AvailableAction
 import de.tkip.sbpm.application.subject.misc.ExecuteAction
 import de.tkip.sbpm.application.subject.misc.GetAvailableAction
 import de.tkip.sbpm.model.State
-import de.tkip.sbpm.model.StateType.SendStateType
-import scala.collection.mutable.Stack
+import scala.collection.mutable
 import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import akka.actor.PoisonPill
 import de.tkip.sbpm.application.subject.misc.ActionIDProvider
-import scala.collection.mutable.ArrayBuffer
 import de.tkip.sbpm.application.subject.misc.AvailableAction
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.model.ChangeDataMode._
@@ -74,7 +65,7 @@ case class StateData(
   processInstanceActor: ProcessInstanceRef,
   inputPoolActor: ActorRef,
   internalStatus: InternalStatus,
-  visitedModalSplit: Stack[(Int, Int)] = new Stack) // (id, number of branches)
+  visitedModalSplit: mutable.Stack[(Int, Int)] = new mutable.Stack) // (id, number of branches)
 
 // the correct way to kill a state instead of PoisonPill
 private[subject] case object KillState
@@ -117,7 +108,6 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
 
     // if it is needed, send a SubjectStarted message
     if (!delayUnblockAtStart) {
-      internalStatus.subjectStartedSent = true
       // TODO so richtig?
       blockingHandlerActor ! UnBlockUser(userID)
     }
@@ -143,20 +133,18 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
   // if the state-receive does not match
   private def generalReceive: Receive = {
 
-    case DisableState => {
+    case DisableState =>
       if (!disabled) {
         disabled = true
         actionChanged()
       }
-    }
 
-    case action: ExecuteAction if disabled => {
+    case action: ExecuteAction if disabled =>
       log.error(s"Cannot execute $action, this state is disabled")
       val message = Failure(new IllegalArgumentException(
         "Invalid Argument: The state of the action is disabled."))
       val receiver = action.asInstanceOf[AnswerAbleMessage].sender
       receiver ! message
-    }
 
     // filter all invalid action
     case action: ExecuteAction if {
@@ -164,23 +152,18 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
         action.processInstanceID != processInstanceID ||
         action.subjectID != subjectID ||
         action.stateType != stateType.toString
-    } => {
-      val message = Failure(new IllegalArgumentException(
-        "Invalid Argument: The action does not match to the current state."))
+    } =>
+      val message = Failure(new IllegalArgumentException("Invalid Argument: The action does not match to the current state."))
       val receiver = action.asInstanceOf[AnswerAbleMessage].sender
       receiver ! message
-    }
 
     case ga: GetAvailableAction => sender !! createAvailableAction
 
     case TimeoutExpired => executeTimeout()
 
-    case action: ExecuteAction if {
-      action.actionData.transitionType == timeoutLabel
-    } => {
+    case action: ExecuteAction if action.actionData.transitionType == timeoutLabel =>
       executeTimeout()
       processInstanceActor ! ActionExecuted(action)
-    }
   }
 
   import de.tkip.sbpm.model.StateType._
@@ -188,26 +171,20 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
 
     case KillState => suicide()
 
-    case message: AnswerAbleMessage => {
+    case message: AnswerAbleMessage =>
       message match {
-        case action: ExecuteAction => {
+        case action: ExecuteAction =>
           stateType match {
-            case SendStateType if (!action.actionData.messageContent.isDefined) => {
+            case SendStateType if action.actionData.messageContent.isEmpty =>
               val failure = Failure(new IllegalArgumentException(
                 "Invalid Argument: messageContent not defined, a sendstate needs a MessageContent"))
               message.sender !! failure
-
-            }
           }
-
-        }
-        case _ => {
-          val failure = Failure(new Exception("Internal Server Error in " + stateType.toString()))
+        case _ =>
+          val failure = Failure(new Exception("Internal Server Error in " + stateType.toString))
           message.sender !! failure
-        }
       }
       log.error("BehaviorStateActor does not support: " + message)
-    }
 
     case s => log.error("BehaviorStateActor does not support: " + s)
   }
@@ -271,7 +248,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
   protected def createAvailableAction = {
     var actionData = getAvailableAction
     if (timeoutTransition.isDefined) {
-      actionData ++= Array(ActionData("timeout", true, timeoutLabel))
+      actionData ++= Array(ActionData(text = "timeout", executeAble = true, transitionType = timeoutLabel))
     }
     if (disabled) {
       // if disabled, disable all action
@@ -285,7 +262,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
       macroID,
       id,
       stateText,
-      stateType.toString(),
+      stateType.toString,
       actionData)
   }
 }
