@@ -49,7 +49,8 @@ case class IntermediateInterface(interfaceType: InterfaceType,
                                  port: Int,
                                  interfaceId: Option[Int],
                                  name: String,
-                                 views: Map[SubjectId, View])
+                                 views: Map[SubjectId, View],
+                                 localSubjectId: SubjectId)
 
 case class InterfaceImplementation(viewId: Int,
                                    ownAddress: Address,

@@ -1,18 +1,18 @@
 package de.tkip.sbpm.persistence.query
 
 import de.tkip.sbpm.model.JsonProtocol._
-import de.tkip.sbpm.model.{View, Address, InterfaceImplementation}
+import de.tkip.sbpm.model.{Address, InterfaceImplementation, View}
+import de.tkip.sbpm.newmodel.ProcessModelTypes.SubjectId
 import de.tkip.sbpm.persistence.DatabaseAccess._
 import de.tkip.sbpm.persistence.DatabaseAccess.driver.simple._
 import de.tkip.sbpm.persistence.mapping.DomainModelMappings.{convertGraph, convertInterface, convertView}
-import de.tkip.sbpm.persistence.mapping.{ImplementationMessageMapping, ImplementationSubjectMapping, ProcessEngineAddress}
 import de.tkip.sbpm.persistence.{mapping => D}
-import de.tkip.sbpm.verification.ModelBisimulation.{MsgMap, SubjectIdMap, checkGraphs}
+import de.tkip.sbpm.verification.ModelBisimulation.{SubjectIdMap, checkGraphs}
 import de.tkip.sbpm.{model => M}
 
 
 object InterfaceQuery {
-  case class InterfaceSaveResult(id: Int, subjectIdMap: Map[String, String], msgMap: Map[String, String])
+  case class InterfaceSaveResult(id: Int, outgoingSubjectMap: Map[String, String], incomingSubjectMap: Map[String, String])
   implicit val interfaceSaveResultFormat = jsonFormat3(InterfaceSaveResult)
 
   case class IdResult(id: Int)
@@ -20,7 +20,7 @@ object InterfaceQuery {
 
   private sealed trait GraphOrViewId
   private case class GraphId(id: Int) extends GraphOrViewId
-  private case class ViewId(id: Int, subjectIdMap: SubjectIdMap, msgMap: MsgMap) extends GraphOrViewId
+  private case class ViewId(id: Int, subjectIdMap: SubjectIdMap) extends GraphOrViewId
 
   // Done?
   def loadInterfaces(): Seq[M.Interface] = {
@@ -70,7 +70,7 @@ object InterfaceQuery {
             viewId = implementation.viewId,
             ownProcessId = implementation.processId,
             ownAddress = Address(id = None, ip = address.ip, port = address.port),
-            ownSubjectId = subjectId,
+            ownSubjectId = implementation.ownSubjectId,
             dependsOnInterface = implementation.dependsOnInterface)
       }
     }
@@ -101,7 +101,6 @@ object InterfaceQuery {
                 oev <- emptyViews if oev.viewId === ev.viewId && oev.interfaceId =!= ev.interfaceId
               } yield oev.id
               emptyViewSubjectMappings.filter(_.emptyViewId in emptyViewsQ.map(_.id)).delete
-              emptyViewMessageMappings.filter(_.emptyViewId in emptyViewsQ.map(_.id)).delete
               emptyViewsQ.delete
               interfaces.filter(_.id === interfaceId).delete
               if (!otherInterfaces.exists.run) {
@@ -137,11 +136,11 @@ object InterfaceQuery {
     deleteSuccess
   }
 
-  def saveInterface(i: M.Interface) : InterfaceSaveResult = {
+  def saveInterface(i: M.Interface, localSubjectId: SubjectId) : InterfaceSaveResult = {
     var interfaceSaveResult: InterfaceSaveResult = null
     db.withSession { implicit session =>
       session.withTransaction {
-        interfaceSaveResult = persistInterface(i)
+        interfaceSaveResult = persistInterface(i, localSubjectId)
       }
     }
     interfaceSaveResult
@@ -152,17 +151,7 @@ object InterfaceQuery {
     var implementationId: Int = 0
     db.withSession { implicit session =>
       session.withTransaction {
-        val viewSubjectId = views.filter(_.id === ti.viewId).map(_.mainSubjectId).first
-        val i = ti.copy(ownSubjectId = viewSubjectId)
-        val address = D.ProcessEngineAddress(None, ip = i.ownAddress.ip, port = i.ownAddress.port)
-        val addressId = (addresses returning addresses.map(_.id)) += address
-        val implementation = D.InterfaceImplementation(id = None,
-          processId = i.ownProcessId,
-          addressId = addressId,
-          ownSubjectId = i.ownSubjectId,
-          viewId = i.viewId,
-          dependsOnInterface = i.dependsOnInterface)
-        implementationId = interfaceImplementations.insert(implementation)
+        implementationId = saveImplementationWithTransaction(ti)
       }
     }
     implementationId
@@ -176,21 +165,34 @@ object InterfaceQuery {
     }
   }
 
-  private def persistInterface(i: M.Interface)(implicit session: Session): InterfaceSaveResult = {
+  private def saveImplementationWithTransaction(i: M.InterfaceImplementation, localSubjectId: Option[SubjectId] = None)(implicit session: Session): Int = {
+    lazy val viewSubjectId = views.filter(_.id === i.viewId).map(_.mainSubjectId).first
+    val address = D.ProcessEngineAddress(None, ip = i.ownAddress.ip, port = i.ownAddress.port)
+    val addressId = (addresses returning addresses.map(_.id)) += address
+    val implementation = D.InterfaceImplementation(id = None,
+      processId = i.ownProcessId,
+      addressId = addressId,
+      ownSubjectId = localSubjectId.getOrElse(viewSubjectId),
+      viewId = i.viewId,
+      dependsOnInterface = i.dependsOnInterface)
+    (interfaceImplementations returning interfaceImplementations.map(_.id)) += implementation
+  }
+
+  private def persistInterface(i: M.Interface, localSubjectId: SubjectId)(implicit session: Session): InterfaceSaveResult = {
     println("persisting interface")
     val vs = i.views.values.toSeq
     val graphModels = allGraphs()
     val viewGraphIds: Seq[(View, GraphOrViewId)] = vs.map{ v =>
-      val mappings: Option[(Int, SubjectIdMap, MsgMap)] = graphModels.foldLeft(None: Option[(Int, SubjectIdMap,MsgMap)]){
+      val mappings: Option[(Int, SubjectIdMap)] = graphModels.foldLeft(None: Option[(Int, SubjectIdMap)]){
         case (res@Some(_), _) => res
         case (None, otherGraph) => checkGraphs(v.graph, otherGraph)
       }
       val graphOrViewId = mappings match {
         case None => GraphId(saveGraph(v.graph))
-        case Some((otherGraphId, subjectIdMap, msgMap)) =>
+        case Some((otherGraphId, subjectIdMap)) =>
           val otherViewId = views.filter{ov => ov.graphId === otherGraphId}.map(_.id).take(1).run.head
           println(s"found other view: $otherViewId for graph with id: $otherGraphId")
-          ViewId(id = otherViewId, subjectIdMap = subjectIdMap, msgMap = msgMap)
+          ViewId(id = otherViewId, subjectIdMap = subjectIdMap)
       }
       (v, graphOrViewId)
     }
@@ -212,7 +214,7 @@ object InterfaceQuery {
 
     val interfaceId = dbInterface.id match {
       case None     => (interfaces returning interfaces.map(_.id)) += dbInterface
-      case Some(id) => {
+      case Some(id) =>
         val oldViews = views.filter(_.interfaceId === i.id).run
         if (oldViews.isEmpty) {
           (interfaces returning interfaces.map(_.id)) += dbInterface
@@ -224,15 +226,29 @@ object InterfaceQuery {
           )
           id
         }
-      }
     }
 
-    val mappings: (Map[String, String], Map[String, String]) = viewGraphIds.map {
+    val mappings: (Map[SubjectId, SubjectId], Map[SubjectId, SubjectId]) = viewGraphIds.map {
       case (v, GraphId(graphId)) =>
         val view = D.View(id = None, interfaceId = interfaceId, mainSubjectId = v.mainSubjectId, graphId = graphId)
-        views.insert(view)
+        val viewId = (views returning views.map(_.id)) += view
+        if (v.mainSubjectId == localSubjectId) {
+          val implementation = InterfaceImplementation(viewId = viewId, ownAddress = i.address, ownProcessId = i.processId, ownSubjectId = localSubjectId, dependsOnInterface = None)
+          saveImplementationWithTransaction(implementation, Some(localSubjectId))
+        }
         (Map.empty, Map.empty)
-      case (_, ViewId(otherViewId, subjectIdMap, msgMap)) =>
+      case (v, ViewId(otherViewId, subjectIdMap)) =>
+        val outInSubjectMapping = if (v.mainSubjectId == localSubjectId) {
+          val implementation = InterfaceImplementation(viewId = otherViewId, ownAddress = i.address, ownProcessId = i.processId, ownSubjectId = localSubjectId, dependsOnInterface = None)
+          saveImplementationWithTransaction(implementation, Some(localSubjectId))
+          val normalizedMainSubjectId = subjectIdMap(v.mainSubjectId)
+          val outSubjectIdMap = v.graph.subjects.keys.filter(_ != v.mainSubjectId).map{ sId =>
+            (sId, normalizedMainSubjectId)
+          }.toMap
+          (outSubjectIdMap, subjectIdMap)
+        } else {
+          (Map.empty, Map.empty)
+        }
         val view = D.EmptyView(id = None, interfaceId = interfaceId, viewId = otherViewId)
         val vId = (emptyViews returning emptyViews.map(_.id)) += view
         println(s"inserting new empty view: ${view.copy(id = Some(vId))}")
@@ -240,19 +256,13 @@ object InterfaceQuery {
         val subjectMappings = subjectIdMap.map {
           case (from, to) => D.EmptyViewSubjectMap(emptyViewId = vId, from = from, to = to)
         }.toSeq
-        val msgMappings = msgMap.map {
-          case (from, to) => D.EmptyViewMessageMap(emptyViewId = vId, from = from, to = to)
-        }.toSeq
-        println(s"subjectMappings: $subjectMappings")
-        println(s"messageMappings: $msgMappings")
         emptyViewSubjectMappings.insertAll(subjectMappings: _*)
-        emptyViewMessageMappings.insertAll(msgMappings: _*)
-        (subjectIdMap.toMap, msgMap)
+        outInSubjectMapping
     }.foldLeft((Map.empty[String, String], Map.empty[String, String])) {
       case ((accSubjectIdMap, accMsgMap), (newSubjectIdMap, newMsgMap)) =>
         (accSubjectIdMap ++ newSubjectIdMap, accMsgMap ++ newMsgMap)
     }
-    InterfaceSaveResult(id = interfaceId, subjectIdMap = mappings._1, msgMap = mappings._2)
+    InterfaceSaveResult(id = interfaceId, outgoingSubjectMap = mappings._1, incomingSubjectMap = mappings._2)
   }
 
   private def saveGraph(g: M.Graph)(implicit session: Session): Int = {
@@ -355,11 +365,9 @@ object InterfaceQuery {
     val impls = implsQuery.run
     val implIds = impls.flatMap { case (i, a) => i.id }
     val impSubjectMappings = implementationSubjectMappings.filter(_.implementationId.inSet(implIds)).run.groupBy(_.implementationId)
-    val impMessageMappings = implementationMessageMappings.filter(_.implementationId.inSet(implIds)).run.groupBy(_.implementationId)
     impls.map{ case (i, a) =>
       val subjMap = i.id.flatMap(id => impSubjectMappings.get(id)).getOrElse(Seq.empty)
-      val msgMap = i.id.flatMap(id => impMessageMappings.get(id)).getOrElse(Seq.empty)
-      (i, a, subjMap, msgMap)
+      (i, a, subjMap)
     }
   }
 
@@ -390,7 +398,7 @@ object InterfaceQuery {
       }
     }
     val implementationsWithAddress = for {
-      implementation <- interfaceImplementations if implementation.ownSubjectId === id
+      implementation <- interfaceImplementations.filter(_.viewId in interfaceImplementations.filter(_.ownSubjectId === id).map(_.viewId))
       address <- addresses if address.id === implementation.addressId
     } yield (implementation, address)
     val res =  implementationsWithAddress.run.filter {

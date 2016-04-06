@@ -43,19 +43,5 @@ object EmptyViewSubjectMapSchema extends Schema {
     def emptyView = foreignKey(fkName("empty_views"), emptyViewId, emptyViews)(_.id, NoAction, Cascade)
   }
 
-  class EmptyViewMessageMaps(tag: Tag) extends SchemaTable[EmptyViewMessageMap](tag, "empty_view_msg_mapping") {
-    def emptyViewId = column[Int]("empty_view_id")
-    def from = column[String]("from")
-    def to = column[String]("to")
-
-    def * = (emptyViewId, from, to) <> (EmptyViewMessageMap.tupled, EmptyViewMessageMap.unapply)
-
-    def pk = primaryKey(pkName, (emptyViewId, from, to))
-    def idx = index(s"${tableName}_idx_view_mapping_id", emptyViewId)
-
-    def emptyView = foreignKey(fkName("empty_views"), emptyViewId, emptyViews)(_.id, NoAction, Cascade)
-  }
-
-  val emptyViewMsgMappings = TableQuery[EmptyViewMessageMaps]
   val emptyViewSubjectMappings = TableQuery[EmptyViewSubjectMaps]
 }

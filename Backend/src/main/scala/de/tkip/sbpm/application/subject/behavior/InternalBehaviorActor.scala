@@ -218,7 +218,7 @@ class InternalBehaviorActor(
    * Adds a state to the internal model
    */
   private def addStateToModel(state: State) {
-    log.debug("addStateToModel: " + state)
+    log.debug(s"addStateToModel: $state. Current state map: $statesMap")
     if (state.startState) {
       log.debug("Set startstate: " + state)
       startState = state.id
@@ -249,6 +249,7 @@ class InternalBehaviorActor(
   }
 
   private def addState(state: StateID) {
+    println(s"addState called with state id $state")
     if (statesMap.contains(state)) {
       log.debug("Starting state: /%s/%s/%s/%s".format(userID, subjectID, macroId, state))
 

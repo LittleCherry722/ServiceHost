@@ -25,16 +25,16 @@ object ProcessMappings {
    * Convert process and id of active graph to domain model.
    */
 
-  def convert(pt: (Seq[VerificationError], Process, Option[Int], Map[Int, Map[String, String]], Map[Int, Map[String, String]])): domainModel.Process = {
-    val (ves, p, graphId, subjectMap, messageMap) = pt
+  def convert(pt: (Seq[VerificationError], Process, Option[Int], Map[String, String], Map[String, String])): domainModel.Process = {
+    val (ves, p, graphId, outgoingSubjectMap, incomingSubjectMap) = pt
     domainModel.Process(
       id = p.id,
       interfaceId = p.interfaceId,
       verificationErrors = ves.map(_.message),
       publishInterface = p.publishInterface,
       name = p.name,
-      subjectMap = subjectMap,
-      messageMap = messageMap,
+      incomingSubjectMap = outgoingSubjectMap,
+      outgoingSubjectMap = incomingSubjectMap,
       implementationIds = p.implementationIds,
       isCase = p.isCase,
       startAble = Some(p.startAble),
@@ -45,24 +45,20 @@ object ProcessMappings {
   /**
    * Convert process option and id of active graph to domain model.
    */
-  def convert(pOption: Option[(Seq[VerificationError],Process, Option[Int], Map[Int, Map[String, String]], Map[Int, Map[String, String]])]): Option[domainModel.Process] =
+  def convert(pOption: Option[(Seq[VerificationError],Process, Option[Int], Map[String, String], Map[String, String])]): Option[domainModel.Process] =
     pOption.map(convert)
 
   /**
    * Convert process from domain model to db entity and
    * extracts optional active graph id.
    */
-  def convert(p: domainModel.Process): (Process, Option[Int], (Int) => (Seq[ProcessSubjectMapping], Seq[ProcessMessageMapping], Seq[VerificationError])) = {
+  def convert(p: domainModel.Process): (Process, Option[Int], (Int) => (Seq[ProcessOutgoingSubjectMapping], Seq[ProcessIncomingSubjectMapping], Seq[VerificationError])) = {
     val mappings = (pId: Int) => {
-      val subjectMap = p.subjectMap.flatMap {
-        case (viewId, sMap) => sMap.map {
-          case (from, to) => ProcessSubjectMapping(pId, viewId, from, to)
-        }
+      val subjectMap = p.incomingSubjectMap.map {
+        case (from, to) => ProcessOutgoingSubjectMapping(pId, from, to)
       }.toSeq
-      val messageMap = p.messageMap.flatMap {
-        case (viewId, mMap) => mMap.map {
-          case (from, to) => ProcessMessageMapping(pId, viewId, from, to)
-        }
+      val messageMap = p.outgoingSubjectMap.map {
+          case (from, to) => ProcessIncomingSubjectMapping(pId, from, to)
       }.toSeq
       val vErrors = p.verificationErrors.map(m => VerificationError(None, pId, m)).toSeq
       (subjectMap, messageMap, vErrors)

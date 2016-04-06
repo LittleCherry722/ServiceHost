@@ -66,8 +66,8 @@ object GraphMappings {
     val mergedSubjects = s.mergedSubjects.map(_.toSeq).getOrElse(Seq()).map { ms: MergedSubject =>
       GraphMergedSubject(id = ms.id, subjectId = s.id, graphId = graphId, name = ms.name)
     }
-    val implementsViews = s.implementsViews.map(_.toSeq).getOrElse(Seq()).map { vId: Int =>
-      GraphSubjectViewId(subjectId = s.id, viewId = vId)
+    val implementsViews = s.implementsViews.map(_.toSeq.distinct).getOrElse(Seq()).map { vId: Int =>
+      GraphSubjectViewId(graphId = graphId, subjectId = s.id, viewId = vId)
     }
     val variables = extractVariables(s.variables.values, s.id, graphId)
     val (macros, nodes, varMans, edges) = extractMacros(s.macros.values, s.id, graphId)

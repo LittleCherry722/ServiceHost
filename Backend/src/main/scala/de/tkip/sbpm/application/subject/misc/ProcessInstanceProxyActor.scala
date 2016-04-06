@@ -1,20 +1,20 @@
 package de.tkip.sbpm.application.subject.misc
 
-import akka.actor.{ ActorRef }
+import akka.actor.ActorRef
+import akka.pattern.pipe
 import akka.util.Timeout
-import akka.pattern.{ ask, pipe }
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.instrumentation.InstrumentedActor
-import de.tkip.sbpm.model.ProcessGraph
-import de.tkip.sbpm.model.ExternalSubject
-import de.tkip.sbpm.application.{ SubjectInformation, RequestUserID }
 import de.tkip.sbpm.ActorLocator
-import scala.concurrent.duration._
-import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
-import akka.event.Logging
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.application.{RequestUserID, SubjectInformation}
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 
-class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, graph: ProcessGraph, createMessage: CreateProcessInstance) extends InstrumentedActor {
+import scala.concurrent.duration._
+
+class ProcessInstanceProxyActor(id: ProcessInstanceID
+                               ,processId: ProcessID
+                               ,inSubjectMap: Map[String, String]
+                               ,createMessage: CreateProcessInstance) extends InstrumentedActor {
 
   import context.dispatcher
 
@@ -29,7 +29,9 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
   def wrappedReceive = {
     case message: SubjectToSubjectMessage =>
       log.debug("got {} from {}", message, sender)
-      val localizedMessage = message.copy(target = message.target.copy(toExternal = false, variable = None))
+      val target = message.target
+      val localTarget = target.copy(toExternal = false, variable = None, subjectID = inSubjectMap.getOrElse(target.subjectID, target.subjectID))
+      val localizedMessage = message.copy(target = localTarget, from = inSubjectMap.getOrElse(message.from, message.from))
       log.debug("localized message: {}", localizedMessage)
       if (message.target.toUnknownUsers) {
         loadRandomUsers(localizedMessage)

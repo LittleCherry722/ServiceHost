@@ -18,6 +18,7 @@ import java.util.{Date, UUID}
 import akka.actor._
 import akka.util.Timeout
 import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.application.ProcessInstanceActor.NormalizeSubjectId
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.subject._
@@ -33,6 +34,7 @@ import scala.concurrent.duration._
 object ProcessInstanceActor {
   // This case class adds dynamically Subjects and Agents to this ProcessInstance
   case class RegisterSubjects(subjects: Map[SubjectID, SubjectLike])
+  case class NormalizeSubjectId(subjectId: SubjectID) extends AnyVal
 }
 
 /**
@@ -56,7 +58,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   private var processName: String = _
   private var persistenceGraph: Graph = _
   private var graph: ProcessGraph = _
-  private var messageMap: Map[Int, Map[MessageID, MessageID]] = _
+  private var outgoingSubjectMap: Map[SubjectID, SubjectID] = _
+  private var incomingSubjectMap: Map[SubjectID, SubjectID] = _
   // TODO: What exactly are "additional subjects"?
   private val additionalSubjects = MutableMap[SubjectID, SubjectLike]() // TODO: read all subjects from graph to avoid two subject maps
 
@@ -75,36 +78,31 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   private val blockingHandlerActor = context.actorOf(Props[BlockingActor], "BlockingActor____" + UUID.randomUUID().toString)
 
   // this actor is used to exchange the subject ids for external input messages
-  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, request.processID, graph, request)), "ProcessInstanceProxyActor____" + UUID.randomUUID().toString)
+  private var _proxyActor: Option[ActorRef] = None
+  private def proxyActor = {
+    lazy val pa = _proxyActor.getOrElse(context.actorOf(Props(new ProcessInstanceProxyActor(id, request.processID, incomingSubjectMap.map(_.swap), request)), "ProcessInstanceProxyActor____" + UUID.randomUUID().toString))
+    _proxyActor = Some(pa)
+    pa
+  }
 
   override def preStart() {
     val persistenceActor = ActorLocator.persistenceActor
 
-    // get the process
-    val processFuture = (persistenceActor ?? Processes.Read.ById(processID)).mapTo[Option[Process]]
-
-    val process = Await.result(processFuture, timeout.duration)
-
-    // save this process instance in the persistence
-    val processInstanceIDFuture = (persistenceActor ?? ProcessInstances.Save(ProcessInstance(None, processID, process.get.activeGraphId.get, None))).mapTo[Option[Int]]
-
-    // get the corresponding graph
-    val graphFuture = (persistenceActor ?? Graphs.Read.ById(process.get.activeGraphId.get)).mapTo[Option[Graph]]
-    val messageMapFuture = (persistenceActor ?? Processes.Read.MessageMappings(processID)).mapTo[Map[Int, Map[MessageID, MessageID]]]
-
     // create combined futures
     val dataBaseAccessFuture = for {
-      processInstanceID <- processInstanceIDFuture
-      graph <- graphFuture
-      messageMap <- messageMapFuture
-    } yield (processInstanceID, graph, messageMap)
+      process <- (persistenceActor ?? Processes.Read.ById(processID)).mapTo[Option[Process]]
+      processInstanceID <- (persistenceActor ?? ProcessInstances.Save(ProcessInstance(None, processID, process.get.activeGraphId.get, None))).mapTo[Option[Int]]
+      graph <- (persistenceActor ?? Graphs.Read.ById(process.get.activeGraphId.get)).mapTo[Option[Graph]]
+
+    } yield (process, processInstanceID, graph)
 
     // evaluate the Future
-    val (idTemp, persistenceGraphTemp, messageMapTemp) = Await.result(dataBaseAccessFuture, timeout.duration)
+    val (process, idTemp, persistenceGraphTemp) = Await.result(dataBaseAccessFuture, timeout.duration)
     id = idTemp.get
     processName = process.get.name
     persistenceGraph = persistenceGraphTemp.get
-    messageMap = messageMapTemp
+    incomingSubjectMap = process.map(_.incomingSubjectMap).getOrElse(Map.empty)
+    outgoingSubjectMap = process.map(_.outgoingSubjectMap).getOrElse(Map.empty)
 
     // parse the start-subjects into an Array
     val startSubjects: Iterable[SubjectID] = persistenceGraph.subjects.filter(_._2.isStartSubject.getOrElse(false)).keys
@@ -177,6 +175,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
     case rs: RegisterSubjects =>
       registerAdditionalSubjects(rs.subjects)
 
+    case NormalizeSubjectId(subjectId) =>
+      val normalizedSubjectId = incomingSubjectMap.getOrElse(subjectId, subjectId)
+      sender !! normalizedSubjectId
+
     case x => log.warning("ProcessInstanceActor did not handle: " + x)
   }
 
@@ -229,7 +231,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   private def createSubjectContainer(subject: SubjectLike): SubjectContainer = {
     val subjectContainer = new SubjectContainer(
       subject,
-      messageMap,
+      outgoingSubjectMap,
       processID,
       id,
       processInstanceManger,

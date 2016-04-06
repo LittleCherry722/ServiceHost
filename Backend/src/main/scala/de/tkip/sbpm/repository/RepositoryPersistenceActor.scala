@@ -36,9 +36,9 @@ object RepositoryPersistenceActor {
   case class SaveInterface(json: GraphHeader, roles: Option[RoleMapper] = None)
   case class DeleteInterface(interfaceId: Int)
   case class GetAgentsMapMessage(agentIds: Iterable[SubjectID])
-  case class AgentsMappingResponse(possibleAgents: Map[String, Set[InterfaceImplementation]])
+  case class AgentsMappingResponse(possibleAgents: Map[SubjectID, Set[InterfaceImplementation]])
 
-  case class InterfaceSaveResult(id: Int, subjectIdMap: Map[String, String], msgMap: Map[String, String])
+  case class InterfaceSaveResult(id: Int, outgoingSubjectMap: Map[SubjectID, SubjectID], incomingSubjectMap: Map[SubjectID, SubjectID])
   implicit val interfaceSaveResultFormat = jsonFormat3(InterfaceSaveResult)
 }
 
@@ -64,6 +64,7 @@ class RepositoryPersistenceActor extends InstrumentedActor {
 
   def wrappedReceive = {
     case SaveInterface(gHeader, roles) =>
+      log.info(s"[SAVE INTERFACE] saving interfaces. interface header: ${gHeader.toInterfaceHeader}")
       implicit val roleMap: RoleMapper = if (roles.isDefined) {
         roles.get
       } else {
@@ -74,7 +75,7 @@ class RepositoryPersistenceActor extends InstrumentedActor {
       gHeader.interfaceId.foreach(deleteInterface) // delete old interface
       gHeader.implementationIds.foreach(deleteImplementation) // delete old implementations
 
-      val resp = gHeader.toInterfaceHeader().right.flatMap(saveInterface)
+      val resp = gHeader.toInterfaceHeader.right.flatMap(saveInterface)
       val iIdOption: Option[Int] = resp.right.toOption.flatMap(_.map(_.id))
       val port = akkaRemotePort
 

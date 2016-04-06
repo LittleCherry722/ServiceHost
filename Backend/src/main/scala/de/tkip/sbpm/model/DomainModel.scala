@@ -18,7 +18,7 @@ import de.tkip.sbpm.application.subject.misc.AgentAddress
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.{MessageID, UserID}
 import de.tkip.sbpm.application.subject.misc.{ActionData, AvailableAction}
 import de.tkip.sbpm.newmodel.ProcessModelTypes.SubjectId
-import de.tkip.sbpm.anonymization.Anonymizer.createView
+import de.tkip.sbpm.anonymization.Anonymizer.{createView, getProxySubjects}
 import de.tkip.sbpm.verification.ModelConverter.verifyGraph
 
 // Model for Administration
@@ -51,8 +51,8 @@ case class Process(id: Option[Int],
                    verificationErrors: Seq[String],
                    publishInterface: Boolean,
                    name: String,
-                   subjectMap: Map[Int, Map[String, String]], // Map from viewId to a map of SubjectId from/to mapping
-                   messageMap: Map[Int, Map[String, String]], // Map from viewId to a map of Message id from/to mapping
+                   outgoingSubjectMap: Map[String, String], // Map from viewId to a map of SubjectId from/to mapping
+                   incomingSubjectMap: Map[String, String], // Map from viewId to a map of Message id from/to mapping
                    implementationIds: Seq[Int],
                    isCase: Boolean = false,
                    startAble: Option[Boolean] = None,
@@ -236,9 +236,20 @@ case class Graph(id: Option[Int],
   lazy val views: Either[Seq[String], Map[SubjectId, View]] = {
     verifyGraph(this).right.flatMap { vg =>
       val viewSubjects =  subjects.values.filterNot{s => s.isExternalView || s.subjectType == SubjectType.SingleSubjectType}
+      val proxySubjects = getProxySubjects(vg)
+      val proxySubjectView = if (proxySubjects.size == 1) {
+        if (viewSubjects.isEmpty) {
+          Seq.empty
+        } else {
+          val sId = proxySubjects.head.id
+          Seq(createView(sId, vg).right.map(v => (sId, v)))
+        }
+      } else {
+        Seq(Left("Only one local Subject must communicate with interface Subjects!"))
+      }
       val errorsOrViews: Seq[Either[String, (SubjectId, View)]] = viewSubjects.map { s =>
         createView(s.id, vg).right.map { v => (s.id, v) }
-      }.toSeq
+      }.toSeq ++ proxySubjectView
       val errors: Seq[String] = errorsOrViews.flatMap{eov => eov.left.toOption}
       val views: Map[SubjectId, View] = errorsOrViews.flatMap{eov => eov.right.toOption}.toMap
       if (errors.nonEmpty) {

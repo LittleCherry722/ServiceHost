@@ -6,6 +6,7 @@ import de.tkip.sbpm.newmodel.StateTypes.StateType
 import de.tkip.sbpm.newmodel._
 import de.tkip.sbpm.verification.lts.Lts
 
+import scala.collection.immutable.Stack
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -46,29 +47,42 @@ object ModelConverter {
 
       val subjectNameMap = graph.subjects.mapValues(_.name)
       val msgMap = graph.messages.mapValues(_.name)
-      lazy val invalidNodesString = lts.invalidNodes.flatMap(_.subjectMap.values.flatMap{vs =>
-        vs.activeStates.map{st =>
-          val baseStateText = s"${st.id} (${st.stateType})"
-          val comParams = st.communicationTransitions
-            .map(_.exitParams)
-            .filter(_.isInstanceOf[CommunicationParams])
-            .map(_.asInstanceOf[CommunicationParams])
-          val stateText = if (comParams.nonEmpty) {
-            val arrow = if (st.stateType == StateTypes.Send) {
-              "->"
-            } else {
-              "<-"
-            }
-            s"$baseStateText " +
-              comParams
-                .map(c => s"'${msgMap(c.messageType)}' $arrow ${subjectNameMap(c.subject)}")
-                .mkString("msgs [(", "), (", ")]")
-          } else {
-            baseStateText
-          }
-          s"${subjectNameMap(vs.channel.subjectId)}, $stateText"
+      val invalidTransitions = lts.states.find(s => lts.fromStatesMap(s).isEmpty && s.subjectMap.nonEmpty).fold(Seq.empty[String]) { s =>
+        println(s"Found invalid end state! $s")
+        var stack: Seq[String] = Seq()
+        var newestState = s
+        while (newestState != lts.startState) {
+          val trans = lts.toStatesMap(newestState).head
+          newestState = trans.fromState
+          stack = stack.+:(trans.label.toString)
         }
-      }).toSeq
+        stack
+      }
+
+//      lazy val verificationSubjects = lts.invalidNodes.flatMap(_.subjectMap.values).toSeq.sortBy(_.channel.subjectId)
+//      lazy val invalidNodesString = verificationSubjects.flatMap{vs =>
+//        vs.activeStates.map{st =>
+//          val baseStateText = s"${st.id} (${st.stateType})"
+//          val comParams = st.communicationTransitions
+//            .map(_.exitParams)
+//            .filter(_.isInstanceOf[CommunicationParams])
+//            .map(_.asInstanceOf[CommunicationParams])
+//          val stateText = if (comParams.nonEmpty) {
+//            val arrow = if (st.stateType == StateTypes.Send) {
+//              "->"
+//            } else {
+//              "<-"
+//            }
+//            s"$baseStateText " +
+//              comParams
+//                .map(c => s"'${msgMap(c.messageType)}' $arrow ${subjectNameMap(c.subject)}")
+//                .mkString("msgs [(", "), (", ")]")
+//          } else {
+//            baseStateText
+//          }
+//          s"${subjectNameMap(vs.channel.subjectId)}: $stateText"
+//        }
+//      }.distinct.sorted
       if (!lts.valid && lts.invalidNodes.isEmpty) {
         // something fishy, possibly dirty end states etc...
         Left(Seq("Graph invalid, no more information available"))
@@ -76,7 +90,8 @@ object ModelConverter {
       if (lts.invalidNodes.isEmpty) {
         Right(graph)
       } else {
-        Left(invalidNodesString)
+        println(s"GRAPH INVALID, ERRORS: $invalidTransitions")
+        Left(invalidTransitions)
       }
     }
   }

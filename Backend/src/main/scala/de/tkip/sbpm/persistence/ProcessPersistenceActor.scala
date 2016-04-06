@@ -20,12 +20,11 @@ import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.instrumentation.InstrumentedActor
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.persistence.mapping.ProcessMappings._
-import de.tkip.sbpm.persistence.mapping.{ProcessSubjectMapping, VerificationError, ProcessMessageMapping}
+import de.tkip.sbpm.persistence.mapping.{Graph => _, Process => _, _}
 import de.tkip.sbpm.persistence.query.{BaseQuery, Graphs}
 import de.tkip.sbpm.persistence.query.Processes._
 import de.tkip.sbpm.persistence.schema.VerificationErrorsSchema
-import de.tkip.sbpm.persistence.schema.ProcessSubjectMappingSchema
-import de.tkip.sbpm.persistence.schema.ProcessMessageMappingSchema
+import de.tkip.sbpm.persistence.schema.{ProcessIncomingSubjectMappingSchema, ProcessOutgoingSubjectMappingSchema}
 
 import scala.concurrent.duration._
 
@@ -103,7 +102,7 @@ private[persistence] class ProcessInspectActor extends InstrumentedActor with Ac
    * query using PoisonPill message.
    */
   private def forwardToPersistence(query: BaseQuery, from: ActorRef) = {
-    val actor = context.actorOf(Props[ProcessPersistenceActor], "ProcessPersistenceActor____" + UUID.randomUUID().toString())
+    val actor = context.actorOf(Props[ProcessPersistenceActor], "ProcessPersistenceActor____" + UUID.randomUUID().toString)
     actor.tell(query, from)
     actor ! PoisonPill
   }
@@ -114,7 +113,7 @@ private[persistence] class ProcessInspectActor extends InstrumentedActor with Ac
  */
 private class ProcessPersistenceActor extends GraphPersistenceActor
   with DatabaseAccess with schema.ProcessesSchema with schema.ProcessActiveGraphsSchema with VerificationErrorsSchema
-  with ProcessSubjectMappingSchema with ProcessMessageMappingSchema {
+  with ProcessOutgoingSubjectMappingSchema with ProcessIncomingSubjectMappingSchema {
   // import current slick driver dynamically
   import driver.simple._
 
@@ -125,28 +124,21 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
     case Read.All => answerProcessed { implicit session: Session =>
       joinQuery().list.map{ case (p, gId) =>
         val errors = verificationErrors.filter(_.processId === p.id).list
-        val subjectMappingsList = processSubjectMappings.filter(_.processId === p.id).list
-        val subjectMappings = subjectMappingsList.groupBy(_.viewId).toMap.mapValues(_.map(sm => (sm.from, sm.to)).toMap)
-        val messageMappingsList = processMessageMappings.filter(_.processId === p.id).list
-        val messageMappings = messageMappingsList.groupBy(_.viewId).toMap.mapValues(_.map(mm => (mm.from, mm.to)).toMap)
-        (errors, p, gId, subjectMappings, messageMappings)
+        val outgoingSubjectMappingsList = processOutgoingSubjectMappings.filter(_.processId === p.id).list
+        val outgoingSubjectMappings = outgoingSubjectMappingsList.map(sm => (sm.from, sm.to)).toMap
+        val incomingSubjectMappingsList = processIncomingSubjectMappings.filter(_.processId === p.id).list
+        val incomingSubjectMappings = incomingSubjectMappingsList.map(sm => (sm.from, sm.to)).toMap
+        (errors, p, gId, outgoingSubjectMappings, incomingSubjectMappings)
       }
     }(_.map(convert))
-
-    // Get message mappings for process id
-    case Read.MessageMappings(processId) => answerProcessed { implicit session: Session =>
-      val messageMappingsList = processMessageMappings.filter(_.processId === processId).list
-      val messageMappings = messageMappingsList.groupBy(_.viewId).mapValues(_.map(mm => (mm.from, mm.to)).toMap)
-      messageMappings
-    }(identity)
 
     // get process with given id
     case Read.ById(id) => answerOptionProcessed { implicit session: Session =>
       val errors = verificationErrors.filter(_.processId === id).list
-      val subjectMappingsList = processSubjectMappings.filter(_.processId === id).list
-      val subjectMappings = subjectMappingsList.groupBy(_.viewId).toMap.mapValues(_.map(sm => (sm.from, sm.to)).toMap)
-      val messageMappingsList = processMessageMappings.filter(_.processId === id).list
-      val messageMappings = messageMappingsList.groupBy(_.viewId).toMap.mapValues(_.map(mm => (mm.from, mm.to)).toMap)
+      val outgoingSubjectMappingsList = processOutgoingSubjectMappings.filter(_.processId === id).list
+      val outgoingSubjectMappings = outgoingSubjectMappingsList.map(sm => (sm.from, sm.to)).toMap
+      val incomingSubjectMappingsList = processIncomingSubjectMappings.filter(_.processId === id).list
+      val incomingSubjectMappings = incomingSubjectMappingsList.map(sm => (sm.from, sm.to)).toMap
       val processOption = joinQuery(processes.filter(_.id === id)).firstOption
       val justProcess = processes.filter(_.id === id).firstOption
       log.debug("----------READING----------")
@@ -156,18 +148,18 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
       log.debug("----------/READING----------")
       for {
         (p, pId) <- processOption
-      } yield (errors, p, pId, subjectMappings, messageMappings)
+      } yield (errors, p, pId, outgoingSubjectMappings, incomingSubjectMappings)
     }(convert)
 
-    // get process with given name
+     // get process with given name
     case Read.ByName(name) => answerOptionProcessed { implicit session: Session =>
       joinQuery(processes.filter(_.name === name)).firstOption.map { case (p, gId) =>
         val errors = verificationErrors.filter(_.processId === p.id).list
-        val subjectMappingsList = processSubjectMappings.filter(_.processId === p.id).list
-        val subjectMappings = subjectMappingsList.groupBy(_.viewId).toMap.mapValues(_.map(sm => (sm.from, sm.to)).toMap)
-        val messageMappingsList = processMessageMappings.filter(_.processId === p.id).list
-        val messageMappings = messageMappingsList.groupBy(_.viewId).toMap.mapValues(_.map(mm => (mm.from, mm.to)).toMap)
-        (errors, p, gId, subjectMappings, messageMappings)
+        val outgoingSubjectMappingsList = processOutgoingSubjectMappings.filter(_.processId === p.id).list
+        val outgoingSubjectMappings = outgoingSubjectMappingsList.map(sm => (sm.from, sm.to)).toMap
+        val incomingSubjectMappingsList = processIncomingSubjectMappings.filter(_.processId === p.id).list
+        val incomingSubjectMappings = incomingSubjectMappingsList.map(sm => (sm.from, sm.to)).toMap
+        (errors, p, gId, outgoingSubjectMappings, incomingSubjectMappings)
       }
     }(convert)
     // create or update processes
@@ -193,8 +185,8 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
     case Delete.ById(id) =>
       answer { session =>
         verificationErrors.filter(_.processId === id).delete(session)
-        processSubjectMappings.filter(_.processId === id).delete(session)
-        processMessageMappings.filter(_.processId === id).delete(session)
+        processOutgoingSubjectMappings.filter(_.processId === id).delete(session)
+        processIncomingSubjectMappings.filter(_.processId === id).delete(session)
         processes.filter(_.id === id).delete(session)
       }
       println("!!!!!!!!!!! process deleted: " + id)
@@ -225,14 +217,14 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
     pId
   }
 
-  private def saveMappings(pId: Int, mapsGen: ((Int) => (Seq[ProcessSubjectMapping], Seq[ProcessMessageMapping], Seq[VerificationError])))
+  private def saveMappings(pId: Int, mapsGen: ((Int) => (Seq[ProcessOutgoingSubjectMapping], Seq[ProcessIncomingSubjectMapping], Seq[VerificationError])))
                           (implicit session: Session) = {
     val (sMaps, mMaps, vErrors) = mapsGen(pId)
-    processSubjectMappings.filter(_.processId === pId).delete(session)
-    processMessageMappings.filter(_.processId === pId).delete(session)
+    processOutgoingSubjectMappings.filter(_.processId === pId).delete(session)
+    processIncomingSubjectMappings.filter(_.processId === pId).delete(session)
     verificationErrors.filter(_.processId === pId).delete(session)
-    processSubjectMappings.insertAll(sMaps: _*)(session)
-    processMessageMappings.insertAll(mMaps: _*)(session)
+    processOutgoingSubjectMappings.insertAll(sMaps: _*)(session)
+    processIncomingSubjectMappings.insertAll(mMaps: _*)(session)
     verificationErrors.insertAll(vErrors: _*)(session)
   }
 

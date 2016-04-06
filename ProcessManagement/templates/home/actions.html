@@ -151,7 +151,7 @@
 
         <!-- $CHOOSEAGENT -->
         <div data-bind="visible: stateType()==='$chooseagent', foreach: data">
-          <strong data-bind="html: text"></strong>
+          <strong>Choose agent for subject: <span data-bind="html: $parents[1].getSubjectName($data.text, $parent)"></span></string>
 
           <br/>
 

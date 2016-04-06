@@ -42,19 +42,5 @@ object ImplementationMappingsSchema extends Schema {
 
     def implementation = foreignKey(fkName("implementation"), implementationId, emptyViews)(_.id, NoAction, Cascade)
   }
-  class ImplementationMessageMappings(tag: Tag) extends SchemaTable[ImplementationMessageMapping](tag, "impl_message_mappings") {
-    def implementationId = column[Int]("implementation_id")
-    def from = column[String]("from")
-    def to = column[String]("to")
-
-    def * = (implementationId, from, to) <> (ImplementationMessageMapping.tupled, ImplementationMessageMapping.unapply)
-
-    def pk = primaryKey(pkName, (implementationId, from, to))
-    def idx = index(s"${tableName}_idx_implementation_id", implementationId)
-
-    def implementation = foreignKey(fkName("implementation"), implementationId, emptyViews)(_.id, NoAction, Cascade)
-  }
-
   val implementationSubjectMappings = TableQuery[ImplementationSubjectMappings]
-  val implementationMessageMappings = TableQuery[ImplementationMessageMappings]
 }

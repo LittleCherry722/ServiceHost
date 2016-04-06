@@ -241,6 +241,9 @@ define([
         id: fromSubjectId,
         name: fromSub.name
       });
+      var toImpViewA = toSub.implementsViews ? toSub.implementsViews : [];
+      var fromImpViewA = fromSub.implementsViews ? fromSub.implementsViews : [];
+      toSub.implementsViews = toImpViewA.concat(fromImpViewA);
       // set start subject
       toSub.startSubject = toSub.startSubject || fromSub.startSubject;
 
@@ -250,12 +253,12 @@ define([
       // name for easier renaming when inserting the new edges.
       var variablesMapping = { "": "" };
       _(fromSub.variables).each(function(val, key) {
-        var varKey = "v" + toSub.variables.length + 1;
+        var varKey = "v" + (_(toSub.variables).size() + 1);
         toSub.variables[varKey] = val;
         variablesMapping[key] = varKey;
       });
       // update variablesCounter to math the new count
-      toSub.variableCounter += fromSub.variables.length;
+      toSub.variableCounter += _(fromSub.variables).size() - 1;
 
       // for every subject that is not the target or from subject, modify
       // the target object of edges that belong to send or receive nodes
@@ -339,10 +342,18 @@ define([
 
       // remove the fromSub from the process graph
       graph.process.splice(i-1, 1);
+      var process = currentProcess();
+      var incomingSubjectMap = process.incomingSubjectMap();
+      _(incomingSubjectMap).forEach(function(val, key) {
+        if(key === fromSubjectId) {
+          incomingSubjectMap[key] = toSubjectId;
+        }
+      });
+      process.incomingSubjectMap(incomingSubjectMap);
       // load new graph in the view
-      console.log(graph);
-      window.oldGraph = gv_graph.save();
-      window.newGraph = graph;
+      var pGraph = process.graph();
+      pGraph.graph = graph;
+      process.graph(process.graph());
       loadGraph({ definition: graph });
     };
 

@@ -78,7 +78,7 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
   private var macroIdCounter = 0
 
   private def insertMacro(callActor: Option[ActorRef], name: String, macroStates: Array[State]) {
-    log.debug(s"Starting macro $name")
+    log.debug(s"Starting macro $name with states: ${macroStates.toSeq}")
     val macroId = name + s"@$macroIdCounter"
     macroIdCounter += 1
     val entry @ (_, macroActor) =
@@ -113,6 +113,7 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
   }
 
   private def restart() {
+    println("Restarting macro")
     killAll()
     insertMacro(None, subject.mainMacroName, subject.mainMacro.states)
   }

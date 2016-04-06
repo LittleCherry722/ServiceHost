@@ -38,7 +38,7 @@ object Processes {
      */
     case class ByName(name: String) extends Query
 
-    case class MessageMappings(graphId: Int) extends Query
+    case class SubjectMappings(processId: Int) extends Query
   }
 
   object Save {

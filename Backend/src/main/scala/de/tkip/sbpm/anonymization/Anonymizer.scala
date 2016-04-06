@@ -49,6 +49,25 @@ object Anonymizer {
     }
   }
 
+  // Get all the local subjects in this graph (process) that are in contact
+  // with interface subjects.
+  // STATUS: DONE
+  def getProxySubjects(graph: Graph): Set[GraphSubject] = {
+    val localSubjects = getLocalSubjects(graph)
+    val interfaceSubjects = getInterfaceSubjects(graph).toSeq
+    // Create a set of (LocalSubjectId, InterafaceSubjectId) tuples that model
+    // the communication of localSubject with InterfaceSubject
+    val remoteInteractions = localSubjects.filter { s =>
+      s.transitions.filter { t => t.isReceive || t.isSend }.exists { t =>
+        val targetIdOption = t.edge.target.map(_.subjectId)
+        interfaceSubjects.exists { is =>
+          targetIdOption.contains(is.id)
+        }
+      }
+    } // toSet kindly removes duplicates for us
+    remoteInteractions
+  }
+
   // Given a process graph and a proxy subject that is not to be removed, prune all
   // other local (aka single) subjects that can safely be removed.
   // Fore more details about the pruning procedure, see pruneSubject and removableSubjects
@@ -154,25 +173,6 @@ object Anonymizer {
     graph.subjects.values.filter { s =>
       s.subjectType == SubjectType.ExternalSubjectType && s.externalType.contains(SubjectExternalType.InterfaceSubjectType)
     }.toSet
-  }
-
-  // Get all the local subjects in this graph (process) that are in contact
-  // with interface subjects.
-  // STATUS: DONE
-  private def getProxySubjects(graph: Graph): Set[GraphSubject] = {
-    val localSubjects = getLocalSubjects(graph)
-    val interfaceSubjects = getInterfaceSubjects(graph).toSeq
-    // Create a set of (LocalSubjectId, InterafaceSubjectId) tuples that model
-    // the communication of localSubject with InterfaceSubject
-    val remoteInteractions = localSubjects.filter { s =>
-      s.transitions.filter { t => t.isReceive || t.isSend }.exists { t =>
-        val targetIdOption = t.edge.target.map(_.subjectId)
-        interfaceSubjects.exists { is =>
-          targetIdOption.contains(is.id)
-        }
-      }
-    } // toSet kindly removes duplicates for us
-    remoteInteractions
   }
 
   // Modify all subject types in the graph to have the focusSubject be the local subject

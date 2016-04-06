@@ -228,8 +228,7 @@ object DomainModelMappings {
   def convertView(view: View,
                   implementations: Seq[(InterfaceImplementation,
                                         ProcessEngineAddress,
-                                        Seq[ImplementationSubjectMapping],
-                                        Seq[ImplementationMessageMapping])],
+                                        Seq[ImplementationSubjectMapping])],
                   subModels:(Seq[GraphMergedSubject],
                              Seq[GraphConversation], Seq[GraphMessage],
                              Seq[GraphSubject], Seq[GraphVariable],
@@ -238,17 +237,15 @@ object DomainModelMappings {
     domainModel.View(
       id = view.id,
       mainSubjectId = view.mainSubjectId,
-      implementations = implementations.map{i => convertImplementation(i._1, i._2, i._3, i._4)},
+      implementations = implementations.map{i => convertImplementation(i._1, i._2, i._3)},
       graph = convertGraph(Graph(id = Some(view.graphId)), subModels)
     )
   }
 
   def convertImplementation(impl: InterfaceImplementation,
                             address: ProcessEngineAddress,
-                            subjectMappings: Seq[ImplementationSubjectMapping],
-                            messageMappings: Seq[ImplementationMessageMapping]): domainModel.InterfaceImplementation = {
+                            subjectMappings: Seq[ImplementationSubjectMapping]): domainModel.InterfaceImplementation = {
     val subjectIdMap = subjectMappings.filter(m => impl.id.contains(m.implementationId)).map{ m => (m.from, m.to)}.toMap
-    val messageMap = messageMappings.filter(m => impl.id.contains(m.implementationId)).map{ m => (m.from, m.to)}.toMap
     domainModel.InterfaceImplementation(
       viewId = impl.viewId,
       ownProcessId = impl.processId,

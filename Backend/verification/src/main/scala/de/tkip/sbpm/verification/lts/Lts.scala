@@ -327,6 +327,10 @@ case class Lts(states: Set[LtsState],
     lts
   }
 
+  def shallowPrune = {
+    removeSimpleTau.removeT2.removeC2.advremoveT2.removeUnusedStates.removeEqualStates.removeT3.removeEqualStates.removeUnusedStates
+  }
+
   /**
    * Creates the Lts for the given subject
    */

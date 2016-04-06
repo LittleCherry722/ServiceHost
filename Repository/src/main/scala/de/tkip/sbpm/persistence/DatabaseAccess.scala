@@ -17,9 +17,7 @@ object DatabaseAccess {
   val views = ViewSchema.views
   val emptyViews = EmptyViewSchema.emptyViews
   val emptyViewSubjectMappings = EmptyViewSubjectMapSchema.emptyViewSubjectMappings
-  val emptyViewMessageMappings = EmptyViewSubjectMapSchema.emptyViewMsgMappings
   val implementationSubjectMappings = ImplementationMappingsSchema.implementationSubjectMappings
-  val implementationMessageMappings = ImplementationMappingsSchema.implementationMessageMappings
   val graphConversations = GraphConversationsSchema.graphConversations
   val graphEdges = GraphEdgesSchema.graphEdges
   val graphMacros = GraphMacrosSchema.graphMacros
@@ -40,9 +38,7 @@ object DatabaseAccess {
     views,
     emptyViews,
     emptyViewSubjectMappings,
-    emptyViewMessageMappings,
     implementationSubjectMappings,
-    implementationMessageMappings,
     addresses,
     graphConversations,
     graphEdges,

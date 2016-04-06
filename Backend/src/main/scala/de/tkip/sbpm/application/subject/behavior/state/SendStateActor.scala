@@ -173,7 +173,7 @@ case class SendStateActor(data: StateData)
               action.userID.toString)), "GoogleSendProxyActor____" + UUID.randomUUID().toString)
           val ownAddress = AgentAddress(ip = SystemProperties.akkaRemoteHostname, port = SystemProperties.akkaRemotePort)
           val ownProxyFuture = (processInstanceActor ?? GetProxyActor).mapTo[ActorRef]
-          val ownProxy = Await.result(ownProxyFuture, 2.seconds)
+          val ownProxy = Await.result(ownProxyFuture, 3.seconds)
           val ownChannel = Channel(ownProxy, Agent(processID, ownAddress, subjectID))
           val subjectToSubjectMessage =
             SubjectToSubjectMessage(

@@ -45,7 +45,6 @@ case class EmptyView(id: Option[Int],
                      viewId: Int)
 
 case class EmptyViewSubjectMap(emptyViewId: Int, from: String, to: String)
-case class EmptyViewMessageMap(emptyViewId: Int, from: String, to: String)
 
 case class InterfaceImplementation(id: Option[Int],
                                    processId: Int,
@@ -55,7 +54,6 @@ case class InterfaceImplementation(id: Option[Int],
                                    dependsOnInterface: Option[Int])
 
 case class ImplementationSubjectMapping(implementationId: Int, from: String, to: String)
-case class ImplementationMessageMapping(implementationId: Int, from: String, to: String)
 
 
 case class GraphMessage(id: String,

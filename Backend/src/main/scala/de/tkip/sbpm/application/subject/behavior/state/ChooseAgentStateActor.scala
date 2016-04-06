@@ -18,6 +18,7 @@ import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.{MessageName, SubjectID}
 import de.tkip.sbpm.repository.RepositoryPersistenceActor.{AgentsMappingResponse, GetAgentsMapMessage}
 import akka.actor.{ActorLogging, ActorRef, actorRef2Scala}
+import de.tkip.sbpm.application.ProcessInstanceActor.NormalizeSubjectId
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes.exitCondLabel
 import de.tkip.sbpm.application.subject.behavior.{Target, Transition, Variable}
@@ -76,20 +77,22 @@ case class ChooseAgentStateActor(data: StateData)
 
     val possibleAgents = getAgentsMap(subjectId)
     exitTransitions.map((t: Transition) => {
-      t.subjectID
-      ActionData(t.messageName.name, true, exitCondLabel, possibleAgents = Some(possibleAgents.toList))
+      ActionData(subjectId, true, exitCondLabel, possibleAgents = Some(possibleAgents.toList))
     })
   }
 
   private def getAgentsMap(subjectId: SubjectID): Set[Agent] = {
     // Get the IDs of all external Subjects, then only take those for which we do not have
     // a agentMap, aka external subjects with unknown agents
-
     println("[CHOOSE AGENT STATE ACTOR] Asking for available agents.")
-    val getAgentsMapMessage = GetAgentsMapMessage(Seq(subjectId))
-    val newAgentsMapFuture = (repositoryPersistenceActor ?? getAgentsMapMessage).mapTo[AgentsMappingResponse]
-    val newAgentsMap = Await.result(newAgentsMapFuture, 4 seconds)
-    newAgentsMap.possibleAgents(subjectId).map { impl =>
+
+    val newAgentsMapFuture = for {
+      normalizedSubjectId <- (processInstanceActor ?? NormalizeSubjectId(subjectId)).mapTo[SubjectID]
+      getAgentsMapMessage = GetAgentsMapMessage(Seq(normalizedSubjectId))
+      newAgentsMapFuture <- (repositoryPersistenceActor ?? getAgentsMapMessage).mapTo[AgentsMappingResponse]
+    } yield (normalizedSubjectId, newAgentsMapFuture)
+    val (normalizedSubjectId, newAgentsMap) = Await.result(newAgentsMapFuture, 4 seconds)
+    newAgentsMap.possibleAgents(normalizedSubjectId).map { impl =>
       Agent(processId = impl.ownProcessId, address = impl.ownAddress, subjectId = impl.ownSubjectId)
     }
   }

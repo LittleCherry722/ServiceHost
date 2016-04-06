@@ -41,6 +41,8 @@ define([
     });
     this.actionCount = actionCount;
 
+    this.refresh = Actions.fetch;
+
     this.newInstance = function(formElement) {
       var process = Process.find( $("input[name='processId']").val()),
       instance;
@@ -62,7 +64,7 @@ define([
       });
     };
   };
-  currentSubView = ko.observable();
+  var currentSubView = ko.observable();
   var availableStatetypes = ko.computed(function() {
     var uniqueStates= [];
     $.each(Actions.all(), function(i, el){
@@ -193,7 +195,7 @@ define([
         }
       });
       $("#ui-datepicker-div").wrap('<div id="dashboard_datepicker" />');
-      $(".sel").prepend('<option/>').val(function(){return $('[selected]',this).val() ;})
+      $(".sel").prepend('<option/>').val(function(){return $('[selected]',this).val() ;});
       var select2 = $(".sel").select2( {
         width: "copy",
         dropdownAutoWidth: "true"

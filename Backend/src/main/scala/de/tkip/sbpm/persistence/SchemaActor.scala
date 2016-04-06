@@ -30,8 +30,8 @@ private[persistence] class SchemaActor extends InstrumentedActor
   with GroupsRolesSchema
   with GroupsUsersSchema
   with MessagesSchema
-  with ProcessMessageMappingSchema
-  with ProcessSubjectMappingSchema
+  with ProcessIncomingSubjectMappingSchema
+  with ProcessOutgoingSubjectMappingSchema
   with ProcessActiveGraphsSchema
   with VerificationErrorsSchema
   with ProcessInstancesSchema
@@ -59,8 +59,8 @@ private[persistence] class SchemaActor extends InstrumentedActor
     groupsRoles,
     groupsUsers,
     messages,
-    processMessageMappings,
-    processSubjectMappings,
+    processIncomingSubjectMappings,
+    processOutgoingSubjectMappings,
     processes,
     verificationErrors,
     processActiveGraphs,

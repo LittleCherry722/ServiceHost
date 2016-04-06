@@ -37,7 +37,7 @@ class IntermediateInterfaceActor extends Actor with ActorLogging {
         views     = iInterface.views,
         address   = Address(None, ip.value, iInterface.port),
         processId = iInterface.processId)
-      sender ! interface
+      sender ! (iInterface.localSubjectId ,interface)
     }
   }
 

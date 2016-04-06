@@ -151,6 +151,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
         dequeueMessages((fromSubject, messageType), messages)
       if (!result) {
         // TODO error, delete failed
+        log.error(s"Deleting of message failed. Messages: $messages")
       }
       broadcastChangeFor((fromSubject, messageType))
 
@@ -288,11 +289,13 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
   }
 
   private def dequeueMessages(key: ChannelID, messages: Array[MessageID]): Boolean = {
-    if (messages.forall(id => messageQueueMap(key).exists(_.messageName == id))) {
+    if (messages.forall(id => messageQueueMap(key).exists(_.messageID == id))) {
       // TODO increase performance
-      messages.foreach(id => messageQueueMap(key).dequeueAll(_.messageName == id))
+      messages.foreach(id => messageQueueMap(key).dequeueAll(_.messageID == id))
+      log.debug("Messages successfully dequeued.")
       true
     } else {
+      log.debug("Message dequeueing failed.")
       false
     }
   }

@@ -111,11 +111,11 @@ case class GraphSubject(id: String,
                         roleId: Option[Int],
                         comment: Option[String])
 
-case class ProcessSubjectMapping(processId: ProcessId, viewId: Int, from: String, to: String)
-case class ProcessMessageMapping(processId: ProcessId, viewId: Int, from: String, to: String)
+case class ProcessOutgoingSubjectMapping(processId: ProcessId, from: String, to: String)
+case class ProcessIncomingSubjectMapping(processId: ProcessId, from: String, to: String)
 
 case class GraphMergedSubject(id: String, subjectId: String, graphId: Int, name: String)
-case class GraphSubjectViewId(subjectId: String, viewId: Int)
+case class GraphSubjectViewId(graphId: Int, subjectId: String, viewId: Int)
 
 case class GraphVariable(id: String,
   subjectId: String,

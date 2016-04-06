@@ -45,7 +45,7 @@ object Boot extends App with SimpleRoutingApp {
 
   // DatabaseAccess.recreateDatabase()
 
-  val route: Route = DebuggingDirectives.logRequest("api", Logging.InfoLevel) {
+  val route: Route =
     clientIP { ip =>
       pathPrefix("repo") {
         path("reset") {
@@ -107,8 +107,8 @@ object Boot extends App with SimpleRoutingApp {
             pathEnd {
               entity(as[IntermediateInterface]) { iInterface =>
                 val future = for {
-                  interface <- (intermediateInterfaceActor ? ConvertToInterface(iInterface, ip)).mapTo[Interface]
-                  response <- (interfaceActor ? AddInterface(interface)).mapTo[Option[InterfaceSaveResult]]
+                  (localSubjectId, interface) <- (intermediateInterfaceActor ? ConvertToInterface(iInterface, ip)).mapTo[(String, Interface)]
+                  response <- (interfaceActor ? AddInterface(interface, localSubjectId)).mapTo[Option[InterfaceSaveResult]]
                 } yield response
                 complete(future)
               }
@@ -122,9 +122,9 @@ object Boot extends App with SimpleRoutingApp {
         }
       }
     }
-  }
 
   startServer(interface = "localhost", port = 8181) {
+    // DebuggingDirectives.logRequest("api", Logging.InfoLevel) { route }
     route
   }
 

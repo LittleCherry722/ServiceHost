@@ -46,17 +46,17 @@ define([
     implementationIds : {
       type: "json",
       defaults: [],
-      layz: false
+      lazy: false
     },
-    subjectMap: {
+    incomingSubjectMap: {
       type: "json",
       defaults: {},
-      layz: false
+      lazy: false
     },
-    messageMap: {
+    outgoingSubjectMap: {
       type: "json",
       defaults: {},
-      layz: false
+      lazy: false
     },
     graph: {
       type: "json",
@@ -243,29 +243,30 @@ define([
             nd = newGraph.definition,
             msgOffset = parseInt(nd.messageCounter, 10) - 1,
             offsetMsg = function(msg) {
-              return "m" + (parseInt(msg.substring(1), 10) + msgOffset);
+              if (msg[0] === "m" && !isNaN(parseInt(msg.substring(1), 10))) {
+                return "m" + (parseInt(msg.substring(1), 10) + msgOffset);
+              } else {
+                return msg;
+              }
             };
-        // Fix message IDs
-        _(td.process.macros).each(function(macro) {
-          _(macro.edges).each(function(edge) {
-            edge.text = offsetMsg(edge.text);
-          });
-        });
-        var newMessages = newGraph.messages;
-        var newMessageMap = self.messageMap();
-        _(td.messages).each(function(mVal, mKey) {
-          newMessages[offsetMsg(mKey)] = mVal;
-          newMessageMap[viewId][offsetMsg(mKey)] = mKey;
-        });
-        self.messageMap(newMessageMap);
+        var outMap = self.outgoingSubjectMap();
+        self.outgoingSubjectMap(outMap);
         // set implementation flags
         _(td.process).each(function(subject) {
+          // Fix message IDs
+          _(subject.macros).each(function(macro) {
+            _(macro.edges).each(function(edge) {
+              edge.text = offsetMsg(edge.text);
+            });
+          });
           if (subject.id === view.mainSubjectId) {
             if (!subject.implementsViews) {
               subject.implementsViews = [viewId];
             } else {
               subject.implementsViews.push(viewId);
             }
+          } else {
+            outMap[subject.id] = view.mainSubjectId;
           }
         });
         // mark view subjects as external views (immutable)
@@ -278,7 +279,10 @@ define([
         // combine process graphs
         nd.process = nd.process.concat(td.process);
         nd.messageCounter = parseInt(td.messageCounter, 10) + msgOffset;
-        nd.messages = _(nd.messages).extend(td.messages);
+        _(td.messages).each(function (val, key) {
+          nd.messages[offsetMsg(key)] = val;
+        });
+        self.outgoingSubjectMap(outMap);
         self.graph(newGraph);
 
         return self;

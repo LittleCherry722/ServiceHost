@@ -43,6 +43,26 @@ body, html, .content_wrapper {
   @include calc(height, "100% - 50px");
 }
 
+.no-menu {
+  #headAndLeft {
+    height: 100%;
+  }
+  #atlwdg-trigger {
+    display: none;
+  }
+  #dashboard {
+    h3 {
+      display: none;
+    }
+    #filter {
+      display: none;
+    }
+    > div > hr {
+      display: none;
+    }
+  }
+}
+
 body {
   color: #363636;
   font-size: 12px;

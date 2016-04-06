@@ -133,8 +133,8 @@ define([
 			currentProcess().isCreatedFromTable = true;
     }
 
-    currentProcess().subjectMap({});
-    currentProcess().messageMap({});
+    currentProcess().incomingSubjectMap({});
+    currentProcess().outgoingSubjectMap({});
 
 		currentProcess().save(null, {
 			success: function() {

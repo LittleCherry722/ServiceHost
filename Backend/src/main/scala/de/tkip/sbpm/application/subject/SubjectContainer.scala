@@ -41,7 +41,7 @@ import de.tkip.sbpm.instrumentation.{ClassTraceLogger, TraceLogger}
  */
 class SubjectContainer(
   subject: SubjectLike,
-  messageMap: Map[Int, Map[MessageID, MessageID]],
+  outSubjectMap: Map[SubjectID, SubjectID],
   processID: ProcessID,
   processInstanceID: ProcessInstanceID,
   processInstanceManager: ActorRef,
@@ -120,9 +120,9 @@ class SubjectContainer(
       log.info("Sending message to variable.")
       target.varSubjects.foreach {v =>
         v.messages.foreach {m =>
-          log.info(s"sending message: ${message.messageName.name}")
           val newTarget = message.target.copy(subjectID = m.fromChannel.agent.subjectId)
-          val newMessage = message.copy(target = newTarget)
+          val newMessage = message.copy(target = newTarget, from = outSubjectMap.getOrElse(message.target.subjectID, message.from))
+          log.info(s"sending message: ${message.messageName.name}")
           m.fromChannel.actor.tell(newMessage, context.sender)
         }
       }

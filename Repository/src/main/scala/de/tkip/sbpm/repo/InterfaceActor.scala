@@ -18,6 +18,7 @@ import akka.event.Logging
 import de.tkip.sbpm.model.GraphJsonProtocol._
 import de.tkip.sbpm.model.InterfaceType._
 import de.tkip.sbpm.model._
+import de.tkip.sbpm.newmodel.ProcessModelTypes.SubjectId
 import de.tkip.sbpm.persistence.DatabaseAccess
 import de.tkip.sbpm.persistence.query.InterfaceQuery.IdResult
 import de.tkip.sbpm.persistence.query.{InterfaceQuery => Query}
@@ -27,7 +28,7 @@ import spray.json._
 object InterfaceActor {
   case object GetAllInterfaces
   case class GetInterface(id: Int)
-  case class AddInterface(interface: Interface)
+  case class AddInterface(interface: Interface, localSubjectId: SubjectId)
   case class AddImplementation(implementation: InterfaceImplementation)
   case class DeleteImplementation(implementationId: Int)
   case class DeleteInterface(interfaceId: Int)
@@ -45,7 +46,7 @@ object InterfaceActor {
     }
 
     implicit val InterfaceFormat = jsonFormat6(Interface)
-    implicit val IntermediateInterfaceFormat = jsonFormat6(IntermediateInterface)
+    implicit val IntermediateInterfaceFormat = jsonFormat7(IntermediateInterface)
 
   }
 }
@@ -57,50 +58,42 @@ class InterfaceActor extends Actor with ActorLogging {
 //  private val interfaces = mutable.Map[Int, Interface]()
 
   def receive = {
-    case GetAllInterfaces => {
+    case GetAllInterfaces =>
       log.info("Get all interfaces")
       sender ! Query.loadInterfaces() //.map(withInterfaceImplementations)
-    }
 
-    case GetInterface(interfaceId) => {
+    case GetInterface(interfaceId) =>
       log.info(s"Get interface with id: $interfaceId")
       sender ! Query.loadInterface(interfaceId) //.map(withInterfaceImplementations)
-    }
 
-    case DeleteInterface(interfaceId) => {
+    case DeleteInterface(interfaceId) =>
       log.info(s"Delete interface with id: $interfaceId")
       Query.deleteInterfaceById(interfaceId)
-    }
 
-    case GetImplementations(subjectIds) => {
+    case GetImplementations(subjectIds) =>
       log.info(s"Gathering list of implementations for subjects: $subjectIds")
       val implementationsMap = subjectIds.foldLeft(Map[String, Seq[InterfaceImplementation]]()){ (m, s) =>
         m + (s -> implementationsFor(s))
       }
       sender ! implementationsMap
-    }
 
-    case AddInterface(interface) => {
+    case AddInterface(interface, localSubjectId) =>
       log.info(s"Adding new interface")
-      val interfaceSaveResult = Query.saveInterface(interface)
+      val interfaceSaveResult = Query.saveInterface(interface, localSubjectId)
       log.info(s"Interface adding completed. Result: $interfaceSaveResult")
       sender ! Some(interfaceSaveResult)
-    }
 
-    case AddImplementation(implementation) => {
+    case AddImplementation(implementation) =>
       val implementationId = Query.saveImplementation(implementation)
       sender ! Some(IdResult(implementationId))
-    }
 
-    case DeleteImplementation(implementationId) => {
+    case DeleteImplementation(implementationId) =>
       Query.deleteImplementation(implementationId)
-    }
 
-    case Reset => {
+    case Reset =>
       log.info("resetting...")
       DatabaseAccess.recreateDatabase()
       log.info("successfully resetted")
-    }
   }
 
 

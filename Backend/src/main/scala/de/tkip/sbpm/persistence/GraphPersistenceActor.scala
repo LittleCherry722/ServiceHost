@@ -129,6 +129,7 @@ private[persistence] class GraphPersistenceActor extends InstrumentedActor
     graphMessages.insertAll(messages: _*)
     graphRoutings.insertAll(routings: _*)
     graphSubjects.insertAll(subjects: _*)
+    graphSubjectViewIds.insertAll(implementsViews: _*)
     graphVariables.insertAll(variables: _*)
     graphMacros.insertAll(macros: _*)
     graphNodes.insertAll(nodes: _*)
@@ -152,26 +153,25 @@ private[persistence] class GraphPersistenceActor extends InstrumentedActor
     graphVarMans.filter(_.graphId === id).delete
     graphMacros.filter(_.graphId === id).delete
     graphVariables.filter(_.graphId === id).delete
+    graphSubjectViewIds.filter(_.graphId === id).delete
     graphSubjects.filter(_.graphId === id).delete
     graphRoutings.filter(_.graphId === id).delete
     graphMessages.filter(_.graphId === id).delete
     graphConversations.filter(_.graphId === id).delete
     graphMergedSubjects.filter(_.graphId === id).delete
-    graphSubjectViewIds.filter(_.subjectId in graphSubjects.filter(_.graphId === id).map(_.id)).delete
   }
 
   /**
    * Load all dependent entities of a graph with given id.
    */
   def retrieveSubEntities(id: Int)(implicit session: Session) = {
-    val subjects = graphSubjects.filter(_.graphId === id).list
     (
       graphMergedSubjects.filter(_.graphId === id).list,
-      graphSubjectViewIds.filter(_.subjectId inSet subjects.map(_.id)).list,
+      graphSubjectViewIds.filter(_.graphId === id).list,
       graphConversations.filter(_.graphId === id).list,
       graphMessages.filter(_.graphId === id).list,
       graphRoutings.filter(_.graphId === id).list,
-      subjects,
+      graphSubjects.filter(_.graphId === id).list,
       graphVariables.filter(_.graphId === id).list,
       graphMacros.filter(_.graphId === id).list,
       graphNodes.filter(_.graphId === id).list,

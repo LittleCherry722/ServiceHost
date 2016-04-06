@@ -327,8 +327,9 @@ define([
           // If previous statement was excuted successfully, create new
           // instance of our model
           _( data ).each(function( resultJSON ) {
-            if ( Model.find(resultJSON.id) ) {
-                // TODO update instance instead
+            var existingModel = Model.find(resultJSON.id);
+            if (existingModel) {
+              existingModel.applyData(resultJSON);
               return;
             }
 

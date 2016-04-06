@@ -20,11 +20,14 @@ import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.model._
-import de.tkip.sbpm.application.miscellaneous.{ProcessInstanceData, ProcessInstanceInfo, SystemProperties, RoleMapper}
+import de.tkip.sbpm.application.miscellaneous.{ProcessInstanceData, ProcessInstanceInfo, RoleMapper, SystemProperties}
 import spray.json._
 import spray.routing.authentication.UserPass
+
 import scala.collection.immutable.Map
 import java.util.{Date, UUID}
+
+import de.tkip.sbpm.anonymization.Anonymizer._
 
 /**
  * Provides conversion from Graph domain model
@@ -527,6 +530,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
                              name: String,
                              interfaceId: Option[Int],
                              views: Map[String, View],
+                             localSubjectId: SubjectID,
                              port: Int,
                              processId: Int,
                              ip: Option[Int] = None)
@@ -537,8 +541,8 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
                          publishInterface: Boolean,
                          verificationErrors: Seq[String],
                          graph: Option[Graph],
-                         subjectMap: Map[Int, Map[String, String]], // Map from viewId to a map of SubjectId from/to mapping
-                         messageMap: Map[Int, Map[String, String]], // Map from viewId to a map of Message id from/to mapping
+                         outgoingSubjectMap: Map[String, String], // when sending a message to an interface subject, whats the normalized subject id?
+                         incomingSubjectMap: Map[String, String], // when receiving a message from an (normalized) interface subject, whats the local subject id?
                          implementationIds: Seq[Int],
                          isCase: Boolean,
                          id: Option[Int] = None) {
@@ -559,12 +563,14 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       for {
         processId <- id.toRight(Seq("No Process Id available.")).right
         rightGraph <- graph.toRight(Seq("Process graph is not available")).right
+        rightLocalSubject <- getProxySubjects(rightGraph).headOption.toRight(Seq("Exactly one Local Subject has to communicate with interface Subjects!")).right
         rightViews <- rightGraph.views.right
       } yield InterfaceHeader(
         interfaceType = interfaceType,
         name = name,
         interfaceId = interfaceId,
         views = rightViews,
+        localSubjectId = rightLocalSubject.id,
         port = port,
         processId = processId
       )
@@ -618,7 +624,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
 
   implicit val createProcessIdFormat = jsonFormat2(ProcessIdHeader)
   implicit def createGraphHeaderFormat(implicit roles: RoleMapper) = jsonFormat10(GraphHeader)
-  implicit val createInterfaceHeaderFormat = jsonFormat7(InterfaceHeader)
+  implicit val createInterfaceHeaderFormat = jsonFormat8(InterfaceHeader)
   implicit val createActionIdHeaderFormat = jsonFormat8(ExecuteAction)
 
   implicit val newStateFormat = jsonFormat2(NewHistoryState)

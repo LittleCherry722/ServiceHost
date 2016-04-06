@@ -192,8 +192,8 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
           publishInterface = process.publishInterface,
           verificationErrors = Seq.empty,  // verification errors
           graph = graphResult,
-          subjectMap = process.subjectMap,
-          messageMap = process.messageMap,
+          incomingSubjectMap = process.incomingSubjectMap,
+          outgoingSubjectMap = process.outgoingSubjectMap,
           implementationIds = process.implementationIds,
           isCase = process.isCase,
           id = process.id)
@@ -233,7 +233,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
    * Saves the given process without its graph.
    */
   private def saveWithoutGraph(id: Option[Int], json: GraphHeader): Route = {
-    val process = Process(id, json.interfaceId, json.verificationErrors, json.publishInterface, json.name, json.subjectMap, json.messageMap, json.implementationIds, json.isCase)
+    val process = Process(id, json.interfaceId, json.verificationErrors, json.publishInterface, json.name, json.incomingSubjectMap, json.outgoingSubjectMap, json.implementationIds, json.isCase)
     val future = (persistanceActor ?? Processes.Save(process)).mapTo[Option[Int]]
     val result = future.map(resultId => JsObject("id" -> resultId.getOrElse(id.getOrElse(-1)).toJson))
     complete(result)
@@ -261,13 +261,16 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
     }
     val resultFuture = for {
       interfaceSaveResult <- interfaceIdFuture
-      (publishFlag, interfaceId) = interfaceSaveResult match {
-        case Left(None) => (false, None)
-        case Right(None) => (true, None)
-        case Left(Some(iId)) => (true, Some(iId))
-        case Right(Some(isr)) => (true, Some(isr.id))
+      (publishFlag, interfaceId, outSubjectMap, inSubjectMap) = interfaceSaveResult match {
+        case Left(None) => (false, None, gHeader.outgoingSubjectMap, gHeader.incomingSubjectMap)
+        case Right(None) => (true, None, gHeader.outgoingSubjectMap, gHeader.incomingSubjectMap)
+        case Left(Some(iId)) => (true, Some(iId), gHeader.outgoingSubjectMap, gHeader.incomingSubjectMap)
+        case Right(Some(isr)) =>
+          val newOutSubjMap = isr.outgoingSubjectMap ++ gHeader.outgoingSubjectMap
+          val newInSubjMap = isr.incomingSubjectMap ++ gHeader.incomingSubjectMap
+          (true, Some(isr.id), newOutSubjMap, newInSubjMap)
       }
-      process = Process(id, interfaceId, verificationErrors, publishFlag, gHeader.name, gHeader.subjectMap, gHeader.messageMap, gHeader.implementationIds, gHeader.isCase)
+      process = Process(id, interfaceId, verificationErrors, publishFlag, gHeader.name, outSubjectMap, inSubjectMap, gHeader.implementationIds, gHeader.isCase)
       (processId, graphId) <- (persistanceActor ?? Processes.Save.WithGraph(process, graph)).mapTo[(Int, Option[Int])]
       result = JsObject("id" -> processId.toJson, "graphId" -> graphId.toJson)
       roles <- (persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]]
@@ -277,8 +280,8 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
         verificationErrors = verificationErrors,
         publishInterface = process.publishInterface,
         graph = Some(graph.copy(id = graphId, processId = Some(processId))),
-        subjectMap = process.subjectMap,
-        messageMap = process.messageMap,
+        incomingSubjectMap = process.incomingSubjectMap,
+        outgoingSubjectMap = process.outgoingSubjectMap,
         implementationIds = process.implementationIds,
         isCase = process.isCase,
         id = Some(processId))
