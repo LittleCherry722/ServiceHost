@@ -49,6 +49,11 @@ case class SubjectData(
   blockingHandlerActor: ActorRef,
   subject: SubjectLike)
 
+// TEST CORRELATION
+
+case class SubjectCorrelation (currentCorrelation: String)
+case class GetCurrentCorrelation()
+// TEST CORRELATION
 /**
  * contains and manages an InputPoolActor(Mailbox) and an InternalBehaviourActor
  */
@@ -76,7 +81,9 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
   // this map maps the Macro Names to the corresponding actors
   private val macroBehaviorActors = mutable.Map[String, InternalBehaviorRef]()
   private var macroIdCounter = 0
-
+  //TEST CORRELATION
+  private var currentCorrelation = "0"
+  //TEST CORRELATION
   private def insertMacro(callActor: Option[ActorRef], name: String, macroStates: Array[State]) {
     log.debug(s"Starting macro $name")
     val macroId = name + s"@$macroIdCounter"
@@ -138,6 +145,16 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
 
       // a message from an other subject can be forwarded into the inputpool
       inputPoolActor.forward(sm)
+    }
+
+// TEST CORRELATION
+    case sc:SubjectCorrelation => {
+      currentCorrelation = sc.currentCorrelation
+    }
+
+      //TEST CORRELATION
+    case cc: GetCurrentCorrelation => {
+      sender !! currentCorrelation
     }
 
     case s: Stored => {

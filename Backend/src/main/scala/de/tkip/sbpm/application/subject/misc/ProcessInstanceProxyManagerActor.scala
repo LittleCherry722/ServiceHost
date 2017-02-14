@@ -132,7 +132,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, proces
     )
 
     val instanceProxy = for {
-    // createma the processinstance
+    // create the processinstance
       created <- (targetManagerSelection ?? createMessage).mapTo[ProcessInstanceCreated]
       instanceRef = created.processInstanceActor
       // ask for the proxy actor

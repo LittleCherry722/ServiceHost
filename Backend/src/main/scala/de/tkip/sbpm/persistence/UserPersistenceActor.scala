@@ -85,6 +85,7 @@ private[persistence] class UserPersistenceActor extends InstrumentedActor
         case u @ User(None, _, _, _, _) => Some(users returning users.map(_.id) += toPersistenceModel(u))
         // id given -> update
         case u @ User(id, _, _, _, _)   => update(id, u)
+
       } match {
         // only one user was given, return it's id
         case ids if (ids.size == 1) => ids.head

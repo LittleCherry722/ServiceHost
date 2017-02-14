@@ -26,14 +26,32 @@ class ReferenceXMLActor extends InstrumentedActor {
   private val xmlFilePath = "./src/main/resources/service_references.xml"
   val packet = "de.tkip.servicehost.serviceactor.stubgen"
 
+  override def preStart: Unit = {
+    log.debug("*******************  ReferenceXMLActor  *******************")
+  }
+
+  override def postStop {
+
+  }
+
+  override def preRestart(reason: Throwable, message: Option[Any]) {
+
+  }
+
+  override def postRestart(reason: Throwable) {
+
+  }
+
   def wrappedReceive = {
     case createReference: CreateXMLReferenceMessage => {
       val ref: Reference = createXMLReference(createReference.subjectId, createReference.classPath, createReference.jsonPath)
       sender !! ref
     }
+
     case GetAllClassReferencesMessage => {
       sender !! getAllReferences
     }
+
     case getReference: GetClassReferenceMessageByProcessID => {
       sender !! getReferenceMessageByProcessID(getReference.processId)
     }
@@ -41,6 +59,26 @@ class ReferenceXMLActor extends InstrumentedActor {
     case getReference: GetClassReferenceMessageBySubjectID => {
       sender !! getReferenceMessageBySubjectID(getReference.subjectId)
     }
+
+    case AllService => {
+      sender !! getAllReferences
+    }
+
+    case deleteService: DeleteService => {
+      val failure = false
+      val allService = getAllReferences()
+      val newServices = allService.filter(re => re.processId != deleteService.serviceID)
+      if(newServices.length < allService.length){
+        val xmlContent =
+          <references>
+            {newServices.map(_.toXml)}
+          </references>
+        scala.xml.XML.save(xmlFilePath, xmlContent)
+        sender ! true
+      }else
+        sender ! failure
+    }
+
   }
 
   def getAllReferences(): List[Reference] = {

@@ -3,6 +3,7 @@ package de.tkip.servicehost
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Date
+import de.tkip.servicehost.webtest.MyServiceActor
 import spray.json._
 import scala.collection.mutable.ArrayBuffer
 
@@ -30,12 +31,17 @@ import de.tkip.servicehost.ReferenceXMLActor.Reference
 import de.tkip.servicehost.serviceactor.stubgen.{ ServiceExport, StubGeneratorActor }
 import Messages._
 import de.tkip.servicehost.Messages._
+import akka.io.IO
+import spray.can.{Http => WebHttp}
 
 object main extends App with ClassTraceLogger {
-  val system = ActorSystem("sbpm")
+  implicit val system = ActorSystem("sbpm")
   val log = system.log
 
   log.info("main starting..")
+
+  val webService = system.actorOf(Props[MyServiceActor], "webpage-service")
+  IO(WebHttp) ! WebHttp.Bind(webService, interface = "localhost", port = 8088)
 
   import DefaultJsonProtocol._
   import StubGeneratorActor.serviceExportFormat
@@ -85,9 +91,9 @@ object main extends App with ClassTraceLogger {
     }
   } else {
     system.actorOf(Props[ServiceActorManager], "service-actor-manager")
-    //system.actorOf(Props[RemotePublishActor], "eventbus-remote-publish")
     serviceHost = system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
     log.info("serviceHost path: " + serviceHost.path)
+
     registerInterfaces()
 
     sys.addShutdownHook {

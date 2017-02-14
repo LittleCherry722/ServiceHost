@@ -273,6 +273,9 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
     }
 
     case rs: RegisterSubjects => {
+      println("1111111111111111111111111111")
+      println("22222222222222222222222222222")
+      println("33333333333333333333333333333   "  +  rs)
       graph = ProcessGraph(graph.subjects ++ rs.subjects)
       addAgentsMapping(rs.agentsMapping)
     }

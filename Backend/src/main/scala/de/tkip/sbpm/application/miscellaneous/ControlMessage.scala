@@ -105,7 +105,7 @@ case class CreateServiceInstance(userID: UserID,
                                  processID: ProcessID,
                                  name: String,
                                  target: List[SubjectID],
-                                 processInstanceidentical: String,
+                                 processInstanceIdentical: String,
                                  //TODO: get the whole agents.
                                  agentsMap: AgentsMap,
                                  manager: Option[ActorRef] = None,
@@ -114,7 +114,6 @@ case class CreateServiceInstance(userID: UserID,
 case class ServiceInstanceCreated(request: CreateServiceInstance,
                                   ServiceInstanceActorMap: Map[SubjectID, SubjectRef],
                                   answer: Map[SubjectID, ProcessInstanceData]) extends AnswerControlMessage
-
 case class KillAllProcessInstances() extends AnswerAbleControlMessage
 case class KillProcessInstance(processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage
 case class KillProcessInstanceAnswer(request: KillProcessInstance) extends AnswerControlMessage

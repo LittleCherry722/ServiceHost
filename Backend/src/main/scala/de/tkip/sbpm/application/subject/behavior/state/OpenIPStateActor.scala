@@ -14,8 +14,7 @@
 package de.tkip.sbpm.application.subject.behavior.state
 
 import akka.actor.actorRef2Scala
-import de.tkip.sbpm.application.subject.behavior.InputPoolOpened
-import de.tkip.sbpm.application.subject.behavior.OpenInputPool
+import de.tkip.sbpm.application.subject.behavior.{Reopen, InputPoolOpened, OpenInputPool}
 import de.tkip.sbpm.application.subject.misc.ActionData
 
 case class OpenIPStateActor(data: StateData)

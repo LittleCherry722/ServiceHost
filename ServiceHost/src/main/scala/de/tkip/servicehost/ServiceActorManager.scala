@@ -25,14 +25,32 @@ class ServiceActorManager extends InstrumentedActor {
   //(processInstanceidentical, processInstanceID)
   private val processInstanceMap = collection.mutable.Map[String, Int]()
   //((processInstanceidentical, SubjectID), aerviceActorref)
-  private val searchServiceMap = collection.mutable.Map[ServiceInstanceKey, ServiceActorRef]()
+  private var searchServiceMap = collection.mutable.Map[ServiceInstanceKey, ServiceActorRef]()
+  private var serviceNameToServiceIdMap = Map[String,String]()
 
   var currentProcessInstanceID = 1
+
 
   private def nextProcessInstanceID: ProcessInstanceID = {
     val id = currentProcessInstanceID
     currentProcessInstanceID += 1
     id
+  }
+
+  override def preStart {
+    log.info("ServiceActorManager is created ......")
+  }
+
+  override def postStop {
+
+  }
+
+  override def preRestart(reason: Throwable, message: Option[Any]) {
+
+  }
+
+  override def postRestart(reason: Throwable) {
+
   }
 
   def wrappedReceive = {
@@ -56,22 +74,21 @@ class ServiceActorManager extends InstrumentedActor {
 
     case request: CreateServiceInstance => {
       log.debug("got CreateServiceInstance: " + request)
-
       for (targetIdNumber <- 0 until request.target.size) {
         // multiSubjectID
         val targetSubjectId = request.target(targetIdNumber)
-        val serviceInstanceKey: ServiceInstanceKey = (request.processInstanceidentical, targetSubjectId)
-        if (!processInstanceIdentification.contains(request.processInstanceidentical)) {
+        val serviceInstanceKey: ServiceInstanceKey = (request.processInstanceIdentical, targetSubjectId)
+        if (!processInstanceIdentification.contains(request.processInstanceIdentical)) {
           // create a new ProcessInstanceID
           val processInstanceID: ProcessInstanceID = nextProcessInstanceID
           createProcessInstance(processInstanceID, request, serviceInstanceKey) // create a new service
         } else if (!searchServiceMap.contains(serviceInstanceKey)) {
           //use the same processInstanceID, because many services belong to a identical processInstance.
-          val processInstanceID: ProcessInstanceID = processInstanceMap(request.processInstanceidentical)
+          val processInstanceID: ProcessInstanceID = processInstanceMap(request.processInstanceIdentical)
           createProcessInstance(processInstanceID, request, serviceInstanceKey)
         } else {
           log.debug("ProcessInstance already created: " + request)
-          val processInstanceID: ProcessInstanceID = processInstanceMap(request.processInstanceidentical)
+          val processInstanceID: ProcessInstanceID = processInstanceMap(request.processInstanceIdentical)
           val persistenceGraph = null
           val processName = request.name + "_" + processInstanceID
           val startedAt = new Date()
@@ -82,6 +99,40 @@ class ServiceActorManager extends InstrumentedActor {
           sender !! ProcessInstanceCreated(createProcessInstance, actorInstance, processInstanceData)
         }
       }
+    }
+
+    case msg:  ServiceNameToServiceIdMap  => {
+      if(!serviceNameToServiceIdMap.contains(msg.serviceName)){
+        serviceNameToServiceIdMap += msg.serviceName -> msg.serviceID
+      }
+    }
+
+
+    case ServiceList => {
+      sender ! searchServiceMap.keys.iterator.toList
+    }
+
+    case msg: ServiceTerminate => {
+      log.debug("ServiceActorManager will kill a certain service ... ")
+      //searchServiceMap -= ((msg.processInstanceIdentical, msg.serviceId))
+      sender ! PoisonPill
+      Thread.sleep(500)  // wait the service stop
+      log.debug("*******************  {} service is end !   *******************", msg.serviceName)
+    }
+
+    case msg: ServiceInstanceQuery => {
+      if(serviceNameToServiceIdMap.contains(msg.serviceName)){
+        val key = (msg.serviceInstanceId, serviceNameToServiceIdMap(msg.serviceName))
+        if(searchServiceMap.contains(key)){
+          sender ! Some(searchServiceMap(key))
+        }else{
+          sender ! None
+        }
+      }
+      else{
+        sender ! None
+      }
+
     }
 
     case x => log.warning("not implemented: " + x)
@@ -96,9 +147,9 @@ class ServiceActorManager extends InstrumentedActor {
     // load reference via subjectId or serviceId
     val future: Future[Any] = referenceXMLActor ?? GetClassReferenceMessageBySubjectID(serviceID)
     val classRef: ClassReferenceMessage = Await.result(future, timeout.duration).asInstanceOf[ClassReferenceMessage]
-    val actorInstance = this.context.actorOf(Props.create(classRef.classReference), serviceID + "_" + processInstanceID + "_" + request.processInstanceidentical)
-    Set(processInstanceIdentification.append(request.processInstanceidentical))
-    Set(processInstanceMap += request.processInstanceidentical -> processInstanceID)
+    val actorInstance = this.context.actorOf(Props.create(classRef.classReference), serviceID + "_" + request.processInstanceIdentical)
+    Set(processInstanceIdentification.append(request.processInstanceIdentical))
+    Set(processInstanceMap += request.processInstanceIdentical -> processInstanceID)
     searchServiceMap += serviceInstanceKey -> actorInstance
     val persistenceGraph = null
     val processName = request.name + "_" + processInstanceID
@@ -108,6 +159,6 @@ class ServiceActorManager extends InstrumentedActor {
     val createProcessInstance = CreateProcessInstance(request.userID, request.processID, request.name, request.manager, request.agentsMap)
     sender !! ProcessInstanceCreated(createProcessInstance, actorInstance, processInstanceData)
     actorInstance !! UpdateProcessData(processInstanceID, processID, request.manager.get)
-    actorInstance !! UpdateServiceInstanceDate(request.agentsMap, request.processInstanceidentical, request.managerUrl)
+    actorInstance !! UpdateServiceInstanceDate(request.agentsMap, request.processInstanceIdentical, request.managerUrl)
   }
 }

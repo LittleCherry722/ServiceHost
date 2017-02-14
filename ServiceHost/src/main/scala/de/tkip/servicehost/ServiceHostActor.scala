@@ -22,6 +22,22 @@ class ServiceHostActor extends InstrumentedActor {
 
   val serviceManager = ActorLocator.serviceActorManager
 
+  override def preStart {
+    println("ServiceHostActor is created ......")
+  }
+
+  override def postStop {
+
+  }
+
+  override def preRestart(reason: Throwable, message: Option[Any]) {
+
+  }
+
+  override def postRestart(reason: Throwable) {
+
+  }
+
   def wrappedReceive = {
     case register: RegisterServiceMessage => {
       log.debug("received RegisterServiceMessage: " + register)

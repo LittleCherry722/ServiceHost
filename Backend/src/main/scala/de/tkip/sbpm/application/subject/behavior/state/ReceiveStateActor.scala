@@ -13,6 +13,8 @@
 
 package de.tkip.sbpm.application.subject.behavior.state
 
+import de.tkip.sbpm.application.subject.SubjectCorrelation
+
 import scala.Array.canBuildFrom
 import scala.collection.mutable.ArrayBuffer
 import akka.actor.actorRef2Scala
@@ -99,14 +101,17 @@ case class ReceiveStateActor(data: StateData)
     }
 
     case InputPoolMessagesChanged(fromSubject, messageType, messages) if (exitTransitionsMap.contains((fromSubject, messageType))) => {
-
       log.debug("Receive@" + userID + "/" + subjectID + ": " +
         messages.size + ". Messages \"" +
         messageType + "\" from \"" + fromSubject +
         "\" with content \"" + messages.map(_.messageContent).mkString("[", ", ", "]") + "\"")
-
+      // TEST CORRELATION
+      if(!messages.isEmpty){
+        var currentCorrelation = messages.map(_.correlationId).mkString("", ", ", "")
+        subjectActor !! SubjectCorrelation(currentCorrelation)
+      }
+      // TEST CORRELATION
       exitTransitionsMap(fromSubject, messageType).setMessages(messages)
-
       val t = exitTransitionsMap(fromSubject, messageType).transition
       val varID = t.storeVar
       if (t.storeToVar && varID.isDefined) {
@@ -125,7 +130,6 @@ case class ReceiveStateActor(data: StateData)
       actionChanged(Updated)
 
       var transition = exitTransitionsMap(fromSubject, messageType)
-      println("999999999999999999999999999" + transition.messageContent)
       var isAutoReceive = false
       if (messages.length != 0 && data.stateModel.autoExecute) {
         //Check if only one ExitCond
@@ -256,10 +260,13 @@ case class ReceiveStateActor(data: StateData)
 
     if (data.stateModel.observerState) {
       subjectActor ! KillNonObserverStates
+      Thread.sleep(1000)  // KIllNonObserverStates must be finished, when changeState is called.
+      super.changeState(successorID, data, historyMessage)
+    }else{
+      // change the state
+      super.changeState(successorID, data, historyMessage)
     }
 
-    // change the state
-    super.changeState(successorID, data, historyMessage)
   }
 
   /**
@@ -288,7 +295,11 @@ case class ReceiveStateActor(data: StateData)
 
     def setMessages(messages: Array[SubjectToSubjectMessage]) {
       clearMessages()
-      for (message <- messages) addMessage(message)
+      for (message <- messages){
+        if(message.enabled){
+          addMessage(message)
+        }
+      }
     }
 
     private def clearMessages() {
@@ -301,9 +312,6 @@ case class ReceiveStateActor(data: StateData)
     }
 
     private def addMessage(message: SubjectToSubjectMessage) {
-      println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-      println(message)
-      println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
       // validate
       if (!(message.messageType == messageType && message.from == from)) {
         log.error("Transportmessage is invalid to transition: " + message +

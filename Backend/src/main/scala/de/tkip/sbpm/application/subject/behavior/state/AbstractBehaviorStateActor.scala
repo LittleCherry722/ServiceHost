@@ -173,12 +173,14 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
 
     case ga: GetAvailableAction => sender !! createAvailableAction
 
-    case TimeoutExpired => executeTimeout()
+    case TimeoutExpired => {
+      executeTimeout()
+    }
 
     case action: ExecuteAction if {
       action.actionData.transitionType == timeoutLabel
     } => {
-      executeTimeout()
+     executeTimeout()
       processInstanceActor ! ActionExecuted(action)
     }
   }

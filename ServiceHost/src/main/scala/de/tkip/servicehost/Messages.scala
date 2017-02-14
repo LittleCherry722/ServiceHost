@@ -5,6 +5,7 @@ import de.tkip.sbpm.application.ProcessInstanceActor._
 import de.tkip.sbpm.application.subject.behavior.Target
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.sbpm.application.miscellaneous.CreateServiceInstance
+import de.tkip.servicehost.serviceactor.stubgen.{ReceiveState, ExitState, State}
 import scala.reflect.ClassTag
 
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
@@ -35,7 +36,6 @@ object Messages {
 
   case class UpdateServiceInstanceDate(agentsMap: AgentsMap, processInstanceIdentical: String, managerUrl: String)
 
-  case class KillProcess(serviceID: ServiceID, processInstanceID: ProcessInstanceID)
 
   // Service Messages
   case class AddService(id: String, className: String, packagePath: String)
@@ -44,6 +44,37 @@ object Messages {
   case class AskForServiceInstance(processInstanceIdentical: String, targetSubjectId: SubjectID)
 
   case class UpdateRepository(host: String, port: String)
+
+  case class ChangeState(id: Int)
+
+  case object ServiceList
+
+  case object AllService
+
+  case class ServiceTerminate(processInstanceIdentical: String, serviceId: ServiceID, serviceName: String)
+
+  case class StateManager(stateId: Int)
+
+  case class ServiceListAnswer(serviceKey: Array[ServiceInstanceKey])
+
+  case class ServiceNameToServiceIdMap(serviceName: String, serviceID: String)
+
+  case class ServiceInstanceQuery(serviceName: String, serviceInstanceId: String)
+
+  case object Info
+
+  case class DeleteService (serviceID: Int)
+
+  case class ServiceInstanceDetailedInfo(
+                                          description: String,
+                                          serviceName: String,
+                                          serviceId: String,
+                                          inputPool: Int,
+                                          url: AgentAddress,
+                                          relatedSubject: Option[List[String]],
+                                          currentStates: List[State],
+                                          messageInformation: List[Tuple4[String, String, String, String]]
+                                          )
 
   case class UploadService(serviceId: String, serviceClassName: String, serviceClasses: ServiceClasses, serviceJsonName: String, serviceJson: ServiceJson)
 

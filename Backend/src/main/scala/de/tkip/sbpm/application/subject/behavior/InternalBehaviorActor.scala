@@ -86,6 +86,7 @@ class InternalBehaviorActor(
   private var internalStatus: InternalStatus = InternalStatus()
   private var modalSplitList: Stack[(Int, Int)] = new Stack // tmp
 
+
   def wrappedReceive = {
     case state: State => {
       addStateToModel(state)
@@ -100,7 +101,7 @@ class InternalBehaviorActor(
         (id, state) <- currentStatesMap;
         if (!statesMap(id).observerState)
       ) {
-        state ! DisableState
+        state ! DisableState // """""""""""""
       }
 
     }
@@ -131,6 +132,7 @@ class InternalBehaviorActor(
       // TODO check if current state is correct?
       // change the state
       changeState(change.currenState, change.nextState)
+
       val current: State = statesMap(change.currenState)
       val next: State = statesMap(change.nextState)
       if (next.stateType == StateType.ArchiveStateType) {
@@ -238,6 +240,7 @@ class InternalBehaviorActor(
     case msg: SubjectToSubjectMessage => {
       context.parent.forward(msg)
     }
+
 
     case n => {
       log.error("InternalBehavior - Not yet supported: " + n + " " + subjectID)

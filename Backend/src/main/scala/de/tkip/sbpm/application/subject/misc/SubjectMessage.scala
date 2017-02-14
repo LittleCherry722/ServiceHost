@@ -46,8 +46,12 @@ case class SubjectToSubjectMessage(
                                     messageType: MessageType,
                                     messageContent: MessageContent,
                                     fileID: Option[String] = None,
+                                    var enabled: Boolean = false,
+                                    var correlationId: String = "0",  //TEST CORRELATION
                                     var fileInfo: Option[GDriveFileInfo] = None,
-                                    var processInstanceIdentical: Option[String] = None) extends MessageObject {
+                                    var processInstanceIdentical: Option[String] = None
+
+                                    ) extends MessageObject {
 
   def to = target.subjectID
 
@@ -59,8 +63,16 @@ case class SubjectToSubjectMessage(
 // acknowledge, that a message is stored in the input pool
 case class Stored(messageID: MessageID) extends MessageObject
 
+// acknowledge, that a message has been enabled
+case class Enabled(messageID: MessageID) extends MessageObject
+
+// acknowledge, that a message has been stored in the overflow pool
+case class Overflow(messageID: MessageID) extends MessageObject
+
 // acknowledge, that the message was rejected by the input pool
 case class Rejected(messageID: MessageID) extends MessageObject
+// acknowledge, that the message was reopen by the inputPool of ServiceHost
+case class ReopenFromServiceHost(channelID: ChannelID) extends MessageObject
 
 // TODO richtig einordnern
 case class SubjectTerminated(userID: UserID, subjectID: SubjectID)
